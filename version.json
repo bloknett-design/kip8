@@ -1,0 +1,16 @@
+{
+  "version": "2025.05.23.1",
+  "files": [
+    "index.html",
+    "app.js",
+    "styles.css",
+    "manifest.json",
+    "sw.js",
+    "offline.html",
+    "nist_coefficients.json",
+    "icon.png",
+    "logo.png",
+    "buoy_with.png",
+    "buoy_without.png"
+  ]
+}
