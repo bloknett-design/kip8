@@ -21,7 +21,7 @@
 <meta name="apple-mobile-web-app-title" content="КИП">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
 <link rel="shortcut icon" type="image/png" sizes="192x192" href="icon-192x192.png">
-<link rel="apple-touch-icon" href="icon.png?v=2">
+<link rel="apple-touch-icon" href="icon.png?v=3">
 <link rel="manifest" href="manifest.json">
 <title>КИП и А</title>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -70,7 +70,7 @@
 <div class="header-btn" id="menuBtn" onclick="toggleSidebar()" style="margin-right:6px;display:none;" aria-label="Открыть меню">
     <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:rgba(74,143,199,0.9);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </div>
-<div class="logo-border-animated"><img class="header-logo" src="logo.png?v=2" alt="КИП" style="width:40px;height:40px;border-radius:10px;cursor:pointer;" onclick="event.stopPropagation(); toggleSidebar();"></div>
+<div class="logo-border-animated"><img class="header-logo" src="logo.png?v=3" alt="КИП" style="width:40px;height:40px;border-radius:10px;cursor:pointer;" onclick="event.stopPropagation(); toggleSidebar();"></div>
                 <div>
                     <div class="header-title" style="display:flex;align-items:center;height:40px;">КИП и А</div>
                                     </div>
@@ -890,8 +890,8 @@
             <div class="page-inline-header"><div class="page-inline-header-title">Калибровка буйкового уровнемера</div></div>
     <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')" aria-label="Главная"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()" aria-label="Назад"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
             <div class="buoy-select-container">
-                <div class="buoy-card" onclick="selectCalibMethod('with_buoy')"><div class="buoy-card-inner"><div class="buoy-illustration" style="background: rgba(23,33,43,0.5); display: flex; justify-content: center; align-items: center; min-height: 160px;"><img src="buoy_with.png?v=2" alt="С буйком" style="max-width: 100%; max-height: 160px; object-fit: contain; filter: sepia(0.3) hue-rotate(180deg) saturate(0.8); opacity: 0.9;"></div><div class="buoy-card-body"><div class="buoy-card-title">С буйком</div><div class="buoy-card-desc">Компенсационный метод калибровки<br><span class="formula-inline">m<sub>гири</sub> = m<sub>выт</sub> + m<sub>подвеса</sub></span></div></div></div></div>
-                <div class="buoy-card" onclick="selectCalibMethod('without_buoy')"><div class="buoy-card-inner"><div class="buoy-illustration" style="background: rgba(23,33,43,0.5); display: flex; justify-content: center; align-items: center; min-height: 160px;"><img src="buoy_without.png?v=2" alt="Без буйка" style="max-width: 100%; max-height: 160px; object-fit: contain; filter: sepia(0.3) hue-rotate(180deg) saturate(0.8); opacity: 0.9;"></div><div class="buoy-card-body"><div class="buoy-card-title">Без буйка</div><div class="buoy-card-desc">Имитация выталкивающей силы гирями<br><span class="formula-inline">m<sub>гири</sub> = m<sub>буйка</sub> − m<sub>выт</sub> + m<sub>подвеса</sub></span></div></div></div></div>
+                <div class="buoy-card" onclick="selectCalibMethod('with_buoy')"><div class="buoy-card-inner"><div class="buoy-illustration" style="background: rgba(23,33,43,0.5); display: flex; justify-content: center; align-items: center; min-height: 160px;"><img src="buoy_with.png?v=3" alt="С буйком" style="max-width: 100%; max-height: 160px; object-fit: contain; filter: sepia(0.3) hue-rotate(180deg) saturate(0.8); opacity: 0.9;"></div><div class="buoy-card-body"><div class="buoy-card-title">С буйком</div><div class="buoy-card-desc">Компенсационный метод калибровки<br><span class="formula-inline">m<sub>гири</sub> = m<sub>выт</sub> + m<sub>подвеса</sub></span></div></div></div></div>
+                <div class="buoy-card" onclick="selectCalibMethod('without_buoy')"><div class="buoy-card-inner"><div class="buoy-illustration" style="background: rgba(23,33,43,0.5); display: flex; justify-content: center; align-items: center; min-height: 160px;"><img src="buoy_without.png?v=3" alt="Без буйка" style="max-width: 100%; max-height: 160px; object-fit: contain; filter: sepia(0.3) hue-rotate(180deg) saturate(0.8); opacity: 0.9;"></div><div class="buoy-card-body"><div class="buoy-card-title">Без буйка</div><div class="buoy-card-desc">Имитация выталкивающей силы гирями<br><span class="formula-inline">m<sub>гири</sub> = m<sub>буйка</sub> − m<sub>выт</sub> + m<sub>подвеса</sub></span></div></div></div></div>
             </div>
             <div class="page-bottom-bg"><div class="page-bottom-text">КИП и А · Буйковый уровнемер · Выбор метода</div></div>
         </div>
