@@ -778,12 +778,13 @@
         border-radius: 12px; margin: 0 auto; touch-action: none;
         -webkit-user-select: none; user-select: none;
         -webkit-touch-callout: none;
+        max-width: 100%;
     }
     .ms-board-center { display: flex; justify-content: center; }
     .ms-cell {
-        width: 32px; height: 32px; border-radius: 4px;
+        border-radius: 4px;
         display: flex; align-items: center; justify-content: center;
-        font-size: 14px; font-weight: 700; cursor: pointer;
+        font-weight: 700; cursor: pointer;
         transition: all 0.1s; position: relative;
         touch-action: none; -webkit-tap-highlight-color: transparent;
         -webkit-touch-callout: none;
@@ -828,8 +829,8 @@
     .ms-num-6 { color: #4ac7c7; }
     .ms-num-7 { color: #c74a96; }
     .ms-num-8 { color: rgba(255,255,255,0.4); }
-    .ms-flag-icon { color: #c7964a; font-size: 14px; }
-    .ms-mine-icon { color: #c74a4a; font-size: 16px; }
+    .ms-flag-icon { color: #c7964a; }
+    .ms-mine-icon { color: #c74a4a; }
     .ms-game-over-overlay {
         position: absolute; top: 0; left: 0; right: 0; bottom: 0;
         background: rgba(14,22,33,0.85); backdrop-filter: blur(4px);
@@ -927,8 +928,7 @@
     [data-theme="light"] .ms-face-btn { background: rgba(255,255,255,0.5); border-color: rgba(37,99,235,0.2); }
 
     @media (max-width: 400px) {
-        .ms-cell { width: 28px; height: 28px; font-size: 12px; }
-        .ms-board { gap: 1px; padding: 6px; }
+        .ms-board { padding: 4px; }
     }
 
     /* Prefers-reduced-motion: disable animations */
@@ -1026,7 +1026,7 @@
                     <div class="ms-face-btn" id="msFaceBtn" onclick="msInit()">😊</div>
                     <div class="ms-timer"><span id="msTimer">000</span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
                 </div>
-                <div style="overflow-x:auto; -webkit-overflow-scrolling:touch; display:flex; justify-content:center;">
+                <div style="display:flex; justify-content:center;">
                     <div class="ms-board-center" style="position:relative; flex-shrink:0;">
                         <div class="ms-board" id="msBoard"></div>
                         <div class="ms-game-over-overlay" id="msOverlay" style="display:none;">
@@ -1863,28 +1863,44 @@
         }
     }
 
+    function msCalcCellSize() {
+        const containerPad = 32;  // ms-container: padding 10px*2 + margin
+        const boardPad = window.innerWidth <= 400 ? 8 : 16; // ms-board padding 4px*2 or 8px*2
+        const gapSize = window.innerWidth <= 400 ? 1 : 2;
+        const availW = window.innerWidth - containerPad - boardPad;
+        const cellSz = Math.floor((availW - (msCols - 1) * gapSize) / msCols);
+        return Math.max(cellSz, 20); // minimum 20px for tappability
+    }
+
     function msRender() {
         let board = document.getElementById('msBoard');
-        board.style.gridTemplateColumns = `repeat(${msCols}, 32px)`;
+        const cellSize = msCalcCellSize();
+        const fontSize = cellSize <= 24 ? 10 : cellSize <= 28 ? 12 : 14;
+        const gapSize = window.innerWidth <= 400 ? 1 : 2;
+        board.style.gridTemplateColumns = `repeat(${msCols}, ${cellSize}px)`;
+        board.style.gap = gapSize + 'px';
         board.innerHTML = '';
         for (let r = 0; r < msRows; r++) {
             for (let c = 0; c < msCols; c++) {
                 let cell = document.createElement('div');
                 cell.className = 'ms-cell';
                 cell.dataset.r = r; cell.dataset.c = c;
+                cell.style.width = cellSize + 'px';
+                cell.style.height = cellSize + 'px';
+                cell.style.fontSize = fontSize + 'px';
 
                 if (msRevealed[r][c]) {
                     cell.classList.add('ms-cell-revealed');
                     if (msBoard[r][c] === -1) {
                         cell.classList.add(msGameOver ? 'ms-cell-mine-hit' : 'ms-cell-mine');
-                        cell.innerHTML = '<span class="ms-mine-icon">●</span>';
+                        cell.innerHTML = '<span class="ms-mine-icon" style="font-size:' + Math.round(cellSize * 0.55) + 'px">●</span>';
                     } else if (msBoard[r][c] > 0) {
                         cell.classList.add('ms-num-' + msBoard[r][c]);
                         cell.textContent = msBoard[r][c];
                     }
                 } else if (msFlagged[r][c]) {
                     cell.classList.add('ms-cell-hidden', 'ms-cell-flagged');
-                    cell.innerHTML = '<span class="ms-flag-icon">⚑</span>';
+                    cell.innerHTML = '<span class="ms-flag-icon" style="font-size:' + Math.round(cellSize * 0.5) + 'px">⚑</span>';
                 } else {
                     cell.classList.add('ms-cell-hidden');
                 }
@@ -1932,15 +1948,14 @@
                 board.appendChild(cell);
             }
         }
-        // Adjust cell size for smaller screens
-        if (msCols > 12 && window.innerWidth < 420) {
-            board.style.gridTemplateColumns = `repeat(${msCols}, 22px)`;
-            board.querySelectorAll('.ms-cell').forEach(c => { c.style.width = '22px'; c.style.height = '22px'; c.style.fontSize = '11px'; });
-        } else if (msCols > 9 && window.innerWidth < 420) {
-            board.style.gridTemplateColumns = `repeat(${msCols}, 26px)`;
-            board.querySelectorAll('.ms-cell').forEach(c => { c.style.width = '26px'; c.style.height = '26px'; c.style.fontSize = '12px'; });
-        }
     }
+
+    // Recalculate cell sizes on resize/orientation change
+    window.addEventListener('resize', function() {
+        if (document.getElementById('page-minesweeper').classList.contains('active')) {
+            msRender();
+        }
+    });
 
     function msReveal(r, c) {
         if (msGameOver || msRevealed[r][c] || msFlagged[r][c]) return;
