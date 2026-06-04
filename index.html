@@ -740,7 +740,7 @@
         gap: 8px;
     }
     .ms-left {
-        display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+        display: flex; align-items: center; gap: 8px; flex-shrink: 1; min-width: 0;
     }
     .ms-counter {
         display: flex; align-items: center; gap: 5px;
@@ -767,16 +767,16 @@
         border-radius: 10px;
         color: #4a8fc7; font-size: 13px; font-weight: 600;
         font-family: 'Inter', sans-serif;
-        padding: 8px 28px 8px 10px;
+        padding: 8px 24px 8px 8px;
         cursor: pointer; outline: none;
         -webkit-appearance: none; appearance: none;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%234a8fc7'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
-        background-position: right 10px center;
+        background-position: right 8px center;
         background-size: 10px 6px;
         touch-action: manipulation;
         min-height: 38px;
-        max-width: 140px;
+        flex-shrink: 0;
     }
     .ms-diff-select:focus { border-color: rgba(74,143,199,0.5); box-shadow: 0 0 0 3px rgba(74,143,199,0.12); }
     .ms-diff-select option {
@@ -1030,9 +1030,9 @@
                         <div class="ms-timer"><span id="msTimer">000</span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
                     </div>
                     <select class="ms-diff-select" id="msDiffSelect" onchange="msSetDifficulty(this.value)">
-                        <option value="easy" selected>Легко 9x9</option>
-                        <option value="medium">Средне 12x12</option>
-                        <option value="hard">Сложно 16x16</option>
+                        <option value="easy" selected>9x9</option>
+                        <option value="medium">9x16</option>
+                        <option value="hard">9x28</option>
                     </select>
                 </div>
                 <div style="display:flex; justify-content:center;">
@@ -1816,8 +1816,8 @@
 
     const msDifficulties = {
         easy: { cols: 9, rows: 9, mines: 10 },
-        medium: { cols: 12, rows: 12, mines: 30 },
-        hard: { cols: 16, rows: 16, mines: 55 }
+        medium: { cols: 9, rows: 16, mines: 25 },
+        hard: { cols: 9, rows: 28, mines: 45 }
     };
 
     function msSetDifficulty(diff) {
