@@ -791,7 +791,11 @@
         -webkit-touch-callout: none;
         max-width: 100%;
     }
-    .ms-board-center { display: flex; justify-content: center; }
+    .ms-board-center { display: flex; justify-content: flex-start; }
+    .ms-board-scroll-spacer {
+        width: 36px; flex-shrink: 0;
+        touch-action: pan-y; -webkit-touch-callout: none;
+    }
     .ms-cell {
         border-radius: 4px;
         display: flex; align-items: center; justify-content: center;
@@ -992,7 +996,7 @@
 <div class="header-btn" id="menuBtn" onclick="toggleSidebar()" style="margin-right:6px;display:none;">
     <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:rgba(74,143,199,0.9);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </div>
-<img class="header-logo" src="logo.png" alt="КИП" style="width:48px;height:48px;border-radius:12px;cursor:pointer;" onclick="event.stopPropagation(); toggleSidebar();">
+<img class="header-logo" id="headerLogo" src="logo_black.png" alt="КИП" style="width:48px;height:48px;border-radius:12px;cursor:pointer;" onclick="event.stopPropagation(); toggleSidebar();">
                 <div>
                     <div class="header-title">КИПиА</div>
                 </div>
@@ -1035,7 +1039,7 @@
                         <option value="hard">9x28</option>
                     </select>
                 </div>
-                <div style="display:flex; justify-content:center;">
+                <div style="display:flex;">
                     <div class="ms-board-center" style="position:relative; flex-shrink:0;">
                         <div class="ms-board" id="msBoard"></div>
                         <div class="ms-game-over-overlay" id="msOverlay" style="display:none;">
@@ -1044,6 +1048,7 @@
                             <button class="ms-restart-btn" onclick="msInit()">Новая игра</button>
                         </div>
                     </div>
+                    <div class="ms-board-scroll-spacer"></div>
                 </div>
                 <div class="ms-hint">Нажмите — открыть клетку · Долгое нажатие — поставить флаг</div>
             </div>
@@ -1876,7 +1881,8 @@
         const containerPad = 32;  // ms-container: padding 10px*2 + margin
         const boardPad = window.innerWidth <= 400 ? 8 : 16; // ms-board padding 4px*2 or 8px*2
         const gapSize = window.innerWidth <= 400 ? 1 : 2;
-        const availW = window.innerWidth - containerPad - boardPad;
+        const scrollSpace = 36;   // scroll-spacer width for touch scrolling
+        const availW = window.innerWidth - containerPad - boardPad - scrollSpace;
         const cellSz = Math.floor((availW - (msCols - 1) * gapSize) / msCols);
         return Math.max(cellSz, 20); // minimum 20px for tappability
     }
@@ -3018,6 +3024,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         localStorage.setItem('app-theme', newTheme);
         updateThemeLabel();
         updateBuoyImages();
+        updateLogoImage();
     }
 
     function updateThemeLabel() {
@@ -3036,12 +3043,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         if (buoyWithoutImg) buoyWithoutImg.src = isLight ? 'buoy_without.png' : 'buoy_without_black.png';
     }
 
+    function updateLogoImage() {
+        var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        var logo = document.getElementById('headerLogo');
+        if (logo) logo.src = isLight ? 'logo.png' : 'logo_black.png';
+    }
+
     // Apply saved theme on load
     (function() {
         let savedTheme = localStorage.getItem('app-theme') || 'dark';
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeLabel();
         updateBuoyImages();
+        updateLogoImage();
     })();
 
     // Auto-detect system color scheme preference
@@ -3058,6 +3072,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
                 if (typeof updateThemeLabel === 'function') updateThemeLabel();
                 if (typeof updateBuoyImages === 'function') updateBuoyImages();
+                if (typeof updateLogoImage === 'function') updateLogoImage();
             }
         });
     })();
