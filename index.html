@@ -1021,9 +1021,9 @@
 </div>
 <img class="header-logo" id="headerLogo" src="logo_black.png" alt="КИП" style="width:40px;height:40px;border-radius:10px;cursor:pointer;" onclick="event.stopPropagation(); toggleSidebar();">
                 <div>
-<div class="header-title"><svg class="led-display" viewBox="0 0 356 90" xmlns="http://www.w3.org/2000/svg">
+<div class="header-title"><svg class="led-display" viewBox="0 0 362 88" xmlns="http://www.w3.org/2000/svg">
 <defs>
-  <linearGradient id="ledGradient" x1="0" y1="0" x2="356" y2="0" gradientUnits="userSpaceOnUse">
+  <linearGradient id="ledGradient" x1="0" y1="0" x2="362" y2="0" gradientUnits="userSpaceOnUse">
     <stop offset="0%" stop-color="#4a8fc7"><animate attributeName="stop-color" values="#4a8fc7;#7ab8e0;#7ae0a0;#c77ae0;#4ac771;#4a8fc7" dur="10s" repeatCount="indefinite"/></stop>
     <stop offset="25%" stop-color="#7ae0a0"><animate attributeName="stop-color" values="#7ae0a0;#c77ae0;#4ac771;#4a8fc7;#7ab8e0;#7ae0a0" dur="10s" repeatCount="indefinite"/></stop>
     <stop offset="50%" stop-color="#c77ae0"><animate attributeName="stop-color" values="#c77ae0;#4ac771;#4a8fc7;#7ab8e0;#7ae0a0;#c77ae0" dur="10s" repeatCount="indefinite"/></stop>
@@ -1031,59 +1031,60 @@
     <stop offset="100%" stop-color="#7ab8e0"><animate attributeName="stop-color" values="#7ab8e0;#7ae0a0;#c77ae0;#4ac771;#4a8fc7;#7ab8e0" dur="10s" repeatCount="indefinite"/></stop>
   </linearGradient>
 </defs>
-<!-- К: e+f+diag↗+diag↘ -->
-<g transform="translate(2,2)">
-  <polygon points="3,6 9,0 47,0 53,6 47,12 9,12" class="led-seg-off"/>
-  <polygon points="50,15 56,21 56,34 50,40 44,34 44,21" class="led-seg-off"/>
-  <polygon points="50,46 56,52 56,65 50,71 44,65 44,52" class="led-seg-off"/>
-  <polygon points="3,80 9,74 47,74 53,80 47,86 9,86" class="led-seg-off"/>
-  <polygon points="6,46 12,52 12,65 6,71 0,65 0,52" class="led-seg-on"/>
-  <polygon points="6,15 12,21 12,34 6,40 0,34 0,21" class="led-seg-on"/>
-  <polygon points="3,43 9,37 47,37 53,43 47,49 9,49" class="led-seg-off"/>
-  <polygon points="1,46 9,48 53,26 55,18 47,16 3,38" class="led-seg-on"/>
-  <polygon points="1,40 3,48 47,70 55,68 53,60 9,38" class="led-seg-on"/>
+<!-- Segments: a=top horiz, b=top-right vert, c=bot-right vert, d=bot horiz, e=bot-left vert, f=top-left vert, g=middle horiz -->
+<!-- К: e+f+diagUp+diagDown -->
+<g transform="translate(2,0)">
+  <polygon points="8,0 50,0 58,8 50,16 8,16 0,8" class="led-seg-off"/>
+  <polygon points="44,8 52,0 60,8 60,38 52,46 44,38" class="led-seg-off"/>
+  <polygon points="44,50 52,42 60,50 60,80 52,88 44,80" class="led-seg-off"/>
+  <polygon points="8,72 50,72 58,80 50,88 8,88 0,80" class="led-seg-off"/>
+  <polygon points="0,50 8,42 16,50 16,80 8,88 0,80" class="led-seg-on"/>
+  <polygon points="0,8 8,0 16,8 16,38 8,46 0,38" class="led-seg-on"/>
+  <polygon points="8,36 50,36 58,44 50,52 8,52 0,44" class="led-seg-off"/>
+  <polygon points="2,40 12,44 54,12 56,4 46,0 2,32" class="led-seg-on"/>
+  <polygon points="2,48 12,44 54,76 56,84 46,88 2,56" class="led-seg-on"/>
 </g>
-<!-- И: b+c+e+f+diag↙ -->
-<g transform="translate(76,2)">
-  <polygon points="3,6 9,0 47,0 53,6 47,12 9,12" class="led-seg-off"/>
-  <polygon points="50,15 56,21 56,34 50,40 44,34 44,21" class="led-seg-on"/>
-  <polygon points="50,46 56,52 56,65 50,71 44,65 44,52" class="led-seg-on"/>
-  <polygon points="3,80 9,74 47,74 53,80 47,86 9,86" class="led-seg-off"/>
-  <polygon points="6,46 12,52 12,65 6,71 0,65 0,52" class="led-seg-on"/>
-  <polygon points="6,15 12,21 12,34 6,40 0,34 0,21" class="led-seg-on"/>
-  <polygon points="3,43 9,37 47,37 53,43 47,49 9,49" class="led-seg-off"/>
-  <polygon points="54,17 46,17 2,61 2,69 10,69 54,25" class="led-seg-on"/>
+<!-- И: b+c+e+f+diagDownLeft -->
+<g transform="translate(76,0)">
+  <polygon points="8,0 50,0 58,8 50,16 8,16 0,8" class="led-seg-off"/>
+  <polygon points="44,8 52,0 60,8 60,38 52,46 44,38" class="led-seg-on"/>
+  <polygon points="44,50 52,42 60,50 60,80 52,88 44,80" class="led-seg-on"/>
+  <polygon points="8,72 50,72 58,80 50,88 8,88 0,80" class="led-seg-off"/>
+  <polygon points="0,50 8,42 16,50 16,80 8,88 0,80" class="led-seg-on"/>
+  <polygon points="0,8 8,0 16,8 16,38 8,46 0,38" class="led-seg-on"/>
+  <polygon points="8,36 50,36 58,44 50,52 8,52 0,44" class="led-seg-off"/>
+  <polygon points="58,40 48,44 6,76 4,84 14,88 58,56" class="led-seg-on"/>
 </g>
 <!-- П: a+b+c+e+f -->
-<g transform="translate(150,2)">
-  <polygon points="3,6 9,0 47,0 53,6 47,12 9,12" class="led-seg-on"/>
-  <polygon points="50,15 56,21 56,34 50,40 44,34 44,21" class="led-seg-on"/>
-  <polygon points="50,46 56,52 56,65 50,71 44,65 44,52" class="led-seg-on"/>
-  <polygon points="3,80 9,74 47,74 53,80 47,86 9,86" class="led-seg-off"/>
-  <polygon points="6,46 12,52 12,65 6,71 0,65 0,52" class="led-seg-on"/>
-  <polygon points="6,15 12,21 12,34 6,40 0,34 0,21" class="led-seg-on"/>
-  <polygon points="3,43 9,37 47,37 53,43 47,49 9,49" class="led-seg-off"/>
+<g transform="translate(150,0)">
+  <polygon points="8,0 50,0 58,8 50,16 8,16 0,8" class="led-seg-on"/>
+  <polygon points="44,8 52,0 60,8 60,38 52,46 44,38" class="led-seg-on"/>
+  <polygon points="44,50 52,42 60,50 60,80 52,88 44,80" class="led-seg-on"/>
+  <polygon points="8,72 50,72 58,80 50,88 8,88 0,80" class="led-seg-off"/>
+  <polygon points="0,50 8,42 16,50 16,80 8,88 0,80" class="led-seg-on"/>
+  <polygon points="0,8 8,0 16,8 16,38 8,46 0,38" class="led-seg-on"/>
+  <polygon points="8,36 50,36 58,44 50,52 8,52 0,44" class="led-seg-off"/>
 </g>
-<!-- и: c+e+diag↙ -->
-<g transform="translate(224,2)">
-  <polygon points="3,6 9,0 47,0 53,6 47,12 9,12" class="led-seg-off"/>
-  <polygon points="50,15 56,21 56,34 50,40 44,34 44,21" class="led-seg-off"/>
-  <polygon points="50,46 56,52 56,65 50,71 44,65 44,52" class="led-seg-on"/>
-  <polygon points="3,80 9,74 47,74 53,80 47,86 9,86" class="led-seg-off"/>
-  <polygon points="6,46 12,52 12,65 6,71 0,65 0,52" class="led-seg-on"/>
-  <polygon points="6,15 12,21 12,34 6,40 0,34 0,21" class="led-seg-off"/>
-  <polygon points="3,43 9,37 47,37 53,43 47,49 9,49" class="led-seg-off"/>
-  <polygon points="55,40 47,38 3,60 1,68 9,70 53,48" class="led-seg-on"/>
+<!-- и: c+e+diagDownLeft -->
+<g transform="translate(224,0)">
+  <polygon points="8,0 50,0 58,8 50,16 8,16 0,8" class="led-seg-off"/>
+  <polygon points="44,8 52,0 60,8 60,38 52,46 44,38" class="led-seg-off"/>
+  <polygon points="44,50 52,42 60,50 60,80 52,88 44,80" class="led-seg-on"/>
+  <polygon points="8,72 50,72 58,80 50,88 8,88 0,80" class="led-seg-off"/>
+  <polygon points="0,50 8,42 16,50 16,80 8,88 0,80" class="led-seg-on"/>
+  <polygon points="0,8 8,0 16,8 16,38 8,46 0,38" class="led-seg-off"/>
+  <polygon points="8,36 50,36 58,44 50,52 8,52 0,44" class="led-seg-off"/>
+  <polygon points="58,44 48,48 6,76 4,84 14,88 58,60" class="led-seg-on"/>
 </g>
 <!-- А: a+b+c+e+f+g -->
-<g transform="translate(298,2)">
-  <polygon points="3,6 9,0 47,0 53,6 47,12 9,12" class="led-seg-on"/>
-  <polygon points="50,15 56,21 56,34 50,40 44,34 44,21" class="led-seg-on"/>
-  <polygon points="50,46 56,52 56,65 50,71 44,65 44,52" class="led-seg-on"/>
-  <polygon points="3,80 9,74 47,74 53,80 47,86 9,86" class="led-seg-off"/>
-  <polygon points="6,46 12,52 12,65 6,71 0,65 0,52" class="led-seg-on"/>
-  <polygon points="6,15 12,21 12,34 6,40 0,34 0,21" class="led-seg-on"/>
-  <polygon points="3,43 9,37 47,37 53,43 47,49 9,49" class="led-seg-on"/>
+<g transform="translate(298,0)">
+  <polygon points="8,0 50,0 58,8 50,16 8,16 0,8" class="led-seg-on"/>
+  <polygon points="44,8 52,0 60,8 60,38 52,46 44,38" class="led-seg-on"/>
+  <polygon points="44,50 52,42 60,50 60,80 52,88 44,80" class="led-seg-on"/>
+  <polygon points="8,72 50,72 58,80 50,88 8,88 0,80" class="led-seg-off"/>
+  <polygon points="0,50 8,42 16,50 16,80 8,88 0,80" class="led-seg-on"/>
+  <polygon points="0,8 8,0 16,8 16,38 8,46 0,38" class="led-seg-on"/>
+  <polygon points="8,36 50,36 58,44 50,52 8,52 0,44" class="led-seg-on"/>
 </g>
 </svg></div>
                 </div>
