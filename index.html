@@ -240,7 +240,7 @@
         background-repeat: no-repeat;
         background-position: right 10px center;
         padding-right: 28px;
-        font-size: 12px;
+        font-size: 6px;
         line-height: 1.2;
         white-space: nowrap;
         overflow: hidden;
@@ -251,16 +251,16 @@
         padding-bottom: 10px;
     }
     select.scale-field option, select.form-field option, select.ms-diff-select option {
-        font-size: 12px;
+        font-size: 6px;
         line-height: 1.2;
         padding: 3px 6px;
         white-space: nowrap;
     }
     select.scale-field optgroup, select.form-field optgroup {
         font-weight: 700;
-        font-size: 11px;
+        font-size: 6px;
         color: rgba(74, 143, 199, 0.8);
-        padding: 4px 4px 2px;
+        padding: 0 4px 4px;
         white-space: nowrap;
         overflow: visible;
     }
@@ -428,10 +428,10 @@
         #page-dashboard .menu-btn-sublabel { font-size: 12px; }
         .nav-btn { padding: 9px 14px; font-size: 13px; }
         .form-field, .scale-field { padding: 9px 12px; font-size: 14px; height: 40px; }
-        select.scale-field, select.form-field { font-size: 11px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
-        .kit-dev-form .scale-field { height: 36px !important; padding: 6px 8px !important; font-size: 11px !important; }
-        .kit-dev-form select.scale-field { min-height: 36px !important; height: 36px !important; font-size: 11px !important; }
-        select.scale-field option, select.form-field option, select.ms-diff-select option { font-size: 11px; }
+        select.scale-field, select.form-field { font-size: 6px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
+        .kit-dev-form .scale-field { height: 36px !important; padding: 6px 8px !important; font-size: 6px !important; }
+        .kit-dev-form select.scale-field { min-height: 36px !important; height: 36px !important; font-size: 6px !important; }
+        select.scale-field option, select.form-field option, select.ms-diff-select option { font-size: 6px; }
         .warning-banner { margin: 8px 12px 0; padding: 10px 12px; }
         .buoy-card-title { font-size: 22px; }
         .buoy-card-desc { font-size: 12px; }
@@ -448,10 +448,10 @@
         .nav-btn { padding: 8px 12px; font-size: 12px; gap: 5px; }
         .nav-btn svg { width: 12px; height: 12px; }
         .form-field, .scale-field { padding: 8px 10px; font-size: 13px; height: 38px; }
-        select.scale-field, select.form-field { font-size: 11px; height: 38px; min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
-        .kit-dev-form .scale-field { height: 34px !important; padding: 5px 8px !important; font-size: 11px !important; }
-        .kit-dev-form select.scale-field { min-height: 34px !important; height: 34px !important; font-size: 10px !important; }
-        select.scale-field option, select.form-field option, select.ms-diff-select option { font-size: 11px; }
+        select.scale-field, select.form-field { font-size: 6px; height: 38px; min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
+        .kit-dev-form .scale-field { height: 34px !important; padding: 5px 8px !important; font-size: 6px !important; }
+        .kit-dev-form select.scale-field { min-height: 34px !important; height: 34px !important; font-size: 5px !important; }
+        select.scale-field option, select.form-field option, select.ms-diff-select option { font-size: 6px; }
         .bottom-nav-item { min-width: 52px; padding: 5px 2px; }
         .bottom-nav-label { font-size: 10px; }
         .buoy-card-title { font-size: 20px; }
@@ -1856,7 +1856,7 @@
         <div id="page-error-temp-tc" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-title">Термопары (ТП)</div></div>
     <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
-            <div class="scale-form"><div class="scale-form-label">Тип термопары</div><select id="tc_type" class="scale-field" onchange="updateTcRanges()" autocomplete="off"><option value="K" selected>K</option><option value="J">J</option><option value="T">T</option><option value="N">N</option><option value="E">E</option><option value="R">R</option><option value="S">S</option><option value="B">B</option></select>
+            <div class="scale-form"><div class="scale-form-label">Тип термопары</div><select id="tc_type" class="scale-field" onchange="updateTcRanges()" autocomplete="off"><option value="K" selected>K (ТХА)</option><option value="J">J (ТЖК)</option><option value="T">T (ТМК)</option><option value="N">N (ТНН)</option><option value="E">E (ТХКн)</option><option value="R">R (ТПП)</option><option value="S">S (ТПП)</option><option value="B">B (ТПР)</option></select>
             <div class="scale-form-label">Класс точности</div><select id="tc_class" class="scale-field" onchange="updateTcRanges()" autocomplete="off"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select>
             <div class="scale-form-label">Температура (t), °C</div><input type="text" inputmode="text" id="tc_temperature" class="scale-field" value="100" placeholder="температура в °C" autocomplete="off" enterkeyhint="done">
             <div id="tc_range_warning" style="color:#c7964a; font-size:11px; margin-top:4px; padding-left:4px; display:none;"></div></div>
@@ -2711,16 +2711,8 @@
             history.back();
             return;
         }
-        if (pageHistory.length) {
-            let prev = pageHistory.pop();
-            isNavigating = true;
-            history.back();
-            navigateTo(prev, false);
-        } else {
-            isNavigating = true;
-            history.back();
-            navigateTo('dashboard', false);
-        }
+        // Только history.back() — навигацию выполнит обработчик popstate
+        history.back();
     }
     // Обработчик системной кнопки «Назад»
     window.addEventListener('popstate', function(e) {
