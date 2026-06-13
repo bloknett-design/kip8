@@ -1666,9 +1666,9 @@
             <div class="scale-form">
                 <div class="scale-form-label">Тип сужающего устройства</div>
                 <select id="op_dp_device_type" class="scale-field" autocomplete="off">
-                    <option value="orifice" selected data-hint="ГОСТ 8.586">Диафрагма</option>
-                    <option value="nozzle" data-hint="ГОСТ 8.586">Сопло стандартное</option>
-                    <option value="venturi" data-hint="ГОСТ 8.586">Труба Вентури</option>
+                    <option value="orifice" selected>Диафрагма</option>
+                    <option value="nozzle">Сопло стандартное</option>
+                    <option value="venturi">Труба Вентури</option>
                 </select>
             </div>
 
@@ -1768,9 +1768,9 @@
             <div class="scale-form">
                 <div class="scale-form-label">Тип сужающего устройства</div>
                 <select id="op_flow_device_type" class="scale-field" autocomplete="off">
-                    <option value="orifice" selected data-hint="ГОСТ 8.586">Диафрагма</option>
-                    <option value="nozzle" data-hint="ГОСТ 8.586">Сопло стандартное</option>
-                    <option value="venturi" data-hint="ГОСТ 8.586">Труба Вентури</option>
+                    <option value="orifice" selected>Диафрагма</option>
+                    <option value="nozzle">Сопло стандартное</option>
+                    <option value="venturi">Труба Вентури</option>
                 </select>
             </div>
 
@@ -1889,9 +1889,9 @@
             <div class="scale-form">
                 <div class="scale-form-label">Тип сужающего устройства</div>
                 <select id="op_device_type" class="scale-field" autocomplete="off">
-                    <option value="orifice" selected data-hint="ГОСТ 8.586">Диафрагма</option>
-                    <option value="nozzle" data-hint="ГОСТ 8.586">Сопло стандартное</option>
-                    <option value="venturi" data-hint="ГОСТ 8.586">Труба Вентури</option>
+                    <option value="orifice" selected>Диафрагма</option>
+                    <option value="nozzle">Сопло стандартное</option>
+                    <option value="venturi">Труба Вентури</option>
                 </select>
             </div>
 
@@ -1992,17 +1992,17 @@
                 <input type="hidden" id="ep_class_form" value="number">
                 <div class="scale-form-label">Класс точности <span class="greek-gamma">γ</span> (%)</div>
                 <select id="ep_class_val" class="scale-field" onchange="toggleEpCustomClass()" autocomplete="off">
-                    <option value="0.05" data-hint="ГОСТ 8.401">0,05</option>
-                    <option value="0.06" data-hint="ГОСТ 8.401">0,06</option>
-                    <option value="0.1" data-hint="ГОСТ 8.401">0,1</option>
-                    <option value="0.15" data-hint="ГОСТ 8.401">0,15</option>
-                    <option value="0.2" data-hint="ГОСТ 8.401">0,2</option>
-                    <option value="0.25" data-hint="ГОСТ 8.401">0,25</option>
-                    <option value="0.5" selected data-hint="ГОСТ 8.401">0,5</option>
-                    <option value="1.0" data-hint="ГОСТ 8.401">1,0</option>
-                    <option value="1.5" data-hint="ГОСТ 8.401">1,5</option>
-                    <option value="2.5" data-hint="ГОСТ 8.401">2,5</option>
-                    <option value="4.0" data-hint="ГОСТ 8.401">4,0</option>
+                    <option value="0.05">0,05</option>
+                    <option value="0.06">0,06</option>
+                    <option value="0.1">0,1</option>
+                    <option value="0.15">0,15</option>
+                    <option value="0.2">0,2</option>
+                    <option value="0.25">0,25</option>
+                    <option value="0.5" selected>0,5</option>
+                    <option value="1.0">1,0</option>
+                    <option value="1.5">1,5</option>
+                    <option value="2.5">2,5</option>
+                    <option value="4.0">4,0</option>
                     <option value="custom" data-hint="Вручную">Своё</option>
                 </select>
                 <div id="ep_class_val_custom_wrap" style="display:none;">
@@ -2017,7 +2017,7 @@
                 <div style="font-size:13px;font-weight:600;color:rgba(74,143,199,0.9);margin-bottom:8px;">Справочная информация</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Приведённая погрешность</b> (<span class="greek-gamma">γ</span>) — отношение абсолютной погрешности к нормирующему значению Xн, выраженное в процентах. Класс точности датчика давления, обозначенный числом (без дополнительных символов), указывает именно приведённую погрешность.</p>
-                    <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Нормирующее значение Xн:</b> при односторонней шкале (НПИ ≥ 0) Xн = ВПИ; при двусторонней шкале Xн = |ВПИ| + |НПИ|.</p>
+                    <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Нормирующее значение Xн:</b> при НПИ = 0 Xн = ВПИ; при НПИ ≠ 0 Xн = ВПИ − НПИ (диапазон измерения).</p>
                     <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Расчёт:</b> Δ = ±(<span class="greek-gamma">γ</span>/100) · Xн, где <span class="greek-gamma">γ</span> — класс точности (%), Xн — нормирующее значение. Рассчитанная абсолютная погрешность выражается в тех же единицах измерения, что и измеряемая величина (МПа, кПа, бар, кгс/см² и т.д.).</p>
                     <p><b style="color:rgba(255,255,255,0.65);">Нормативный документ:</b> ГОСТ 8.401-80 «ГСИ. Классы точности средств измерений. Общие требования».</p>
                 </div>
@@ -2075,16 +2075,16 @@
                 <input type="hidden" id="ef_class_form" value="circle">
                 <div class="scale-form-label">Класс точности <span class="greek-delta">δ</span> (%)</div>
                 <select id="ef_class_val" class="scale-field" onchange="toggleEfCustomClass()" autocomplete="off">
-                    <option value="0.1" data-hint="ГОСТ 8.401">0,1</option>
-                    <option value="0.15" data-hint="ГОСТ 8.401">0,15</option>
-                    <option value="0.2" data-hint="ГОСТ 8.401">0,2</option>
-                    <option value="0.25" data-hint="ГОСТ 8.401">0,25</option>
-                    <option value="0.5" data-hint="ГОСТ 8.401">0,5</option>
-                    <option value="1.0" selected data-hint="ГОСТ 8.401">1,0</option>
-                    <option value="1.5" data-hint="ГОСТ 8.401">1,5</option>
-                    <option value="2.0" data-hint="ГОСТ 8.401">2,0</option>
-                    <option value="2.5" data-hint="ГОСТ 8.401">2,5</option>
-                    <option value="4.0" data-hint="ГОСТ 8.401">4,0</option>
+                    <option value="0.1">0,1</option>
+                    <option value="0.15">0,15</option>
+                    <option value="0.2">0,2</option>
+                    <option value="0.25">0,25</option>
+                    <option value="0.5">0,5</option>
+                    <option value="1.0" selected>1,0</option>
+                    <option value="1.5">1,5</option>
+                    <option value="2.0">2,0</option>
+                    <option value="2.5">2,5</option>
+                    <option value="4.0">4,0</option>
                     <option value="custom" data-hint="Вручную">Своё</option>
                 </select>
                 <div id="ef_class_val_custom_wrap" style="display:none;">
@@ -2113,16 +2113,16 @@
                 <input type="hidden" id="el_class_form" value="number">
                 <div class="scale-form-label">Класс точности <span class="greek-gamma">γ</span> (%)</div>
                 <select id="el_class_val" class="scale-field" onchange="toggleElCustomClass()" autocomplete="off">
-                    <option value="0.05" data-hint="ГОСТ 8.401">0,05</option>
-                    <option value="0.1" data-hint="ГОСТ 8.401">0,1</option>
-                    <option value="0.15" data-hint="ГОСТ 8.401">0,15</option>
-                    <option value="0.2" data-hint="ГОСТ 8.401">0,2</option>
-                    <option value="0.25" data-hint="ГОСТ 8.401">0,25</option>
-                    <option value="0.5" selected data-hint="ГОСТ 8.401">0,5</option>
-                    <option value="1.0" data-hint="ГОСТ 8.401">1,0</option>
-                    <option value="1.5" data-hint="ГОСТ 8.401">1,5</option>
-                    <option value="2.5" data-hint="ГОСТ 8.401">2,5</option>
-                    <option value="4.0" data-hint="ГОСТ 8.401">4,0</option>
+                    <option value="0.05">0,05</option>
+                    <option value="0.1">0,1</option>
+                    <option value="0.15">0,15</option>
+                    <option value="0.2">0,2</option>
+                    <option value="0.25">0,25</option>
+                    <option value="0.5" selected>0,5</option>
+                    <option value="1.0">1,0</option>
+                    <option value="1.5">1,5</option>
+                    <option value="2.5">2,5</option>
+                    <option value="4.0">4,0</option>
                     <option value="custom" data-hint="Вручную">Своё</option>
                 </select>
                 <div id="el_class_val_custom_wrap" style="display:none;">
@@ -2137,7 +2137,7 @@
                 <div style="font-size:13px;font-weight:600;color:rgba(74,143,199,0.9);margin-bottom:8px;">Справочная информация</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Приведённая погрешность</b> (<span class="greek-gamma">γ</span>) — отношение абсолютной погрешности к нормирующему значению Xн, выраженное в процентах. Класс точности уровнемера, обозначенный числом (без дополнительных символов), указывает именно приведённую погрешность.</p>
-                    <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Нормирующее значение Xн:</b> при односторонней шкале (НПИ ≥ 0) Xн = ВПИ; при двусторонней шкале Xн = |ВПИ| + |НПИ|.</p>
+                    <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Нормирующее значение Xн:</b> при НПИ = 0 Xн = ВПИ; при НПИ ≠ 0 Xн = ВПИ − НПИ (диапазон измерения).</p>
                     <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Расчёт:</b> Δ = ±(<span class="greek-gamma">γ</span>/100) · Xн, где <span class="greek-gamma">γ</span> — класс точности (%), Xн — нормирующее значение. Рассчитанная абсолютная погрешность выражается в тех же единицах измерения, что и измеряемая величина (мм, см, м, % и т.д.).</p>
                     <p><b style="color:rgba(255,255,255,0.65);">Нормативный документ:</b> ГОСТ 8.401-80 «ГСИ. Классы точности средств измерений. Общие требования».</p>
                 </div>
@@ -2164,17 +2164,17 @@
                 <div style="text-align:center;margin-bottom:12px;"><span style="font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:rgba(74,143,199,0.9);">0,5</span></div>
                 <div class="scale-form-label">Класс точности <span class="greek-gamma">γ</span> (%)</div>
                 <select id="egn_class_val" class="scale-field" onchange="toggleEgnCustomClass()" autocomplete="off">
-                    <option value="0.05" data-hint="ГОСТ 8.401">0,05</option>
-                    <option value="0.06" data-hint="ГОСТ 8.401">0,06</option>
-                    <option value="0.1" data-hint="ГОСТ 8.401">0,1</option>
-                    <option value="0.15" data-hint="ГОСТ 8.401">0,15</option>
-                    <option value="0.2" data-hint="ГОСТ 8.401">0,2</option>
-                    <option value="0.25" data-hint="ГОСТ 8.401">0,25</option>
-                    <option value="0.5" selected data-hint="ГОСТ 8.401">0,5</option>
-                    <option value="1.0" data-hint="ГОСТ 8.401">1,0</option>
-                    <option value="1.5" data-hint="ГОСТ 8.401">1,5</option>
-                    <option value="2.5" data-hint="ГОСТ 8.401">2,5</option>
-                    <option value="4.0" data-hint="ГОСТ 8.401">4,0</option>
+                    <option value="0.05">0,05</option>
+                    <option value="0.06">0,06</option>
+                    <option value="0.1">0,1</option>
+                    <option value="0.15">0,15</option>
+                    <option value="0.2">0,2</option>
+                    <option value="0.25">0,25</option>
+                    <option value="0.5" selected>0,5</option>
+                    <option value="1.0">1,0</option>
+                    <option value="1.5">1,5</option>
+                    <option value="2.5">2,5</option>
+                    <option value="4.0">4,0</option>
                     <option value="custom" data-hint="Вручную">Своё</option>
                 </select>
                 <div id="egn_class_val_custom_wrap" style="display:none;">
@@ -2189,7 +2189,7 @@
                 <div style="font-size:13px;font-weight:600;color:rgba(74,143,199,0.9);margin-bottom:8px;">Справочная информация</div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Приведённая погрешность</b> (<span class="greek-gamma">γ</span>) — отношение абсолютной погрешности к нормирующему значению Xн, выраженное в процентах. Класс точности, обозначенный числом (без дополнительных символов), указывает именно приведённую погрешность.</p>
-                    <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Нормирующее значение Xн:</b> при односторонней шкале (НПИ ≥ 0) Xн = ВПИ; при двусторонней шкале Xн = |ВПИ| + |НПИ|.</p>
+                    <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Нормирующее значение Xн:</b> при НПИ = 0 Xн = ВПИ; при НПИ ≠ 0 Xн = ВПИ − НПИ (диапазон измерения).</p>
                     <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Расчёт:</b> Δ = ±(<span class="greek-gamma">γ</span>/100) · Xн, где <span class="greek-gamma">γ</span> — класс точности (%), Xн — нормирующее значение. Рассчитанная абсолютная погрешность выражается в тех же единицах измерения, что и измеряемая величина.</p>
                     <p style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.65);">Примеры применения:</b> датчики давления (преобразователи избыточного, абсолютного давления, давления-разрежения), уровнемеры, преобразователи тока и напряжения с линейной шкалой, электромеханические приборы (вольтметры, амперметры с равномерной шкалой), манометры, напоромеры, тягомеры. Обозначение класса точности — просто число на шкале прибора (например, «0,5»), что означает <span class="greek-gamma">γ</span> = ±0,5%.</p>
                     <p><b style="color:rgba(255,255,255,0.65);">Нормативный документ:</b> ГОСТ 8.401-80 «ГСИ. Классы точности средств измерений. Общие требования».</p>
@@ -2205,17 +2205,17 @@
                 <div style="text-align:center;margin-bottom:12px;"><span style="font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:rgba(74,143,199,0.9);border-bottom:2px solid rgba(74,143,199,0.9);padding-bottom:2px;">0,5</span></div>
                 <div class="scale-form-label">Класс точности <span class="greek-gamma">γ</span> (%)</div>
                 <select id="egu_class_val" class="scale-field" onchange="toggleEguCustomClass()" autocomplete="off">
-                    <option value="0.05" data-hint="ГОСТ 8.401">0,05</option>
-                    <option value="0.06" data-hint="ГОСТ 8.401">0,06</option>
-                    <option value="0.1" data-hint="ГОСТ 8.401">0,1</option>
-                    <option value="0.15" data-hint="ГОСТ 8.401">0,15</option>
-                    <option value="0.2" data-hint="ГОСТ 8.401">0,2</option>
-                    <option value="0.25" data-hint="ГОСТ 8.401">0,25</option>
-                    <option value="0.5" selected data-hint="ГОСТ 8.401">0,5</option>
-                    <option value="1.0" data-hint="ГОСТ 8.401">1,0</option>
-                    <option value="1.5" data-hint="ГОСТ 8.401">1,5</option>
-                    <option value="2.5" data-hint="ГОСТ 8.401">2,5</option>
-                    <option value="4.0" data-hint="ГОСТ 8.401">4,0</option>
+                    <option value="0.05">0,05</option>
+                    <option value="0.06">0,06</option>
+                    <option value="0.1">0,1</option>
+                    <option value="0.15">0,15</option>
+                    <option value="0.2">0,2</option>
+                    <option value="0.25">0,25</option>
+                    <option value="0.5" selected>0,5</option>
+                    <option value="1.0">1,0</option>
+                    <option value="1.5">1,5</option>
+                    <option value="2.5">2,5</option>
+                    <option value="4.0">4,0</option>
                     <option value="custom" data-hint="Вручную">Своё</option>
                 </select>
                 <div id="egu_class_val_custom_wrap" style="display:none;">
@@ -2246,16 +2246,16 @@
                 <div style="text-align:center;margin-bottom:12px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:2.5px solid rgba(74,143,199,0.8);border-radius:50%;font-family:Georgia,'Times New Roman',serif;font-size:20px;font-weight:700;color:rgba(74,143,199,0.9);">0,5</span></div>
                 <div class="scale-form-label">Класс точности <span class="greek-delta">δ</span> (%)</div>
                 <select id="egc_class_val" class="scale-field" onchange="toggleEgcCustomClass()" autocomplete="off">
-                    <option value="0.1" data-hint="ГОСТ 8.401">0,1</option>
-                    <option value="0.15" data-hint="ГОСТ 8.401">0,15</option>
-                    <option value="0.2" data-hint="ГОСТ 8.401">0,2</option>
-                    <option value="0.25" data-hint="ГОСТ 8.401">0,25</option>
-                    <option value="0.5" selected data-hint="ГОСТ 8.401">0,5</option>
-                    <option value="1.0" data-hint="ГОСТ 8.401">1,0</option>
-                    <option value="1.5" data-hint="ГОСТ 8.401">1,5</option>
-                    <option value="2.0" data-hint="ГОСТ 8.401">2,0</option>
-                    <option value="2.5" data-hint="ГОСТ 8.401">2,5</option>
-                    <option value="4.0" data-hint="ГОСТ 8.401">4,0</option>
+                    <option value="0.1">0,1</option>
+                    <option value="0.15">0,15</option>
+                    <option value="0.2">0,2</option>
+                    <option value="0.25">0,25</option>
+                    <option value="0.5" selected>0,5</option>
+                    <option value="1.0">1,0</option>
+                    <option value="1.5">1,5</option>
+                    <option value="2.0">2,0</option>
+                    <option value="2.5">2,5</option>
+                    <option value="4.0">4,0</option>
                     <option value="custom" data-hint="Вручную">Своё</option>
                 </select>
                 <div id="egc_class_val_custom_wrap" style="display:none;">
@@ -2285,17 +2285,17 @@
                 <div style="text-align:center;margin-bottom:12px;"><span style="font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:rgba(74,143,199,0.9);"><sup style="font-size:18px;">c</sup>/<sub style="font-size:18px;">d</sub></span></div>
                 <div class="scale-form-label">c — аддитивная составляющая (%)</div>
                 <select id="egf_c_val" class="scale-field" onchange="toggleEgfCustomC()" autocomplete="off">
-                    <option value="0.005" data-hint="ГОСТ 8.401">0,005</option>
-                    <option value="0.01" data-hint="ГОСТ 8.401">0,01</option>
-                    <option value="0.015" data-hint="ГОСТ 8.401">0,015</option>
-                    <option value="0.02" selected data-hint="ГОСТ 8.401">0,02</option>
-                    <option value="0.025" data-hint="ГОСТ 8.401">0,025</option>
-                    <option value="0.05" data-hint="ГОСТ 8.401">0,05</option>
-                    <option value="0.1" data-hint="ГОСТ 8.401">0,1</option>
-                    <option value="0.15" data-hint="ГОСТ 8.401">0,15</option>
-                    <option value="0.2" data-hint="ГОСТ 8.401">0,2</option>
-                    <option value="0.25" data-hint="ГОСТ 8.401">0,25</option>
-                    <option value="0.5" data-hint="ГОСТ 8.401">0,5</option>
+                    <option value="0.005">0,005</option>
+                    <option value="0.01">0,01</option>
+                    <option value="0.015">0,015</option>
+                    <option value="0.02" selected>0,02</option>
+                    <option value="0.025">0,025</option>
+                    <option value="0.05">0,05</option>
+                    <option value="0.1">0,1</option>
+                    <option value="0.15">0,15</option>
+                    <option value="0.2">0,2</option>
+                    <option value="0.25">0,25</option>
+                    <option value="0.5">0,5</option>
                     <option value="custom_c" data-hint="Вручную">Своё</option>
                 </select>
                 <div id="egf_c_val_custom_wrap" style="display:none;">
@@ -2304,15 +2304,15 @@
                 </div>
                 <div class="scale-form-label">d — мультипликативная составляющая (%)</div>
                 <select id="egf_d_val" class="scale-field" onchange="toggleEgfCustomD()" autocomplete="off">
-                    <option value="0.001" data-hint="ГОСТ 8.401">0,001</option>
-                    <option value="0.002" data-hint="ГОСТ 8.401">0,002</option>
-                    <option value="0.005" data-hint="ГОСТ 8.401">0,005</option>
-                    <option value="0.01" selected data-hint="ГОСТ 8.401">0,01</option>
-                    <option value="0.015" data-hint="ГОСТ 8.401">0,015</option>
-                    <option value="0.02" data-hint="ГОСТ 8.401">0,02</option>
-                    <option value="0.025" data-hint="ГОСТ 8.401">0,025</option>
-                    <option value="0.05" data-hint="ГОСТ 8.401">0,05</option>
-                    <option value="0.1" data-hint="ГОСТ 8.401">0,1</option>
+                    <option value="0.001">0,001</option>
+                    <option value="0.002">0,002</option>
+                    <option value="0.005">0,005</option>
+                    <option value="0.01" selected>0,01</option>
+                    <option value="0.015">0,015</option>
+                    <option value="0.02">0,02</option>
+                    <option value="0.025">0,025</option>
+                    <option value="0.05">0,05</option>
+                    <option value="0.1">0,1</option>
                     <option value="custom_d" data-hint="Вручную">Своё</option>
                 </select>
                 <div id="egf_d_val_custom_wrap" style="display:none;">
@@ -2352,10 +2352,10 @@
             <div id="ws_mech_group" class="scale-form" style="margin-top:4px;">
                 <div class="scale-form-label">Класс точности по ГОСТ OIML R 76-1-2011</div>
                 <select id="ws_mech_oiml_class" class="scale-field" autocomplete="off">
-                    <option value="I" data-hint="OIML R 76">I — спец. точность</option>
-                    <option value="II" data-hint="OIML R 76">II — высокая</option>
-                    <option value="III" selected data-hint="OIML R 76">III — средняя</option>
-                    <option value="IIII" data-hint="OIML R 76">IIII — обычная</option>
+                    <option value="I">I — спец. точность</option>
+                    <option value="II">II — высокая</option>
+                    <option value="III" selected>III — средняя</option>
+                    <option value="IIII">IIII — обычная</option>
                 </select>
                 <div class="scale-form-label">Число поверочных делений (n = Max/<span style="text-transform:none;font-style:italic;">e</span>)</div>
                 <input type="text" inputmode="decimal" id="ws_mech_n" class="scale-field" value="3000" placeholder="Напр. 3000" autocomplete="off" enterkeyhint="next">
@@ -2389,10 +2389,10 @@
                     <div style="padding:6px 0 4px;font-size:13px;font-weight:600;color:rgba(74,143,199,0.9);text-transform:uppercase;letter-spacing:0.5px;">Тензодатчик</div>
                     <div class="scale-form-label">Класс точности тензодатчика (по OIML R 60)</div>
                     <select id="ws_lc_class" class="scale-field" autocomplete="off">
-                        <option value="A" data-hint="OIML R 60">A — высокая</option>
-                        <option value="B" data-hint="OIML R 60">B — средняя</option>
-                        <option value="C" selected data-hint="OIML R 60">C — обычная</option>
-                        <option value="D" data-hint="OIML R 60">D — грубая</option>
+                        <option value="A">A — высокая</option>
+                        <option value="B">B — средняя</option>
+                        <option value="C" selected>C — обычная</option>
+                        <option value="D">D — грубая</option>
                     </select>
                     <div class="scale-form-label">Число поверочных делений тензодатчика (n<sub>LC</sub>)</div>
                     <input type="text" inputmode="decimal" id="ws_lc_n" class="scale-field" value="3000" placeholder="Напр. 3000" autocomplete="off" enterkeyhint="next">
@@ -2455,10 +2455,10 @@
             <div id="ws_els_group" class="scale-form" style="display:none;margin-top:4px;">
                 <div class="scale-form-label">Класс точности по ГОСТ OIML R 76-1-2011</div>
                 <select id="ws_els_oiml_class" class="scale-field" autocomplete="off">
-                    <option value="I" data-hint="OIML R 76">I — спец. точность</option>
-                    <option value="II" data-hint="OIML R 76">II — высокая</option>
-                    <option value="III" selected data-hint="OIML R 76">III — средняя</option>
-                    <option value="IIII" data-hint="OIML R 76">IIII — обычная</option>
+                    <option value="I">I — спец. точность</option>
+                    <option value="II">II — высокая</option>
+                    <option value="III" selected>III — средняя</option>
+                    <option value="IIII">IIII — обычная</option>
                 </select>
                 <div class="scale-form-label">Число поверочных делений (n = Max/<span style="text-transform:none;font-style:italic;">e</span>)</div>
                 <input type="text" inputmode="decimal" id="ws_els_n" class="scale-field" value="1500" placeholder="Напр. 1500" autocomplete="off" enterkeyhint="next">
@@ -2551,7 +2551,7 @@
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Комплект приборов</b> — при измерении одной величины последовательно соединёнными средствами измерений (например, датчик + нормирующий преобразователь + вторичный прибор) суммарная погрешность определяется комбинацией погрешностей каждого прибора в комплекте.</div>
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Абсолютная погрешность (±Δ)</b> — выражается в единицах измеряемой величины. Задаётся непосредственно, без пересчёта. Для данного прибора Δ = const во всём диапазоне.</div>
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Относительная погрешность (<span class="greek-delta">δ</span>, %)</b> — отношение абсолютной погрешности к текущему значению измеряемой величины X. Расчёт: Δ = ±(<span class="greek-delta">δ</span>/100) · |X|. Возрастает при уменьшении X, поэтому наименьшая в верхней части диапазона.</div>
-                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Приведённая погрешность (<span class="greek-gamma">γ</span>, %)</b> — отношение абсолютной погрешности к нормирующему значению Xн. Расчёт: Δ = ±(<span class="greek-gamma">γ</span>/100) · Xн. Нормирующее значение: при НПИ ≥ 0 — Xн = ВПИ; при двусторонней шкале — Xн = |ВПИ| + |НПИ|. Класс точности, обозначенный числом без дополнительных символов, соответствует приведённой погрешности.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Приведённая погрешность (<span class="greek-gamma">γ</span>, %)</b> — отношение абсолютной погрешности к нормирующему значению Xн. Расчёт: Δ = ±(<span class="greek-gamma">γ</span>/100) · Xн. Нормирующее значение: Xн = ВПИ − НПИ (диапазон измерения). Класс точности, обозначенный числом без дополнительных символов, соответствует приведённой погрешности.</div>
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Геометрическое суммирование (без коэффициента):</b> Δ<sub>Σ</sub> = √(Δ₁² + Δ₂² + … + Δₙ²). Суммирование некоррелированных погрешностей по правилу квадратного корня без дополнительного коэффициента. Используется, когда погрешности приборов независимы и рассматриваются как случайные величины с равной значимостью. Даёт наименьшую оценку суммарной погрешности среди всех методов.</div>
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Геометрическое суммирование (K=1,1, P=0,95):</b> Δ<sub>Σ</sub> = K · √(Δ₁² + Δ₂² + … + Δₙ²), где K = 1,1 при доверительной вероятности P = 0,95. Применяется при числе приборов более 3, когда погрешности независимы (некоррелированы). Коэффициент K учитывает отличие доверительной вероятности от P=1 и даёт более реалистичную оценку, чем арифметическое суммирование.</div>
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Арифметическое суммирование:</b> Δ<sub>Σ</sub> = Δ₁ + Δ₂ + … + Δₙ. Используется при малом числе приборов (2–3), когда погрешности могут быть коррелированы, или для получения максимально возможной (наихудшей) оценки суммарной погрешности.</div>
@@ -3142,7 +3142,7 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         if (showEl) showEl.style.display = 'block';
         let infoEl = document.getElementById(prefix + 'class_info');
         if (infoEl) {
-            if (form === 'number') infoEl.innerHTML = 'Xн = ВПИ (или |ВПИ|+|НПИ| при двусторонней шкале)';
+            if (form === 'number') infoEl.innerHTML = 'Xн = ВПИ − НПИ (диапазон измерения)';
             else if (form === 'underline') infoEl.innerHTML = 'Xн = длина шкалы (в единицах измерения)';
             else if (form === 'circle') infoEl.innerHTML = 'Относительная погрешность постоянна во всём диапазоне';
             else if (form === 'fraction') infoEl.innerHTML = 'c/d — аддитивная/мультипликативная составляющие относительной погрешности';
@@ -3175,13 +3175,14 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         if (isNaN(cls) || cls <= 0) { showToast('Введите класс точности'); return; }
         if (isNaN(xmin) || isNaN(xmax)) { showToast('Введите диапазон измерения'); return; }
         if (xmin >= xmax) { showToast('НПИ должен быть меньше ВПИ'); return; }
-        let xNorm = (xmin === 0 || xmin * xmax < 0) ? (Math.abs(xmax) + Math.abs(xmin)) : Math.abs(xmax);
+        let xNorm = xmax - xmin;
+        let xNormDesc = 'Xн = ВПИ − НПИ = ' + formatNumber(xmax) + ' − ' + (xmin < 0 ? '(' + formatNumber(xmin) + ')' : formatNumber(xmin)) + ' = ' + formatNumber(xNorm);
         let absErr = (cls / 100) * xNorm;
         let formulaHTML = 'Δ = ±(<span class="greek-gamma">γ</span>/100)·Xн = ±(' + formatNumber(cls) + '/100)·' + formatNumber(xNorm) + ' = ±' + formatNumber(absErr);
 
         let html = '<div class="converter-result-label-title">Результаты расчёта (ГОСТ 8.401-80)</div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Класс точности</span><span class="converter-result-value"><span class="greek-gamma">γ</span> = ' + formatNumber(cls) + '% (приведённая)</span></div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + '</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + ' <span style="font-size:11px;color:rgba(140,180,210,0.7);">(' + xNormDesc + ')</span></span></div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Абсолютная погрешность (±Δ)</span><span class="converter-result-value" style="color:#4ac771;">± ' + formatNumber(absErr) + ' ед.изм.</span></div>';
         html += '<div class="converter-result-item" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="converter-result-label">Формула расчёта</span><span style="font-size:13px;color:rgba(140,180,210,0.9);line-height:1.5;">' + formulaHTML + ' ед.изм.</span></div>';
         document.getElementById(prefix + 'results').innerHTML = html;
@@ -3210,13 +3211,14 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         if (isNaN(cls) || cls <= 0) { showToast('Введите класс точности'); return; }
         if (isNaN(xmin) || isNaN(xmax)) { showToast('Введите диапазон измерения'); return; }
         if (xmin >= xmax) { showToast('НПИ должен быть меньше ВПИ'); return; }
-        let xNorm = (xmin === 0 || xmin * xmax < 0) ? (Math.abs(xmax) + Math.abs(xmin)) : Math.abs(xmax);
+        let xNorm = xmax - xmin;
+        let xNormDesc = 'Xн = ВПИ − НПИ = ' + formatNumber(xmax) + ' − ' + (xmin < 0 ? '(' + formatNumber(xmin) + ')' : formatNumber(xmin)) + ' = ' + formatNumber(xNorm);
         let absErr = (cls / 100) * xNorm;
         let formulaHTML = 'Δ = ±(<span class="greek-gamma">γ</span>/100)·Xн = ±(' + formatNumber(cls) + '/100)·' + formatNumber(xNorm) + ' = ±' + formatNumber(absErr);
 
         let html = '<div class="converter-result-label-title">Результаты расчёта (ГОСТ 8.401-80)</div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Класс точности</span><span class="converter-result-value"><span class="greek-gamma">γ</span> = ' + formatNumber(cls) + '% (приведённая)</span></div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + '</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + ' <span style="font-size:11px;color:rgba(140,180,210,0.7);">(' + xNormDesc + ')</span></span></div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Абсолютная погрешность (±Δ)</span><span class="converter-result-value" style="color:#4ac771;">± ' + formatNumber(absErr) + ' ед.изм.</span></div>';
         html += '<div class="converter-result-item" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="converter-result-label">Формула расчёта</span><span style="font-size:13px;color:rgba(140,180,210,0.9);line-height:1.5;">' + formulaHTML + ' ед.изм.</span></div>';
         document.getElementById(prefix + 'results').innerHTML = html;
@@ -3258,7 +3260,7 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
 
     function calcErrorGOST(prefix) {
         let form = document.getElementById(prefix + 'class_form').value;
-        let absErr, relErr, formulaHTML, xNorm, xCurrent;
+        let absErr, relErr, formulaHTML, xNorm, xNormDesc, xCurrent;
         if (form === 'number') {
             let cls = parseLocaleNumber(document.getElementById(prefix + 'class_val').value);
             let xmin = parseLocaleNumber(document.getElementById(prefix + 'xmin').value);
@@ -3267,7 +3269,8 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
             if (isNaN(cls) || cls <= 0) { showToast('Введите класс точности'); return; }
             if (isNaN(xmin) || isNaN(xmax)) { showToast('Введите диапазон измерения'); return; }
             if (xmin >= xmax) { showToast('НПИ должен быть меньше ВПИ'); return; }
-            xNorm = (xmin === 0 || xmin * xmax < 0) ? (Math.abs(xmax) + Math.abs(xmin)) : Math.abs(xmax);
+            xNorm = xmax - xmin;
+            xNormDesc = 'Xн = ВПИ − НПИ = ' + formatNumber(xmax) + ' − ' + (xmin < 0 ? '(' + formatNumber(xmin) + ')' : formatNumber(xmin)) + ' = ' + formatNumber(xNorm);
             absErr = (cls / 100) * xNorm;
             formulaHTML = 'Δ = ±(<span class="greek-gamma">γ</span>/100)·Xн = ±(' + formatNumber(cls) + '/100)·' + formatNumber(xNorm) + ' = ±' + formatNumber(absErr);
             if (!isNaN(xCurrent) && xCurrent !== 0) {
@@ -3311,7 +3314,7 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         let formNames = {'number': 'число (приведённая)', 'underline': 'число с подчёркиванием (приведённая)', 'circle': 'число в кружке (относительная)', 'fraction': 'дробь c/d (относительная)'};
         let html = '<div class="converter-result-label-title">Результаты расчёта (ГОСТ 8.401-80)</div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Форма класса точности</span><span class="converter-result-value">' + formNames[form] + '</span></div>';
-        if (xNorm !== undefined) html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + '</span></div>';
+        if (xNorm !== undefined) html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + ' <span style="font-size:11px;color:rgba(140,180,210,0.7);">(' + xNormDesc + ')</span></span></div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Абсолютная погрешность (±Δ)</span><span class="converter-result-value" style="color:#4ac771;">± ' + formatNumber(absErr) + ' ед.изм.</span></div>';
         if (relErr !== undefined) html += '<div class="converter-result-item"><span class="converter-result-label">Относительная погрешность (±<span class="greek-delta">δ</span>)</span><span class="converter-result-value" style="color:#4ac771;">± ' + formatNumber(relErr) + ' %</span></div>';
         html += '<div class="converter-result-item" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="converter-result-label">Формула расчёта</span><span style="font-size:13px;color:rgba(140,180,210,0.9);line-height:1.5;">' + formulaHTML + ' ед.изм.</span></div>';
@@ -3340,12 +3343,13 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         if (isNaN(cls) || cls <= 0) { showToast('Введите класс точности'); return; }
         if (isNaN(xmin) || isNaN(xmax)) { showToast('Введите диапазон измерения'); return; }
         if (xmin >= xmax) { showToast('НПИ должен быть меньше ВПИ'); return; }
-        let xNorm = (xmin === 0 || xmin * xmax < 0) ? (Math.abs(xmax) + Math.abs(xmin)) : Math.abs(xmax);
+        let xNorm = xmax - xmin;
+        let xNormDesc = 'Xн = ВПИ − НПИ = ' + formatNumber(xmax) + ' − ' + (xmin < 0 ? '(' + formatNumber(xmin) + ')' : formatNumber(xmin)) + ' = ' + formatNumber(xNorm);
         let absErr = (cls / 100) * xNorm;
         let formulaHTML = 'Δ = ±(<span class="greek-gamma">γ</span>/100)·Xн = ±(' + formatNumber(cls) + '/100)·' + formatNumber(xNorm) + ' = ±' + formatNumber(absErr);
         let html = '<div class="converter-result-label-title">Результаты расчёта (ГОСТ 8.401-80)</div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Класс точности</span><span class="converter-result-value"><span class="greek-gamma">γ</span> = ' + formatNumber(cls) + '% (приведённая)</span></div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + '</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + ' <span style="font-size:11px;color:rgba(140,180,210,0.7);">(' + xNormDesc + ')</span></span></div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Абсолютная погрешность (±Δ)</span><span class="converter-result-value" style="color:#4ac771;">± ' + formatNumber(absErr) + ' ед.изм.</span></div>';
         html += '<div class="converter-result-item" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="converter-result-label">Формула расчёта</span><span style="font-size:13px;color:rgba(140,180,210,0.9);line-height:1.5;">' + formulaHTML + ' ед.изм.</span></div>';
         document.getElementById('egn_results').innerHTML = html;
@@ -3375,7 +3379,7 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         let formulaHTML = 'Δ = ±(<span class="greek-gamma">γ</span>/100)·Xн = ±(' + formatNumber(cls) + '/100)·' + formatNumber(xNorm) + ' = ±' + formatNumber(absErr);
         let html = '<div class="converter-result-label-title">Результаты расчёта (ГОСТ 8.401-80)</div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Класс точности</span><span class="converter-result-value"><span class="greek-gamma">γ</span> = ' + formatNumber(cls) + '% (приведённая, Xн = длина шкалы)</span></div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + '</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Нормирующее значение (Xн)</span><span class="converter-result-value">' + formatNumber(xNorm) + ' <span style="font-size:11px;color:rgba(140,180,210,0.7);">(' + xNormDesc + ')</span></span></div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Абсолютная погрешность (±Δ)</span><span class="converter-result-value" style="color:#4ac771;">± ' + formatNumber(absErr) + ' ед.изм.</span></div>';
         html += '<div class="converter-result-item" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="converter-result-label">Формула расчёта</span><span style="font-size:13px;color:rgba(140,180,210,0.9);line-height:1.5;">' + formulaHTML + ' ед.изм.</span></div>';
         document.getElementById('egu_results').innerHTML = html;
@@ -3867,30 +3871,30 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             + '<option value="circle"' + (form === 'circle' ? ' selected' : '') + ' data-hint="δ = Δ/|X|">Относительная</option>'
             + '<option value="number"' + (form === 'number' ? ' selected' : '') + ' data-hint="γ = Δ/Xн">Приведённая</option></select></div>'
             + '<div id="' + p + 'cls_simple_wrap" style="flex:0.8;' + (form !== 'number' ? 'display:none;' : '') + '"><div class="scale-form-label"><span class="greek-gamma">γ</span> (%)</div><select id="' + p + 'class_val" class="scale-field" style="margin-bottom:0;" onchange="toggleKitDevCustom(' + idx + ',\'number\')" autocomplete="off">'
-            + '<option value="0.05"' + (cls === '0.05' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,05</option>'
-            + '<option value="0.06"' + (cls === '0.06' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,06</option>'
-            + '<option value="0.1"' + (cls === '0.1' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,1</option>'
-            + '<option value="0.15"' + (cls === '0.15' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,15</option>'
-            + '<option value="0.2"' + (cls === '0.2' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,2</option>'
-            + '<option value="0.25"' + (cls === '0.25' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,25</option>'
-            + '<option value="0.5"' + (cls === '0.5' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,5</option>'
-            + '<option value="1.0"' + (cls === '1.0' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">1,0</option>'
-            + '<option value="1.5"' + (cls === '1.5' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">1,5</option>'
-            + '<option value="2.5"' + (cls === '2.5' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">2,5</option>'
-            + '<option value="4.0"' + (cls === '4.0' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">4,0</option>'
+            + '<option value="0.05"' + (cls === '0.05' ? ' selected' : '') + '>0,05</option>'
+            + '<option value="0.06"' + (cls === '0.06' ? ' selected' : '') + '>0,06</option>'
+            + '<option value="0.1"' + (cls === '0.1' ? ' selected' : '') + '>0,1</option>'
+            + '<option value="0.15"' + (cls === '0.15' ? ' selected' : '') + '>0,15</option>'
+            + '<option value="0.2"' + (cls === '0.2' ? ' selected' : '') + '>0,2</option>'
+            + '<option value="0.25"' + (cls === '0.25' ? ' selected' : '') + '>0,25</option>'
+            + '<option value="0.5"' + (cls === '0.5' ? ' selected' : '') + '>0,5</option>'
+            + '<option value="1.0"' + (cls === '1.0' ? ' selected' : '') + '>1,0</option>'
+            + '<option value="1.5"' + (cls === '1.5' ? ' selected' : '') + '>1,5</option>'
+            + '<option value="2.5"' + (cls === '2.5' ? ' selected' : '') + '>2,5</option>'
+            + '<option value="4.0"' + (cls === '4.0' ? ' selected' : '') + '>4,0</option>'
             + '<option value="custom" data-hint="Вручную">Своё</option></select>'
             + '<input type="text" inputmode="decimal" id="' + p + 'class_val_custom" class="scale-field kit-dev-custom-input" style="margin-bottom:0;display:none;" placeholder="γ %" autocomplete="off" enterkeyhint="next"></div>'
             + '<div id="' + p + 'cls_circle_wrap" style="flex:0.8;' + (form !== 'circle' ? 'display:none;' : '') + '"><div class="scale-form-label"><span class="greek-delta">δ</span> (%)</div><select id="' + p + 'class_val_c" class="scale-field" style="margin-bottom:0;" onchange="toggleKitDevCustom(' + idx + ',\'circle\')" autocomplete="off">'
-            + '<option value="0.1"' + (cls === '0.1' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,1</option>'
-            + '<option value="0.15"' + (cls === '0.15' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,15</option>'
-            + '<option value="0.2"' + (cls === '0.2' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,2</option>'
-            + '<option value="0.25"' + (cls === '0.25' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,25</option>'
-            + '<option value="0.5"' + (cls === '0.5' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">0,5</option>'
-            + '<option value="1.0"' + (cls === '1.0' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">1,0</option>'
-            + '<option value="1.5"' + (cls === '1.5' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">1,5</option>'
-            + '<option value="2.0"' + (cls === '2.0' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">2,0</option>'
-            + '<option value="2.5"' + (cls === '2.5' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">2,5</option>'
-            + '<option value="4.0"' + (cls === '4.0' ? ' selected' : '') + ' data-hint="ГОСТ 8.401">4,0</option>'
+            + '<option value="0.1"' + (cls === '0.1' ? ' selected' : '') + '>0,1</option>'
+            + '<option value="0.15"' + (cls === '0.15' ? ' selected' : '') + '>0,15</option>'
+            + '<option value="0.2"' + (cls === '0.2' ? ' selected' : '') + '>0,2</option>'
+            + '<option value="0.25"' + (cls === '0.25' ? ' selected' : '') + '>0,25</option>'
+            + '<option value="0.5"' + (cls === '0.5' ? ' selected' : '') + '>0,5</option>'
+            + '<option value="1.0"' + (cls === '1.0' ? ' selected' : '') + '>1,0</option>'
+            + '<option value="1.5"' + (cls === '1.5' ? ' selected' : '') + '>1,5</option>'
+            + '<option value="2.0"' + (cls === '2.0' ? ' selected' : '') + '>2,0</option>'
+            + '<option value="2.5"' + (cls === '2.5' ? ' selected' : '') + '>2,5</option>'
+            + '<option value="4.0"' + (cls === '4.0' ? ' selected' : '') + '>4,0</option>'
             + '<option value="custom" data-hint="Вручную">Своё</option></select>'
             + '<input type="text" inputmode="decimal" id="' + p + 'class_val_c_custom" class="scale-field kit-dev-custom-input" style="margin-bottom:0;display:none;" placeholder="δ %" autocomplete="off" enterkeyhint="next"></div>'
             + '<div id="' + p + 'cls_absolute_wrap" style="flex:0.8;' + (form !== 'absolute' ? 'display:none;' : '') + '"><div class="scale-form-label" style="text-transform:none;">±Δ (ед.изм.)</div><input type="text" inputmode="decimal" id="' + p + 'abs_val" class="scale-field" style="margin-bottom:0;" value="" placeholder="±Δ" autocomplete="off" enterkeyhint="next"></div>'
@@ -3976,7 +3980,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 let xmin = parseLocaleNumber(document.getElementById(p + 'xmin').value);
                 let xmax = parseLocaleNumber(document.getElementById(p + 'xmax').value);
                 if (isNaN(cls) || cls <= 0 || isNaN(xmin) || isNaN(xmax) || xmin >= xmax) return null;
-                xNorm = (xmin === 0 || xmin * xmax < 0) ? (Math.abs(xmax) + Math.abs(xmin)) : Math.abs(xmax);
+                xNorm = (xmin === 0) ? Math.abs(xmax) : (xmax - xmin);
                 absErr = (cls / 100) * xNorm;
             } else if (form === 'circle') {
                 let clsVal = document.getElementById(p + 'class_val_c').value;
