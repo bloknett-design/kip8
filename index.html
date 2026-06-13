@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1a2233" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f0f2f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#F0EEE6" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-title" content="КИПиА">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -39,21 +39,21 @@
     }
 
     [data-theme="light"] {
-        --bg-primary: #f0f2f5;
-        --bg-tertiary: #dde2e8;
-        --text-primary: #1a1a2e;
-        --accent-blue: #2563eb;
-        --card-bg: rgba(255, 255, 255, 0.7);
-        --card-border: rgba(37, 99, 235, 0.15);
-        --input-bg: rgba(255, 255, 255, 0.8);
-        --active-bg: rgba(200, 210, 230, 0.3);
-        --header-bg: rgba(255, 255, 255, 0.9);
-        --nav-bg: rgba(255, 255, 255, 0.6);
-        --bottom-nav-bg: rgba(255, 255, 255, 0.95);
-        --sidebar-bg: rgba(255, 255, 255, 0.98);
-        --warning-bg: rgba(234, 179, 8, 0.08);
-        --warning-border: rgba(234, 179, 8, 0.2);
-        --warning-text: #a16207;
+        --bg-primary: #FAF9F5;
+        --bg-tertiary: #F0EEE6;
+        --text-primary: #141413;
+        --accent-blue: #C6613F;
+        --card-bg: rgba(255, 255, 255, 0.65);
+        --card-border: rgba(20, 20, 19, 0.12);
+        --input-bg: rgba(255, 255, 255, 0.85);
+        --active-bg: rgba(20, 20, 19, 0.06);
+        --header-bg: rgba(240, 238, 230, 0.92);
+        --nav-bg: rgba(240, 238, 230, 0.7);
+        --bottom-nav-bg: rgba(240, 238, 230, 0.96);
+        --sidebar-bg: rgba(250, 249, 245, 0.98);
+        --warning-bg: rgba(198, 97, 63, 0.06);
+        --warning-border: rgba(198, 97, 63, 0.18);
+        --warning-text: #9E4E30;
     }
 
     * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
@@ -130,10 +130,10 @@
         99.5%, 100% { opacity: 0; }
     }
     [data-theme="light"] .led-seg-on { fill: url(#ledGradient); }
-    [data-theme="light"] .led-seg-off { fill: rgba(37, 99, 235, 0.06); }
+    [data-theme="light"] .led-seg-off { fill: rgba(198, 97, 63, 0.05); }
     [data-theme="light"] .led-seg-blink-on { fill: url(#ledGradient); }
     [data-theme="light"] .header-title svg.led-display {
-        filter: drop-shadow(0 0 3px rgba(37,99,235,0.35)) drop-shadow(0 0 7px rgba(37,99,235,0.12));
+        filter: drop-shadow(0 0 3px rgba(198,97,63,0.3)) drop-shadow(0 0 7px rgba(198,97,63,0.1));
     }
     @keyframes segmentGlow {
         0%, 100% { filter: drop-shadow(0 0 3px rgba(74,143,199,0.4)) drop-shadow(0 0 7px rgba(74,143,199,0.15)); }
@@ -240,7 +240,7 @@
         background-repeat: no-repeat;
         background-position: right 10px center;
         padding-right: 28px;
-        font-size: 12px;
+        font-size: 14px;
         line-height: 1.2;
         white-space: nowrap;
         overflow: hidden;
@@ -382,6 +382,7 @@
 
     
     input[type="radio"] { pointer-events: auto; touch-action: manipulation; cursor: pointer; accent-color: #4a8fc7; }
+    [data-theme="light"] input[type="radio"] { accent-color: #C6613F; }
     input[type="radio"] + div { pointer-events: none; }
     input[type="radio"] + div > * { pointer-events: none; }
     
@@ -428,10 +429,10 @@
         #page-dashboard .menu-btn-sublabel { font-size: 12px; }
         .nav-btn { padding: 9px 14px; font-size: 13px; }
         .form-field, .scale-field { padding: 9px 12px; font-size: 14px; height: 40px; }
-        select.scale-field, select.form-field { font-size: 11px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
-        .kit-dev-form .scale-field { height: 36px !important; padding: 6px 8px !important; font-size: 11px !important; }
-        .kit-dev-form select.scale-field { min-height: 36px !important; height: 36px !important; font-size: 11px !important; }
-        select.scale-field option, select.form-field option, select.ms-diff-select option { font-size: 11px; }
+        select.scale-field, select.form-field { font-size: 13px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
+        .kit-dev-form .scale-field { height: 36px !important; padding: 6px 8px !important; font-size: 12px !important; }
+        .kit-dev-form select.scale-field { min-height: 36px !important; height: 36px !important; font-size: 12px !important; }
+        select.scale-field option, select.form-field option, select.ms-diff-select option { font-size: 13px; }
         .warning-banner { margin: 8px 12px 0; padding: 10px 12px; }
         .buoy-card-title { font-size: 22px; }
         .buoy-card-desc { font-size: 12px; }
@@ -448,10 +449,10 @@
         .nav-btn { padding: 8px 12px; font-size: 12px; gap: 5px; }
         .nav-btn svg { width: 12px; height: 12px; }
         .form-field, .scale-field { padding: 8px 10px; font-size: 13px; height: 38px; }
-        select.scale-field, select.form-field { font-size: 11px; height: 38px; min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
+        select.scale-field, select.form-field { font-size: 12px; height: 38px; min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
         .kit-dev-form .scale-field { height: 34px !important; padding: 5px 8px !important; font-size: 11px !important; }
-        .kit-dev-form select.scale-field { min-height: 34px !important; height: 34px !important; font-size: 10px !important; }
-        select.scale-field option, select.form-field option, select.ms-diff-select option { font-size: 11px; }
+        .kit-dev-form select.scale-field { min-height: 34px !important; height: 34px !important; font-size: 11px !important; }
+        select.scale-field option, select.form-field option, select.ms-diff-select option { font-size: 12px; }
         .bottom-nav-item { min-width: 52px; padding: 5px 2px; }
         .bottom-nav-label { font-size: 10px; }
         .buoy-card-title { font-size: 20px; }
@@ -529,95 +530,95 @@
         color: var(--text-primary);
     }
     [data-theme="light"] .content-header h2 {
-        color: #1a1a2e;
+        color: #141413;
     }
     [data-theme="light"] .content-header p {
-        color: rgba(40, 50, 70, 0.5);
+        color: rgba(20, 20, 19, 0.5);
     }
     [data-theme="light"] .menu-btn-label {
-        color: #1a1a2e;
+        color: #141413;
     }
     [data-theme="light"] .menu-btn-sublabel {
-        color: rgba(40, 50, 70, 0.5);
+        color: rgba(20, 20, 19, 0.45);
     }
     [data-theme="light"] .nav-btn {
-        color: rgba(40, 50, 70, 0.85);
-        background: rgba(255, 255, 255, 0.4);
-        border-color: rgba(37, 99, 235, 0.22);
+        color: rgba(20, 20, 19, 0.8);
+        background: rgba(255, 255, 255, 0.5);
+        border-color: rgba(20, 20, 19, 0.1);
     }
     [data-theme="light"] .nav-btn-home {
-        color: rgba(30, 40, 60, 0.9);
-        background: rgba(255, 255, 255, 0.5);
-        border-color: rgba(37, 99, 235, 0.35);
+        color: rgba(20, 20, 19, 0.9);
+        background: rgba(255, 255, 255, 0.6);
+        border-color: rgba(20, 20, 19, 0.18);
     }
     [data-theme="light"] .nav-separator {
         color: rgba(0, 0, 0, 0.18);
     }
     [data-theme="light"] .scale-form-label,
     [data-theme="light"] .form-label {
-        color: rgba(40, 50, 70, 0.5);
+        color: rgba(20, 20, 19, 0.5);
     }
     [data-theme="light"] .scale-field,
     [data-theme="light"] .form-field {
-        color: #1a1a2e;
-        background: rgba(255, 255, 255, 0.8);
-        border-color: rgba(37, 99, 235, 0.2);
+        color: #141413;
+        background-color: rgba(255, 255, 255, 0.85);
+        border-color: rgba(20, 20, 19, 0.12);
     }
     [data-theme="light"] select.scale-field option,
     [data-theme="light"] select.form-field option {
-        color: #1a1a2e;
-        background: #fff;
+        color: #141413;
+        background: #FAF9F5;
         padding: 6px 8px;
     }
     [data-theme="light"] select.scale-field optgroup,
     [data-theme="light"] select.form-field optgroup {
-        color: rgba(37, 99, 235, 0.85);
-        background: rgba(37, 99, 235, 0.06);
+        color: rgba(198, 97, 63, 0.85);
+        background: rgba(198, 97, 63, 0.04);
     }
     [data-theme="light"] .scale-field::placeholder,
     [data-theme="light"] .form-field::placeholder {
-        color: rgba(40, 50, 70, 0.3);
+        color: rgba(20, 20, 19, 0.3);
     }
     [data-theme="light"] .form-field:focus,
     [data-theme="light"] .scale-field:focus {
-        border-color: rgba(37, 99, 235, 0.5);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        border-color: rgba(198, 97, 63, 0.4);
+        box-shadow: 0 0 0 3px rgba(198, 97, 63, 0.1);
     }
     [data-theme="light"] .bottom-nav-label {
-        color: rgba(40, 50, 70, 0.5);
+        color: rgba(20, 20, 19, 0.4);
     }
     [data-theme="light"] .bottom-nav-item.active .bottom-nav-label {
-        color: rgba(37, 99, 235, 0.95);
+        color: #C6613F;
     }
     [data-theme="light"] .bottom-nav-icon svg {
-        stroke: rgba(40, 50, 70, 0.4);
+        stroke: rgba(20, 20, 19, 0.35);
     }
     [data-theme="light"] .bottom-nav-item.active .bottom-nav-icon svg {
-        stroke: rgba(37, 99, 235, 0.95);
+        stroke: #C6613F;
     }
     [data-theme="light"] .converter-result-label {
-        color: rgba(40, 50, 70, 0.6);
+        color: rgba(20, 20, 19, 0.55);
     }
     [data-theme="light"] .converter-result-value {
-        color: #2563eb;
+        color: #C6613F;
     }
     [data-theme="light"] .converter-result-label-title {
-        color: rgba(40, 50, 70, 0.4);
+        color: rgba(20, 20, 19, 0.4);
     }
     [data-theme="light"] .buoy-card-title {
-        color: #1a1a2e;
+        color: #141413;
     }
     [data-theme="light"] .buoy-card-desc {
-        color: rgba(40, 50, 70, 0.6);
+        color: rgba(20, 20, 19, 0.55);
     }
     [data-theme="light"] .buoy-card-divider {
-        background: rgba(37, 99, 235, 0.15);
+        background: rgba(20, 20, 19, 0.1);
     }
     [data-theme="light"] .buoy-card-formula {
-        background: rgba(37, 99, 235, 0.06);
+        background: rgba(198, 97, 63, 0.05);
     }
     [data-theme="light"] .buoy-card-formula .formula-inline {
-        color: rgba(20, 60, 140, 0.95);
+        color: rgba(140, 60, 35, 0.9);
     }
     [data-theme="light"] .buoy-illustration {
         background: transparent;
@@ -625,65 +626,106 @@
     [data-theme="light"] .buoy-illustration img {
         opacity: 0.95;
     }
-    [data-theme="light"] .buoy-card-light { background: rgba(220, 230, 245, 0.85); border-color: rgba(37, 99, 235, 0.15); }
-    [data-theme="light"] .buoy-card-light:hover, [data-theme="light"] .buoy-card-light:active { background: rgba(210, 222, 240, 0.95); }
-    [data-theme="light"] .buoy-card-dark { background: rgba(195, 210, 230, 0.85); }
-    [data-theme="light"] .buoy-card-dark:hover, [data-theme="light"] .buoy-card-dark:active { background: rgba(185, 200, 222, 0.95); }
+    [data-theme="light"] .buoy-card-light { background: rgba(232, 230, 220, 0.85); border-color: rgba(20, 20, 19, 0.1); }
+    [data-theme="light"] .buoy-card-light:hover, [data-theme="light"] .buoy-card-light:active { background: rgba(227, 218, 204, 0.95); }
+    [data-theme="light"] .buoy-card-dark { background: rgba(227, 218, 204, 0.75); }
+    [data-theme="light"] .buoy-card-dark:hover, [data-theme="light"] .buoy-card-dark:active { background: rgba(219, 209, 192, 0.9); }
     [data-theme="light"] .formula-inline {
-        color: rgba(30, 60, 100, 0.85);
+        color: rgba(140, 60, 35, 0.85);
     }
     [data-theme="light"] .sidebar-item {
-        color: rgba(30, 40, 60, 0.9);
+        color: rgba(20, 20, 19, 0.85);
     }
     [data-theme="light"] .sidebar-title {
-        color: #1a1a2e;
+        color: #141413;
     }
     [data-theme="light"] .warning-banner-title {
-        color: #a16207;
+        color: #9E4E30;
     }
     [data-theme="light"] .warning-banner-desc {
-        color: rgba(40, 50, 70, 0.5);
+        color: rgba(20, 20, 19, 0.5);
     }
     [data-theme="light"] .method-indicator {
         background: rgba(255, 255, 255, 0.6);
-        border-color: rgba(37, 99, 235, 0.1);
+        border-color: rgba(20, 20, 19, 0.08);
     }
     [data-theme="light"] .query-btn {
-        color: rgba(37, 99, 235, 0.9);
+        color: #C6613F;
         background: rgba(255, 255, 255, 0.6);
-        border-color: rgba(37, 99, 235, 0.15);
+        border-color: rgba(198, 97, 63, 0.18);
     }
     [data-theme="light"] .page-inline-header-title {
-        color: #1a1a2e;
+        color: #141413;
     }
     [data-theme="light"] .menu-btn-arrow {
         color: rgba(0, 0, 0, 0.15);
     }
     [data-theme="light"] .header-btn svg {
-        stroke: rgba(37, 99, 235, 0.7);
+        stroke: rgba(198, 97, 63, 0.65);
     }
     [data-theme="light"] .nav-btn svg {
-        stroke: rgba(40, 50, 70, 0.6);
+        stroke: rgba(20, 20, 19, 0.5);
     }
     [data-theme="light"] .toast {
-        background: rgba(255, 255, 255, 0.95);
-        color: #1a1a2e;
-        border-color: rgba(37, 99, 235, 0.2);
+        background: rgba(250, 249, 245, 0.96);
+        color: #141413;
+        border-color: rgba(20, 20, 19, 0.12);
+    }
+    [data-theme="light"] .toast svg { stroke: #5a8a3a; }
+    [data-theme="light"] .app-header {
+        border-bottom-color: rgba(20, 20, 19, 0.1);
+    }
+    [data-theme="light"] .nav-bar {
+        border-bottom-color: rgba(20, 20, 19, 0.08);
+    }
+    [data-theme="light"] .menu-btn {
+        border-color: rgba(20, 20, 19, 0.1);
+    }
+    [data-theme="light"] .menu-btn:active {
+        border-color: rgba(198, 97, 63, 0.2);
+    }
+    [data-theme="light"] .menu-btn-arrow {
+        color: rgba(20, 20, 19, 0.12);
+    }
+    [data-theme="light"] .header-btn {
+        background: rgba(20, 20, 19, 0.06);
+        border-color: rgba(20, 20, 19, 0.08);
+    }
+    [data-theme="light"] .header-btn:active {
+        background: rgba(20, 20, 19, 0.1);
+    }
+    [data-theme="light"] .bottom-nav {
+        border-top-color: rgba(20, 20, 19, 0.1);
+    }
+    [data-theme="light"] .bottom-nav-item:active {
+        background: rgba(20, 20, 19, 0.05);
+    }
+    [data-theme="light"] .bottom-nav-item.active .bottom-nav-icon svg {
+        filter: drop-shadow(0 0 5px rgba(198, 97, 63, 0.5)) drop-shadow(0 0 10px rgba(198, 97, 63, 0.25));
+    }
+    [data-theme="light"] .bottom-nav-item.active .bottom-nav-label {
+        text-shadow: 0 0 5px rgba(198, 97, 63, 0.35);
+    }
+    [data-theme="light"] .bottom-nav-item:active .bottom-nav-icon svg {
+        stroke: rgba(198, 97, 63, 0.7);
+    }
+    [data-theme="light"] .bottom-nav-item:active .bottom-nav-label {
+        color: rgba(198, 97, 63, 0.7);
     }
     [data-theme="light"] .bg-network .line {
-        stroke: rgba(37, 99, 235, 0.08);
+        stroke: rgba(20, 20, 19, 0.05);
     }
     [data-theme="light"] .bg-network .dot {
-        fill: rgba(37, 99, 235, 0.18);
+        fill: rgba(198, 97, 63, 0.12);
     }
     [data-theme="light"] body {
-        background-color: #e8ecf1;
-        background-image: linear-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(37, 99, 235, 0.1) 1px, transparent 1px);
+        background-color: #F0EEE6;
+        background-image: linear-gradient(rgba(20, 20, 19, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(20, 20, 19, 0.06) 1px, transparent 1px);
         background-size: 20px 20px, 20px 20px;
     }
     [data-theme="light"] .global-overlay {
-        background: radial-gradient(ellipse at center, transparent 40%, rgba(232, 236, 241, 0.85) 95%);
+        background: radial-gradient(ellipse at center, transparent 40%, rgba(240, 238, 230, 0.85) 95%);
     }
 
     /* Light theme: comprehensive text/background visibility fixes */
@@ -693,60 +735,90 @@
     [data-theme="light"] [style*="color: rgba(255,255,255"],
     [data-theme="light"] [style*="color:rgba(255, 255, 255"],
     [data-theme="light"] [style*="color: rgba(255, 255, 255"] {
-        color: rgba(40, 50, 70, 0.5) !important;
+        color: rgba(20, 20, 19, 0.5) !important;
     }
 
     /* Override inline #e0e0e0 / #e8e8e8 colors on ANY element */
     [data-theme="light"] [style*="color:#e0e0e0"],
     [data-theme="light"] [style*="color: #e0e0e0"],
     [data-theme="light"] [style*="color:#e8e8e8"] {
-        color: #1a1a2e !important;
+        color: #141413 !important;
+    }
+
+    /* Override inline #4a8fc7 (accent blue) colors on ANY element */
+    [data-theme="light"] [style*="color:#4a8fc7"],
+    [data-theme="light"] [style*="color: #4a8fc7"] {
+        color: #C6613F !important;
+    }
+
+    /* Override inline #4ac771 (green accent) on ANY element */
+    [data-theme="light"] [style*="color:#4ac771"],
+    [data-theme="light"] [style*="color: #4ac771"] {
+        color: #5a8a3a !important;
+    }
+
+    /* Override inline #c7964a (gold accent) on ANY element */
+    [data-theme="light"] [style*="color:#c7964a"],
+    [data-theme="light"] [style*="color: #c7964a"] {
+        color: #9E4E30 !important;
+    }
+
+    /* Override inline gold border colors */
+    [data-theme="light"] [style*="border-color:rgba(199,150,74"],
+    [data-theme="light"] [style*="border-color: rgba(199,150,74"] {
+        border-color: rgba(198, 97, 63, 0.3) !important;
+    }
+
+    /* Override inline gold text/arrow colors */
+    [data-theme="light"] [style*="color:rgba(199,150,74"],
+    [data-theme="light"] [style*="color: rgba(199,150,74"] {
+        color: rgba(198, 97, 63, 0.5) !important;
     }
 
     /* Fix dark backgrounds in JS-generated tables and info boxes */
     [data-theme="light"] [style*="background:rgba(13,17,23"],
     [data-theme="light"] [style*="background:rgba(22,27,34"],
     [data-theme="light"] [style*="background:rgba(30,42,56"] {
-        background: rgba(220, 230, 245, 0.35) !important;
+        background: rgba(232, 230, 220, 0.35) !important;
     }
 
     /* Fix inline border colors with white */
     [data-theme="light"] [style*="border:1px solid rgba(255,255,255"],
     [data-theme="light"] [style*="border-bottom:1px solid rgba(255,255,255"] {
-        border-color: rgba(37, 99, 235, 0.1) !important;
+        border-color: rgba(20, 20, 19, 0.1) !important;
     }
 
     /* Table header rows: override dark inline background */
     [data-theme="light"] .converter-result-group table thead tr[style],
     [data-theme="light"] .scale-form table thead tr[style] {
-        background: rgba(37, 99, 235, 0.08) !important;
+        background: rgba(198, 97, 63, 0.06) !important;
     }
 
     /* Table body rows: light alternating backgrounds */
     [data-theme="light"] .converter-result-group table tbody tr[style],
     [data-theme="light"] .scale-form table tbody tr[style] {
-        background: rgba(37, 99, 235, 0.03) !important;
+        background: rgba(20, 20, 19, 0.02) !important;
     }
     [data-theme="light"] .converter-result-group table tbody tr:nth-child(even)[style],
     [data-theme="light"] .scale-form table tbody tr:nth-child(even)[style] {
-        background: rgba(255, 255, 255, 0.5) !important;
+        background: rgba(255, 255, 255, 0.45) !important;
     }
 
     /* buoyInfo dark box: override inline dark background and light text */
     [data-theme="light"] #buoyInfo {
-        background: rgba(220, 230, 245, 0.5) !important;
-        color: rgba(30, 40, 60, 0.7) !important;
+        background: rgba(232, 230, 220, 0.5) !important;
+        color: rgba(20, 20, 19, 0.65) !important;
     }
 
     /* signalUnitDisplay hint text */
     [data-theme="light"] #signalUnitDisplay {
-        color: rgba(40, 50, 70, 0.5) !important;
+        color: rgba(20, 20, 19, 0.45) !important;
     }
 
     /* Fix SVG strokes with white color (library arrows, etc.) */
     [data-theme="light"] svg[style*="stroke:rgba(255,255,255"],
     [data-theme="light"] svg[style*="stroke: rgba(255,255,255"] {
-        stroke: rgba(40, 50, 70, 0.25) !important;
+        stroke: rgba(20, 20, 19, 0.2) !important;
     }
 
     /* Library page menu-btn-arrow SVG override */
@@ -756,15 +828,15 @@
 
     /* Converter result items */
     [data-theme="light"] .converter-result-item {
-        background: rgba(220, 230, 245, 0.6);
-        border-color: rgba(37, 99, 235, 0.1);
+        background: rgba(232, 230, 220, 0.55);
+        border-color: rgba(20, 20, 19, 0.08);
     }
 
     /* Buttons */
     [data-theme="light"] .scale-calc-btn,
     [data-theme="light"] .converter-convert-btn {
-        background: linear-gradient(135deg, #2563eb, #3b82f6);
-        box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25);
+        background: linear-gradient(135deg, #C6613F, #D97757);
+        box-shadow: 0 3px 12px rgba(198, 97, 63, 0.25);
     }
 
     /* ===== Minesweeper Game Styles ===== */
@@ -932,6 +1004,10 @@
         box-shadow: 0 3px 12px rgba(37,99,235,0.25);
     }
     .ms-restart-btn:active { transform: scale(0.95); opacity: 0.9; }
+    [data-theme="light"] .ms-restart-btn {
+        background: linear-gradient(135deg, #C6613F, #D97757);
+        box-shadow: 0 3px 12px rgba(198, 97, 63, 0.25);
+    }
     .ms-hint {
         margin-top: 10px; padding: 8px 12px;
         background: rgba(30,42,56,0.5); border-radius: 8px;
@@ -939,47 +1015,47 @@
         text-align: center; line-height: 1.4;
     }
     [data-theme="light"] .ms-cell-hidden {
-        background: rgba(200,215,235,0.7);
-        border-color: rgba(37,99,235,0.2);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.08);
-        background-image: linear-gradient(rgba(37,99,235,0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(37,99,235,0.08) 1px, transparent 1px);
+        background: rgba(227, 218, 204, 0.7);
+        border-color: rgba(20, 20, 19, 0.12);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.06);
+        background-image: linear-gradient(rgba(20, 20, 19, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(20, 20, 19, 0.04) 1px, transparent 1px);
         background-size: 8px 8px, 8px 8px;
     }
     [data-theme="light"] .ms-cell-hidden:hover {
-        background: rgba(180,200,225,0.8);
-        border-color: rgba(37,99,235,0.35);
+        background: rgba(219, 209, 192, 0.8);
+        border-color: rgba(20, 20, 19, 0.2);
     }
     [data-theme="light"] .ms-cell-revealed {
-        background: rgba(232,236,241,0.5);
-        border-color: rgba(37,99,235,0.08);
+        background: rgba(240, 238, 230, 0.5);
+        border-color: rgba(20, 20, 19, 0.06);
     }
     [data-theme="light"] .ms-cell-flagged {
-        background: rgba(200,215,235,0.7);
-        border-color: rgba(234,179,8,0.4);
+        background: rgba(227, 218, 204, 0.7);
+        border-color: rgba(198, 97, 63, 0.35);
     }
-    [data-theme="light"] .ms-num-1 { color: #2563eb; }
-    [data-theme="light"] .ms-num-2 { color: #16a34a; }
-    [data-theme="light"] .ms-num-3 { color: #dc2626; }
-    [data-theme="light"] .ms-num-4 { color: #7c3aed; }
-    [data-theme="light"] .ms-num-5 { color: #a16207; }
-    [data-theme="light"] .ms-num-6 { color: #0891b2; }
-    [data-theme="light"] .ms-num-7 { color: #be185d; }
-    [data-theme="light"] .ms-num-8 { color: rgba(40,50,70,0.4); }
-    [data-theme="light"] .ms-flag-icon { color: #a16207; }
-    [data-theme="light"] .ms-mine-icon { color: #dc2626; }
-    [data-theme="light"] .ms-header { background: rgba(255,255,255,0.7); border-color: rgba(37,99,235,0.15); }
-    [data-theme="light"] .ms-counter { color: #a16207; }
-    [data-theme="light"] .ms-counter svg { stroke: #a16207; }
-    [data-theme="light"] .ms-timer { color: #2563eb; }
-    [data-theme="light"] .ms-timer svg { stroke: #2563eb; }
-    [data-theme="light"] .ms-board { background: rgba(220,230,245,0.4); border-color: rgba(37,99,235,0.15); }
-    [data-theme="light"] .ms-diff-select { background-color: rgba(255,255,255,0.8); border-color: rgba(37,99,235,0.2); color: #1a1a2e; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a1a2e'/%3E%3C/svg%3E"); }
-    [data-theme="light"] .ms-diff-select option { background: #fff; color: #1a1a2e; }
-    [data-theme="light"] .ms-game-over-overlay { background: rgba(232,236,241,0.9); }
-    [data-theme="light"] .ms-game-over-text { color: #1a1a2e; }
-    [data-theme="light"] .ms-hint { background: rgba(220,230,245,0.5); color: rgba(40,50,70,0.5); }
-    [data-theme="light"] .ms-face-btn { background: rgba(255,255,255,0.5); border-color: rgba(37,99,235,0.2); }
+    [data-theme="light"] .ms-num-1 { color: #C6613F; }
+    [data-theme="light"] .ms-num-2 { color: #5a8a3a; }
+    [data-theme="light"] .ms-num-3 { color: #b83a3a; }
+    [data-theme="light"] .ms-num-4 { color: #6a3ab8; }
+    [data-theme="light"] .ms-num-5 { color: #8a6a30; }
+    [data-theme="light"] .ms-num-6 { color: #2a8a8a; }
+    [data-theme="light"] .ms-num-7 { color: #a83a6a; }
+    [data-theme="light"] .ms-num-8 { color: rgba(20,20,19,0.35); }
+    [data-theme="light"] .ms-flag-icon { color: #9E4E30; }
+    [data-theme="light"] .ms-mine-icon { color: #b83a3a; }
+    [data-theme="light"] .ms-header { background: rgba(255,255,255,0.65); border-color: rgba(20,20,19,0.1); }
+    [data-theme="light"] .ms-counter { color: #9E4E30; }
+    [data-theme="light"] .ms-counter svg { stroke: #9E4E30; }
+    [data-theme="light"] .ms-timer { color: #C6613F; }
+    [data-theme="light"] .ms-timer svg { stroke: #C6613F; }
+    [data-theme="light"] .ms-board { background: rgba(232,230,220,0.4); border-color: rgba(20,20,19,0.1); }
+    [data-theme="light"] .ms-diff-select { background-color: rgba(255,255,255,0.85); border-color: rgba(20,20,19,0.12); color: #141413; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23141413'/%3E%3C/svg%3E"); }
+    [data-theme="light"] .ms-diff-select option { background: #FAF9F5; color: #141413; }
+    [data-theme="light"] .ms-game-over-overlay { background: rgba(240,238,230,0.9); }
+    [data-theme="light"] .ms-game-over-text { color: #141413; }
+    [data-theme="light"] .ms-hint { background: rgba(232,230,220,0.5); color: rgba(20,20,19,0.45); }
+    [data-theme="light"] .ms-face-btn { background: rgba(255,255,255,0.5); border-color: rgba(20,20,19,0.12); }
 
     @media (max-width: 400px) {
         .ms-board { padding: 4px; }
@@ -1011,7 +1087,7 @@
     .cs-wrapper[style*="margin-bottom:0"], .cs-wrapper[style*="margin-bottom: 0"] { margin-bottom: 0 !important; }
     .cs-trigger {
         width: 100%; background: var(--input-bg); border: 1px solid var(--card-border);
-        border-radius: 10px; padding: 10px 28px 10px 14px; color: #e8e8e8; font-size: 12px;
+        border-radius: 10px; padding: 10px 28px 10px 14px; color: #e8e8e8; font-size: 14px;
         font-family: 'Inter', sans-serif; line-height: 1.2; height: 42px; min-height: 42px;
         box-sizing: border-box; cursor: pointer; outline: none; transition: all 0.2s;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -1024,7 +1100,7 @@
     .cs-trigger.cs-open { border-color: rgba(74,143,199,0.5); box-shadow: 0 0 0 3px rgba(74,143,199,0.12); }
     .cs-trigger-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .cs-dropdown {
-        position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 9999;
+        position: fixed; z-index: 99999;
         background: #1a2233; border: 1px solid rgba(74,143,199,0.25); border-radius: 10px;
         max-height: 220px; overflow-y: auto; overflow-x: hidden;
         box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: none;
@@ -1035,54 +1111,57 @@
     }
     .cs-dropdown.cs-show { display: block; animation: csFadeIn 0.15s ease-out; }
     @keyframes csFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-    .cs-optgroup-label {
-        font-weight: 700; font-size: 11px; color: rgba(74,143,199,0.8);
-        padding: 8px 10px 4px; white-space: nowrap; position: sticky; top: 0;
-        background: #1a2233; z-index: 1; border-bottom: 1px solid rgba(74,143,199,0.1);
-    }
     .cs-option {
-        padding: 9px 12px; font-size: 12px; line-height: 1.3; color: #e0e0e0;
+        padding: 9px 12px; font-size: 14px; line-height: 1.3; color: #e0e0e0;
         cursor: pointer; white-space: nowrap; transition: background 0.12s;
         touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+        display: flex; justify-content: space-between; align-items: center; gap: 12px;
     }
     .cs-option:hover { background: rgba(74,143,199,0.15); }
     .cs-option.cs-selected { color: #4a8fc7; font-weight: 600; background: rgba(74,143,199,0.08); }
     .cs-option.cs-disabled { color: rgba(255,255,255,0.2); cursor: default; pointer-events: none; }
     .cs-option.cs-hidden { display: none; }
+    .cs-option-hint {
+        font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 400;
+        white-space: nowrap; flex-shrink: 0;
+    }
+    .cs-option.cs-selected .cs-option-hint { color: rgba(74,143,199,0.5); }
 
     /* Light theme custom selects */
-    [data-theme="light"] .cs-trigger { color: #1a1a2e; background: rgba(255,255,255,0.8); border-color: rgba(37,99,235,0.2);
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a1a2e'/%3E%3C/svg%3E");
+    [data-theme="light"] .cs-trigger { color: #141413; background-color: rgba(255, 255, 255, 0.85); border-color: rgba(20, 20, 19, 0.12);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23141413'/%3E%3C/svg%3E");
     }
-    [data-theme="light"] .cs-trigger:focus, [data-theme="light"] .cs-trigger.cs-open { border-color: rgba(37,99,235,0.5); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
-    [data-theme="light"] .cs-dropdown { background: #fff; border-color: rgba(37,99,235,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-    [data-theme="light"] .cs-optgroup-label { color: rgba(37,99,235,0.85); background: #fff; border-bottom-color: rgba(37,99,235,0.1); }
-    [data-theme="light"] .cs-option { color: #1a1a2e; }
-    [data-theme="light"] .cs-option:hover { background: rgba(37,99,235,0.08); }
-    [data-theme="light"] .cs-option.cs-selected { color: #2563eb; background: rgba(37,99,235,0.06); }
-    [data-theme="light"] .cs-option.cs-disabled { color: rgba(40,50,70,0.25); }
+    [data-theme="light"] .cs-trigger:focus, [data-theme="light"] .cs-trigger.cs-open { border-color: rgba(198, 97, 63, 0.4); box-shadow: 0 0 0 3px rgba(198, 97, 63, 0.1); }
+    [data-theme="light"] .cs-dropdown { background: #FAF9F5; border-color: rgba(20, 20, 19, 0.12); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+    [data-theme="light"] .cs-option { color: #141413; }
+    [data-theme="light"] .cs-option:hover { background: rgba(198, 97, 63, 0.07); }
+    [data-theme="light"] .cs-option.cs-selected { color: #C6613F; background: rgba(198, 97, 63, 0.05); }
+    [data-theme="light"] .cs-option.cs-disabled { color: rgba(20, 20, 19, 0.2); }
+    [data-theme="light"] .cs-option-hint { color: rgba(20, 20, 19, 0.3); }
+    [data-theme="light"] .cs-option.cs-selected .cs-option-hint { color: rgba(198, 97, 63, 0.4); }
 
     /* Mobile responsive custom selects */
     @media (max-width: 480px) {
-        .cs-trigger { font-size: 11px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
+        .cs-trigger { font-size: 13px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
         .cs-dropdown { max-height: 200px; }
-        .cs-option { font-size: 11px; padding: 8px 10px; }
-        .cs-optgroup-label { font-size: 10px; }
+        .cs-option { font-size: 13px; padding: 8px 10px; }
+        .cs-option-hint { font-size: 10px; }
     }
     @media (max-width: 400px) {
-        .cs-trigger { font-size: 11px; height: 38px; min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
+        .cs-trigger { font-size: 12px; height: 38px; min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
         .cs-dropdown { max-height: 180px; }
-        .cs-option { font-size: 11px; padding: 7px 10px; }
+        .cs-option { font-size: 12px; padding: 7px 10px; }
+        .cs-option-hint { font-size: 10px; }
     }
 
     /* kit-dev-form custom selects */
     .kit-dev-form .cs-wrapper { margin-bottom: 0 !important; }
-    .kit-dev-form .cs-trigger { min-height: 36px !important; height: 36px !important; font-size: 12px !important; border-radius: 8px !important; padding: 6px 28px 6px 10px !important; }
+    .kit-dev-form .cs-trigger { min-height: 36px !important; height: 36px !important; font-size: 13px !important; border-radius: 8px !important; padding: 6px 28px 6px 10px !important; }
     @media (max-width: 480px) {
-        .kit-dev-form .cs-trigger { min-height: 36px !important; height: 36px !important; font-size: 11px !important; }
+        .kit-dev-form .cs-trigger { min-height: 36px !important; height: 36px !important; font-size: 12px !important; }
     }
     @media (max-width: 400px) {
-        .kit-dev-form .cs-trigger { min-height: 34px !important; height: 34px !important; font-size: 10px !important; }
+        .kit-dev-form .cs-trigger { min-height: 34px !important; height: 34px !important; font-size: 11px !important; }
     }
 </style>
 <!-- base target removed: not needed for SPA, causes issues with in-page navigation -->
@@ -4696,9 +4775,15 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
     // ====== Custom Select Dropdown System ======
     (function() {
+        // Container for all dropdown panels (appended to body to avoid z-index stacking issues)
+        var dropdownContainer = document.createElement('div');
+        dropdownContainer.id = 'cs-dropdown-container';
+        dropdownContainer.style.cssText = 'position:fixed;top:0;left:0;width:0;height:0;z-index:99999;pointer-events:none;';
+        document.body.appendChild(dropdownContainer);
+
         // Global click handler to close dropdowns when clicking outside
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('.cs-wrapper')) {
+            if (!e.target.closest('.cs-wrapper') && !e.target.closest('.cs-dropdown')) {
                 closeAllDropdowns();
             }
         });
@@ -4711,9 +4796,26 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             document.querySelectorAll('.cs-dropdown.cs-show').forEach(function(dd) {
                 dd.classList.remove('cs-show');
                 dd.classList.remove('cs-drop-up');
-                var trigger = dd.previousElementSibling;
+                dd.style.pointerEvents = 'none';
+                var trigger = dd._csTrigger;
                 if (trigger) trigger.classList.remove('cs-open');
             });
+        }
+
+        // Map: select element → current optgroup hint for its options
+        // Used for temp_rtd_type where optgroup data is shown inline
+        function getOptgroupHints(select) {
+            var hints = {};
+            var currentGroup = '';
+            var options = select.querySelectorAll('option, optgroup');
+            options.forEach(function(opt) {
+                if (opt.tagName === 'OPTGROUP') {
+                    currentGroup = opt.getAttribute('label') || '';
+                } else if (opt.tagName === 'OPTION') {
+                    hints[opt.value] = currentGroup;
+                }
+            });
+            return hints;
         }
 
         function buildDropdown(select) {
@@ -4724,16 +4826,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             wrapper.className = 'cs-wrapper';
 
             // Transfer layout-related inline styles from select to wrapper
-            // (flex, width, margin-bottom, etc. — needed for selects inside flex containers)
             var inlineStyle = select.getAttribute('style') || '';
             var layoutProps = ['flex', 'width', 'min-width', 'max-width', 'margin-bottom'];
             var wrapperStyle = '';
             layoutProps.forEach(function(prop) {
                 var re = new RegExp(prop + '\\s*:\\s*([^;]+)', 'i');
                 var m = inlineStyle.match(re);
-                if (m) {
-                    wrapperStyle += prop + ':' + m[1] + ';';
-                }
+                if (m) wrapperStyle += prop + ':' + m[1] + ';';
             });
             if (wrapperStyle) wrapper.setAttribute('style', wrapperStyle);
 
@@ -4753,32 +4852,17 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             triggerText.textContent = selectedOpt ? selectedOpt.textContent : '';
             trigger.appendChild(triggerText);
 
-            // Build dropdown panel
+            // Build dropdown panel (appended to body container for z-index fix)
             var dropdown = document.createElement('div');
             dropdown.className = 'cs-dropdown';
+            dropdown._csTrigger = trigger;
 
-            var options = select.querySelectorAll('option, optgroup');
-            options.forEach(function(opt) {
-                if (opt.tagName === 'OPTGROUP') {
-                    var groupLabel = document.createElement('div');
-                    groupLabel.className = 'cs-optgroup-label';
-                    groupLabel.textContent = opt.getAttribute('label') || '';
-                    dropdown.appendChild(groupLabel);
-                } else if (opt.tagName === 'OPTION') {
-                    var optDiv = document.createElement('div');
-                    optDiv.className = 'cs-option';
-                    if (opt.selected) optDiv.classList.add('cs-selected');
-                    if (opt.disabled) optDiv.classList.add('cs-disabled');
-                    optDiv.textContent = opt.textContent;
-                    optDiv.setAttribute('data-value', opt.value);
-                    optDiv.addEventListener('click', function(ev) {
-                        ev.stopPropagation();
-                        if (optDiv.classList.contains('cs-disabled')) return;
-                        selectOption(select, trigger, triggerText, dropdown, optDiv);
-                    });
-                    dropdown.appendChild(optDiv);
-                }
-            });
+            // Get optgroup hints if this select uses optgroups with meaningful data
+            var hints = getOptgroupHints(select);
+
+            buildDropdownOptions(select, dropdown, hints);
+
+            dropdownContainer.appendChild(dropdown);
 
             // Toggle dropdown on trigger click
             trigger.addEventListener('click', function(ev) {
@@ -4786,26 +4870,31 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 var isOpen = dropdown.classList.contains('cs-show');
                 closeAllDropdowns();
                 if (!isOpen) {
-                    // Auto-position: open upward if not enough space below
+                    // Position dropdown relative to trigger using fixed positioning
                     var triggerRect = trigger.getBoundingClientRect();
                     var spaceBelow = window.innerHeight - triggerRect.bottom;
                     var spaceAbove = triggerRect.top;
-                    // Temporarily show dropdown off-screen to measure its height
+                    // Measure dropdown height
                     dropdown.style.visibility = 'hidden';
                     dropdown.style.display = 'block';
+                    dropdown.style.width = triggerRect.width + 'px';
                     var dropHeight = Math.min(dropdown.scrollHeight, 220);
                     dropdown.style.display = '';
                     dropdown.style.visibility = '';
+
                     if (spaceBelow < dropHeight && spaceAbove > spaceBelow) {
                         dropdown.style.top = 'auto';
-                        dropdown.style.bottom = 'calc(100% + 4px)';
+                        dropdown.style.bottom = (window.innerHeight - triggerRect.top + 4) + 'px';
+                        dropdown.style.left = triggerRect.left + 'px';
                         dropdown.classList.add('cs-drop-up');
                     } else {
-                        dropdown.style.top = 'calc(100% + 4px)';
+                        dropdown.style.top = (triggerRect.bottom + 4) + 'px';
                         dropdown.style.bottom = 'auto';
+                        dropdown.style.left = triggerRect.left + 'px';
                         dropdown.classList.remove('cs-drop-up');
                     }
                     dropdown.classList.add('cs-show');
+                    dropdown.style.pointerEvents = 'auto';
                     trigger.classList.add('cs-open');
                     trigger.setAttribute('aria-expanded', 'true');
                     scrollToSelected(dropdown);
@@ -4813,17 +4902,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     trigger.setAttribute('aria-expanded', 'false');
                 }
             });
-            // Keyboard support for trigger
+            // Keyboard support
             trigger.addEventListener('keydown', function(ev) {
-                if (ev.key === 'Enter' || ev.key === ' ') {
-                    ev.preventDefault();
-                    trigger.click();
-                } else if (ev.key === 'Escape') {
-                    closeAllDropdowns();
-                }
+                if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); trigger.click(); }
+                else if (ev.key === 'Escape') closeAllDropdowns();
             });
 
-            // Hide the native select visually but keep it in DOM for JS compatibility
+            // Hide the native select visually but keep in DOM for JS compatibility
             select.style.position = 'absolute';
             select.style.width = '0';
             select.style.height = '0';
@@ -4834,20 +4919,59 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             select.style.padding = '0';
             select.style.border = 'none';
 
-            // Insert wrapper before the select, move select and custom elements into wrapper
+            // Insert wrapper
             select.parentNode.insertBefore(wrapper, select);
             wrapper.appendChild(trigger);
-            wrapper.appendChild(dropdown);
             wrapper.appendChild(select);
 
-            // Store reference for sync
+            // Store references
             select._csWrapper = wrapper;
             select._csTrigger = trigger;
             select._csTriggerText = triggerText;
             select._csDropdown = dropdown;
+            select._csHints = hints;
         }
 
-        function selectOption(select, trigger, triggerText, dropdown, optDiv) {
+        function buildDropdownOptions(select, dropdown, hints) {
+            dropdown.innerHTML = '';
+            var options = select.querySelectorAll('option, optgroup');
+            options.forEach(function(opt) {
+                if (opt.tagName === 'OPTGROUP') {
+                    // Skip optgroup labels — they are shown as hints inline
+                    return;
+                } else if (opt.tagName === 'OPTION') {
+                    var optDiv = document.createElement('div');
+                    optDiv.className = 'cs-option';
+                    if (opt.selected) optDiv.classList.add('cs-selected');
+                    if (opt.disabled) optDiv.classList.add('cs-disabled');
+                    optDiv.setAttribute('data-value', opt.value);
+
+                    var mainText = document.createElement('span');
+                    mainText.textContent = opt.textContent;
+                    optDiv.appendChild(mainText);
+
+                    // If there's an optgroup hint for this option, show it inline on the right
+                    var hintText = hints[opt.value];
+                    if (hintText) {
+                        var hintSpan = document.createElement('span');
+                        hintSpan.className = 'cs-option-hint';
+                        hintSpan.textContent = hintText;
+                        optDiv.appendChild(hintSpan);
+                    }
+
+                    optDiv.addEventListener('click', function(ev) {
+                        ev.stopPropagation();
+                        if (optDiv.classList.contains('cs-disabled')) return;
+                        selectOption(select, optDiv);
+                    });
+                    dropdown.appendChild(optDiv);
+                }
+            });
+        }
+
+        function selectOption(select, optDiv) {
+            var trigger = select._csTrigger;
+            var dropdown = select._csDropdown;
             var value = optDiv.getAttribute('data-value');
             // Set value (triggers syncFromNative via overridden setter)
             select.value = value;
@@ -4859,10 +4983,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // Close dropdown
             dropdown.classList.remove('cs-show');
             dropdown.classList.remove('cs-drop-up');
+            dropdown.style.pointerEvents = 'none';
             trigger.classList.remove('cs-open');
             trigger.setAttribute('aria-expanded', 'false');
 
-            // Fire native change event so existing onchange handlers work
+            // Fire native change event
             var event = new Event('change', { bubbles: true });
             select.dispatchEvent(event);
 
@@ -4873,7 +4998,6 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         function scrollToSelected(dropdown) {
             var selected = dropdown.querySelector('.cs-option.cs-selected');
             if (selected) {
-                // Delay to ensure dropdown is rendered
                 setTimeout(function() {
                     selected.scrollIntoView({ block: 'nearest', inline: 'nearest' });
                 }, 10);
@@ -4899,7 +5023,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             });
         }
 
-        // Observe native selects for programmatic value changes
+        // Override value setter on HTMLSelectElement
         var origValueDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
         var origValueGetter = origValueDesc.get;
         var origValueSetter = origValueDesc.set;
@@ -4908,12 +5032,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 origValueSetter.call(this, val);
                 if (this._csWrapper) syncFromNative(this);
             },
-            get: function() {
-                return origValueGetter.call(this);
-            }
+            get: function() { return origValueGetter.call(this); }
         });
 
-        // Also override setAttribute for selected on options
+        // Override selected setter on HTMLOptionElement
         var origOptionSelectedDesc = Object.getOwnPropertyDescriptor(HTMLOptionElement.prototype, 'selected');
         var origOptionSelectedGetter = origOptionSelectedDesc.get;
         var origOptionSelectedSetter = origOptionSelectedDesc.set;
@@ -4923,12 +5045,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 var select = this.closest('select');
                 if (select && select._csWrapper) syncFromNative(select);
             },
-            get: function() {
-                return origOptionSelectedGetter.call(this);
-            }
+            get: function() { return origOptionSelectedGetter.call(this); }
         });
 
-        // Override disabled setter on option elements to sync custom dropdown
+        // Override disabled setter on HTMLOptionElement
         var origOptionDisabledDesc = Object.getOwnPropertyDescriptor(HTMLOptionElement.prototype, 'disabled');
         var origOptionDisabledGetter = origOptionDisabledDesc.get;
         var origOptionDisabledSetter = origOptionDisabledDesc.set;
@@ -4937,7 +5057,6 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 origOptionDisabledSetter.call(this, val);
                 var select = this.closest('select');
                 if (select && select._csDropdown) {
-                    // Update the corresponding custom option
                     var val_ = this.value;
                     var optEl = select._csDropdown.querySelector('.cs-option[data-value="' + CSS.escape(val_) + '"]');
                     if (optEl) {
@@ -4946,13 +5065,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     }
                 }
             },
-            get: function() {
-                return origOptionDisabledGetter.call(this);
-            }
+            get: function() { return origOptionDisabledGetter.call(this); }
         });
 
         // Override innerHTML setter for <select> to auto-rebuild custom dropdown
-        // when options are replaced programmatically (e.g. updateRtdTypeOptions)
         var origInnerHTMLDesc = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
         Object.defineProperty(HTMLSelectElement.prototype, 'innerHTML', {
             set: function(html) {
@@ -4961,9 +5077,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     window.rebuildCustomSelect(this);
                 }
             },
-            get: function() {
-                return origInnerHTMLDesc.get.call(this);
-            }
+            get: function() { return origInnerHTMLDesc.get.call(this); }
         });
 
         // Initialize all existing selects
@@ -4982,38 +5096,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             });
         };
 
-        // Also rebuild a specific select's custom dropdown (when options change)
+        // Rebuild a specific select's custom dropdown (when options change)
         window.rebuildCustomSelect = function(selectEl) {
             if (!selectEl || !selectEl._csWrapper) return;
-            var wrapper = selectEl._csWrapper;
-            var trigger = selectEl._csTrigger;
-            var triggerText = selectEl._csTriggerText;
             var dropdown = selectEl._csDropdown;
-
-            // Rebuild dropdown options
-            dropdown.innerHTML = '';
-            var options = selectEl.querySelectorAll('option, optgroup');
-            options.forEach(function(opt) {
-                if (opt.tagName === 'OPTGROUP') {
-                    var groupLabel = document.createElement('div');
-                    groupLabel.className = 'cs-optgroup-label';
-                    groupLabel.textContent = opt.getAttribute('label') || '';
-                    dropdown.appendChild(groupLabel);
-                } else if (opt.tagName === 'OPTION') {
-                    var optDiv = document.createElement('div');
-                    optDiv.className = 'cs-option';
-                    if (opt.selected) optDiv.classList.add('cs-selected');
-                    if (opt.disabled) optDiv.classList.add('cs-disabled');
-                    optDiv.textContent = opt.textContent;
-                    optDiv.setAttribute('data-value', opt.value);
-                    optDiv.addEventListener('click', function(ev) {
-                        ev.stopPropagation();
-                        if (optDiv.classList.contains('cs-disabled')) return;
-                        selectOption(selectEl, trigger, triggerText, dropdown, optDiv);
-                    });
-                    dropdown.appendChild(optDiv);
-                }
-            });
+            var hints = getOptgroupHints(selectEl);
+            selectEl._csHints = hints;
+            buildDropdownOptions(selectEl, dropdown, hints);
             syncFromNative(selectEl);
         };
 
@@ -5029,11 +5118,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             mutations.forEach(function(m) {
                 m.addedNodes.forEach(function(node) {
                     if (node.nodeType !== 1) return;
-                    // Check if the added node itself is a select
                     if (node.tagName === 'SELECT' && (node.classList.contains('scale-field') || node.classList.contains('form-field'))) {
                         if (!node._csWrapper) buildDropdown(node);
                     }
-                    // Check children
                     var selects = node.querySelectorAll ? node.querySelectorAll('select.scale-field, select.form-field') : [];
                     selects.forEach(function(sel) {
                         if (!sel._csWrapper) buildDropdown(sel);
@@ -5042,6 +5129,33 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             });
         });
         csObserver.observe(document.body, { childList: true, subtree: true });
+
+        // Reposition open dropdown on scroll/resize
+        window.addEventListener('scroll', function() {
+            document.querySelectorAll('.cs-dropdown.cs-show').forEach(function(dd) {
+                var trigger = dd._csTrigger;
+                if (!trigger) return;
+                var rect = trigger.getBoundingClientRect();
+                dd.style.left = rect.left + 'px';
+                dd.style.width = rect.width + 'px';
+                if (dd.classList.contains('cs-drop-up')) {
+                    dd.style.bottom = (window.innerHeight - rect.top + 4) + 'px';
+                    dd.style.top = 'auto';
+                } else {
+                    dd.style.top = (rect.bottom + 4) + 'px';
+                    dd.style.bottom = 'auto';
+                }
+            });
+        }, true);
+        window.addEventListener('resize', function() {
+            document.querySelectorAll('.cs-dropdown.cs-show').forEach(function(dd) {
+                var trigger = dd._csTrigger;
+                if (!trigger) return;
+                var rect = trigger.getBoundingClientRect();
+                dd.style.left = rect.left + 'px';
+                dd.style.width = rect.width + 'px';
+            });
+        });
     })();
 </script>
 
