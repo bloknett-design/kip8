@@ -1004,6 +1004,86 @@
             opacity: 1 !important;
         }
     }
+
+    /* ====== Custom Select Dropdown ====== */
+    .cs-wrapper { position: relative; width: 100%; margin-bottom: 12px; }
+    .cs-wrapper:last-child { margin-bottom: 0; }
+    .cs-wrapper[style*="margin-bottom:0"], .cs-wrapper[style*="margin-bottom: 0"] { margin-bottom: 0 !important; }
+    .cs-trigger {
+        width: 100%; background: var(--input-bg); border: 1px solid var(--card-border);
+        border-radius: 10px; padding: 10px 28px 10px 14px; color: #e8e8e8; font-size: 12px;
+        font-family: 'Inter', sans-serif; line-height: 1.2; height: 42px; min-height: 42px;
+        box-sizing: border-box; cursor: pointer; outline: none; transition: all 0.2s;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        -webkit-appearance: none; appearance: none; user-select: none; -webkit-user-select: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23e0e0e0'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 10px center; background-size: 10px 6px;
+        display: flex; align-items: center;
+    }
+    .cs-trigger:focus { border-color: rgba(74,143,199,0.5); box-shadow: 0 0 0 3px rgba(74,143,199,0.12); }
+    .cs-trigger.cs-open { border-color: rgba(74,143,199,0.5); box-shadow: 0 0 0 3px rgba(74,143,199,0.12); }
+    .cs-trigger-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cs-dropdown {
+        position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 9999;
+        background: #1a2233; border: 1px solid rgba(74,143,199,0.25); border-radius: 10px;
+        max-height: 220px; overflow-y: auto; overflow-x: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4); display: none;
+        -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+    }
+    .cs-dropdown.cs-drop-up {
+        box-shadow: 0 -8px 24px rgba(0,0,0,0.4);
+    }
+    .cs-dropdown.cs-show { display: block; animation: csFadeIn 0.15s ease-out; }
+    @keyframes csFadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+    .cs-optgroup-label {
+        font-weight: 700; font-size: 11px; color: rgba(74,143,199,0.8);
+        padding: 8px 10px 4px; white-space: nowrap; position: sticky; top: 0;
+        background: #1a2233; z-index: 1; border-bottom: 1px solid rgba(74,143,199,0.1);
+    }
+    .cs-option {
+        padding: 9px 12px; font-size: 12px; line-height: 1.3; color: #e0e0e0;
+        cursor: pointer; white-space: nowrap; transition: background 0.12s;
+        touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+    }
+    .cs-option:hover { background: rgba(74,143,199,0.15); }
+    .cs-option.cs-selected { color: #4a8fc7; font-weight: 600; background: rgba(74,143,199,0.08); }
+    .cs-option.cs-disabled { color: rgba(255,255,255,0.2); cursor: default; pointer-events: none; }
+    .cs-option.cs-hidden { display: none; }
+
+    /* Light theme custom selects */
+    [data-theme="light"] .cs-trigger { color: #1a1a2e; background: rgba(255,255,255,0.8); border-color: rgba(37,99,235,0.2);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231a1a2e'/%3E%3C/svg%3E");
+    }
+    [data-theme="light"] .cs-trigger:focus, [data-theme="light"] .cs-trigger.cs-open { border-color: rgba(37,99,235,0.5); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+    [data-theme="light"] .cs-dropdown { background: #fff; border-color: rgba(37,99,235,0.15); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+    [data-theme="light"] .cs-optgroup-label { color: rgba(37,99,235,0.85); background: #fff; border-bottom-color: rgba(37,99,235,0.1); }
+    [data-theme="light"] .cs-option { color: #1a1a2e; }
+    [data-theme="light"] .cs-option:hover { background: rgba(37,99,235,0.08); }
+    [data-theme="light"] .cs-option.cs-selected { color: #2563eb; background: rgba(37,99,235,0.06); }
+    [data-theme="light"] .cs-option.cs-disabled { color: rgba(40,50,70,0.25); }
+
+    /* Mobile responsive custom selects */
+    @media (max-width: 480px) {
+        .cs-trigger { font-size: 11px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
+        .cs-dropdown { max-height: 200px; }
+        .cs-option { font-size: 11px; padding: 8px 10px; }
+        .cs-optgroup-label { font-size: 10px; }
+    }
+    @media (max-width: 400px) {
+        .cs-trigger { font-size: 11px; height: 38px; min-height: 38px; padding-top: 8px; padding-bottom: 8px; }
+        .cs-dropdown { max-height: 180px; }
+        .cs-option { font-size: 11px; padding: 7px 10px; }
+    }
+
+    /* kit-dev-form custom selects */
+    .kit-dev-form .cs-wrapper { margin-bottom: 0 !important; }
+    .kit-dev-form .cs-trigger { min-height: 36px !important; height: 36px !important; font-size: 12px !important; border-radius: 8px !important; padding: 6px 28px 6px 10px !important; }
+    @media (max-width: 480px) {
+        .kit-dev-form .cs-trigger { min-height: 36px !important; height: 36px !important; font-size: 11px !important; }
+    }
+    @media (max-width: 400px) {
+        .kit-dev-form .cs-trigger { min-height: 34px !important; height: 34px !important; font-size: 10px !important; }
+    }
 </style>
 <!-- base target removed: not needed for SPA, causes issues with in-page navigation -->
 </head>
@@ -4613,6 +4693,356 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             navigator.vibrate(15);
         }
     });
+
+    // ====== Custom Select Dropdown System ======
+    (function() {
+        // Global click handler to close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.cs-wrapper')) {
+                closeAllDropdowns();
+            }
+        });
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeAllDropdowns();
+        });
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.cs-dropdown.cs-show').forEach(function(dd) {
+                dd.classList.remove('cs-show');
+                dd.classList.remove('cs-drop-up');
+                var trigger = dd.previousElementSibling;
+                if (trigger) trigger.classList.remove('cs-open');
+            });
+        }
+
+        function buildDropdown(select) {
+            // Skip already-converted selects and the minesweeper difficulty select
+            if (select.closest('.cs-wrapper') || select.id === 'msDiffSelect') return;
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'cs-wrapper';
+
+            // Transfer layout-related inline styles from select to wrapper
+            // (flex, width, margin-bottom, etc. — needed for selects inside flex containers)
+            var inlineStyle = select.getAttribute('style') || '';
+            var layoutProps = ['flex', 'width', 'min-width', 'max-width', 'margin-bottom'];
+            var wrapperStyle = '';
+            layoutProps.forEach(function(prop) {
+                var re = new RegExp(prop + '\\s*:\\s*([^;]+)', 'i');
+                var m = inlineStyle.match(re);
+                if (m) {
+                    wrapperStyle += prop + ':' + m[1] + ';';
+                }
+            });
+            if (wrapperStyle) wrapper.setAttribute('style', wrapperStyle);
+
+            // Copy relevant classes from select to wrapper context
+            var isKitDev = select.closest('.kit-dev-form') !== null;
+            if (isKitDev) wrapper.classList.add('kit-dev-form');
+
+            // Build trigger
+            var trigger = document.createElement('div');
+            trigger.className = 'cs-trigger';
+            trigger.setAttribute('tabindex', '0');
+            trigger.setAttribute('role', 'combobox');
+            trigger.setAttribute('aria-expanded', 'false');
+            var selectedOpt = select.options[select.selectedIndex];
+            var triggerText = document.createElement('span');
+            triggerText.className = 'cs-trigger-text';
+            triggerText.textContent = selectedOpt ? selectedOpt.textContent : '';
+            trigger.appendChild(triggerText);
+
+            // Build dropdown panel
+            var dropdown = document.createElement('div');
+            dropdown.className = 'cs-dropdown';
+
+            var options = select.querySelectorAll('option, optgroup');
+            options.forEach(function(opt) {
+                if (opt.tagName === 'OPTGROUP') {
+                    var groupLabel = document.createElement('div');
+                    groupLabel.className = 'cs-optgroup-label';
+                    groupLabel.textContent = opt.getAttribute('label') || '';
+                    dropdown.appendChild(groupLabel);
+                } else if (opt.tagName === 'OPTION') {
+                    var optDiv = document.createElement('div');
+                    optDiv.className = 'cs-option';
+                    if (opt.selected) optDiv.classList.add('cs-selected');
+                    if (opt.disabled) optDiv.classList.add('cs-disabled');
+                    optDiv.textContent = opt.textContent;
+                    optDiv.setAttribute('data-value', opt.value);
+                    optDiv.addEventListener('click', function(ev) {
+                        ev.stopPropagation();
+                        if (optDiv.classList.contains('cs-disabled')) return;
+                        selectOption(select, trigger, triggerText, dropdown, optDiv);
+                    });
+                    dropdown.appendChild(optDiv);
+                }
+            });
+
+            // Toggle dropdown on trigger click
+            trigger.addEventListener('click', function(ev) {
+                ev.stopPropagation();
+                var isOpen = dropdown.classList.contains('cs-show');
+                closeAllDropdowns();
+                if (!isOpen) {
+                    // Auto-position: open upward if not enough space below
+                    var triggerRect = trigger.getBoundingClientRect();
+                    var spaceBelow = window.innerHeight - triggerRect.bottom;
+                    var spaceAbove = triggerRect.top;
+                    // Temporarily show dropdown off-screen to measure its height
+                    dropdown.style.visibility = 'hidden';
+                    dropdown.style.display = 'block';
+                    var dropHeight = Math.min(dropdown.scrollHeight, 220);
+                    dropdown.style.display = '';
+                    dropdown.style.visibility = '';
+                    if (spaceBelow < dropHeight && spaceAbove > spaceBelow) {
+                        dropdown.style.top = 'auto';
+                        dropdown.style.bottom = 'calc(100% + 4px)';
+                        dropdown.classList.add('cs-drop-up');
+                    } else {
+                        dropdown.style.top = 'calc(100% + 4px)';
+                        dropdown.style.bottom = 'auto';
+                        dropdown.classList.remove('cs-drop-up');
+                    }
+                    dropdown.classList.add('cs-show');
+                    trigger.classList.add('cs-open');
+                    trigger.setAttribute('aria-expanded', 'true');
+                    scrollToSelected(dropdown);
+                } else {
+                    trigger.setAttribute('aria-expanded', 'false');
+                }
+            });
+            // Keyboard support for trigger
+            trigger.addEventListener('keydown', function(ev) {
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                    ev.preventDefault();
+                    trigger.click();
+                } else if (ev.key === 'Escape') {
+                    closeAllDropdowns();
+                }
+            });
+
+            // Hide the native select visually but keep it in DOM for JS compatibility
+            select.style.position = 'absolute';
+            select.style.width = '0';
+            select.style.height = '0';
+            select.style.opacity = '0';
+            select.style.pointerEvents = 'none';
+            select.style.overflow = 'hidden';
+            select.style.margin = '0';
+            select.style.padding = '0';
+            select.style.border = 'none';
+
+            // Insert wrapper before the select, move select and custom elements into wrapper
+            select.parentNode.insertBefore(wrapper, select);
+            wrapper.appendChild(trigger);
+            wrapper.appendChild(dropdown);
+            wrapper.appendChild(select);
+
+            // Store reference for sync
+            select._csWrapper = wrapper;
+            select._csTrigger = trigger;
+            select._csTriggerText = triggerText;
+            select._csDropdown = dropdown;
+        }
+
+        function selectOption(select, trigger, triggerText, dropdown, optDiv) {
+            var value = optDiv.getAttribute('data-value');
+            // Set value (triggers syncFromNative via overridden setter)
+            select.value = value;
+
+            // Update selected visual
+            dropdown.querySelectorAll('.cs-option.cs-selected').forEach(function(o) { o.classList.remove('cs-selected'); });
+            optDiv.classList.add('cs-selected');
+
+            // Close dropdown
+            dropdown.classList.remove('cs-show');
+            dropdown.classList.remove('cs-drop-up');
+            trigger.classList.remove('cs-open');
+            trigger.setAttribute('aria-expanded', 'false');
+
+            // Fire native change event so existing onchange handlers work
+            var event = new Event('change', { bubbles: true });
+            select.dispatchEvent(event);
+
+            // Haptic feedback
+            if (navigator.vibrate) navigator.vibrate(10);
+        }
+
+        function scrollToSelected(dropdown) {
+            var selected = dropdown.querySelector('.cs-option.cs-selected');
+            if (selected) {
+                // Delay to ensure dropdown is rendered
+                setTimeout(function() {
+                    selected.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                }, 10);
+            }
+        }
+
+        // Sync custom dropdown when native select value changes programmatically
+        function syncFromNative(select) {
+            var trigger = select._csTrigger;
+            var triggerText = select._csTriggerText;
+            var dropdown = select._csDropdown;
+            if (!trigger || !triggerText || !dropdown) return;
+
+            var selectedOpt = select.options[select.selectedIndex];
+            triggerText.textContent = selectedOpt ? selectedOpt.textContent : '';
+
+            dropdown.querySelectorAll('.cs-option').forEach(function(o) {
+                if (o.getAttribute('data-value') === select.value) {
+                    o.classList.add('cs-selected');
+                } else {
+                    o.classList.remove('cs-selected');
+                }
+            });
+        }
+
+        // Observe native selects for programmatic value changes
+        var origValueDesc = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+        var origValueGetter = origValueDesc.get;
+        var origValueSetter = origValueDesc.set;
+        Object.defineProperty(HTMLSelectElement.prototype, 'value', {
+            set: function(val) {
+                origValueSetter.call(this, val);
+                if (this._csWrapper) syncFromNative(this);
+            },
+            get: function() {
+                return origValueGetter.call(this);
+            }
+        });
+
+        // Also override setAttribute for selected on options
+        var origOptionSelectedDesc = Object.getOwnPropertyDescriptor(HTMLOptionElement.prototype, 'selected');
+        var origOptionSelectedGetter = origOptionSelectedDesc.get;
+        var origOptionSelectedSetter = origOptionSelectedDesc.set;
+        Object.defineProperty(HTMLOptionElement.prototype, 'selected', {
+            set: function(val) {
+                origOptionSelectedSetter.call(this, val);
+                var select = this.closest('select');
+                if (select && select._csWrapper) syncFromNative(select);
+            },
+            get: function() {
+                return origOptionSelectedGetter.call(this);
+            }
+        });
+
+        // Override disabled setter on option elements to sync custom dropdown
+        var origOptionDisabledDesc = Object.getOwnPropertyDescriptor(HTMLOptionElement.prototype, 'disabled');
+        var origOptionDisabledGetter = origOptionDisabledDesc.get;
+        var origOptionDisabledSetter = origOptionDisabledDesc.set;
+        Object.defineProperty(HTMLOptionElement.prototype, 'disabled', {
+            set: function(val) {
+                origOptionDisabledSetter.call(this, val);
+                var select = this.closest('select');
+                if (select && select._csDropdown) {
+                    // Update the corresponding custom option
+                    var val_ = this.value;
+                    var optEl = select._csDropdown.querySelector('.cs-option[data-value="' + CSS.escape(val_) + '"]');
+                    if (optEl) {
+                        if (val) optEl.classList.add('cs-disabled');
+                        else optEl.classList.remove('cs-disabled');
+                    }
+                }
+            },
+            get: function() {
+                return origOptionDisabledGetter.call(this);
+            }
+        });
+
+        // Override innerHTML setter for <select> to auto-rebuild custom dropdown
+        // when options are replaced programmatically (e.g. updateRtdTypeOptions)
+        var origInnerHTMLDesc = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML');
+        Object.defineProperty(HTMLSelectElement.prototype, 'innerHTML', {
+            set: function(html) {
+                origInnerHTMLDesc.set.call(this, html);
+                if (this._csWrapper && typeof window.rebuildCustomSelect === 'function') {
+                    window.rebuildCustomSelect(this);
+                }
+            },
+            get: function() {
+                return origInnerHTMLDesc.get.call(this);
+            }
+        });
+
+        // Initialize all existing selects
+        function initCustomSelects(root) {
+            root = root || document;
+            var selects = root.querySelectorAll('select.scale-field, select.form-field');
+            selects.forEach(function(sel) { buildDropdown(sel); });
+        }
+
+        // Refresh custom selects for dynamically added content
+        window.refreshCustomSelects = function(container) {
+            container = container || document;
+            var selects = container.querySelectorAll('select.scale-field, select.form-field');
+            selects.forEach(function(sel) {
+                if (!sel._csWrapper) buildDropdown(sel);
+            });
+        };
+
+        // Also rebuild a specific select's custom dropdown (when options change)
+        window.rebuildCustomSelect = function(selectEl) {
+            if (!selectEl || !selectEl._csWrapper) return;
+            var wrapper = selectEl._csWrapper;
+            var trigger = selectEl._csTrigger;
+            var triggerText = selectEl._csTriggerText;
+            var dropdown = selectEl._csDropdown;
+
+            // Rebuild dropdown options
+            dropdown.innerHTML = '';
+            var options = selectEl.querySelectorAll('option, optgroup');
+            options.forEach(function(opt) {
+                if (opt.tagName === 'OPTGROUP') {
+                    var groupLabel = document.createElement('div');
+                    groupLabel.className = 'cs-optgroup-label';
+                    groupLabel.textContent = opt.getAttribute('label') || '';
+                    dropdown.appendChild(groupLabel);
+                } else if (opt.tagName === 'OPTION') {
+                    var optDiv = document.createElement('div');
+                    optDiv.className = 'cs-option';
+                    if (opt.selected) optDiv.classList.add('cs-selected');
+                    if (opt.disabled) optDiv.classList.add('cs-disabled');
+                    optDiv.textContent = opt.textContent;
+                    optDiv.setAttribute('data-value', opt.value);
+                    optDiv.addEventListener('click', function(ev) {
+                        ev.stopPropagation();
+                        if (optDiv.classList.contains('cs-disabled')) return;
+                        selectOption(selectEl, trigger, triggerText, dropdown, optDiv);
+                    });
+                    dropdown.appendChild(optDiv);
+                }
+            });
+            syncFromNative(selectEl);
+        };
+
+        // Initialize on DOMContentLoaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() { initCustomSelects(); });
+        } else {
+            initCustomSelects();
+        }
+
+        // MutationObserver for dynamically added selects
+        var csObserver = new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                m.addedNodes.forEach(function(node) {
+                    if (node.nodeType !== 1) return;
+                    // Check if the added node itself is a select
+                    if (node.tagName === 'SELECT' && (node.classList.contains('scale-field') || node.classList.contains('form-field'))) {
+                        if (!node._csWrapper) buildDropdown(node);
+                    }
+                    // Check children
+                    var selects = node.querySelectorAll ? node.querySelectorAll('select.scale-field, select.form-field') : [];
+                    selects.forEach(function(sel) {
+                        if (!sel._csWrapper) buildDropdown(sel);
+                    });
+                });
+            });
+        });
+        csObserver.observe(document.body, { childList: true, subtree: true });
+    })();
 </script>
 
 <!-- Sidebar -->
