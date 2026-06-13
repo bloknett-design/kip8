@@ -3635,7 +3635,9 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         if (isNaN(moduleSigMin) || isNaN(moduleSigMax) || moduleSigMin >= moduleSigMax) { showToast('Введите корректный диапазон входного сигнала модуля'); return; }
         if (isNaN(maxVal) || maxVal <= 0) { showToast('Введите НПВ'); return; }
 
-        // 1. Погрешность тензодатчика(ов) по OIML R 60
+        let unitLabel = wsUnitLabel(maxUnit);
+
+        // 1. Погрешность тензодатчика(ов) по OIML R 60 (при Max)
         let lcMpeMultiplier = getOimlMpeR60(lcClass, lcN);
         let lcMpePerUnit = lcMpeMultiplier * lcE;
         let lcMpeInMV = (lcMpePerUnit / maxVal) * jboxSigMax;
@@ -3643,7 +3645,7 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
             lcMpeInMV = lcMpeInMV * Math.sqrt(lcCount);
         }
 
-        // 2. Погрешность БК
+        // 2. Погрешность БК (при Max)
         let jboxAbsMV;
         if (jboxErrUnit === 'pct') {
             jboxAbsMV = (jboxErr / 100) * jboxSigMax;
@@ -3655,32 +3657,141 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         let moduleRange = moduleSigMax - moduleSigMin;
         let moduleAbsMV = (moduleClass / 100) * moduleRange;
 
-        // Суммарная погрешность (геометрическое суммирование с K=1.1, P=0.95)
-        let totalAbsMV = 1.1 * Math.sqrt(lcMpeInMV * lcMpeInMV + jboxAbsMV * jboxAbsMV + moduleAbsMV * moduleAbsMV);
+        // Функция расчёта суммарной погрешности при нагрузке m (в мВ)
+        function calcTotalMVAtLoad(loadMass) {
+            let frac = loadMass / maxVal;
+            let lcMV = lcMpeInMV * frac;                           // пропорционально нагрузке
+            let jboxMV = jboxErrUnit === 'pct' ? jboxAbsMV * frac : jboxAbsMV;  // %: пропорц., мВ: const
+            let modMV = moduleAbsMV;                                // const (приведённая)
+            return 1.1 * Math.sqrt(lcMV * lcMV + jboxMV * jboxMV + modMV * modMV);
+        }
 
-        // Пересчёт суммарной погрешности из мВ в единицы массы
-        let totalAbsMass = (totalAbsMV / jboxSigMax) * maxVal;
+        // Пересчёт мВ → единицы массы
+        function mvToMass(mv) {
+            return (mv / jboxSigMax) * maxVal;
+        }
 
-        let html = '<div class="converter-result-label-title">Результаты расчёта (электронные весы на тензодатчиках)</div>';
+        // Суммарная погрешность при Max
+        let totalAbsMV = calcTotalMVAtLoad(maxVal);
+        let totalAbsMass = mvToMass(totalAbsMV);
 
-        // Составляющие
+        // === Автоматическое определение класса точности и e ===
+        // МПЕ при Max = ±3e (по OIML R 76-1-2011) → e_min = Δ_Σ(Max) / 3
+        let eMin = totalAbsMass / 3;
+        let eSys = roundUpToStandardE(eMin);
+        let nSys = Math.floor(maxVal / eSys);
+        let sysClass = getClassFromN(nSys);
+        let classWarning = '';
+
+        // Итеративная проверка: расчётная Δ_Σ не должна превышать МПЕ во всех диапазонах
+        for (let iter = 0; iter < 10; iter++) {
+            if (!sysClass) break;
+            let ranges = getClassRanges(sysClass);
+            let passAll = true;
+
+            for (let i = 0; i < ranges.length; i++) {
+                let upperE = (i < ranges.length - 1) ? ranges[i + 1] : nSys;
+                if (ranges[i] >= nSys) continue;
+                upperE = Math.min(upperE, nSys);
+                let testLoad = upperE * eSys;
+                let actualMass = mvToMass(calcTotalMVAtLoad(testLoad));
+                let mpe = (i + 1) * eSys;
+                if (actualMass > mpe * 1.005) { // допуск 0.5% на округление
+                    passAll = false;
+                    break;
+                }
+            }
+
+            if (passAll) break;
+
+            // Увеличить e до следующего стандартного значения
+            let nextE = getNextStandardE(eSys);
+            if (nextE === eSys) break; // не удалось увеличить
+            eSys = nextE;
+            nSys = Math.floor(maxVal / eSys);
+            let newClass = getClassFromN(nSys);
+            if (newClass !== sysClass) {
+                classWarning = 'Класс понижен: система не проходит поверку по классу ' + getClassName(sysClass) + ' при e = ' + formatNumber(eSys) + ' ' + unitLabel;
+            }
+            sysClass = newClass;
+        }
+
+        // === Генерация результатов ===
+        let html = '<div class="converter-result-label-title">Результаты расчёта (ТВЭУ)</div>';
+
+        // Параметры компонентов
         html += '<div class="converter-result-item"><span class="converter-result-label">Класс тензодатчика (OIML R 60)</span><span class="converter-result-value">' + lcClass + '</span></div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">n<sub>LC</sub> (число поверочных делений)</span><span class="converter-result-value">' + formatNumber(lcN) + '</span></div>';
         html += '<div class="converter-result-item"><span class="converter-result-label">Количество тензодатчиков</span><span class="converter-result-value">' + lcCount + '</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">НПВ (Max)</span><span class="converter-result-value">' + formatNumber(maxVal) + ' ' + unitLabel + '</span></div>';
 
-        html += '<div style="margin-top:8px;padding:6px 0;font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;">Составляющие погрешности (в <span style="text-transform:none;">мВ</span>)</div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Погрешность тензодатчика</span><span class="converter-result-value" style="color:#4a8fc7;">± ' + formatNumber(lcMpeInMV) + ' <span style="text-transform:none;">мВ</span></span></div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Погрешность балансировочной коробки</span><span class="converter-result-value" style="color:#4a8fc7;">± ' + formatNumber(jboxAbsMV) + ' <span style="text-transform:none;">мВ</span></span></div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Погрешность модуля ввода АСУТП</span><span class="converter-result-value" style="color:#4a8fc7;">± ' + formatNumber(moduleAbsMV) + ' <span style="text-transform:none;">мВ</span></span></div>';
+        // Составляющие погрешности при Max (в мВ)
+        html += '<div style="margin-top:8px;padding:6px 0;font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;">Составляющие погрешности при Max (в <span style="text-transform:none;">мВ</span>)</div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Погрешность тензодатчика</span><span class="converter-result-value" style="color:#4a8fc7;">\u00B1 ' + formatNumber(lcMpeInMV) + ' <span style="text-transform:none;">мВ</span></span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Погрешность балансировочной коробки</span><span class="converter-result-value" style="color:#4a8fc7;">\u00B1 ' + formatNumber(jboxAbsMV) + ' <span style="text-transform:none;">мВ</span></span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Погрешность модуля ввода АСУТП</span><span class="converter-result-value" style="color:#4a8fc7;">\u00B1 ' + formatNumber(moduleAbsMV) + ' <span style="text-transform:none;">мВ</span></span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Суммарная абс. погрешность</span><span class="converter-result-value" style="color:#4a8fc7;">\u00B1 ' + formatNumber(totalAbsMV) + ' <span style="text-transform:none;">мВ</span> (' + formatNumber(totalAbsMass) + ' ' + unitLabel + ')</span></div>';
 
-        html += '<div style="margin-top:8px;padding:6px 0;font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;">Суммарная погрешность</div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Суммарная абс. погрешность (<span style="text-transform:none;">мВ</span>)</span><span class="converter-result-value" style="color:#4a8fc7;">± ' + formatNumber(totalAbsMV) + ' <span style="text-transform:none;">мВ</span></span></div>';
-        html += '<div class="converter-result-item"><span class="converter-result-label">Суммарная абс. погрешность (масса)</span><span class="converter-result-value" style="color:#4ac771;">± ' + formatNumber(totalAbsMass) + ' ' + wsUnitLabel(maxUnit) + '</span></div>';
+        // Автоматически определённые параметры весов
+        html += '<div style="margin-top:12px;padding:6px 0;font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;">Параметры весов (определены автоматически)</div>';
 
-        let totalRelPct = (totalAbsMass / maxVal) * 100;
-        html += '<div class="converter-result-item"><span class="converter-result-label">Относительная погрешность при Max</span><span class="converter-result-value" style="color:#4a8fc7;">± ' + formatNumber(totalRelPct) + ' %</span></div>';
+        if (sysClass) {
+            html += '<div class="converter-result-item"><span class="converter-result-label">Класс точности</span><span class="converter-result-value" style="color:#4ac771;">' + getClassName(sysClass) + ' (ГОСТ OIML R 76-1-2011)</span></div>';
+            html += '<div class="converter-result-item"><span class="converter-result-label">Поверочное деление <span style="text-transform:none;font-style:italic;">e</span></span><span class="converter-result-value">' + formatNumber(eSys) + ' ' + unitLabel + '</span></div>';
+            html += '<div class="converter-result-item"><span class="converter-result-label">Число поверочных делений <span style="text-transform:none;font-style:italic;">n</span> = Max/<span style="text-transform:none;font-style:italic;">e</span></span><span class="converter-result-value">' + formatNumber(nSys) + '</span></div>';
 
-        html += '<div class="converter-result-item" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="converter-result-label">Формула расчёта</span><span style="font-size:13px;color:rgba(140,180,210,0.9);line-height:1.5;">Δ<sub>Σ</sub> = K·√(Δ<sub>LC</sub>² + Δ<sub>БК</sub>² + Δ<sub>мод</sub>²), K=1.1, P=0.95<br>Δ<sub>масса</sub> = (Δ<sub>Σ</sub>(<span style="text-transform:none;">мВ</span>) / U<sub>max</sub>) · Max</span></div>';
+            if (classWarning) {
+                html += '<div class="converter-result-item" style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:8px;padding:8px 12px;"><span class="converter-result-label" style="color:#e74c3c;">Внимание</span><span class="converter-result-value" style="color:#e74c3c;font-size:12px;">' + classWarning + '</span></div>';
+            }
+        } else {
+            html += '<div class="converter-result-item"><span class="converter-result-label">Класс точности</span><span class="converter-result-value" style="color:#e74c3c;">Не классифицируется (n < 100)</span></div>';
+            html += '<div class="converter-result-item" style="background:rgba(231,76,60,0.08);border:1px solid rgba(231,76,60,0.2);border-radius:8px;padding:8px 12px;"><span class="converter-result-label" style="color:#e74c3c;">Причина</span><span class="converter-result-value" style="color:#e74c3c;font-size:12px;">Суммарная погрешность системы слишком велика. Уменьшите погрешность компонентов или НПВ.</span></div>';
+        }
+
+        // Таблица погрешности по диапазонам нагрузки
+        if (sysClass) {
+            let ranges = getClassRanges(sysClass);
+            html += '<div style="margin-top:12px;padding:6px 0;font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;">Погрешность по диапазонам нагрузки</div>';
+            html += '<div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;">';
+            html += '<thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Диапазон нагрузки</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">МПЕ OIML R 76</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Расчётная \u0394<sub>\u03A3</sub></th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:center;">Запас</th></tr></thead><tbody>';
+
+            for (let i = 0; i < ranges.length; i++) {
+                let lowerE = ranges[i];
+                let upperE = (i < ranges.length - 1) ? ranges[i + 1] : nSys;
+                if (lowerE >= nSys) continue;
+                upperE = Math.min(upperE, nSys);
+                if (lowerE >= upperE) continue;
+
+                let lowerMass = lowerE * eSys;
+                let upperMass = upperE * eSys;
+                let mpeMultiplier = i + 1;
+                let mpe = mpeMultiplier * eSys;
+
+                // Расчётная погрешность на верхней границе диапазона
+                let actualMV = calcTotalMVAtLoad(upperMass);
+                let actualMass = mvToMass(actualMV);
+                let pass = actualMass <= mpe * 1.005;
+                let margin = ((mpe - actualMass) / mpe * 100);
+
+                let bg = i % 2 ? 'rgba(22,27,34,0.4)' : 'rgba(13,17,23,0.4)';
+                html += '<tr style="background:' + bg + ';">';
+                html += '<td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.6);">от ' + formatNumber(lowerMass) + ' до ' + formatNumber(upperMass) + ' ' + unitLabel + '</td>';
+                html += '<td style="padding:8px 12px;font-size:14px;color:#4ac771;">\u00B1 ' + formatNumber(mpe) + ' ' + unitLabel + ' (' + mpeMultiplier + '<span style="text-transform:none;font-style:italic;">e</span>)</td>';
+                html += '<td style="padding:8px 12px;font-size:14px;' + (pass ? 'color:rgba(255,255,255,0.6);' : 'color:#e74c3c;') + '">\u00B1 ' + formatNumber(actualMass) + ' ' + unitLabel + '</td>';
+                html += '<td style="padding:8px 12px;font-size:14px;text-align:center;' + (pass ? 'color:#4ac771;' : 'color:#e74c3c;') + '">' + (pass ? (margin > 0 ? formatNumber(margin) + '%' : '<1%') : 'превышение') + '</td>';
+                html += '</tr>';
+            }
+
+            html += '</tbody></table></div>';
+        }
+
+        // Формула расчёта
+        html += '<div style="margin-top:10px;padding:6px 0;font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;">Формулы расчёта</div>';
+        html += '<div class="converter-result-item" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="converter-result-label">Суммарная погрешность</span><span style="font-size:13px;color:rgba(140,180,210,0.9);line-height:1.5;">\u0394<sub>\u03A3</sub>(m) = K\u00B7\u221A(\u0394<sub>LC</sub>(m)\u00B2 + \u0394<sub>\u0411\u041A</sub>(m)\u00B2 + \u0394<sub>\u043C\u043E\u0434</sub>\u00B2), K=1,1, P=0,95<br>\u0394<sub>LC</sub>(m) \u221d m/Max (пропорц. нагрузке); \u0394<sub>\u0411\u041A</sub> = const (мВ) или \u221d m/Max (%); \u0394<sub>\u043C\u043E\u0434</sub> = const<br>\u0394<sub>\u043C\u0430\u0441\u0441\u0430</sub> = (\u0394<sub>\u03A3</sub>(<span style="text-transform:none;">мВ</span>) / U<sub>max</sub>) \u00B7 Max</span></div>';
+
+        if (sysClass) {
+            html += '<div class="converter-result-item" style="flex-direction:column;align-items:flex-start;gap:4px;"><span class="converter-result-label">Определение <span style="text-transform:none;font-style:italic;">e</span> и класса</span><span style="font-size:13px;color:rgba(140,180,210,0.9);line-height:1.5;"><span style="text-transform:none;font-style:italic;">e</span><sub>min</sub> = \u0394<sub>\u03A3</sub>(Max) / 3 = ' + formatNumber(totalAbsMass) + ' / 3 = ' + formatNumber(eMin) + ' ' + unitLabel + '<br><span style="text-transform:none;font-style:italic;">e</span> = ' + formatNumber(eSys) + ' ' + unitLabel + ' (округлено до стандартного ряда 1, 2, 5 \u00D7 10<sup>k</sup>)<br><span style="text-transform:none;font-style:italic;">n</span> = Max/<span style="text-transform:none;font-style:italic;">e</span> = ' + formatNumber(maxVal) + '/' + formatNumber(eSys) + ' = ' + formatNumber(nSys) + ' \u2192 класс ' + getClassName(sysClass) + '</span></div>';
+        }
 
         document.getElementById('ws_results').innerHTML = html;
         document.getElementById('ws_results').style.display = 'block';
@@ -3710,6 +3821,45 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
             if (nLC <= 2000) return 1.0;
             return 1.5;
         }
+    }
+
+    // Вспомогательные функции для автоматического определения класса точности ТВЭУ
+    function roundUpToStandardE(val) {
+        if (val <= 0) return 1;
+        let exp = Math.floor(Math.log10(val));
+        let base = Math.pow(10, exp);
+        let mantissa = val / base;
+        if (mantissa <= 1) return base;
+        if (mantissa <= 2) return 2 * base;
+        if (mantissa <= 5) return 5 * base;
+        return 10 * base;
+    }
+    function getNextStandardE(currentE) {
+        let exp = Math.floor(Math.log10(currentE + 1e-15));
+        let base = Math.pow(10, exp);
+        let mantissa = currentE / base;
+        if (mantissa < 1.5) return 2 * base;
+        if (mantissa < 3.5) return 5 * base;
+        if (mantissa < 7) return 10 * base;
+        return 20 * base;
+    }
+    function getClassFromN(n) {
+        if (n >= 50000) return 'I';
+        if (n > 10000) return 'II';
+        if (n > 1000) return 'III';
+        if (n >= 100) return 'IIII';
+        return null;
+    }
+    function getClassRanges(oimlClass) {
+        if (oimlClass === 'I') return [0, 50000, 200000];
+        if (oimlClass === 'II') return [0, 5000, 20000];
+        if (oimlClass === 'III') return [0, 500, 2000];
+        if (oimlClass === 'IIII') return [0, 50, 200];
+        return [0, 500, 2000];
+    }
+    function getClassName(oimlClass) {
+        let names = {'I': 'I (специальный)', 'II': 'II (высокий)', 'III': 'III (средний)', 'IIII': 'IIII (обычный)'};
+        return names[oimlClass] || oimlClass;
     }
 
     function calcElsScaleError() {
