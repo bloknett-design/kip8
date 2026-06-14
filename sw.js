@@ -8,7 +8,7 @@
 // свежие файлы с сервера.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v24';
+const CACHE_VERSION = 'kipia-v23';
 const CACHE_NAME = CACHE_VERSION;
 
 const ASSETS = [
