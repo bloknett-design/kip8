@@ -676,14 +676,10 @@
     .ticket-cat-card { position: relative; border-radius: 14px; margin-bottom: 10px; cursor: pointer; transition: transform .15s; overflow: hidden; min-height: 120px; }
     .ticket-cat-card:active { transform: scale(0.97); }
     .ticket-cat-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-    .ticket-cat-info { position: relative; z-index: 1; padding: 18px 20px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 130px; background: linear-gradient(to top, rgba(23,33,43,0.85) 0%, rgba(23,33,43,0.45) 50%, transparent 100%); }
+    .ticket-cat-info { position: relative; z-index: 1; padding: 18px 20px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 130px; background: linear-gradient(to top, rgba(23,33,43,0.42) 0%, rgba(23,33,43,0.22) 50%, transparent 100%); }
     .ticket-cat-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-    .ticket-cat-sub { font-size: 14px; color: rgba(0,0,0,0.65); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-    .ticket-cat-badge { display: inline-block; background: rgba(0,0,0,0.2); color: #1a1a1a; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 6px; margin-left: 8px; backdrop-filter: blur(4px); }
-    [data-theme="light"] .ticket-cat-info { background: linear-gradient(to top, rgba(34,139,34,0.75) 0%, rgba(34,139,34,0.35) 50%, transparent 100%); }
+    [data-theme="light"] .ticket-cat-info { background: linear-gradient(to top, rgba(34,139,34,0.38) 0%, rgba(34,139,34,0.18) 50%, transparent 100%); }
     [data-theme="light"] .ticket-cat-title { color: #1a1a1a; text-shadow: 0 1px 2px rgba(255,255,255,0.4); }
-    [data-theme="light"] .ticket-cat-sub { color: rgba(0,0,0,0.6); }
-    [data-theme="light"] .ticket-cat-badge { background: rgba(0,0,0,0.15); color: #1a1a1a; }
 
     .ticket-list { padding: 0 16px; }
     .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
@@ -2050,19 +2046,19 @@
             <div style="padding: 0 16px;">
                 <div class="ticket-cat-card" onclick="navigateTo('tickets-1000v')">
                     <img src="images/1000В.png" alt="1000В">
-                    <div class="ticket-cat-info"><div class="ticket-cat-title">Билеты до 1000 В<span class="ticket-cat-badge" id="badge-1000v"></span></div><div class="ticket-cat-sub">Электробезопасность, допуск до 1000 В</div></div>
+                    <div class="ticket-cat-info"><div class="ticket-cat-title">Билеты до 1000 В</div></div>
                 </div>
                 <div class="ticket-cat-card" onclick="navigateTo('tickets-4')">
                     <img src="images/4р.png" alt="4р">
-                    <div class="ticket-cat-info"><div class="ticket-cat-title">Билеты на 4 разряд<span class="ticket-cat-badge" id="badge-4"></span></div><div class="ticket-cat-sub">Слесарь КИПиА, 4 разряд</div></div>
+                    <div class="ticket-cat-info"><div class="ticket-cat-title">Билеты на 4 разряд</div></div>
                 </div>
                 <div class="ticket-cat-card" onclick="navigateTo('tickets-5')">
                     <img src="images/5р.png" alt="5р">
-                    <div class="ticket-cat-info"><div class="ticket-cat-title">Билеты на 5 разряд<span class="ticket-cat-badge" id="badge-5"></span></div><div class="ticket-cat-sub">Слесарь КИПиА, 5 разряд</div></div>
+                    <div class="ticket-cat-info"><div class="ticket-cat-title">Билеты на 5 разряд</div></div>
                 </div>
                 <div class="ticket-cat-card" onclick="navigateTo('tickets-6')">
                     <img src="images/6р.png" alt="6р">
-                    <div class="ticket-cat-info"><div class="ticket-cat-title">Билеты на 6 разряд<span class="ticket-cat-badge" id="badge-6"></span></div><div class="ticket-cat-sub">Слесарь КИПиА, 6 разряд</div></div>
+                    <div class="ticket-cat-info"><div class="ticket-cat-title">Билеты на 6 разряд</div></div>
                 </div>
             </div>
         </div>
