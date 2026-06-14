@@ -8,7 +8,7 @@
 // свежие файлы с сервера.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v21';
+const CACHE_VERSION = 'kipia-v23';
 const CACHE_NAME = CACHE_VERSION;
 
 const ASSETS = [
@@ -17,6 +17,8 @@ const ASSETS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  './icon-192-maskable.png',
+  './icon-512-maskable.png',
   './icon.png'
 ];
 
