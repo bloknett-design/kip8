@@ -153,7 +153,8 @@
         display: flex; align-items: center; gap: 6px; padding: 8px 16px; 
         background: var(--nav-bg); 
         border-bottom: 1px solid rgba(74, 143, 199, 0.12); 
-        position: relative; z-index: 3;
+        position: sticky; top: 56px; z-index: 50;
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     }
     .nav-btn {
         display: inline-flex; align-items: center; justify-content: center; gap: 5px;
@@ -675,14 +676,19 @@
     .ticket-cat-card { position: relative; border-radius: 14px; margin-bottom: 10px; cursor: pointer; transition: transform .15s; overflow: hidden; min-height: 120px; }
     .ticket-cat-card:active { transform: scale(0.97); }
     .ticket-cat-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-    .ticket-cat-info { position: relative; z-index: 1; padding: 16px 18px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 120px; background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 50%, transparent 100%); }
-    .ticket-cat-title { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 3px; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
-    .ticket-cat-sub { font-size: 12px; color: rgba(255,255,255,0.7); text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-    .ticket-cat-badge { display: inline-block; background: rgba(255,255,255,0.2); color: #fff; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-left: 8px; backdrop-filter: blur(4px); }
+    .ticket-cat-info { position: relative; z-index: 1; padding: 16px 18px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 120px; background: linear-gradient(to top, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.35) 50%, transparent 100%); }
+    .ticket-cat-title { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
+    .ticket-cat-sub { font-size: 12px; color: rgba(0,0,0,0.6); text-shadow: 0 1px 2px rgba(255,255,255,0.4); }
+    .ticket-cat-badge { display: inline-block; background: rgba(0,0,0,0.15); color: #1a1a1a; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-left: 8px; backdrop-filter: blur(4px); }
+    [data-theme="light"] .ticket-cat-info { background: linear-gradient(to top, rgba(199,150,74,0.7) 0%, rgba(199,150,74,0.35) 50%, transparent 100%); }
+    [data-theme="light"] .ticket-cat-title { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    [data-theme="light"] .ticket-cat-sub { color: rgba(255,255,255,0.85); text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+    [data-theme="light"] .ticket-cat-badge { background: rgba(255,255,255,0.25); color: #fff; }
 
     .ticket-list { padding: 0 16px; }
-    .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
-    .ticket-item-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
+    .ticket-item-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; position: sticky; top: 100px; z-index: 40; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 12px 12px 0 0; }
+    .ticket-item.open .ticket-item-header { border-radius: 12px 12px 0 0; border-bottom: 1px solid var(--card-border); }
     .ticket-item-header:active { background: var(--active-bg); }
     .ticket-item-num { font-size: 17px; font-weight: 600; color: var(--text-primary); }
     .ticket-item-count { font-size: 14px; color: rgba(255,255,255,0.35); }
@@ -715,7 +721,7 @@
     [data-theme="light"] .ticket-empty { color: rgba(0,0,0,0.3); }
     .ticket-loading { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4); font-size: 14px; }
 
-    [data-theme="light"] .ticket-cat-card { border-color: rgba(20,20,19,0.1); }
+    [data-theme="light"] .ticket-cat-card { border-color: rgba(199,150,74,0.25); }
     [data-theme="light"] .ticket-item { border-color: rgba(20,20,19,0.08); }
     [data-theme="light"] .ticket-item-header:active { background: rgba(0,0,0,0.03); }
     [data-theme="light"] .ticket-q { border-bottom-color: rgba(0,0,0,0.05); }
