@@ -8,7 +8,7 @@
 // свежие файлы с сервера.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v24';
+const CACHE_VERSION = 'kipia-v25';
 const CACHE_NAME = CACHE_VERSION;
 
 const ASSETS = [
@@ -19,7 +19,8 @@ const ASSETS = [
   './icon-512.png',
   './icon-192-maskable.png',
   './icon-512-maskable.png',
-  './icon.png'
+  './icon.png',
+  './data/exam-tickets.json'
 ];
 
 // Install — предварительное кэширование основных файлов
