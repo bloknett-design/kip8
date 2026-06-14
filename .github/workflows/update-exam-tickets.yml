@@ -23,7 +23,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install openpyxl
+        run: pip install openpyxl requests
 
       - name: Convert XLSX to JSON
         run: python scripts/convert-exam-tickets.py
