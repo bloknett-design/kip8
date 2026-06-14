@@ -11,7 +11,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" href="images/icon.png">
 <link rel="manifest" href="manifest.json">
 <title>КИПиА</title>
 <!-- Tailwind CSS removed: unused (saved ~2.8 MB) -->
@@ -1266,7 +1266,7 @@
 <div class="header-btn" id="menuBtn" onclick="toggleSidebar()" style="margin-right:6px;display:none;">
     <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:rgba(74,143,199,0.9);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </div>
-<img class="header-logo" id="headerLogo" src="logo_black.png" alt="КИП" style="width:48px;height:48px;border-radius:12px;cursor:pointer;" onclick="event.stopPropagation(); toggleSidebar();">
+<img class="header-logo" id="headerLogo" src="images/logo_black.png" alt="КИП" style="width:48px;height:48px;border-radius:12px;cursor:pointer;" onclick="event.stopPropagation(); toggleSidebar();">
             </div>
 <div class="header-title"><svg class="led-display" viewBox="0 0 362 88" xmlns="http://www.w3.org/2000/svg">
 <defs>
@@ -2692,8 +2692,8 @@
             <div class="page-inline-header"><div class="page-inline-header-title">Калибровка буйкового уровнемера</div></div>
     <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
             <div class="buoy-select-container">
-                <div class="buoy-card buoy-card-light" onclick="selectCalibMethod('with_buoy')"><div class="buoy-card-inner"><div class="buoy-card-top"><div class="buoy-illustration"><img id="buoy-with-img" src="buoy_with_black.png" alt="С буйком"></div><div class="buoy-card-body"><div class="buoy-card-title">С буйком</div><div class="buoy-card-desc">Компенсационный метод калибровки</div></div></div><div class="buoy-card-divider"></div><div class="buoy-card-formula"><span class="formula-inline">m<sub>гири</sub> = m<sub>выт</sub> + m<sub>подвеса</sub></span></div></div></div>
-                <div class="buoy-card buoy-card-dark" onclick="selectCalibMethod('without_buoy')"><div class="buoy-card-inner"><div class="buoy-card-top"><div class="buoy-illustration"><img id="buoy-without-img" src="buoy_without_black.png" alt="Без буйка"></div><div class="buoy-card-body"><div class="buoy-card-title">Без буйка</div><div class="buoy-card-desc">Имитация выталкивающей силы гирями</div></div></div><div class="buoy-card-divider"></div><div class="buoy-card-formula"><span class="formula-inline">m<sub>гири</sub> = m<sub>буйка</sub> − m<sub>выт</sub> + m<sub>подвеса</sub></span></div></div></div>
+                <div class="buoy-card buoy-card-light" onclick="selectCalibMethod('with_buoy')"><div class="buoy-card-inner"><div class="buoy-card-top"><div class="buoy-illustration"><img id="buoy-with-img" src="images/buoy_with_black.png" alt="С буйком"></div><div class="buoy-card-body"><div class="buoy-card-title">С буйком</div><div class="buoy-card-desc">Компенсационный метод калибровки</div></div></div><div class="buoy-card-divider"></div><div class="buoy-card-formula"><span class="formula-inline">m<sub>гири</sub> = m<sub>выт</sub> + m<sub>подвеса</sub></span></div></div></div>
+                <div class="buoy-card buoy-card-dark" onclick="selectCalibMethod('without_buoy')"><div class="buoy-card-inner"><div class="buoy-card-top"><div class="buoy-illustration"><img id="buoy-without-img" src="images/buoy_without_black.png" alt="Без буйка"></div><div class="buoy-card-body"><div class="buoy-card-title">Без буйка</div><div class="buoy-card-desc">Имитация выталкивающей силы гирями</div></div></div><div class="buoy-card-divider"></div><div class="buoy-card-formula"><span class="formula-inline">m<sub>гири</sub> = m<sub>буйка</sub> − m<sub>выт</sub> + m<sub>подвеса</sub></span></div></div></div>
             </div>
         </div>
 
@@ -5114,14 +5114,14 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         var isLight = document.documentElement.getAttribute('data-theme') === 'light';
         var buoyWithImg = document.getElementById('buoy-with-img');
         var buoyWithoutImg = document.getElementById('buoy-without-img');
-        if (buoyWithImg) buoyWithImg.src = isLight ? 'buoy_with.png' : 'buoy_with_black.png';
-        if (buoyWithoutImg) buoyWithoutImg.src = isLight ? 'buoy_without.png' : 'buoy_without_black.png';
+        if (buoyWithImg) buoyWithImg.src = isLight ? 'images/buoy_with.png' : 'images/buoy_with_black.png';
+        if (buoyWithoutImg) buoyWithoutImg.src = isLight ? 'images/buoy_without.png' : 'images/buoy_without_black.png';
     }
 
     function updateLogoImage() {
         var isLight = document.documentElement.getAttribute('data-theme') === 'light';
         var logo = document.getElementById('headerLogo');
-        if (logo) logo.src = isLight ? 'logo.png' : 'logo_black.png';
+        if (logo) logo.src = isLight ? 'images/logo.png' : 'images/logo_black.png';
     }
 
     // Apply saved theme on load
@@ -5685,7 +5685,7 @@ if ('serviceWorker' in navigator) {
         <div class="about-modal-close" onclick="closeAboutModal()">
             <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </div>
-        <img class="about-modal-logo" src="icon-192.png" alt="КИПиА">
+        <img class="about-modal-logo" src="images/icon-192.png" alt="КИПиА">
         <div class="about-modal-title">КИПиА</div>
         <div class="about-modal-version">Версия 2.0.0</div>
         <div class="about-modal-desc">Справочник и калькулятор контрольно-измерительных приборов и автоматики</div>

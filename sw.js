@@ -8,18 +8,22 @@
 // свежие файлы с сервера.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v29';
+const CACHE_VERSION = 'kipia-v30';
 const CACHE_NAME = CACHE_VERSION;
 
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  './icon-192-maskable.png',
-  './icon-512-maskable.png',
-  './icon.png',
+  './images/icon-192.png',
+  './images/icon-512.png',
+  './images/icon-192-maskable.png',
+  './images/icon-512-maskable.png',
+  './images/icon.png',
+  './images/1000\u0412.png',
+  './images/4\u0440.png',
+  './images/5\u0440.png',
+  './images/6\u0440.png',
   './data/exam-tickets.json'
 ];
 
