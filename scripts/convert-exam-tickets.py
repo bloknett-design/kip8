@@ -10,7 +10,6 @@
 Запускается через GitHub Actions (workflow_dispatch или schedule).
 """
 
-import base64
 import json
 import os
 import re
@@ -44,6 +43,26 @@ SHEETS_CONFIG = {
 }
 
 
+def _unescape_url(url: str) -> str:
+    """Расшифровывает экранированные символы в URL."""
+    return url.replace("\\u0026", "&").replace("&amp;", "&")
+
+
+def _try_download(dl_url: str, dest: str, headers: dict) -> bool:
+    """Пытается скачать файл по URL и проверяет, что это xlsx (ZIP)."""
+    try:
+        r = requests.get(dl_url, headers=headers, allow_redirects=True, timeout=30)
+        if r.status_code == 200 and len(r.content) > 100 and r.content[:2] == b"PK":
+            with open(dest, "wb") as f:
+                f.write(r.content)
+            print(f"Скачано: {len(r.content)} байт")
+            return True
+        print(f"Скачивание: статус {r.status_code}, размер {len(r.content)}, первые байты: {r.content[:4]}")
+    except Exception as e:
+        print(f"Ошибка скачивания: {e}")
+    return False
+
+
 def download_xlsx(share_url: str, dest: str) -> bool:
     """Скачивает xlsx по ссылке OneDrive (несколько способов)."""
     if not HAS_REQUESTS:
@@ -54,10 +73,72 @@ def download_xlsx(share_url: str, dest: str) -> bool:
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
 
-    # Способ 1: Graph API shares
+    # ================================================================
+    # Способ 1: Извлечение FileGetUrl из HTML-страницы (САМЫЙ НАДЁЖНЫЙ)
+    # ================================================================
     try:
+        print(f"Открываем ссылку: {share_url}")
+        r = requests.get(share_url, headers=headers, allow_redirects=True, timeout=20)
+        page_text = r.text
+        print(f"Страница загружена: {len(page_text)} символов, URL: {r.url[:80]}...")
+
+        # 1a. Ищем FileGetUrl (содержит tempauth-токен для скачивания)
+        file_get_match = re.search(
+            r'"FileGetUrl"\s*:\s*"(https://[^"]+)"',
+            page_text,
+        )
+        if file_get_match:
+            dl_url = _unescape_url(file_get_match.group(1))
+            print(f"Найден FileGetUrl (длина {len(dl_url)})")
+            if _try_download(dl_url, dest, headers):
+                return True
+            print("FileGetUrl не дал валидный xlsx, пробуем другие способы...")
+
+        # 1b. Ищем @content.downloadUrl
+        content_dl_match = re.search(
+            r'"@content\.downloadUrl"\s*:\s*"(https://[^"]+)"',
+            page_text,
+        )
+        if content_dl_match:
+            dl_url = _unescape_url(content_dl_match.group(1))
+            print(f"Найден @content.downloadUrl (длина {len(dl_url)})")
+            if _try_download(dl_url, dest, headers):
+                return True
+            print("@content.downloadUrl не дал валидный xlsx, пробуем другие способы...")
+
+        # 1c. Ищем любой URL с tempauth на my.microsoftpersonalcontent.com
+        tempauth_match = re.search(
+            r'(https://my\.microsoftpersonalcontent\.com/[^"\s]+tempauth=[^"\s]+)',
+            page_text,
+        )
+        if tempauth_match:
+            dl_url = _unescape_url(tempauth_match.group(1))
+            print(f"Найден tempauth URL на my.microsoftpersonalcontent.com (длина {len(dl_url)})")
+            if _try_download(dl_url, dest, headers):
+                return True
+
+        # 1d. Ищем любой URL с tempauth на onedrive.live.com
+        tempauth_match2 = re.search(
+            r'(https://onedrive\.live\.com/[^"\s]+download\.aspx[^"\s]*tempauth=[^"\s]+)',
+            page_text,
+        )
+        if tempauth_match2:
+            dl_url = _unescape_url(tempauth_match2.group(1))
+            print(f"Найден tempauth URL на onedrive.live.com (длина {len(dl_url)})")
+            if _try_download(dl_url, dest, headers):
+                return True
+
+    except Exception as e:
+        print(f"Ошибка при разборе страницы: {e}")
+
+    # ================================================================
+    # Способ 2: Graph API shares (может потребовать токен)
+    # ================================================================
+    try:
+        import base64
         encoded = base64.urlsafe_b64encode(share_url.encode()).decode().rstrip("=")
         api_url = f"https://graph.microsoft.com/v1.0/shares/u!{encoded}/root/content"
+        print(f"Пробуем Graph API: {api_url[:80]}...")
         r = requests.get(api_url, headers=headers, allow_redirects=True, timeout=30)
         if r.status_code == 200 and len(r.content) > 100 and r.content[:2] == b"PK":
             with open(dest, "wb") as f:
@@ -67,41 +148,6 @@ def download_xlsx(share_url: str, dest: str) -> bool:
         print(f"Graph API: статус {r.status_code}")
     except Exception as e:
         print(f"Graph API: ошибка — {e}")
-
-    # Способ 2: Извлечение download URL из страницы
-    try:
-        r = requests.get(share_url, headers=headers, allow_redirects=True, timeout=20)
-        page_text = r.text
-
-        # tempauth URL
-        auth_match = re.search(
-            r"(https://[^\s\"\\]+download\.aspx[^\s\"\\]*tempauth=[^\s\"\\]+)",
-            page_text,
-        )
-        if auth_match:
-            dl_url = auth_match.group(1).replace("\\u0026", "&").replace("&amp;", "&")
-            r2 = requests.get(dl_url, headers=headers, allow_redirects=True, timeout=30)
-            if r2.status_code == 200 and r2.content[:2] == b"PK":
-                with open(dest, "wb") as f:
-                    f.write(r2.content)
-                print(f"Скачано через tempauth: {len(r2.content)} байт")
-                return True
-
-        # Простой download URL
-        simple_match = re.search(
-            r"(https://onedrive\.live\.com/[^\s\"\\]+download\.aspx[^\s\"\\]*)",
-            page_text,
-        )
-        if simple_match:
-            dl_url = simple_match.group(1).replace("\\u0026", "&").replace("&amp;", "&")
-            r3 = requests.get(dl_url, headers=headers, allow_redirects=True, timeout=30)
-            if r3.status_code == 200 and r3.content[:2] == b"PK":
-                with open(dest, "wb") as f:
-                    f.write(r3.content)
-                print(f"Скачано через download URL: {len(r3.content)} байт")
-                return True
-    except Exception as e:
-        print(f"Скачивание через страницу: ошибка — {e}")
 
     print("Не удалось скачать файл с OneDrive", file=sys.stderr)
     return False
