@@ -1,32 +1,41 @@
 #!/usr/bin/env python3
 """
-Скачивает xlsx-файл с OneDrive и конвертирует его в JSON
-для использования в PWA «КИПиА».
+Конвертирует xlsx-файл в JSON для PWA «КИПиА».
 
-Запускается автоматически через GitHub Actions (workflow_dispatch или schedule),
-либо вручную.
+Логика:
+  1. Если xlsx-файл есть в репозитории (data/exam-tickets.xlsx) — берём его.
+  2. Если нет — пробуем скачать с OneDrive по ссылке общего доступа.
+  3. Конвертируем все листы в JSON и сохраняем.
+
+Запускается через GitHub Actions (workflow_dispatch или schedule).
 """
 
+import base64
 import json
 import os
 import re
 import sys
 
 import openpyxl
-import requests
+
+# Попробуем импортировать requests (может не быть при оффлайн-конвертации)
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
 
 # ============================================================
-# Конфигурация — ссылка на общий доступ к файлу OneDrive
+# Конфигурация
 # ============================================================
 ONEDRIVE_SHARE_URL = os.environ.get(
     "ONEDRIVE_SHARE_URL",
     "https://1drv.ms/x/c/c9414adb26fe5b28/IQDqsaT9uFR_T6HBWRyYhhEtAXDVcDPDoT3-O_um4E6V7O0?e=IKtgRl",
 )
 
-# Путь к выходному JSON-файлу (относительно корня репозитория)
+LOCAL_XLSX = os.environ.get("LOCAL_XLSX", "data/exam-tickets.xlsx")
 OUTPUT_PATH = os.environ.get("OUTPUT_PATH", "data/exam-tickets.json")
 
-# Маппинг листов → идентификаторы и заголовки
 SHEETS_CONFIG = {
     "4 разряд": {"id": "tickets-4", "title": "Билеты на 4 разряд"},
     "5 разряд": {"id": "tickets-5", "title": "Билеты на 5 разряд"},
@@ -36,65 +45,70 @@ SHEETS_CONFIG = {
 
 
 def download_xlsx(share_url: str, dest: str) -> bool:
-    """Скачивает xlsx-файл по ссылке общего доступа OneDrive."""
-    import base64
+    """Скачивает xlsx по ссылке OneDrive (несколько способов)."""
+    if not HAS_REQUESTS:
+        print("Библиотека requests недоступна, скачивание невозможно", file=sys.stderr)
+        return False
 
-    # Способ 1: Microsoft Graph API shares (для публичных ссылок)
-    encoded = base64.urlsafe_b64encode(share_url.encode()).decode().rstrip("=")
-    api_url = f"https://graph.microsoft.com/v1.0/shares/u!{encoded}/root/content"
-    r = requests.get(api_url, allow_redirects=True, timeout=30)
-    if r.status_code == 200 and len(r.content) > 100 and r.content[:2] == b"PK":
-        with open(dest, "wb") as f:
-            f.write(r.content)
-        print(f"Скачано через Graph API: {len(r.content)} байт")
-        return True
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    }
 
-    # Способ 2: Через web-reader / извлечение download URL из страницы
-    r = requests.get(share_url, allow_redirects=True, timeout=20)
-    page_text = r.text
-
-    # Ищем tempauth download URL
-    auth_match = re.search(
-        r"(https://[^\s\"\\]+download\.aspx[^\s\"\\]*tempauth=[^\s\"\\]+)",
-        page_text,
-    )
-    if auth_match:
-        dl_url = (
-            auth_match.group(1)
-            .replace("\\u0026", "&")
-            .replace("&amp;", "&")
-        )
-        r2 = requests.get(dl_url, allow_redirects=True, timeout=30)
-        if r2.status_code == 200 and r2.content[:2] == b"PK":
+    # Способ 1: Graph API shares
+    try:
+        encoded = base64.urlsafe_b64encode(share_url.encode()).decode().rstrip("=")
+        api_url = f"https://graph.microsoft.com/v1.0/shares/u!{encoded}/root/content"
+        r = requests.get(api_url, headers=headers, allow_redirects=True, timeout=30)
+        if r.status_code == 200 and len(r.content) > 100 and r.content[:2] == b"PK":
             with open(dest, "wb") as f:
-                f.write(r2.content)
-            print(f"Скачано через tempauth URL: {len(r2.content)} байт")
+                f.write(r.content)
+            print(f"Скачано через Graph API: {len(r.content)} байт")
             return True
+        print(f"Graph API: статус {r.status_code}")
+    except Exception as e:
+        print(f"Graph API: ошибка — {e}")
 
-    # Способ 3: Прямой download URL без tempauth
-    simple_match = re.search(
-        r"(https://onedrive\.live\.com/[^\s\"\\]+download\.aspx[^\s\"\\]*)",
-        page_text,
-    )
-    if simple_match:
-        dl_url = (
-            simple_match.group(1)
-            .replace("\\u0026", "&")
-            .replace("&amp;", "&")
+    # Способ 2: Извлечение download URL из страницы
+    try:
+        r = requests.get(share_url, headers=headers, allow_redirects=True, timeout=20)
+        page_text = r.text
+
+        # tempauth URL
+        auth_match = re.search(
+            r"(https://[^\s\"\\]+download\.aspx[^\s\"\\]*tempauth=[^\s\"\\]+)",
+            page_text,
         )
-        r3 = requests.get(dl_url, allow_redirects=True, timeout=30)
-        if r3.status_code == 200 and r3.content[:2] == b"PK":
-            with open(dest, "wb") as f:
-                f.write(r3.content)
-            print(f"Скачано через простой download URL: {len(r3.content)} байт")
-            return True
+        if auth_match:
+            dl_url = auth_match.group(1).replace("\\u0026", "&").replace("&amp;", "&")
+            r2 = requests.get(dl_url, headers=headers, allow_redirects=True, timeout=30)
+            if r2.status_code == 200 and r2.content[:2] == b"PK":
+                with open(dest, "wb") as f:
+                    f.write(r2.content)
+                print(f"Скачано через tempauth: {len(r2.content)} байт")
+                return True
 
-    print("Не удалось скачать файл ни одним из способов", file=sys.stderr)
+        # Простой download URL
+        simple_match = re.search(
+            r"(https://onedrive\.live\.com/[^\s\"\\]+download\.aspx[^\s\"\\]*)",
+            page_text,
+        )
+        if simple_match:
+            dl_url = simple_match.group(1).replace("\\u0026", "&").replace("&amp;", "&")
+            r3 = requests.get(dl_url, headers=headers, allow_redirects=True, timeout=30)
+            if r3.status_code == 200 and r3.content[:2] == b"PK":
+                with open(dest, "wb") as f:
+                    f.write(r3.content)
+                print(f"Скачано через download URL: {len(r3.content)} байт")
+                return True
+    except Exception as e:
+        print(f"Скачивание через страницу: ошибка — {e}")
+
+    print("Не удалось скачать файл с OneDrive", file=sys.stderr)
     return False
 
 
 def convert_xlsx_to_json(xlsx_path: str, json_path: str) -> bool:
-    """Конвертирует xlsx-файл в JSON."""
+    """Конвертирует xlsx в JSON."""
     wb = openpyxl.load_workbook(xlsx_path)
     all_data = {}
 
@@ -115,8 +129,7 @@ def convert_xlsx_to_json(xlsx_path: str, json_path: str) -> bool:
             obj = {}
             for i, val in enumerate(row):
                 if i < len(headers):
-                    key = headers[i]
-                    obj[key] = str(val) if val is not None else ""
+                    obj[headers[i]] = str(val) if val is not None else ""
             data_rows.append(obj)
 
         all_data[config["id"]] = {
@@ -138,14 +151,32 @@ def convert_xlsx_to_json(xlsx_path: str, json_path: str) -> bool:
 
 
 def main():
-    xlsx_dest = "/tmp/exam_tickets.xlsx"
+    xlsx_path = LOCAL_XLSX
 
-    print("Скачивание xlsx с OneDrive...")
-    if not download_xlsx(ONEDRIVE_SHARE_URL, xlsx_dest):
+    # 1. Проверяем локальный xlsx в репозитории
+    if os.path.isfile(xlsx_path):
+        print(f"Найден локальный файл: {xlsx_path}")
+    else:
+        # 2. Пробуем скачать с OneDrive
+        print("Локальный xlsx не найден, скачиваем с OneDrive...")
+        xlsx_path = "/tmp/exam_tickets.xlsx"
+        if not download_xlsx(ONEDRIVE_SHARE_URL, xlsx_path):
+            print("ОШИБКА: не удалось получить xlsx файл", file=sys.stderr)
+            sys.exit(1)
+
+    # Проверяем что файл валидный
+    try:
+        with open(xlsx_path, "rb") as f:
+            header = f.read(4)
+        if header[:2] != b"PK":
+            print(f"ОШИБКА: файл {xlsx_path} не является xlsx (не ZIP)", file=sys.stderr)
+            sys.exit(1)
+    except Exception as e:
+        print(f"ОШИБКА: не удалось прочитать файл — {e}", file=sys.stderr)
         sys.exit(1)
 
     print("Конвертация xlsx → JSON...")
-    if not convert_xlsx_to_json(xlsx_dest, OUTPUT_PATH):
+    if not convert_xlsx_to_json(xlsx_path, OUTPUT_PATH):
         sys.exit(1)
 
     print("Готово!")
