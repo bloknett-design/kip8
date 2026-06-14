@@ -684,21 +684,21 @@
     .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
     .ticket-item-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .ticket-item-header:active { background: var(--active-bg); }
-    .ticket-item-num { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-    .ticket-item-count { font-size: 11px; color: rgba(255,255,255,0.35); }
+    .ticket-item-num { font-size: 17px; font-weight: 600; color: var(--text-primary); }
+    .ticket-item-count { font-size: 14px; color: rgba(255,255,255,0.35); }
     [data-theme="light"] .ticket-item-count { color: rgba(0,0,0,0.35); }
-    .ticket-item-chevron { width: 18px; height: 18px; stroke: rgba(255,255,255,0.25); transition: transform .2s; flex-shrink: 0; }
+    .ticket-item-chevron { width: 22px; height: 22px; stroke: rgba(255,255,255,0.25); transition: transform .2s; flex-shrink: 0; }
     [data-theme="light"] .ticket-item-chevron { stroke: rgba(0,0,0,0.25); }
     .ticket-item.open .ticket-item-chevron { transform: rotate(90deg); }
     .ticket-item-body { display: none; border-top: 1px solid var(--card-border); }
     .ticket-item.open .ticket-item-body { display: block; }
 
-    .ticket-q { padding: 14px 16px; border-bottom: 1px solid rgba(74,143,199,0.08); }
+    .ticket-q { padding: 16px 18px; border-bottom: 1px solid rgba(74,143,199,0.08); }
     .ticket-q:last-child { border-bottom: none; }
-    .ticket-q-num { font-size: 11px; font-weight: 600; color: var(--accent-blue); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
-    .ticket-q-text { font-size: 14px; color: var(--text-primary); line-height: 1.55; margin-bottom: 10px; }
-    .ticket-a-label { font-size: 10px; font-weight: 700; color: rgba(74,199,113,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .ticket-a-text { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+    .ticket-q-num { font-size: 14px; font-weight: 600; color: var(--accent-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .ticket-q-text { font-size: 18px; color: var(--text-primary); line-height: 1.5; margin-bottom: 12px; }
+    .ticket-a-label { font-size: 13px; font-weight: 700; color: rgba(74,199,113,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .ticket-a-text { font-size: 17px; color: rgba(255,255,255,0.6); line-height: 1.55; }
     [data-theme="light"] .ticket-a-text { color: rgba(0,0,0,0.55); }
     .ticket-ref { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 8px; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,0.06); line-height: 1.4; }
     [data-theme="light"] .ticket-ref { color: rgba(0,0,0,0.25); border-top-color: rgba(0,0,0,0.06); }
@@ -3067,7 +3067,7 @@
             }
 
             html += '<div class="ticket-item">';
-            html += '<div class="ticket-item-header" onclick="this.parentElement.classList.toggle(\'open\')">';
+            html += '<div class="ticket-item-header" onclick="toggleTicketItem(this.parentElement)">';
             html += '<span class="ticket-item-num">' + ticketNum + '</span>';
             html += '<span style="display:flex;align-items:center;gap:8px;"><span class="ticket-item-count">' + filtered.length + ' вопр.</span>';
             html += '<svg class="ticket-item-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>';
@@ -3104,6 +3104,14 @@
 
     function filterTickets(catId, query) {
         renderTickets(catId, query);
+    }
+
+    function toggleTicketItem(el) {
+        const wasOpen = el.classList.contains('open');
+        // Закрыть все открытые билеты в этом контейнере
+        el.parentElement.querySelectorAll('.ticket-item.open').forEach(item => item.classList.remove('open'));
+        // Если кликнутый не был открыт — открыть
+        if (!wasOpen) el.classList.add('open');
     }
 
     async function initTicketsPage(catId) {
