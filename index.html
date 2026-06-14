@@ -633,6 +633,44 @@
     [data-theme="light"] .formula-inline {
         color: rgba(140, 60, 35, 0.85);
     }
+    /* ====== About Modal ====== */
+    .about-modal-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6); z-index: 1000;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+    }
+    .about-modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .about-modal {
+        background: rgba(26, 34, 51, 0.98); border: 1px solid rgba(74, 143, 199, 0.25);
+        border-radius: 16px; padding: 28px 24px 22px; max-width: 340px; width: 90%;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.4); position: relative;
+    }
+    .about-modal-close {
+        position: absolute; top: 12px; right: 12px; width: 28px; height: 28px;
+        border-radius: 8px; display: flex; align-items: center; justify-content: center;
+        cursor: pointer; background: transparent; border: none;
+        -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+    }
+    .about-modal-close:active { background: rgba(74, 143, 199, 0.15); }
+    .about-modal-logo { width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 16px; display: block; }
+    .about-modal-title { text-align: center; font-size: 20px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px; margin-bottom: 4px; }
+    .about-modal-version { text-align: center; font-size: 12px; color: rgba(255,255,255,0.35); margin-bottom: 18px; }
+    .about-modal-divider { height: 1px; background: rgba(74, 143, 199, 0.15); margin: 0 -4px 16px; }
+    .about-modal-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 4px; font-size: 13px; }
+    .about-modal-row-label { color: rgba(255,255,255,0.45); }
+    .about-modal-row-value { color: rgba(255,255,255,0.85); font-weight: 500; text-align: right; }
+    .about-modal-desc { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.6; text-align: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(74, 143, 199, 0.1); }
+    [data-theme="light"] .about-modal { background: rgba(250, 249, 245, 0.98); border-color: rgba(20, 20, 19, 0.12); box-shadow: 0 16px 48px rgba(0,0,0,0.15); }
+    [data-theme="light"] .about-modal-title { color: #1a1a1a; }
+    [data-theme="light"] .about-modal-version { color: rgba(0,0,0,0.4); }
+    [data-theme="light"] .about-modal-divider { background: rgba(0,0,0,0.08); }
+    [data-theme="light"] .about-modal-row-label { color: rgba(0,0,0,0.45); }
+    [data-theme="light"] .about-modal-row-value { color: rgba(0,0,0,0.8); }
+    [data-theme="light"] .about-modal-desc { color: rgba(0,0,0,0.4); border-top-color: rgba(0,0,0,0.08); }
+    [data-theme="light"] .about-modal-close svg { stroke: rgba(0,0,0,0.5); }
+
     [data-theme="light"] .sidebar-item {
         color: rgba(20, 20, 19, 0.85);
     }
@@ -5339,6 +5377,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
             <span id="themeLabel">Светлая тема</span>
         </div>
+        <div class="sidebar-item" onclick="showAboutModal(); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>О приложении</span>
+        </div>
     </div>
 </div>
 
@@ -5422,5 +5464,34 @@ if ('serviceWorker' in navigator) {
     });
 }
 </script>
+
+<!-- About Modal -->
+<div class="about-modal-overlay" id="aboutModalOverlay" onclick="closeAboutModal()">
+    <div class="about-modal" onclick="event.stopPropagation()">
+        <div class="about-modal-close" onclick="closeAboutModal()">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <img class="about-modal-logo" src="icon-192.png" alt="КИПиА">
+        <div class="about-modal-title">КИПиА</div>
+        <div class="about-modal-version">Версия 2.0.0</div>
+        <div class="about-modal-divider"></div>
+        <div class="about-modal-row"><span class="about-modal-row-label">Пакет</span><span class="about-modal-row-value">io.github.bloknett_design.twa</span></div>
+        <div class="about-modal-row"><span class="about-modal-row-label">Платформа</span><span class="about-modal-row-value">PWA / TWA</span></div>
+        <div class="about-modal-row"><span class="about-modal-row-label">Движок</span><span class="about-modal-row-value">Chromium WebView</span></div>
+        <div class="about-modal-row"><span class="about-modal-row-label">Разработчик</span><span class="about-modal-row-value">bloknett-design</span></div>
+        <div class="about-modal-row"><span class="about-modal-row-label">Репозиторий</span><span class="about-modal-row-value" style="font-size:11px;">github.com/bloknett-design/kip8</span></div>
+        <div class="about-modal-desc">Справочник и калькулятор контрольно-измерительных приборов и автоматики</div>
+    </div>
+</div>
+
+<script>
+function showAboutModal() {
+    document.getElementById('aboutModalOverlay').classList.add('active');
+}
+function closeAboutModal() {
+    document.getElementById('aboutModalOverlay').classList.remove('active');
+}
+</script>
+
 </body>
 </html>
