@@ -677,9 +677,9 @@
     .ticket-cat-card:active { transform: scale(0.97); }
     .ticket-cat-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
     .ticket-cat-info { position: relative; z-index: 1; padding: 18px 20px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 130px; }
-    .ticket-cat-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; background: rgba(255,255,255,0.72); padding: 6px 14px; border-radius: 8px; display: inline-block; align-self: flex-start; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .ticket-cat-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; background: rgba(255,255,255,0.45); padding: 6px 14px; border-radius: 8px; display: inline-block; align-self: flex-start; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 
-    [data-theme="light"] .ticket-cat-title { color: #1a1a1a; background: rgba(255,255,255,0.72); }
+    [data-theme="light"] .ticket-cat-title { color: #1a1a1a; background: rgba(255,255,255,0.45); }
 
     .ticket-list { padding: 0 16px; }
     .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
@@ -693,25 +693,20 @@
     [data-theme="light"] .ticket-item-chevron { stroke: rgba(0,0,0,0.25); }
     .ticket-item.open .ticket-item-chevron { transform: rotate(90deg); }
     .ticket-item-body { display: none; border-top: 1px solid var(--card-border); }
-    .ticket-item.open .ticket-item-body { display: block; }
+    .ticket-item.open .ticket-item-body { display: block; max-height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
 
-    .ticket-q { padding: 16px 18px; border-bottom: 1px solid rgba(74,143,199,0.08); }
-    .ticket-q:last-child { border-bottom: none; }
+    .ticket-q { padding: 16px 18px 0; }
+    .ticket-q:last-child .ticket-q-divider { display: none; }
+    .ticket-q-divider { display: flex; align-items: center; justify-content: center; padding: 14px 0 6px; color: rgba(74,143,199,0.35); }
+    .ticket-q-divider svg { width: 100%; max-width: 320px; height: 10px; }
+    [data-theme="light"] .ticket-q-divider { color: rgba(74,143,199,0.3); }
     .ticket-q-num { font-size: 14px; font-weight: 600; color: var(--accent-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
     .ticket-q-text { font-size: 18px; color: var(--text-primary); line-height: 1.5; margin-bottom: 12px; }
     .ticket-a-label { font-size: 13px; font-weight: 700; color: rgba(74,199,113,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .ticket-a-text { font-size: 17px; color: rgba(255,255,255,0.6); line-height: 1.55; }
     [data-theme="light"] .ticket-a-text { color: rgba(0,0,0,0.55); }
-    .ticket-ref { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 8px; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,0.06); line-height: 1.4; }
-    [data-theme="light"] .ticket-ref { color: rgba(0,0,0,0.25); border-top-color: rgba(0,0,0,0.06); }
-
-    .ticket-search { display: flex; margin: 0 16px 12px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 10px; overflow: hidden; }
-    .ticket-search input { flex: 1; background: none; border: none; outline: none; padding: 10px 14px; font-size: 14px; color: var(--text-primary); }
-    .ticket-search input::placeholder { color: rgba(255,255,255,0.25); }
-    [data-theme="light"] .ticket-search input::placeholder { color: rgba(0,0,0,0.25); }
-    .ticket-search-icon { padding: 10px 12px; display: flex; align-items: center; }
-    .ticket-search-icon svg { width: 16px; height: 16px; stroke: rgba(255,255,255,0.25); }
-    [data-theme="light"] .ticket-search-icon svg { stroke: rgba(0,0,0,0.25); }
+    .ticket-ref { font-size: 17px; color: rgba(255,255,255,0.55); margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.12); line-height: 1.5; }
+    [data-theme="light"] .ticket-ref { color: rgba(0,0,0,0.5); border-top-color: rgba(0,0,0,0.1); }
 
     .ticket-empty { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.3); font-size: 14px; }
     [data-theme="light"] .ticket-empty { color: rgba(0,0,0,0.3); }
@@ -2067,7 +2062,6 @@
         <div id="page-tickets-1000v" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-title">Билеты до 1000 В</div></div>
             <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="navigateTo('exam-tickets')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Билеты</span></div></div>
-            <div class="ticket-search"><div class="ticket-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><input type="text" inputmode="text" id="search-1000v" placeholder="Поиск по вопросам…" autocomplete="off" oninput="filterTickets('tickets-1000v',this.value)"></div>
             <div id="tickets-container-tickets-1000v" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
         </div>
 
@@ -2075,7 +2069,6 @@
         <div id="page-tickets-4" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-title">Билеты на 4 разряд</div></div>
             <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="navigateTo('exam-tickets')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Билеты</span></div></div>
-            <div class="ticket-search"><div class="ticket-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><input type="text" inputmode="text" id="search-4" placeholder="Поиск по вопросам…" autocomplete="off" oninput="filterTickets('tickets-4',this.value)"></div>
             <div id="tickets-container-tickets-4" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
         </div>
 
@@ -2083,7 +2076,6 @@
         <div id="page-tickets-5" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-title">Билеты на 5 разряд</div></div>
             <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="navigateTo('exam-tickets')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Билеты</span></div></div>
-            <div class="ticket-search"><div class="ticket-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><input type="text" inputmode="text" id="search-5" placeholder="Поиск по вопросам…" autocomplete="off" oninput="filterTickets('tickets-5',this.value)"></div>
             <div id="tickets-container-tickets-5" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
         </div>
 
@@ -2091,7 +2083,6 @@
         <div id="page-tickets-6" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-title">Билеты на 6 разряд</div></div>
             <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="navigateTo('exam-tickets')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Билеты</span></div></div>
-            <div class="ticket-search"><div class="ticket-search-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><input type="text" inputmode="text" id="search-6" placeholder="Поиск по вопросам…" autocomplete="off" oninput="filterTickets('tickets-6',this.value)"></div>
             <div id="tickets-container-tickets-6" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
         </div>
 
@@ -3089,6 +3080,7 @@
                 if (ref) {
                     html += '<div class="ticket-ref">' + escHtml(ref) + '</div>';
                 }
+                html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6 Q20 0 40 6 Q60 12 80 6 Q100 0 120 6 Q140 12 160 6 Q180 0 200 6 Q220 12 240 6 Q260 0 280 6 Q300 12 320 6 Q340 0 360 6 Q380 12 400 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>';
                 html += '</div>';
             }
 
@@ -3104,16 +3096,21 @@
         return d.innerHTML;
     }
 
-    function filterTickets(catId, query) {
-        renderTickets(catId, query);
-    }
-
     function toggleTicketItem(el) {
         const wasOpen = el.classList.contains('open');
         // Закрыть все открытые билеты в этом контейнере
-        el.parentElement.querySelectorAll('.ticket-item.open').forEach(item => item.classList.remove('open'));
+        el.parentElement.querySelectorAll('.ticket-item.open').forEach(item => {
+            item.classList.remove('open');
+            item.querySelector('.ticket-item-body').scrollTop = 0;
+        });
         // Если кликнутый не был открыт — открыть
-        if (!wasOpen) el.classList.add('open');
+        if (!wasOpen) {
+            el.classList.add('open');
+            // Прокрутить страницу чтобы заголовок билета был виден
+            setTimeout(function() {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
+        }
     }
 
     async function initTicketsPage(catId) {
