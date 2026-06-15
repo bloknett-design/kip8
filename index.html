@@ -281,19 +281,20 @@
     .converter-convert-btn svg, .scale-calc-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; pointer-events: none; }
     .converter-convert-btn, .scale-calc-btn { background: linear-gradient(135deg, #2563eb, #3b82f6); box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25); }
     
-    .converter-result-group { margin: 6px 16px 10px; position: relative; z-index: 2; touch-action: pan-y; }
-    .converter-result-label-title { color: rgba(255,255,255,0.3); font-size: calc(11px * var(--calc-font-scale, 1)); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; padding-left: 4px; font-weight: 500; }
+    .converter-result-group { margin: 6px 16px 10px; position: relative; z-index: 2; }
+    .converter-result-label-title { color: rgba(255,255,255,0.3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; padding-left: 4px; font-weight: 500; }
     .converter-result-item {
         display: flex; justify-content: space-between; align-items: center;
         padding: 10px 12px; background: rgba(30, 42, 56, 0.75); border: 1px solid rgba(74, 143, 199, 0.15);
         border-radius: 10px; margin-bottom: 5px; animation: slideIn 0.25s ease-out both;
     }
     .converter-result-item:last-child { margin-bottom: 0; }
-    .converter-result-label { color: rgba(255,255,255,0.45); font-size: calc(12px * var(--calc-font-scale, 1)); }
-    .converter-result-value { color: #4a8fc7; font-size: calc(14px * var(--calc-font-scale, 1)); font-weight: 600; }
-    .calc-zoom-badge { position: sticky; top: 0; z-index: 5; text-align: center; padding: 4px 0; pointer-events: none; }
-    .calc-zoom-badge span { display: inline-block; background: rgba(74,143,199,0.85); color: #fff; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 10px; opacity: 0; transition: opacity .3s; }
-    .calc-zoom-badge.show span { opacity: 1; }
+    .converter-result-label { color: rgba(255,255,255,0.45); font-size: 12px; }
+    .converter-result-value { color: #4a8fc7; font-size: 14px; font-weight: 600; }
+    .zoomable-area { touch-action: pan-y; }
+    .zoom-badge { position: sticky; top: 0; z-index: 5; text-align: center; padding: 4px 0; pointer-events: none; }
+    .zoom-badge span { display: inline-block; background: rgba(74,143,199,0.85); color: #fff; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 10px; opacity: 0; transition: opacity .3s; }
+    .zoom-badge.show span { opacity: 1; }
     @keyframes slideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     
     .buoy-select-container { display: flex; flex-direction: row; gap: 10px; padding: 8px 16px; justify-content: center; align-items: stretch; position: relative; z-index: 2; }
@@ -680,9 +681,9 @@
     .ticket-cat-card:active { transform: scale(0.97); }
     .ticket-cat-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
     .ticket-cat-info { position: relative; z-index: 1; padding: 18px 20px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 130px; }
-    .ticket-cat-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; background: rgba(255,255,255,0.45); padding: 6px 14px; border-radius: 8px; display: inline-block; align-self: flex-start; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .ticket-cat-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; background: rgba(255,255,255,0.25); padding: 6px 14px; border-radius: 8px; display: inline-block; align-self: flex-start; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 
-    [data-theme="light"] .ticket-cat-title { color: #1a1a1a; background: rgba(255,255,255,0.45); }
+    [data-theme="light"] .ticket-cat-title { color: #1a1a1a; background: rgba(255,255,255,0.25); }
 
     .ticket-list { padding: 0 16px; }
     .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
@@ -3206,7 +3207,7 @@
     (function() {
         var pinchStartDist = 0;
         var pinchStartScale = 1;
-        var pinchGroup = null;
+        var pinchTarget = null;
         var badgeTimer = null;
 
         function getDist(touches) {
@@ -3215,25 +3216,48 @@
             return Math.sqrt(dx * dx + dy * dy);
         }
 
-        function findGroup(el) {
+        // Найти zoomable-контейнер: таблицу внутри result-group или справочный блок
+        function findZoomTarget(el) {
             while (el && el !== document.body) {
-                if (el.classList && el.classList.contains('converter-result-group')) return el;
+                // Таблица внутри converter-result-group
+                if (el.tagName === 'TABLE') {
+                    var wrapper = el.closest('.converter-result-group');
+                    if (wrapper) return el;
+                }
+                // Справочный блок с классом scale-form (страницы погрешности)
+                if (el.classList && el.classList.contains('scale-form')) {
+                    var titleEl1 = el.querySelector('div[style*="font-size:13px"]');
+                    if (titleEl1 && titleEl1.textContent.indexOf('Справочная информация') !== -1) {
+                        return el;
+                    }
+                }
+                // Справочный блок без класса (с SVG иконкой)
+                if (el.tagName === 'DIV' && el.getAttribute('style') && el.getAttribute('style').indexOf('backdrop-filter') !== -1) {
+                    var svgIcon = el.querySelector('svg[style*="stroke:#4a8fc7"]');
+                    var infoSpan = el.querySelector('span');
+                    if (svgIcon && infoSpan && infoSpan.textContent.indexOf('Справочная информация') !== -1) {
+                        return el;
+                    }
+                }
                 el = el.parentElement;
             }
             return null;
         }
 
-        function ensureBadge(group) {
-            if (!group.querySelector('.calc-zoom-badge')) {
+        function ensureBadge(target) {
+            var parent = target.tagName === 'TABLE' ? target.parentElement : target;
+            if (parent && !parent.querySelector('.zoom-badge')) {
                 var badge = document.createElement('div');
-                badge.className = 'calc-zoom-badge';
+                badge.className = 'zoom-badge';
                 badge.innerHTML = '<span>100%</span>';
-                group.insertBefore(badge, group.firstChild);
+                parent.insertBefore(badge, parent.firstChild);
             }
         }
 
-        function showBadge(group, scale) {
-            var badge = group.querySelector('.calc-zoom-badge');
+        function showBadge(target, scale) {
+            var parent = target.tagName === 'TABLE' ? target.parentElement : target;
+            if (!parent) return;
+            var badge = parent.querySelector('.zoom-badge');
             if (!badge) return;
             badge.querySelector('span').textContent = Math.round(scale * 100) + '%';
             badge.classList.add('show');
@@ -3241,48 +3265,98 @@
             badgeTimer = setTimeout(function() { badge.classList.remove('show'); }, 1200);
         }
 
+        function applyScale(target, scale) {
+            if (target.tagName === 'TABLE') {
+                target.style.fontSize = (14 * scale).toFixed(1) + 'px';
+            } else {
+                target.style.setProperty('--zoom-scale', scale.toFixed(2));
+                // Масштабируем все текстовые элементы внутри справочного блока
+                var texts = target.querySelectorAll('div[style], p[style], b, span[style]');
+                texts.forEach(function(t) {
+                    var orig = parseFloat(t.getAttribute('data-orig-size'));
+                    if (!orig) {
+                        var cs = window.getComputedStyle(t);
+                        orig = parseFloat(cs.fontSize);
+                        if (orig) t.setAttribute('data-orig-size', orig.toFixed(1));
+                    }
+                    if (orig) t.style.fontSize = (orig * scale).toFixed(1) + 'px';
+                });
+                // Также основной контейнер
+                var mainDiv = target.querySelector('div[style*="font-size:12px"]');
+                if (mainDiv) {
+                    var origMain = parseFloat(mainDiv.getAttribute('data-orig-size'));
+                    if (!origMain) {
+                        origMain = 12;
+                        mainDiv.setAttribute('data-orig-size', '12.0');
+                    }
+                    mainDiv.style.fontSize = (origMain * scale).toFixed(1) + 'px';
+                }
+                // И заголовок
+                var titleDiv = target.querySelector('div[style*="font-size:14px"]');
+                if (titleDiv) {
+                    var origTitle = parseFloat(titleDiv.getAttribute('data-orig-size'));
+                    if (!origTitle) {
+                        origTitle = 14;
+                        titleDiv.setAttribute('data-orig-size', '14.0');
+                    }
+                    titleDiv.style.fontSize = (origTitle * scale).toFixed(1) + 'px';
+                }
+                var titleDiv2 = target.querySelector('div[style*="font-size:13px"]');
+                if (titleDiv2) {
+                    var origTitle2 = parseFloat(titleDiv2.getAttribute('data-orig-size'));
+                    if (!origTitle2) {
+                        origTitle2 = 13;
+                        titleDiv2.setAttribute('data-orig-size', '13.0');
+                    }
+                    titleDiv2.style.fontSize = (origTitle2 * scale).toFixed(1) + 'px';
+                }
+                // Заголовок span в блоках с SVG иконкой
+                var titleSpan = target.querySelector('span[style*="font-size:14px"]');
+                if (titleSpan) {
+                    var origSpan = parseFloat(titleSpan.getAttribute('data-orig-size'));
+                    if (!origSpan) {
+                        origSpan = 14;
+                        titleSpan.setAttribute('data-orig-size', '14.0');
+                    }
+                    titleSpan.style.fontSize = (origSpan * scale).toFixed(1) + 'px';
+                }
+            }
+        }
+
         document.addEventListener('touchstart', function(e) {
             if (e.touches.length !== 2) return;
-            var group = findGroup(e.target);
-            if (!group) return;
-            // Только для видимых групп
-            if (group.style.display === 'none') return;
+            var target = findZoomTarget(e.target);
+            if (!target) return;
             e.preventDefault();
-            pinchGroup = group;
-            ensureBadge(group);
+            pinchTarget = target;
+            ensureBadge(target);
             pinchStartDist = getDist(e.touches);
-            var current = parseFloat(group.style.getPropertyValue('--calc-font-scale')) || 1;
+            var attr = target.tagName === 'TABLE' ? 'data-zoom-scale' : 'data-zoom-scale';
+            var current = parseFloat(target.getAttribute(attr)) || 1;
             pinchStartScale = current;
         }, { passive: false });
 
         document.addEventListener('touchmove', function(e) {
-            if (!pinchGroup || e.touches.length !== 2) return;
+            if (!pinchTarget || e.touches.length !== 2) return;
             e.preventDefault();
             var dist = getDist(e.touches);
             var ratio = dist / pinchStartDist;
             var newScale = pinchStartScale * ratio;
             newScale = Math.max(0.6, Math.min(3, newScale));
-            pinchGroup.style.setProperty('--calc-font-scale', newScale.toFixed(3));
-            // Также масштабируем таблицы внутри
-            var tables = pinchGroup.querySelectorAll('table');
-            tables.forEach(function(t) {
-                t.style.fontSize = (14 * newScale).toFixed(1) + 'px';
-            });
-            showBadge(pinchGroup, newScale);
+            pinchTarget.setAttribute('data-zoom-scale', newScale.toFixed(3));
+            applyScale(pinchTarget, newScale);
+            showBadge(pinchTarget, newScale);
         }, { passive: false });
 
         document.addEventListener('touchend', function(e) {
-            if (pinchGroup && e.touches.length < 2) {
-                var val = parseFloat(pinchGroup.style.getPropertyValue('--calc-font-scale')) || 1;
+            if (pinchTarget && e.touches.length < 2) {
+                var val = parseFloat(pinchTarget.getAttribute('data-zoom-scale')) || 1;
                 var rounded = Math.round(val * 10) / 10;
                 rounded = Math.max(0.6, Math.min(3, rounded));
-                pinchGroup.style.setProperty('--calc-font-scale', rounded.toFixed(1));
-                var tables = pinchGroup.querySelectorAll('table');
-                tables.forEach(function(t) {
-                    t.style.fontSize = (14 * rounded).toFixed(1) + 'px';
-                });
-                showBadge(pinchGroup, rounded);
-                pinchGroup = null;
+                pinchTarget.setAttribute('data-zoom-scale', rounded.toFixed(1));
+                applyScale(pinchTarget, rounded);
+                showBadge(pinchTarget, rounded);
+                pinchTarget = null;
             }
         }, { passive: false });
     })();
