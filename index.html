@@ -712,8 +712,8 @@
     .ticket-a-label { font-size: calc(13px * var(--ticket-font-scale, 1)); font-weight: 700; color: rgba(74,199,113,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .ticket-a-text { font-size: calc(17px * var(--ticket-font-scale, 1)); color: rgba(255,255,255,0.6); line-height: 1.55; }
     [data-theme="light"] .ticket-a-text { color: rgba(0,0,0,0.55); }
-    .ticket-ref { font-size: calc(17px * var(--ticket-font-scale, 1)); color: rgba(255,255,255,0.55); margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.12); line-height: 1.5; }
-    [data-theme="light"] .ticket-ref { color: rgba(0,0,0,0.5); border-top-color: rgba(0,0,0,0.1); }
+    .ticket-ref { font-size: calc(17px * var(--ticket-font-scale, 1)); color: rgba(222,195,155,0.85); margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.12); line-height: 1.5; }
+    [data-theme="light"] .ticket-ref { color: rgba(160,120,70,0.9); border-top-color: rgba(0,0,0,0.1); }
 
     .ticket-empty { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.3); font-size: 14px; }
     [data-theme="light"] .ticket-empty { color: rgba(0,0,0,0.3); }
@@ -3216,26 +3216,28 @@
             return Math.sqrt(dx * dx + dy * dy);
         }
 
-        // Найти zoomable-контейнер: таблицу внутри result-group или справочный блок
+        // Найти zoomable-контейнер — используем data-zoomable для надёжного повторного определения
         function findZoomTarget(el) {
             while (el && el !== document.body) {
+                // Уже размеченный целевой элемент
+                if (el.getAttribute && el.getAttribute('data-zoomable') === 'true') return el;
+
                 // Таблица внутри converter-result-group
                 if (el.tagName === 'TABLE') {
                     var wrapper = el.closest('.converter-result-group');
-                    if (wrapper) return el;
+                    if (wrapper) { el.setAttribute('data-zoomable', 'true'); return el; }
                 }
-                // Справочный блок с классом scale-form (страницы погрешности)
-                if (el.classList && el.classList.contains('scale-form')) {
-                    var titleEl1 = el.querySelector('div[style*="font-size:13px"]');
-                    if (titleEl1 && titleEl1.textContent.indexOf('Справочная информация') !== -1) {
-                        return el;
-                    }
+
+                // Справочный блок с классом scale-form
+                if (el.classList && el.classList.contains('scale-form') && el.textContent.indexOf('Справочная информация') !== -1) {
+                    el.setAttribute('data-zoomable', 'true');
+                    return el;
                 }
-                // Справочный блок без класса (с SVG иконкой)
+
+                // Справочный блок с backdrop-filter и SVG иконкой
                 if (el.tagName === 'DIV' && el.getAttribute('style') && el.getAttribute('style').indexOf('backdrop-filter') !== -1) {
-                    var svgIcon = el.querySelector('svg[style*="stroke:#4a8fc7"]');
-                    var infoSpan = el.querySelector('span');
-                    if (svgIcon && infoSpan && infoSpan.textContent.indexOf('Справочная информация') !== -1) {
+                    if (el.textContent.indexOf('Справочная информация') !== -1) {
+                        el.setAttribute('data-zoomable', 'true');
                         return el;
                     }
                 }
@@ -3267,59 +3269,30 @@
 
         function applyScale(target, scale) {
             if (target.tagName === 'TABLE') {
-                target.style.fontSize = (14 * scale).toFixed(1) + 'px';
+                // Масштабируем шрифт каждой ячейки th/td напрямую
+                var cells = target.querySelectorAll('th, td');
+                cells.forEach(function(cell) {
+                    var orig = parseFloat(cell.getAttribute('data-orig-size'));
+                    if (!orig) {
+                        var cs = window.getComputedStyle(cell);
+                        orig = parseFloat(cs.fontSize) || 14;
+                        cell.setAttribute('data-orig-size', orig.toFixed(1));
+                    }
+                    cell.style.fontSize = (orig * scale).toFixed(1) + 'px';
+                });
             } else {
-                target.style.setProperty('--zoom-scale', scale.toFixed(2));
-                // Масштабируем все текстовые элементы внутри справочного блока
-                var texts = target.querySelectorAll('div[style], p[style], b, span[style]');
-                texts.forEach(function(t) {
+                // Справочный блок — масштабируем все текстовые элементы через data-orig-size
+                var els = target.querySelectorAll('span[style], div[style], p[style], b');
+                els.forEach(function(t) {
+                    if (t.classList && (t.classList.contains('zoom-badge') || t.classList.contains('zoomable-area'))) return;
                     var orig = parseFloat(t.getAttribute('data-orig-size'));
                     if (!orig) {
                         var cs = window.getComputedStyle(t);
                         orig = parseFloat(cs.fontSize);
-                        if (orig) t.setAttribute('data-orig-size', orig.toFixed(1));
+                        if (orig && orig > 0) t.setAttribute('data-orig-size', orig.toFixed(1));
                     }
                     if (orig) t.style.fontSize = (orig * scale).toFixed(1) + 'px';
                 });
-                // Также основной контейнер
-                var mainDiv = target.querySelector('div[style*="font-size:12px"]');
-                if (mainDiv) {
-                    var origMain = parseFloat(mainDiv.getAttribute('data-orig-size'));
-                    if (!origMain) {
-                        origMain = 12;
-                        mainDiv.setAttribute('data-orig-size', '12.0');
-                    }
-                    mainDiv.style.fontSize = (origMain * scale).toFixed(1) + 'px';
-                }
-                // И заголовок
-                var titleDiv = target.querySelector('div[style*="font-size:14px"]');
-                if (titleDiv) {
-                    var origTitle = parseFloat(titleDiv.getAttribute('data-orig-size'));
-                    if (!origTitle) {
-                        origTitle = 14;
-                        titleDiv.setAttribute('data-orig-size', '14.0');
-                    }
-                    titleDiv.style.fontSize = (origTitle * scale).toFixed(1) + 'px';
-                }
-                var titleDiv2 = target.querySelector('div[style*="font-size:13px"]');
-                if (titleDiv2) {
-                    var origTitle2 = parseFloat(titleDiv2.getAttribute('data-orig-size'));
-                    if (!origTitle2) {
-                        origTitle2 = 13;
-                        titleDiv2.setAttribute('data-orig-size', '13.0');
-                    }
-                    titleDiv2.style.fontSize = (origTitle2 * scale).toFixed(1) + 'px';
-                }
-                // Заголовок span в блоках с SVG иконкой
-                var titleSpan = target.querySelector('span[style*="font-size:14px"]');
-                if (titleSpan) {
-                    var origSpan = parseFloat(titleSpan.getAttribute('data-orig-size'));
-                    if (!origSpan) {
-                        origSpan = 14;
-                        titleSpan.setAttribute('data-orig-size', '14.0');
-                    }
-                    titleSpan.style.fontSize = (origSpan * scale).toFixed(1) + 'px';
-                }
             }
         }
 
@@ -3331,9 +3304,7 @@
             pinchTarget = target;
             ensureBadge(target);
             pinchStartDist = getDist(e.touches);
-            var attr = target.tagName === 'TABLE' ? 'data-zoom-scale' : 'data-zoom-scale';
-            var current = parseFloat(target.getAttribute(attr)) || 1;
-            pinchStartScale = current;
+            pinchStartScale = parseFloat(target.getAttribute('data-zoom-scale')) || 1;
         }, { passive: false });
 
         document.addEventListener('touchmove', function(e) {
