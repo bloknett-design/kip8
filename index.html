@@ -281,16 +281,19 @@
     .converter-convert-btn svg, .scale-calc-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; pointer-events: none; }
     .converter-convert-btn, .scale-calc-btn { background: linear-gradient(135deg, #2563eb, #3b82f6); box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25); }
     
-    .converter-result-group { margin: 6px 16px 10px; position: relative; z-index: 2; }
-    .converter-result-label-title { color: rgba(255,255,255,0.3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; padding-left: 4px; font-weight: 500; }
+    .converter-result-group { margin: 6px 16px 10px; position: relative; z-index: 2; touch-action: pan-y; }
+    .converter-result-label-title { color: rgba(255,255,255,0.3); font-size: calc(11px * var(--calc-font-scale, 1)); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; padding-left: 4px; font-weight: 500; }
     .converter-result-item {
         display: flex; justify-content: space-between; align-items: center;
         padding: 10px 12px; background: rgba(30, 42, 56, 0.75); border: 1px solid rgba(74, 143, 199, 0.15);
         border-radius: 10px; margin-bottom: 5px; animation: slideIn 0.25s ease-out both;
     }
     .converter-result-item:last-child { margin-bottom: 0; }
-    .converter-result-label { color: rgba(255,255,255,0.45); font-size: 12px; }
-    .converter-result-value { color: #4a8fc7; font-size: 14px; font-weight: 600; }
+    .converter-result-label { color: rgba(255,255,255,0.45); font-size: calc(12px * var(--calc-font-scale, 1)); }
+    .converter-result-value { color: #4a8fc7; font-size: calc(14px * var(--calc-font-scale, 1)); font-weight: 600; }
+    .calc-zoom-badge { position: sticky; top: 0; z-index: 5; text-align: center; padding: 4px 0; pointer-events: none; }
+    .calc-zoom-badge span { display: inline-block; background: rgba(74,143,199,0.85); color: #fff; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 10px; opacity: 0; transition: opacity .3s; }
+    .calc-zoom-badge.show span { opacity: 1; }
     @keyframes slideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     
     .buoy-select-container { display: flex; flex-direction: row; gap: 10px; padding: 8px 16px; justify-content: center; align-items: stretch; position: relative; z-index: 2; }
@@ -693,19 +696,22 @@
     [data-theme="light"] .ticket-item-chevron { stroke: rgba(0,0,0,0.25); }
     .ticket-item.open .ticket-item-chevron { transform: rotate(90deg); }
     .ticket-item-body { display: none; border-top: 1px solid var(--card-border); }
-    .ticket-item.open .ticket-item-body { display: block; max-height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .ticket-item.open .ticket-item-body { display: block; max-height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+    .ticket-zoom-badge { position: sticky; top: 0; z-index: 5; text-align: center; padding: 4px 0; pointer-events: none; }
+    .ticket-zoom-badge span { display: inline-block; background: rgba(74,143,199,0.85); color: #fff; font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 10px; opacity: 0; transition: opacity .3s; }
+    .ticket-zoom-badge.show span { opacity: 1; }
 
     .ticket-q { padding: 16px 18px 0; }
     .ticket-q:last-child .ticket-q-divider { display: none; }
     .ticket-q-divider { display: flex; align-items: center; justify-content: center; padding: 14px 0 6px; color: rgba(74,143,199,0.35); }
     .ticket-q-divider svg { width: 100%; max-width: 320px; height: 10px; }
     [data-theme="light"] .ticket-q-divider { color: rgba(74,143,199,0.3); }
-    .ticket-q-num { font-size: 14px; font-weight: 600; color: var(--accent-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
-    .ticket-q-text { font-size: 18px; color: var(--text-primary); line-height: 1.5; margin-bottom: 12px; }
-    .ticket-a-label { font-size: 13px; font-weight: 700; color: rgba(74,199,113,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .ticket-a-text { font-size: 17px; color: rgba(255,255,255,0.6); line-height: 1.55; }
+    .ticket-q-num { font-size: calc(14px * var(--ticket-font-scale, 1)); font-weight: 600; color: var(--accent-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .ticket-q-text { font-size: calc(18px * var(--ticket-font-scale, 1)); color: var(--text-primary); line-height: 1.5; margin-bottom: 12px; }
+    .ticket-a-label { font-size: calc(13px * var(--ticket-font-scale, 1)); font-weight: 700; color: rgba(74,199,113,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .ticket-a-text { font-size: calc(17px * var(--ticket-font-scale, 1)); color: rgba(255,255,255,0.6); line-height: 1.55; }
     [data-theme="light"] .ticket-a-text { color: rgba(0,0,0,0.55); }
-    .ticket-ref { font-size: 17px; color: rgba(255,255,255,0.55); margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.12); line-height: 1.5; }
+    .ticket-ref { font-size: calc(17px * var(--ticket-font-scale, 1)); color: rgba(255,255,255,0.55); margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.12); line-height: 1.5; }
     [data-theme="light"] .ticket-ref { color: rgba(0,0,0,0.5); border-top-color: rgba(0,0,0,0.1); }
 
     .ticket-empty { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.3); font-size: 14px; }
@@ -3101,17 +3107,185 @@
         // Закрыть все открытые билеты в этом контейнере
         el.parentElement.querySelectorAll('.ticket-item.open').forEach(item => {
             item.classList.remove('open');
-            item.querySelector('.ticket-item-body').scrollTop = 0;
+            const body = item.querySelector('.ticket-item-body');
+            body.scrollTop = 0;
+            body.style.setProperty('--ticket-font-scale', '1');
+            const badge = body.querySelector('.ticket-zoom-badge');
+            if (badge) badge.remove();
         });
         // Если кликнутый не был открыт — открыть
         if (!wasOpen) {
             el.classList.add('open');
+            // Добавить бейдж масштаба
+            const body = el.querySelector('.ticket-item-body');
+            if (body && !body.querySelector('.ticket-zoom-badge')) {
+                const badge = document.createElement('div');
+                badge.className = 'ticket-zoom-badge';
+                badge.innerHTML = '<span>100%</span>';
+                body.insertBefore(badge, body.firstChild);
+            }
             // Прокрутить страницу чтобы заголовок билета был виден
             setTimeout(function() {
                 el.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 50);
         }
     }
+
+    /* ===== Pinch-to-zoom для билетов ===== */
+    (function() {
+        var pinchScale = 1;
+        var pinchStartDist = 0;
+        var pinchStartScale = 1;
+        var pinchBody = null;
+        var badgeTimer = null;
+
+        function getDist(touches) {
+            var dx = touches[0].clientX - touches[1].clientX;
+            var dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function findBody(el) {
+            while (el && el !== document.body) {
+                if (el.classList && el.classList.contains('ticket-item-body')) return el;
+                el = el.parentElement;
+            }
+            return null;
+        }
+
+        function showBadge(body, scale) {
+            var badge = body.querySelector('.ticket-zoom-badge');
+            if (!badge) return;
+            var span = badge.querySelector('span');
+            span.textContent = Math.round(scale * 100) + '%';
+            badge.classList.add('show');
+            clearTimeout(badgeTimer);
+            badgeTimer = setTimeout(function() { badge.classList.remove('show'); }, 1200);
+        }
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length !== 2) return;
+            var body = findBody(e.target);
+            if (!body) return;
+            // Проверяем что билет открыт
+            var item = body.parentElement;
+            if (!item || !item.classList.contains('open')) return;
+            e.preventDefault();
+            pinchBody = body;
+            pinchStartDist = getDist(e.touches);
+            var current = parseFloat(body.style.getPropertyValue('--ticket-font-scale')) || 1;
+            pinchStartScale = current;
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!pinchBody || e.touches.length !== 2) return;
+            e.preventDefault();
+            var dist = getDist(e.touches);
+            var ratio = dist / pinchStartDist;
+            var newScale = pinchStartScale * ratio;
+            // Ограничения: 0.6x — 3x
+            newScale = Math.max(0.6, Math.min(3, newScale));
+            pinchBody.style.setProperty('--ticket-font-scale', newScale.toFixed(3));
+            showBadge(pinchBody, newScale);
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(e) {
+            if (pinchBody && e.touches.length < 2) {
+                var val = parseFloat(pinchBody.style.getPropertyValue('--ticket-font-scale')) || 1;
+                // Округлить до ближайших 10%
+                var rounded = Math.round(val * 10) / 10;
+                rounded = Math.max(0.6, Math.min(3, rounded));
+                pinchBody.style.setProperty('--ticket-font-scale', rounded.toFixed(1));
+                showBadge(pinchBody, rounded);
+                pinchBody = null;
+            }
+        }, { passive: false });
+    })();
+
+    /* ===== Pinch-to-zoom для расчётных таблиц и справочных блоков ===== */
+    (function() {
+        var pinchStartDist = 0;
+        var pinchStartScale = 1;
+        var pinchGroup = null;
+        var badgeTimer = null;
+
+        function getDist(touches) {
+            var dx = touches[0].clientX - touches[1].clientX;
+            var dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        function findGroup(el) {
+            while (el && el !== document.body) {
+                if (el.classList && el.classList.contains('converter-result-group')) return el;
+                el = el.parentElement;
+            }
+            return null;
+        }
+
+        function ensureBadge(group) {
+            if (!group.querySelector('.calc-zoom-badge')) {
+                var badge = document.createElement('div');
+                badge.className = 'calc-zoom-badge';
+                badge.innerHTML = '<span>100%</span>';
+                group.insertBefore(badge, group.firstChild);
+            }
+        }
+
+        function showBadge(group, scale) {
+            var badge = group.querySelector('.calc-zoom-badge');
+            if (!badge) return;
+            badge.querySelector('span').textContent = Math.round(scale * 100) + '%';
+            badge.classList.add('show');
+            clearTimeout(badgeTimer);
+            badgeTimer = setTimeout(function() { badge.classList.remove('show'); }, 1200);
+        }
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length !== 2) return;
+            var group = findGroup(e.target);
+            if (!group) return;
+            // Только для видимых групп
+            if (group.style.display === 'none') return;
+            e.preventDefault();
+            pinchGroup = group;
+            ensureBadge(group);
+            pinchStartDist = getDist(e.touches);
+            var current = parseFloat(group.style.getPropertyValue('--calc-font-scale')) || 1;
+            pinchStartScale = current;
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!pinchGroup || e.touches.length !== 2) return;
+            e.preventDefault();
+            var dist = getDist(e.touches);
+            var ratio = dist / pinchStartDist;
+            var newScale = pinchStartScale * ratio;
+            newScale = Math.max(0.6, Math.min(3, newScale));
+            pinchGroup.style.setProperty('--calc-font-scale', newScale.toFixed(3));
+            // Также масштабируем таблицы внутри
+            var tables = pinchGroup.querySelectorAll('table');
+            tables.forEach(function(t) {
+                t.style.fontSize = (14 * newScale).toFixed(1) + 'px';
+            });
+            showBadge(pinchGroup, newScale);
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(e) {
+            if (pinchGroup && e.touches.length < 2) {
+                var val = parseFloat(pinchGroup.style.getPropertyValue('--calc-font-scale')) || 1;
+                var rounded = Math.round(val * 10) / 10;
+                rounded = Math.max(0.6, Math.min(3, rounded));
+                pinchGroup.style.setProperty('--calc-font-scale', rounded.toFixed(1));
+                var tables = pinchGroup.querySelectorAll('table');
+                tables.forEach(function(t) {
+                    t.style.fontSize = (14 * rounded).toFixed(1) + 'px';
+                });
+                showBadge(pinchGroup, rounded);
+                pinchGroup = null;
+            }
+        }, { passive: false });
+    })();
 
     async function initTicketsPage(catId) {
         const container = document.getElementById('tickets-container-' + catId);
