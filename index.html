@@ -80,6 +80,7 @@
         display: none; position: relative; z-index: 2;
         opacity: 0; transform: translateY(10px);
         transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-x: hidden;
     }
     .page-content.active { display: block; padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
     .page-content.visible { opacity: 1; transform: translateY(0); }
@@ -155,6 +156,7 @@
         border-bottom: 1px solid rgba(74, 143, 199, 0.12); 
         position: sticky; top: 56px; z-index: 50;
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        will-change: transform, opacity;
     }
     /* Состояние при прокрутке вниз: nav-bar скрыт, заголовок сжат */
     .page-content.scrolled .nav-bar {
@@ -166,6 +168,7 @@
         margin-top: -1px;
         pointer-events: none;
         overflow: hidden;
+        visibility: hidden;
     }
     .page-content.scrolled .page-inline-header {
         height: 40px;
@@ -1167,7 +1170,6 @@
 
     /* ====== Масштабирование текста щипком ====== */
     .pinch-zoom-target {
-        overflow: hidden;
         touch-action: pan-y;
     }
     .pinch-zoom-target.zoomed {
@@ -3240,9 +3242,15 @@
     (function() {
         let lastScrollY = 0;
         let ticking = false;
+        let cooldown = false;
+        const COOLDOWN_MS = 150;
+        // Гистерезис: порог скрытия выше порога восстановления,
+        // чтобы смена состояния не вызывала осцилляцию
+        const HIDE_THRESHOLD = 80;
+        const RESTORE_RATIO = 0.10;
 
         function onScroll() {
-            if (ticking) return;
+            if (ticking || cooldown) return;
             ticking = true;
             requestAnimationFrame(function() {
                 ticking = false;
@@ -3263,20 +3271,27 @@
                     return;
                 }
 
-                let threshold = docHeight * 0.10; // 10% от всей длины страницы
+                let restoreThreshold = docHeight * RESTORE_RATIO;
 
-                if (scrollY > lastScrollY && scrollY > 60) {
+                if (!isScrolled && scrollY > lastScrollY && scrollY > HIDE_THRESHOLD) {
                     // Прокрутка вниз — скрыть nav-bar, сжать заголовок
-                    if (!isScrolled) {
-                        active.classList.add('scrolled');
-                    }
-                } else if (scrollY < lastScrollY && scrollY <= threshold) {
+                    active.classList.add('scrolled');
+                    // Компенсируем сдвиг layout: после скрытия nav-bar scrollY может измениться
+                    let newScrollY = window.scrollY || window.pageYOffset;
+                    lastScrollY = newScrollY;
+                    // Кулдаун: блокируем обработку на время стабилизации layout
+                    cooldown = true;
+                    setTimeout(function() { cooldown = false; }, COOLDOWN_MS);
+                } else if (isScrolled && scrollY < lastScrollY && scrollY <= restoreThreshold) {
                     // Прокрутка вверх и в пределах 10% — вернуть в исходное состояние
-                    if (isScrolled) {
-                        active.classList.remove('scrolled');
-                    }
+                    active.classList.remove('scrolled');
+                    let newScrollY = window.scrollY || window.pageYOffset;
+                    lastScrollY = newScrollY;
+                    cooldown = true;
+                    setTimeout(function() { cooldown = false; }, COOLDOWN_MS);
+                } else {
+                    lastScrollY = scrollY;
                 }
-                lastScrollY = scrollY;
             });
         }
 
@@ -3291,16 +3306,30 @@
         let pageScales = {};
 
         // Применить масштаб ко всем целевым элементам на текущей странице
+        // Используем CSS zoom — масштабирует весь контент единообразно,
+        // включая inline font-size в px, который не наследуется от родителя.
         function applyScale(scale) {
             let active = document.querySelector('.page-content.active');
             if (!active) return;
             let targets = active.querySelectorAll('.pinch-zoom-target');
             targets.forEach(function(el) {
-                el.style.fontSize = scale + 'em';
+                // Сохранить исходную высоту до первого зума
+                if (!el._pzOrigHeight && el.offsetHeight > 0) {
+                    el._pzOrigHeight = el.offsetHeight;
+                }
                 if (scale > 1.0) {
                     el.classList.add('zoomed');
+                    el.style.zoom = scale;
+                    // Компенсация высоты: zoom увеличивает видимую высоту в scale раз,
+                    // поэтому ограничиваем CSS-высоту, чтобы визуально блок не вырос
+                    if (el._pzOrigHeight) {
+                        el.style.maxHeight = Math.round(el._pzOrigHeight / scale) + 'px';
+                    }
                 } else {
                     el.classList.remove('zoomed');
+                    el.style.zoom = '';
+                    el.style.maxHeight = '';
+                    el._pzOrigHeight = null;
                 }
             });
             pageScales[active.id] = scale;
@@ -3313,7 +3342,9 @@
             let scale = pageScales[active.id];
             if (scale && scale !== 1.0) {
                 active.querySelectorAll('.pinch-zoom-target').forEach(function(el) {
-                    el.style.fontSize = '';
+                    el.style.zoom = '';
+                    el.style.maxHeight = '';
+                    el._pzOrigHeight = null;
                     el.classList.remove('zoomed');
                 });
                 delete pageScales[active.id];
@@ -3404,15 +3435,25 @@
             document.querySelectorAll('#scaleTableContainer, #buoyTableContainer, [id$="TableContainer"]').forEach(function(el) {
                 if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
             });
-            // 2. Результаты конвертеров с таблицами
+            // 2. Информационные блоки (scaleInfo, buoyInfo)
+            document.querySelectorAll('#scaleInfo, #buoyInfo').forEach(function(el) {
+                if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
+            });
+            // 3. Результаты конвертеров с таблицами
+            //    Но НЕ добавляем класс, если внутри уже есть дочерний pinch-zoom-target
+            //    (чтобы избежать двойного зума — например, scaleResultsArea содержит scaleTableContainer)
             document.querySelectorAll('.converter-result-group').forEach(function(el) {
-                if (!el.classList.contains('pinch-zoom-target') && el.querySelector('table')) {
+                if (el.classList.contains('pinch-zoom-target')) return;
+                if (el.querySelector('.pinch-zoom-target')) return; // дочерний элемент уже целевой
+                if (el.querySelector('table')) {
                     el.classList.add('pinch-zoom-target');
                 }
             });
-            // 3. Блоки справочной информации — ищем по характерному паттерну
+            // 4. Блоки справочной информации — ищем по характерному паттерну
             //    Контейнер с background и "Справочная информация" внутри
             document.querySelectorAll('.page-content div[style]').forEach(function(div) {
+                if (div.classList.contains('pinch-zoom-target')) return;
+                if (div.querySelector('.pinch-zoom-target')) return;
                 if (div.style.background && div.querySelector('span')) {
                     let spans = div.querySelectorAll('span');
                     for (let s of spans) {
@@ -3426,7 +3467,7 @@
                     }
                 }
             });
-            // 4. Тексты билетов (если уже есть в DOM)
+            // 5. Тексты билетов (если уже есть в DOM)
             document.querySelectorAll('.ticket-q-text, .ticket-a-text, .ticket-ref').forEach(function(el) {
                 if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
             });
