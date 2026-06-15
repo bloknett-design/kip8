@@ -703,6 +703,7 @@
     .ticket-list { padding: 0 16px; }
     .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
     .ticket-item-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; position: sticky; top: 100px; z-index: 40; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 12px 12px 0 0; }
+    .page-content.scrolled .ticket-item-header { top: 44px; }
     .ticket-item.open .ticket-item-header { border-radius: 12px 12px 0 0; border-bottom: 1px solid var(--card-border); }
     .ticket-item-header:active { background: var(--active-bg); }
     .ticket-item-num { font-size: 17px; font-weight: 600; color: var(--text-primary); }
@@ -3139,18 +3140,22 @@
             setTimeout(function() {
                 const header = el.querySelector('.ticket-item-header');
                 if (!header) return;
-                // Вычислить высоту прилипших элементов (page-inline-header + nav-bar)
+                // Вычислить высоту прилипших элементов по их реальной позиции
                 const page = el.closest('.page-content');
-                let stickyOffset = 0;
                 const inlineHeader = page ? page.querySelector('.page-inline-header') : null;
                 const navBar = page ? page.querySelector('.nav-bar') : null;
-                if (inlineHeader) stickyOffset += inlineHeader.offsetHeight;
-                if (navBar) stickyOffset += navBar.offsetHeight;
+                // Используем getBoundingClientRect вместо offsetHeight для точного расчёта
+                let stickyOffset = 0;
+                if (inlineHeader) stickyOffset += inlineHeader.getBoundingClientRect().height;
+                // Nav-bar считается только если он видим (не в scrolled-состоянии)
+                if (navBar && navBar.getBoundingClientRect().height > 2) {
+                    stickyOffset += navBar.getBoundingClientRect().height;
+                }
                 const rect = header.getBoundingClientRect();
                 const currentScroll = window.scrollY || window.pageYOffset;
                 const targetY = currentScroll + rect.top - stickyOffset - 4;
                 window.scrollTo({ top: targetY, behavior: 'smooth' });
-            }, 50);
+            }, 100);
         }
     }
 
