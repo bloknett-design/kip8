@@ -155,7 +155,9 @@
         border-bottom: 1px solid rgba(74, 143, 199, 0.12); 
         position: sticky; top: 56px; z-index: 50;
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        transition: transform 0.3s ease, opacity 0.3s ease;
     }
+    .nav-bar.nav-hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
     .nav-btn {
         display: inline-flex; align-items: center; justify-content: center; gap: 5px;
         padding: 8px 14px; min-height: 44px; color: rgba(180, 200, 220, 0.85); font-size: 13px; font-weight: 600;
@@ -478,8 +480,12 @@
         display: flex; align-items: center; justify-content: space-between;
         padding: 0 20px;
         -webkit-transform: translateZ(0); transform: translateZ(0); will-change: transform;
+        transition: height 0.3s ease, padding 0.3s ease;
+        overflow: hidden;
     }
-    .page-inline-header-title { font-size: 18px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px; }
+    .page-inline-header.header-compact { height: 36px; padding: 0 16px; }
+    .page-inline-header-title { font-size: 18px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px; transition: font-size 0.3s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .page-inline-header.header-compact .page-inline-header-title { font-size: 14px; }
     #page-dashboard ~ .app-header, body:has(#page-dashboard.active) .app-header { display: block; }
     body:has(.page-content.active:not(#page-dashboard)) .app-header { display: none; }
 
@@ -3344,6 +3350,47 @@
         }
     }
 
+    /* ===== Автоскрытие навбара и сжатие заголовка при прокрутке ===== */
+    var scrollHideHandler = (function() {
+        var ticking = false;
+        return function() {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function() {
+                ticking = false;
+                var active = document.querySelector('.page-content.active');
+                if (!active || active.id === 'page-dashboard') return;
+
+                var scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+                var scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+                var clientHeight = window.innerHeight;
+                var totalScrollable = scrollHeight - clientHeight;
+
+                var header = active.querySelector('.page-inline-header');
+                var nav = active.querySelector('.nav-bar');
+
+                var showThreshold = totalScrollable * 0.10;
+                var hideThreshold = 60;
+
+                if (scrollTop <= showThreshold) {
+                    if (header) header.classList.remove('header-compact');
+                    if (nav) nav.classList.remove('nav-hidden');
+                } else if (scrollTop > hideThreshold) {
+                    if (header) header.classList.add('header-compact');
+                    if (nav) nav.classList.add('nav-hidden');
+                }
+            });
+        };
+    })();
+
+    window.addEventListener('scroll', scrollHideHandler, { passive: true });
+    document.addEventListener('touchmove', function() { requestAnimationFrame(scrollHideHandler); }, { passive: true });
+
+    function resetScrollHide() {
+        document.querySelectorAll('.page-inline-header.header-compact').forEach(function(h) { h.classList.remove('header-compact'); });
+        document.querySelectorAll('.nav-bar.nav-hidden').forEach(function(n) { n.classList.remove('nav-hidden'); });
+    }
+
     function navigateTo(page, addToHistory=true) {
         if (page === 'library') { navigateTo('library-internal'); return; }
         if (page === 'minesweeper') { setTimeout(() => { if (typeof msInit === 'function') msInit(); }, 50); }
@@ -3356,6 +3403,7 @@
         let target = document.getElementById('page-' + page);
         if (target) { target.classList.add('active'); requestAnimationFrame(() => { requestAnimationFrame(() => target.classList.add('visible')); }); }
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        resetScrollHide();
         if (page === 'buoy-calc') { updateBuoyCalcTitle(); setCalibMethodOnForm(); }
         updateBottomNavActive(page);
         // Toggle global app-header visibility
