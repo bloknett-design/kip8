@@ -80,7 +80,7 @@
         display: none; position: relative; z-index: 2;
         opacity: 0; transform: translateY(10px);
         transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        overflow-x: hidden;
+        overflow-x: clip;
     }
     .page-content.active { display: block; padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
     .page-content.visible { opacity: 1; transform: translateY(0); }
@@ -1172,7 +1172,10 @@
     .pinch-zoom-target {
         touch-action: pan-y;
     }
-    .pinch-zoom-target.zoomed {
+    /* Только тексты билетов прокручиваются внутри при зуме */
+    .pinch-zoom-target.zoomed.ticket-q-text,
+    .pinch-zoom-target.zoomed.ticket-a-text,
+    .pinch-zoom-target.zoomed.ticket-ref {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
@@ -3430,25 +3433,51 @@
         };
 
         // ---- Назначить класс pinch-zoom-target нужным элементам ----
+        // Цели: ТОЛЬКО таблицы внутри расчётных блоков и тексты билетов.
+        // НЕ масштабируются: заголовки результатов, блоки итоговых данных,
+        // информационные блоки под таблицами (scaleInfo, buoyInfo), формы ввода.
         function assignPinchZoomTargets() {
-            // 1. Контейнеры таблиц (scaleTableContainer, buoyTableContainer и др.)
-            document.querySelectorAll('#scaleTableContainer, #buoyTableContainer, [id$="TableContainer"]').forEach(function(el) {
-                if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
-            });
-            // 2. Информационные блоки (scaleInfo, buoyInfo)
-            document.querySelectorAll('#scaleInfo, #buoyInfo').forEach(function(el) {
-                if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
-            });
-            // 3. Результаты конвертеров с таблицами
-            //    Но НЕ добавляем класс, если внутри уже есть дочерний pinch-zoom-target
-            //    (чтобы избежать двойного зума — например, scaleResultsArea содержит scaleTableContainer)
-            document.querySelectorAll('.converter-result-group').forEach(function(el) {
+            // 1. Таблицы внутри conv-*-table (таблицы перевода)
+            //    Зумим только таблицу и её обёртку, не заголовок и не блок с базовым значением
+            document.querySelectorAll('[id^="conv-"][id$="-table"]').forEach(function(el) {
                 if (el.classList.contains('pinch-zoom-target')) return;
-                if (el.querySelector('.pinch-zoom-target')) return; // дочерний элемент уже целевой
-                if (el.querySelector('table')) {
+                // Ищем обёртку таблицы (div с overflow-x:auto, содержащий <table>)
+                let tableWrapper = el.querySelector('div[style*="overflow-x"]');
+                if (tableWrapper && tableWrapper.querySelector('table')) {
+                    if (!tableWrapper.classList.contains('pinch-zoom-target')) {
+                        tableWrapper.classList.add('pinch-zoom-target');
+                    }
+                } else if (el.querySelector('table')) {
+                    // Запасной вариант: если обёртки нет, зумим весь блок
                     el.classList.add('pinch-zoom-target');
                 }
             });
+
+            // 2. Контейнеры расчётных таблиц (scaleTableContainer, buoyTableContainer)
+            //    Это именно таблицы, без итоговых данных
+            document.querySelectorAll('#scaleTableContainer, #buoyTableContainer').forEach(function(el) {
+                if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
+            });
+
+            // 3. Converter-result-group с таблицами (кроме уже обработанных)
+            //    Зумим только если внутри НЕТ дочернего pinch-zoom-target
+            //    и в блоке есть таблица
+            document.querySelectorAll('.converter-result-group').forEach(function(el) {
+                if (el.classList.contains('pinch-zoom-target')) return;
+                if (el.querySelector('.pinch-zoom-target')) return;
+                if (el.querySelector('table')) {
+                    // Ищем обёртку таблицы
+                    let tableWrapper = el.querySelector('div[style*="overflow-x"]');
+                    if (tableWrapper && tableWrapper.querySelector('table')) {
+                        if (!tableWrapper.classList.contains('pinch-zoom-target')) {
+                            tableWrapper.classList.add('pinch-zoom-target');
+                        }
+                    } else {
+                        el.classList.add('pinch-zoom-target');
+                    }
+                }
+            });
+
             // 4. Блоки справочной информации — ищем по характерному паттерну
             //    Контейнер с background и "Справочная информация" внутри
             document.querySelectorAll('.page-content div[style]').forEach(function(div) {
@@ -3467,9 +3496,32 @@
                     }
                 }
             });
+
             // 5. Тексты билетов (если уже есть в DOM)
             document.querySelectorAll('.ticket-q-text, .ticket-a-text, .ticket-ref').forEach(function(el) {
                 if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
+            });
+
+            // 6. Все остальные таблицы на страницах, которые ещё не охвачены
+            //    (на случай, если какие-то таблицы не попали в правила выше)
+            document.querySelectorAll('.page-content table').forEach(function(table) {
+                let parent = table.closest('.pinch-zoom-target');
+                if (parent) return; // уже внутри цели
+                // Ищем ближайшую обёртку с overflow-x:auto
+                let wrapper = table.parentElement;
+                while (wrapper && !wrapper.classList.contains('page-content')) {
+                    if (wrapper.style && wrapper.style.overflowX === 'auto') {
+                        if (!wrapper.classList.contains('pinch-zoom-target')) {
+                            wrapper.classList.add('pinch-zoom-target');
+                        }
+                        return;
+                    }
+                    wrapper = wrapper.parentElement;
+                }
+                // Если обёртка не найдена — зумим саму таблицу
+                if (!table.classList.contains('pinch-zoom-target')) {
+                    table.classList.add('pinch-zoom-target');
+                }
             });
         }
 
