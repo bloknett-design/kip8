@@ -155,6 +155,26 @@
         border-bottom: 1px solid rgba(74, 143, 199, 0.12); 
         position: sticky; top: 56px; z-index: 50;
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        transition: transform 0.3s ease, opacity 0.3s ease, max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+    }
+    /* Состояние при прокрутке вниз: nav-bar скрыт, заголовок сжат */
+    .page-content.scrolled .nav-bar {
+        transform: translateY(-100%);
+        opacity: 0;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: -1px;
+        pointer-events: none;
+        overflow: hidden;
+    }
+    .page-content.scrolled .page-inline-header {
+        height: 40px;
+        padding: 0 16px;
+        top: 0;
+    }
+    .page-content.scrolled .page-inline-header-title {
+        font-size: 15px;
     }
     .nav-btn {
         display: inline-flex; align-items: center; justify-content: center; gap: 5px;
@@ -474,8 +494,9 @@
         display: flex; align-items: center; justify-content: space-between;
         padding: 0 20px;
         -webkit-transform: translateZ(0); transform: translateZ(0); will-change: transform;
+        transition: height 0.3s ease, padding 0.3s ease;
     }
-    .page-inline-header-title { font-size: 18px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px; }
+    .page-inline-header-title { font-size: 18px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px; transition: font-size 0.3s ease; }
     #page-dashboard ~ .app-header, body:has(#page-dashboard.active) .app-header { display: block; }
     body:has(.page-content.active:not(#page-dashboard)) .app-header { display: none; }
 
@@ -3134,6 +3155,8 @@
         let currentPageId = active ? active.id.replace('page-', '') : 'dashboard';
         if (active && addToHistory) { if (currentPageId !== page) pageHistory.push(currentPageId); }
         document.querySelectorAll('.page-content').forEach(el => { el.classList.remove('active', 'visible'); });
+        // Сбросить состояние прокрутки при переходе на новую страницу
+        document.querySelectorAll('.page-content.scrolled').forEach(el => el.classList.remove('scrolled'));
         let target = document.getElementById('page-' + page);
         if (target) { target.classList.add('active'); requestAnimationFrame(() => { requestAnimationFrame(() => target.classList.add('visible')); }); }
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3187,6 +3210,53 @@
     });
     // Инициализация: записать стартовую страницу в историю браузера
     history.replaceState({ page: 'dashboard' }, '', '#dashboard');
+
+    // ======================== СКРЫТИЕ NAV-BAR И СЖАТИЕ ЗАГОЛОВКА ПРИ ПРОКРУТКЕ ========================
+    (function() {
+        let lastScrollY = 0;
+        let ticking = false;
+
+        function onScroll() {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function() {
+                ticking = false;
+                let active = document.querySelector('.page-content.active');
+                if (!active || active.id === 'page-dashboard') return;
+
+                let scrollY = window.scrollY || window.pageYOffset;
+                let docHeight = document.documentElement.scrollHeight;
+                let winHeight = window.innerHeight;
+                let isScrolled = active.classList.contains('scrolled');
+
+                // Если всё содержимое помещается на экране — не активируем функционал
+                if (docHeight <= winHeight + 10) {
+                    if (isScrolled) {
+                        active.classList.remove('scrolled');
+                    }
+                    lastScrollY = scrollY;
+                    return;
+                }
+
+                let threshold = docHeight * 0.10; // 10% от всей длины страницы
+
+                if (scrollY > lastScrollY && scrollY > 60) {
+                    // Прокрутка вниз — скрыть nav-bar, сжать заголовок
+                    if (!isScrolled) {
+                        active.classList.add('scrolled');
+                    }
+                } else if (scrollY < lastScrollY && scrollY <= threshold) {
+                    // Прокрутка вверх и в пределах 10% — вернуть в исходное состояние
+                    if (isScrolled) {
+                        active.classList.remove('scrolled');
+                    }
+                }
+                lastScrollY = scrollY;
+            });
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+    })();
 
     // Обработчик Enter/Next на клавиатуре — логичный переход между полями и расчёт
     document.addEventListener('keydown', function(e) {
