@@ -155,7 +155,6 @@
         border-bottom: 1px solid rgba(74, 143, 199, 0.12); 
         position: sticky; top: 56px; z-index: 50;
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        transition: transform 0.3s ease, opacity 0.3s ease, max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
     }
     /* Состояние при прокрутке вниз: nav-bar скрыт, заголовок сжат */
     .page-content.scrolled .nav-bar {
@@ -494,9 +493,8 @@
         display: flex; align-items: center; justify-content: space-between;
         padding: 0 20px;
         -webkit-transform: translateZ(0); transform: translateZ(0); will-change: transform;
-        transition: height 0.3s ease, padding 0.3s ease;
     }
-    .page-inline-header-title { font-size: 18px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px; transition: font-size 0.3s ease; }
+    .page-inline-header-title { font-size: 18px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px; }
     #page-dashboard ~ .app-header, body:has(#page-dashboard.active) .app-header { display: block; }
     body:has(.page-content.active:not(#page-dashboard)) .app-header { display: none; }
 
@@ -697,10 +695,10 @@
     .ticket-cat-card { position: relative; border-radius: 14px; margin-bottom: 10px; cursor: pointer; transition: transform .15s; overflow: hidden; min-height: 120px; }
     .ticket-cat-card:active { transform: scale(0.97); }
     .ticket-cat-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-    .ticket-cat-info { position: relative; z-index: 1; padding: 18px 20px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 130px; }
-    .ticket-cat-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; background: rgba(255,255,255,0.45); padding: 6px 14px; border-radius: 8px; display: inline-block; align-self: flex-start; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .ticket-cat-info { position: relative; z-index: 1; padding: 28px 12px 12px 12px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 130px; }
+    .ticket-cat-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; background: rgba(255,255,255,0.20); padding: 6px 14px; border-radius: 8px; display: inline-block; align-self: flex-start; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
 
-    [data-theme="light"] .ticket-cat-title { color: #1a1a1a; background: rgba(255,255,255,0.45); }
+    [data-theme="light"] .ticket-cat-title { color: #1a1a1a; background: rgba(255,255,255,0.20); }
 
     .ticket-list { padding: 0 16px; }
     .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
@@ -1164,6 +1162,16 @@
             transform: none !important;
             opacity: 1 !important;
         }
+    }
+
+    /* ====== Масштабирование текста щипком ====== */
+    .pinch-zoom-target {
+        overflow: hidden;
+        touch-action: pan-y;
+    }
+    .pinch-zoom-target.zoomed {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* ====== Custom Select Dropdown ====== */
@@ -3091,15 +3099,15 @@
             for (const q of filtered) {
                 html += '<div class="ticket-q">';
                 html += '<div class="ticket-q-num">' + (q['\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430'] || '') + '</div>';
-                html += '<div class="ticket-q-text">' + escHtml(q['\u0412\u043e\u043f\u0440\u043e\u0441'] || '') + '</div>';
+                html += '<div class="ticket-q-text pinch-zoom-target">' + escHtml(q['\u0412\u043e\u043f\u0440\u043e\u0441'] || '') + '</div>';
                 const answer = q['\u041e\u0442\u0432\u0435\u0442'] || '';
                 if (answer) {
                     html += '<div class="ticket-a-label">Ответ</div>';
-                    html += '<div class="ticket-a-text">' + escHtml(answer) + '</div>';
+                    html += '<div class="ticket-a-text pinch-zoom-target">' + escHtml(answer) + '</div>';
                 }
                 const ref = q['\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b'] || '';
                 if (ref) {
-                    html += '<div class="ticket-ref">' + escHtml(ref) + '</div>';
+                    html += '<div class="ticket-ref pinch-zoom-target">' + escHtml(ref) + '</div>';
                 }
                 html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6 Q20 0 40 6 Q60 12 80 6 Q100 0 120 6 Q140 12 160 6 Q180 0 200 6 Q220 12 240 6 Q260 0 280 6 Q300 12 320 6 Q340 0 360 6 Q380 12 400 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>';
                 html += '</div>';
@@ -3127,9 +3135,21 @@
         // Если кликнутый не был открыт — открыть
         if (!wasOpen) {
             el.classList.add('open');
-            // Прокрутить страницу чтобы заголовок билета был виден
+            // Прокрутить страницу чтобы заголовок билета оказался под заголовком страницы
             setTimeout(function() {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                const header = el.querySelector('.ticket-item-header');
+                if (!header) return;
+                // Вычислить высоту прилипших элементов (page-inline-header + nav-bar)
+                const page = el.closest('.page-content');
+                let stickyOffset = 0;
+                const inlineHeader = page ? page.querySelector('.page-inline-header') : null;
+                const navBar = page ? page.querySelector('.nav-bar') : null;
+                if (inlineHeader) stickyOffset += inlineHeader.offsetHeight;
+                if (navBar) stickyOffset += navBar.offsetHeight;
+                const rect = header.getBoundingClientRect();
+                const currentScroll = window.scrollY || window.pageYOffset;
+                const targetY = currentScroll + rect.top - stickyOffset - 4;
+                window.scrollTo({ top: targetY, behavior: 'smooth' });
             }, 50);
         }
     }
@@ -3256,6 +3276,190 @@
         }
 
         window.addEventListener('scroll', onScroll, { passive: true });
+    })();
+
+    // ======================== МАСШТАБИРОВАНИЕ ТЕКСТА ЩИПКОМ ========================
+    (function() {
+        const MIN_SCALE = 1.0;
+        const MAX_SCALE = 2.5;
+        // Текущий масштаб для каждой страницы
+        let pageScales = {};
+
+        // Применить масштаб ко всем целевым элементам на текущей странице
+        function applyScale(scale) {
+            let active = document.querySelector('.page-content.active');
+            if (!active) return;
+            let targets = active.querySelectorAll('.pinch-zoom-target');
+            targets.forEach(function(el) {
+                el.style.fontSize = scale + 'em';
+                if (scale > 1.0) {
+                    el.classList.add('zoomed');
+                } else {
+                    el.classList.remove('zoomed');
+                }
+            });
+            pageScales[active.id] = scale;
+        }
+
+        // Сбросить масштаб при уходе со страницы
+        function resetZoomOnLeave() {
+            let active = document.querySelector('.page-content.active');
+            if (!active) return;
+            let scale = pageScales[active.id];
+            if (scale && scale !== 1.0) {
+                active.querySelectorAll('.pinch-zoom-target').forEach(function(el) {
+                    el.style.fontSize = '';
+                    el.classList.remove('zoomed');
+                });
+                delete pageScales[active.id];
+            }
+        }
+
+        // Проверить, находится ли элемент внутри зоны масштабирования
+        function isInZoomZone(el) {
+            let current = el;
+            while (current) {
+                if (current.classList && current.classList.contains('pinch-zoom-target')) return true;
+                if (current.classList && current.classList.contains('page-content')) return false;
+                current = current.parentElement;
+            }
+            return false;
+        }
+
+        // ---- Обработка жеста щипка (touch events) ----
+        let initialDistance = 0;
+        let initialScale = 1.0;
+        let isPinching = false;
+
+        function getDistance(touch1, touch2) {
+            let dx = touch1.clientX - touch2.clientX;
+            let dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        document.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 2) {
+                let inZone1 = isInZoomZone(e.touches[0].target);
+                let inZone2 = isInZoomZone(e.touches[1].target);
+                if (inZone1 || inZone2) {
+                    isPinching = true;
+                    initialDistance = getDistance(e.touches[0], e.touches[1]);
+                    let active = document.querySelector('.page-content.active');
+                    initialScale = (active && pageScales[active.id]) ? pageScales[active.id] : 1.0;
+                    e.preventDefault();
+                }
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isPinching || e.touches.length !== 2) return;
+            e.preventDefault();
+            let currentDistance = getDistance(e.touches[0], e.touches[1]);
+            let ratio = currentDistance / initialDistance;
+            let newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, initialScale * ratio));
+            applyScale(newScale);
+        }, { passive: false });
+
+        document.addEventListener('touchend', function(e) {
+            if (isPinching && e.touches.length < 2) {
+                isPinching = false;
+            }
+        });
+
+        // ---- Обработка gesturechange (iOS Safari) ----
+        document.addEventListener('gesturestart', function(e) {
+            if (!isInZoomZone(e.target)) return;
+            e.preventDefault();
+            let active = document.querySelector('.page-content.active');
+            initialScale = (active && pageScales[active.id]) ? pageScales[active.id] : 1.0;
+            isPinching = true;
+        }, { passive: false });
+
+        document.addEventListener('gesturechange', function(e) {
+            if (!isPinching) return;
+            e.preventDefault();
+            let newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, initialScale * e.scale));
+            applyScale(newScale);
+        }, { passive: false });
+
+        document.addEventListener('gestureend', function() {
+            isPinching = false;
+        });
+
+        // ---- Сброс масштаба при смене страницы ----
+        let origNavigateTo = window.navigateTo;
+        window.navigateTo = function(page, addToHistory) {
+            resetZoomOnLeave();
+            return origNavigateTo.call(this, page, addToHistory);
+        };
+
+        // ---- Назначить класс pinch-zoom-target нужным элементам ----
+        function assignPinchZoomTargets() {
+            // 1. Контейнеры таблиц (scaleTableContainer, buoyTableContainer и др.)
+            document.querySelectorAll('#scaleTableContainer, #buoyTableContainer, [id$="TableContainer"]').forEach(function(el) {
+                if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
+            });
+            // 2. Результаты конвертеров с таблицами
+            document.querySelectorAll('.converter-result-group').forEach(function(el) {
+                if (!el.classList.contains('pinch-zoom-target') && el.querySelector('table')) {
+                    el.classList.add('pinch-zoom-target');
+                }
+            });
+            // 3. Блоки справочной информации — ищем по характерному паттерну
+            //    Контейнер с background и "Справочная информация" внутри
+            document.querySelectorAll('.page-content div[style]').forEach(function(div) {
+                if (div.style.background && div.querySelector('span')) {
+                    let spans = div.querySelectorAll('span');
+                    for (let s of spans) {
+                        if (s.textContent && s.textContent.trim() === 'Справочная информация') {
+                            let contentDiv = div.querySelector('div[style*="font-size"]');
+                            if (contentDiv && !contentDiv.classList.contains('pinch-zoom-target')) {
+                                contentDiv.classList.add('pinch-zoom-target');
+                            }
+                            break;
+                        }
+                    }
+                }
+            });
+            // 4. Тексты билетов (если уже есть в DOM)
+            document.querySelectorAll('.ticket-q-text, .ticket-a-text, .ticket-ref').forEach(function(el) {
+                if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
+            });
+        }
+
+        // Назначать классы после загрузки и при изменении DOM
+        let assignTimeout = null;
+        function scheduleAssignPinchZoomTargets() {
+            if (assignTimeout) return;
+            assignTimeout = setTimeout(function() {
+                assignTimeout = null;
+                assignPinchZoomTargets();
+            }, 300);
+        }
+
+        function initPinchZoomTargets() {
+            assignPinchZoomTargets();
+            // MutationObserver для динамически добавленного контента (с троттлингом)
+            let observer = new MutationObserver(function(mutations) {
+                for (let m of mutations) {
+                    if (m.addedNodes.length) {
+                        for (let node of m.addedNodes) {
+                            if (node.nodeType === 1) {
+                                scheduleAssignPinchZoomTargets();
+                                return;
+                            }
+                        }
+                    }
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPinchZoomTargets);
+        } else {
+            initPinchZoomTargets();
+        }
     })();
 
     // Обработчик Enter/Next на клавиатуре — логичный переход между полями и расчёт
