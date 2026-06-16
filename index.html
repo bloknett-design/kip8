@@ -1189,29 +1189,27 @@
     .pinch-zoom-target {
         touch-action: pan-y;
     }
-    /* При зуме — горизонтальная прокрутка, если контент шире блока */
+    /* При зуме — горизонтальная прокрутка + разрешён горизонтальный пан */
     .pinch-zoom-target.zoomed {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        position: relative;
-        left: 0;
+        touch-action: pan-x pan-y;
     }
-    /* Тело открытого билета прокручивается целиком при зуме */
+    /* Тело открытого билета прокручивается целиком при зуме — без горизонтального скролла */
     .pinch-zoom-target.zoomed.ticket-item-body {
         overflow-y: auto;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
     }
     /* Блоки «Справочная информация» — независимый масштаб щипком */
     .ref-info-block {
         touch-action: pan-y;
     }
     .ref-info-block.zoomed {
-        transform-origin: top left;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        position: relative;
-        left: 0;
+        touch-action: pan-x pan-y;
     }
 
     /* ====== Custom Select Dropdown ====== */
@@ -3408,13 +3406,13 @@
             let active = document.querySelector('.page-content.active');
             if (!active) return;
             let targets = active.querySelectorAll('.pinch-zoom-target');
+            let parentWidth = active.clientWidth;
             targets.forEach(function(el) {
                 // Не масштабируем ref-info-block — у них свой обработчик
                 if (el.classList.contains('ref-info-block')) return;
-                // Билеты не нуждаются в компенсации ширины и горизонтальной прокрутке
+                // Билеты не нуждаются в компенсации ширины
                 let isTicketBody = el.classList.contains('ticket-item-body');
                 if (scale > 1.0) {
-                    // Сохранить исходную ширину до первого зума
                     if (!el._pzOrigWidth) {
                         el._pzOrigWidth = el.getBoundingClientRect().width;
                     }
@@ -3422,20 +3420,17 @@
                     el.style.zoom = scale;
                     if (!isTicketBody) {
                         // Компенсация ширины: zoom увеличивает визуальную ширину,
-                        // поэтому уменьшаем CSS-ширину, чтобы визуально блок оставался на месте
+                        // уменьшаем CSS-ширину, чтобы визуально блок оставался на месте
                         el.style.width = Math.round(el._pzOrigWidth / scale) + 'px';
-                        // Горизонтальная прокрутка, если контент выходит за рамки
-                        el.style.overflowX = 'auto';
-                        // Привязка к левому краю
+                        // Жёсткая привязка к левому краю
                         el.style.marginLeft = '0';
-                        el.style.marginRight = '0';
+                        el.style.marginRight = 'auto';
                     }
                 } else {
                     el.classList.remove('zoomed');
                     el.style.zoom = '';
                     if (!isTicketBody) {
                         el.style.width = '';
-                        el.style.overflowX = '';
                         el.style.marginLeft = '';
                         el.style.marginRight = '';
                     }
@@ -3448,25 +3443,21 @@
         // Применить масштаб к конкретному блоку ref-info-block
         function applyRefBlockScale(block, scale) {
             if (scale > 1.0) {
-                // Сохранить исходную ширину до первого зума
                 if (!block._pzOrigWidth) {
                     block._pzOrigWidth = block.getBoundingClientRect().width;
                 }
                 block.classList.add('zoomed');
                 block.style.zoom = scale;
-                // Компенсация: zoom увеличивает визуальную ширину, поэтому
+                // Компенсация ширины: zoom увеличивает визуальную ширину,
                 // уменьшаем CSS-ширину, чтобы визуально блок оставался на месте
                 block.style.width = Math.round(block._pzOrigWidth / scale) + 'px';
-                // Горизонтальная прокрутка, если текст выходит за рамки блока
-                block.style.overflowX = 'auto';
-                // Гарантируем привязку к левому краю — zoom масштабирует от верхнего левого угла
+                // Жёсткая привязка к левому краю — предотвращает смещение вправо
                 block.style.marginLeft = '0';
-                block.style.marginRight = '0';
+                block.style.marginRight = 'auto';
             } else {
                 block.classList.remove('zoomed');
                 block.style.zoom = '';
                 block.style.width = '';
-                block.style.overflowX = '';
                 block.style.marginLeft = '';
                 block.style.marginRight = '';
                 block._pzOrigWidth = null;
@@ -3483,7 +3474,6 @@
                 active.querySelectorAll('.pinch-zoom-target').forEach(function(el) {
                     el.style.zoom = '';
                     el.style.width = '';
-                    el.style.overflowX = '';
                     el.style.marginLeft = '';
                     el.style.marginRight = '';
                     el._pzOrigWidth = null;
@@ -3495,7 +3485,6 @@
             active.querySelectorAll('.ref-info-block').forEach(function(el) {
                 el.style.zoom = '';
                 el.style.width = '';
-                el.style.overflowX = '';
                 el.style.marginLeft = '';
                 el.style.marginRight = '';
                 el._pzOrigWidth = null;
