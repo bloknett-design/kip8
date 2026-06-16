@@ -740,18 +740,19 @@
     .ticket-q-divider { display: flex; align-items: center; justify-content: center; padding: 14px 0 6px; color: rgba(74,143,199,0.35); }
     .ticket-q-divider svg { width: 100%; max-width: 320px; height: 10px; }
     [data-theme="light"] .ticket-q-divider { color: rgba(74,143,199,0.3); }
-    .ticket-q-num { font-size: 14px; font-weight: 600; color: var(--accent-blue); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .ticket-q-num { font-size: 14px; font-weight: 600; color: #D2B48C; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+    [data-theme="light"] .ticket-q-num { color: #8B7355; }
     .ticket-q-text { font-size: 18px; color: var(--text-primary); line-height: 1.5; margin-bottom: 12px; }
     .ticket-a-label { font-size: 13px; font-weight: 700; color: rgba(74,199,113,0.8); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
     .ticket-a-text { font-size: 17px; color: rgba(255,255,255,0.6); line-height: 1.55; }
     [data-theme="light"] .ticket-a-text { color: rgba(0,0,0,0.55); }
-    .ticket-ref { font-size: 17px; color: #D2B48C; margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(210,180,140,0.25); line-height: 1.5; }
-    [data-theme="light"] .ticket-ref { color: #8B7355; border-top-color: rgba(139,115,85,0.2); }
-    .ticket-ref-link { color: inherit; text-decoration: none; border-bottom: 1px dashed rgba(210,180,140,0.5); transition: border-color .2s, color .2s; }
-    .ticket-ref-link:hover { border-bottom-style: solid; border-bottom-color: #D2B48C; color: #E8C87A; }
+    .ticket-ref { font-size: 17px; color: rgba(255,255,255,0.55); margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.15); line-height: 1.5; }
+    [data-theme="light"] .ticket-ref { color: rgba(0,0,0,0.5); border-top-color: rgba(0,0,0,0.12); }
+    .ticket-ref-link { color: #4d9fff; text-decoration: none; border-bottom: 1px dashed rgba(77,159,255,0.5); transition: border-color .2s, color .2s; }
+    .ticket-ref-link:hover { border-bottom-style: solid; border-bottom-color: #4d9fff; color: #7ab8ff; }
     .ticket-ref-link:active { opacity: 0.7; }
-    [data-theme="light"] .ticket-ref-link { border-bottom-color: rgba(139,115,85,0.4); }
-    [data-theme="light"] .ticket-ref-link:hover { border-bottom-color: #8B7355; color: #A0845C; }
+    [data-theme="light"] .ticket-ref-link { color: #2563eb; border-bottom-color: rgba(37,99,235,0.4); }
+    [data-theme="light"] .ticket-ref-link:hover { border-bottom-color: #2563eb; color: #1d4ed8; }
 
     /* Карточка-ссылка "Открыть изображение" в ответе билета.
        OneDrive-ссылки нельзя встроить как <img>, поэтому открываются в новой вкладке. */
