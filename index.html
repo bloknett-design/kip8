@@ -716,7 +716,16 @@
     [data-theme="light"] .ticket-item-chevron { stroke: rgba(0,0,0,0.25); }
     .ticket-item.open .ticket-item-chevron { transform: rotate(90deg); }
     .ticket-item-body { display: none; border-top: 1px solid var(--card-border); }
-    .ticket-item.open .ticket-item-body { display: block; max-height: calc(100vh - 160px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .ticket-item.open .ticket-item-body { display: block; max-height: calc(100vh - 60px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    /* Блокировка прокрутки страницы при открытом билете */
+    body.ticket-open { overflow: hidden !important; position: fixed; width: 100%; }
+    /* Кнопка «Следующий билет» */
+    .ticket-next-btn { display: flex; align-items: center; justify-content: space-between; width: calc(100% - 36px); margin: 18px auto 22px; padding: 14px 18px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s, transform .1s; }
+    .ticket-next-btn:active { background: var(--active-bg); transform: scale(0.97); }
+    .ticket-next-label { font-size: 13px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.4px; }
+    [data-theme="light"] .ticket-next-label { color: rgba(0,0,0,0.35); }
+    .ticket-next-title { font-size: 17px; font-weight: 600; color: var(--accent-blue); margin-top: 4px; }
+    .ticket-next-chevron { width: 20px; height: 20px; stroke: var(--accent-blue); flex-shrink: 0; opacity: 0.6; }
 
     .ticket-q { padding: 16px 18px 0; }
     .ticket-q:last-child .ticket-q-divider { display: none; }
@@ -3079,8 +3088,11 @@
 
         const lowerFilter = (filter || '').toLowerCase();
         let html = '';
+        const ticketKeys = Object.keys(groups); // Массив ключей для навигации
 
-        for (const [ticketNum, questions] of Object.entries(groups)) {
+        for (let ti = 0; ti < ticketKeys.length; ti++) {
+            const ticketNum = ticketKeys[ti];
+            const questions = groups[ticketNum];
             // Фильтрация
             let filtered = questions;
             if (lowerFilter) {
@@ -3092,7 +3104,7 @@
                 if (filtered.length === 0) continue;
             }
 
-            html += '<div class="ticket-item">';
+            html += '<div class="ticket-item" data-ticket-index="' + ti + '">';
             html += '<div class="ticket-item-header" onclick="toggleTicketItem(this.parentElement)">';
             html += '<span class="ticket-item-num">' + ticketNum + '</span>';
             html += '<span style="display:flex;align-items:center;gap:8px;"><span class="ticket-item-count">' + filtered.length + ' вопр.</span>';
@@ -3117,6 +3129,15 @@
                 html += '</div>';
             }
 
+            // Кнопка «Следующий билет» (кроме последнего)
+            if (ti < ticketKeys.length - 1) {
+                const nextTitle = ticketKeys[ti + 1];
+                html += '<div class="ticket-next-btn" onclick="goToNextTicket(' + (ti + 1) + ')">';
+                html += '<div><div class="ticket-next-label">Следующий билет</div><div class="ticket-next-title">' + escHtml(nextTitle) + '</div></div>';
+                html += '<svg class="ticket-next-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+                html += '</div>';
+            }
+
             html += '</div></div>';
         }
 
@@ -3128,6 +3149,9 @@
         d.textContent = s;
         return d.innerHTML;
     }
+
+    // Запомненная позиция прокрутки для восстановления при закрытии билета
+    let _savedScrollY = 0;
 
     function toggleTicketItem(el) {
         const wasOpen = el.classList.contains('open');
@@ -3141,27 +3165,48 @@
         // Если кликнутый не был открыт — открыть
         if (!wasOpen) {
             el.classList.add('open');
+            // Заблокировать прокрутку страницы
+            _savedScrollY = window.scrollY || window.pageYOffset;
+            document.body.classList.add('ticket-open');
+            document.body.style.top = '-' + _savedScrollY + 'px';
             // Скрыть nav-bar и сжать заголовок страницы (как при прокрутке вниз)
             if (page && !page.classList.contains('scrolled')) {
                 page.classList.add('scrolled');
             }
-            // Прокрутить страницу чтобы заголовок билета оказался под заголовком страницы
-            setTimeout(function() {
-                const header = el.querySelector('.ticket-item-header');
-                if (!header) return;
-                const inlineHeader = page ? page.querySelector('.page-inline-header') : null;
-                let stickyOffset = 0;
-                if (inlineHeader) stickyOffset += inlineHeader.getBoundingClientRect().height;
-                const rect = header.getBoundingClientRect();
-                const currentScroll = window.scrollY || window.pageYOffset;
-                const targetY = currentScroll + rect.top - stickyOffset - 4;
-                window.scrollTo({ top: targetY, behavior: 'smooth' });
-            }, 100);
         } else {
-            // Билет закрыт — вернуть nav-bar и заголовок в исходное состояние
+            // Билет закрыт — разблокировать прокрутку страницы
+            document.body.classList.remove('ticket-open');
+            document.body.style.top = '';
+            window.scrollTo(0, _savedScrollY);
+            // Вернуть nav-bar и заголовок в исходное состояние
             if (page && page.classList.contains('scrolled')) {
                 page.classList.remove('scrolled');
             }
+        }
+    }
+
+    // Переход к следующему билету
+    function goToNextTicket(nextIndex) {
+        const container = document.querySelector('.ticket-item.open')?.closest('.ticket-list');
+        if (!container) return;
+        // Закрыть текущий билет
+        const current = container.querySelector('.ticket-item.open');
+        if (current) {
+            current.classList.remove('open');
+            current.querySelector('.ticket-item-body').scrollTop = 0;
+        }
+        // Открыть следующий билет
+        const next = container.querySelector('.ticket-item[data-ticket-index="' + nextIndex + '"]');
+        if (next) {
+            next.classList.add('open');
+            // Прокрутить тело билета наверх
+            const body = next.querySelector('.ticket-item-body');
+            if (body) body.scrollTop = 0;
+            // Прокрутить заголовок следующего билета в видимую область
+            setTimeout(function() {
+                const header = next.querySelector('.ticket-item-header');
+                if (header) header.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
         }
     }
 
@@ -3182,6 +3227,11 @@
         if (page === 'minesweeper') { setTimeout(() => { if (typeof msInit === 'function') msInit(); }, 50); }
         if (TICKET_IDS.includes(page)) { setTimeout(() => initTicketsPage(page), 30); }
         if (page === 'exam-tickets') { setTimeout(() => loadTicketsData(), 30); }
+        // Снять блокировку прокрутки при уходе со страницы
+        if (document.body.classList.contains('ticket-open')) {
+            document.body.classList.remove('ticket-open');
+            document.body.style.top = '';
+        }
         let active = document.querySelector('.page-content.active');
         let currentPageId = active ? active.id.replace('page-', '') : 'dashboard';
         if (active && addToHistory) { if (currentPageId !== page) pageHistory.push(currentPageId); }
@@ -3224,6 +3274,16 @@
     }
     // Обработчик системной кнопки «Назад»
     window.addEventListener('popstate', function(e) {
+        // Если открыт билет — сначала закрыть его, а не уходить со страницы
+        if (document.body.classList.contains('ticket-open')) {
+            const openTicket = document.querySelector('.ticket-item.open');
+            if (openTicket) {
+                toggleTicketItem(openTicket);
+                // Отменить переход назад, вернуть состояние истории
+                history.pushState({ page: e.state ? e.state.page : 'dashboard' }, '', location.hash || '#dashboard');
+                return;
+            }
+        }
         let active = document.querySelector('.page-content.active');
         let currentPageId = active ? active.id.replace('page-', '') : 'dashboard';
         if (currentPageId === 'dashboard') {
