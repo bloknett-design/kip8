@@ -1172,10 +1172,8 @@
     .pinch-zoom-target {
         touch-action: pan-y;
     }
-    /* Только тексты билетов прокручиваются внутри при зуме */
-    .pinch-zoom-target.zoomed.ticket-q-text,
-    .pinch-zoom-target.zoomed.ticket-a-text,
-    .pinch-zoom-target.zoomed.ticket-ref {
+    /* Тело открытого билета прокручивается целиком при зуме */
+    .pinch-zoom-target.zoomed.ticket-item-body {
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
     }
@@ -3105,15 +3103,15 @@
             for (const q of filtered) {
                 html += '<div class="ticket-q">';
                 html += '<div class="ticket-q-num">' + (q['\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430'] || '') + '</div>';
-                html += '<div class="ticket-q-text pinch-zoom-target">' + escHtml(q['\u0412\u043e\u043f\u0440\u043e\u0441'] || '') + '</div>';
+                html += '<div class="ticket-q-text">' + escHtml(q['\u0412\u043e\u043f\u0440\u043e\u0441'] || '') + '</div>';
                 const answer = q['\u041e\u0442\u0432\u0435\u0442'] || '';
                 if (answer) {
                     html += '<div class="ticket-a-label">Ответ</div>';
-                    html += '<div class="ticket-a-text pinch-zoom-target">' + escHtml(answer) + '</div>';
+                    html += '<div class="ticket-a-text">' + escHtml(answer) + '</div>';
                 }
                 const ref = q['\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b'] || '';
                 if (ref) {
-                    html += '<div class="ticket-ref pinch-zoom-target">' + escHtml(ref) + '</div>';
+                    html += '<div class="ticket-ref">' + escHtml(ref) + '</div>';
                 }
                 html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6 Q20 0 40 6 Q60 12 80 6 Q100 0 120 6 Q140 12 160 6 Q180 0 200 6 Q220 12 240 6 Q260 0 280 6 Q300 12 320 6 Q340 0 360 6 Q380 12 400 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>';
                 html += '</div>';
@@ -3138,29 +3136,32 @@
             item.classList.remove('open');
             item.querySelector('.ticket-item-body').scrollTop = 0;
         });
+        const page = el.closest('.page-content');
+
         // Если кликнутый не был открыт — открыть
         if (!wasOpen) {
             el.classList.add('open');
+            // Скрыть nav-bar и сжать заголовок страницы (как при прокрутке вниз)
+            if (page && !page.classList.contains('scrolled')) {
+                page.classList.add('scrolled');
+            }
             // Прокрутить страницу чтобы заголовок билета оказался под заголовком страницы
             setTimeout(function() {
                 const header = el.querySelector('.ticket-item-header');
                 if (!header) return;
-                // Вычислить высоту прилипших элементов по их реальной позиции
-                const page = el.closest('.page-content');
                 const inlineHeader = page ? page.querySelector('.page-inline-header') : null;
-                const navBar = page ? page.querySelector('.nav-bar') : null;
-                // Используем getBoundingClientRect вместо offsetHeight для точного расчёта
                 let stickyOffset = 0;
                 if (inlineHeader) stickyOffset += inlineHeader.getBoundingClientRect().height;
-                // Nav-bar считается только если он видим (не в scrolled-состоянии)
-                if (navBar && navBar.getBoundingClientRect().height > 2) {
-                    stickyOffset += navBar.getBoundingClientRect().height;
-                }
                 const rect = header.getBoundingClientRect();
                 const currentScroll = window.scrollY || window.pageYOffset;
                 const targetY = currentScroll + rect.top - stickyOffset - 4;
                 window.scrollTo({ top: targetY, behavior: 'smooth' });
             }, 100);
+        } else {
+            // Билет закрыт — вернуть nav-bar и заголовок в исходное состояние
+            if (page && page.classList.contains('scrolled')) {
+                page.classList.remove('scrolled');
+            }
         }
     }
 
@@ -3287,11 +3288,17 @@
                     setTimeout(function() { cooldown = false; }, COOLDOWN_MS);
                 } else if (isScrolled && scrollY < lastScrollY && scrollY <= restoreThreshold) {
                     // Прокрутка вверх и в пределах 10% — вернуть в исходное состояние
-                    active.classList.remove('scrolled');
-                    let newScrollY = window.scrollY || window.pageYOffset;
-                    lastScrollY = newScrollY;
-                    cooldown = true;
-                    setTimeout(function() { cooldown = false; }, COOLDOWN_MS);
+                    // Но не убираем scrolled, если открыт билет
+                    let hasOpenTicket = active.querySelector('.ticket-item.open');
+                    if (!hasOpenTicket) {
+                        active.classList.remove('scrolled');
+                        let newScrollY = window.scrollY || window.pageYOffset;
+                        lastScrollY = newScrollY;
+                        cooldown = true;
+                        setTimeout(function() { cooldown = false; }, COOLDOWN_MS);
+                    } else {
+                        lastScrollY = scrollY;
+                    }
                 } else {
                     lastScrollY = scrollY;
                 }
@@ -3316,23 +3323,29 @@
             if (!active) return;
             let targets = active.querySelectorAll('.pinch-zoom-target');
             targets.forEach(function(el) {
-                // Сохранить исходную высоту до первого зума
-                if (!el._pzOrigHeight && el.offsetHeight > 0) {
-                    el._pzOrigHeight = el.offsetHeight;
-                }
+                // ticket-item-body уже имеет max-height из CSS и прокручивается целиком
+                let isTicketBody = el.classList.contains('ticket-item-body');
                 if (scale > 1.0) {
                     el.classList.add('zoomed');
                     el.style.zoom = scale;
-                    // Компенсация высоты: zoom увеличивает видимую высоту в scale раз,
-                    // поэтому ограничиваем CSS-высоту, чтобы визуально блок не вырос
-                    if (el._pzOrigHeight) {
-                        el.style.maxHeight = Math.round(el._pzOrigHeight / scale) + 'px';
+                    if (!isTicketBody) {
+                        // Сохранить исходную высоту до первого зума
+                        if (!el._pzOrigHeight && el.offsetHeight > 0) {
+                            el._pzOrigHeight = el.offsetHeight;
+                        }
+                        // Компенсация высоты: zoom увеличивает видимую высоту в scale раз,
+                        // поэтому ограничиваем CSS-высоту, чтобы визуально блок не вырос
+                        if (el._pzOrigHeight) {
+                            el.style.maxHeight = Math.round(el._pzOrigHeight / scale) + 'px';
+                        }
                     }
                 } else {
                     el.classList.remove('zoomed');
                     el.style.zoom = '';
-                    el.style.maxHeight = '';
-                    el._pzOrigHeight = null;
+                    if (!isTicketBody) {
+                        el.style.maxHeight = '';
+                        el._pzOrigHeight = null;
+                    }
                 }
             });
             pageScales[active.id] = scale;
@@ -3497,8 +3510,9 @@
                 }
             });
 
-            // 5. Тексты билетов (если уже есть в DOM)
-            document.querySelectorAll('.ticket-q-text, .ticket-a-text, .ticket-ref').forEach(function(el) {
+            // 5. Тело открытого билета — единый блок для масштабирования
+            //    (весь текст билета зумится и прокручивается целиком)
+            document.querySelectorAll('.ticket-item-body').forEach(function(el) {
                 if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
             });
 
