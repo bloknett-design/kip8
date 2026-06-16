@@ -716,12 +716,17 @@
     [data-theme="light"] .ticket-item-chevron { stroke: rgba(0,0,0,0.25); }
     .ticket-item.open .ticket-item-chevron { transform: rotate(90deg); }
     .ticket-item-body { display: none; border-top: 1px solid var(--card-border); }
-    .ticket-item.open .ticket-item-body { display: block; max-height: calc(100vh - 60px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .ticket-item.open .ticket-item-body { display: block; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1 1 0; min-height: 0; }
+    /* Открытый билет — полноэкранный flex-контейнер */
+    .ticket-item.open { display: flex; flex-direction: column; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; border-radius: 0; margin: 0; border: none; background: var(--bg-tertiary); }
+    .ticket-item.open .ticket-item-header { position: relative; top: auto; flex-shrink: 0; z-index: 41; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 0; padding: 16px; }
+    .ticket-item.open .ticket-item-num { font-size: 18px; }
     /* Блокировка прокрутки страницы при открытом билете */
     body.ticket-open { overflow: hidden !important; position: fixed; width: 100%; }
-    /* Кнопка «Следующий билет» */
-    .ticket-next-btn { display: flex; align-items: center; justify-content: space-between; width: calc(100% - 36px); margin: 18px auto 22px; padding: 14px 18px; background: var(--input-bg); border: 1px solid var(--card-border); border-radius: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s, transform .1s; }
-    .ticket-next-btn:active { background: var(--active-bg); transform: scale(0.97); }
+    /* Кнопка «Следующий билет» — снаружи тела, внизу ticket-item */
+    .ticket-next-btn { display: none; }
+    .ticket-item.open .ticket-next-btn { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--card-bg); border-top: 1px solid var(--card-border); flex-shrink: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s, transform .1s; }
+    .ticket-item.open .ticket-next-btn:active { background: var(--active-bg); transform: scale(0.97); }
     .ticket-next-label { font-size: 13px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.4px; }
     [data-theme="light"] .ticket-next-label { color: rgba(0,0,0,0.35); }
     .ticket-next-title { font-size: 17px; font-weight: 600; color: var(--accent-blue); margin-top: 4px; }
@@ -746,6 +751,9 @@
 
     [data-theme="light"] .ticket-cat-card { border-color: rgba(34,139,34,0.25); }
     [data-theme="light"] .ticket-item { border-color: rgba(20,20,19,0.08); }
+    [data-theme="light"] .ticket-item.open { background: #F0EEE6; }
+    [data-theme="light"] .ticket-item.open .ticket-item-header { background: rgba(240,238,230,0.92); }
+    [data-theme="light"] .ticket-item.open .ticket-next-btn { background: rgba(240,238,230,0.92); border-top-color: rgba(20,20,19,0.08); }
     [data-theme="light"] .ticket-item-header:active { background: rgba(0,0,0,0.03); }
     [data-theme="light"] .ticket-q { border-bottom-color: rgba(0,0,0,0.05); }
 
@@ -3129,7 +3137,9 @@
                 html += '</div>';
             }
 
-            // Кнопка «Следующий билет» (кроме последнего)
+            html += '</div>'; // конец ticket-item-body
+
+            // Кнопка «Следующий билет» — снаружи тела, на уровне ticket-item (кроме последнего)
             if (ti < ticketKeys.length - 1) {
                 const nextTitle = ticketKeys[ti + 1];
                 html += '<div class="ticket-next-btn" onclick="goToNextTicket(' + (ti + 1) + ')">';
@@ -3138,7 +3148,7 @@
                 html += '</div>';
             }
 
-            html += '</div></div>';
+            html += '</div>'; // конец ticket-item
         }
 
         container.innerHTML = html || '<div class="ticket-empty">Ничего не найдено</div>';
@@ -3189,7 +3199,7 @@
     function goToNextTicket(nextIndex) {
         const container = document.querySelector('.ticket-item.open')?.closest('.ticket-list');
         if (!container) return;
-        // Закрыть текущий билет
+        // Закрыть текущий билет (без снятия блокировки body)
         const current = container.querySelector('.ticket-item.open');
         if (current) {
             current.classList.remove('open');
@@ -3202,11 +3212,6 @@
             // Прокрутить тело билета наверх
             const body = next.querySelector('.ticket-item-body');
             if (body) body.scrollTop = 0;
-            // Прокрутить заголовок следующего билета в видимую область
-            setTimeout(function() {
-                const header = next.querySelector('.ticket-item-header');
-                if (header) header.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 50);
         }
     }
 
