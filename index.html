@@ -3408,11 +3408,20 @@
         // Применить масштаб к конкретному блоку ref-info-block
         function applyRefBlockScale(block, scale) {
             if (scale > 1.0) {
+                // Сохранить исходную ширину до первого зума
+                if (!block._pzOrigWidth) {
+                    block._pzOrigWidth = block.getBoundingClientRect().width;
+                }
                 block.classList.add('zoomed');
                 block.style.zoom = scale;
+                // Компенсация ширины: CSS-ширина уменьшается, zoom масштабирует обратно —
+                // визуальная ширина остаётся как у оригинала, а текст увеличивается
+                block.style.width = Math.round(block._pzOrigWidth / scale) + 'px';
             } else {
                 block.classList.remove('zoomed');
                 block.style.zoom = '';
+                block.style.width = '';
+                block._pzOrigWidth = null;
             }
             refBlockScales.set(block, scale);
         }
@@ -3432,6 +3441,8 @@
             // Сбросить зум всех ref-info-block на странице
             active.querySelectorAll('.ref-info-block').forEach(function(el) {
                 el.style.zoom = '';
+                el.style.width = '';
+                el._pzOrigWidth = null;
                 el.classList.remove('zoomed');
                 refBlockScales.delete(el);
             });
