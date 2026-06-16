@@ -43,6 +43,72 @@ SHEETS_CONFIG = {
 }
 
 
+# Префикс пути к картинкам в Excel, который нужно заменить на web-путь
+_IMAGE_PATH_PREFIX = "ИОС\\2. рабочая документация\\по слесарям КИП\\инструктажи, проверка знаний\\Билеты на допуск к самостоятельной работе\\кип_app\\Билеты_Images\\"
+# Префикс пути к файлам библиотеки в Excel
+_LIBRARY_PATH_PREFIX = "Библиотека КИП и А\\"
+
+
+def _is_http_url(s: str) -> bool:
+    """Возвращает True, если строка начинается с http:// или https://.
+    Такие значения — это рабочие ссылки (например, OneDrive share URL),
+    их нельзя конвертировать в локальные пути.
+    """
+    return s.strip().lower().startswith(("http://", "https://"))
+
+
+def _convert_image_path(raw_path: str) -> str:
+    """Конвертирует локальный путь картинки из Excel в web-путь.
+
+    Пример: ИОС\\...\\Билеты_Images\\приборы\\сх_термосопр.png → images/tickets/приборы/сх_термосопр.png
+
+    OneDrive/HTTP-ссылки (https://1drv.ms/i/c/...) пропускаются как есть.
+    """
+    if not raw_path.strip():
+        return ""
+    # OneDrive/HTTP-ссылки не конвертируем — отдаём как есть
+    if _is_http_url(raw_path):
+        return raw_path.strip()
+    # Заменяем обратные слеши на прямые
+    p = raw_path.replace("\\", "/")
+    # Ищем папку Билеты_Images и берём путь после неё
+    marker = "Билеты_Images/"
+    idx = p.find(marker)
+    if idx >= 0:
+        rel = p[idx + len(marker):]
+        return "images/tickets/" + rel
+    # Если маркер не найден, пробуем извлечь имя файла
+    filename = p.split("/")[-1]
+    if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp')):
+        return "images/tickets/" + filename
+    return raw_path
+
+
+def _convert_file_path(raw_path: str) -> str:
+    """Конвертирует локальный путь файла из Excel в web-путь.
+
+    Пример: Библиотека КИП и А\\Электробезопасность\\1. ПУЭ 6 и 7.pdf → library/Электробезопасность/1. ПУЭ 6 и 7.pdf
+
+    OneDrive/HTTP-ссылки (https://1drv.ms/b/c/...) пропускаются как есть.
+    """
+    if not raw_path.strip():
+        return ""
+    # OneDrive/HTTP-ссылки не конвертируем — отдаём как есть
+    if _is_http_url(raw_path):
+        return raw_path.strip()
+    p = raw_path.replace("\\", "/")
+    # Убираем префикс «Библиотека КИП и А/»
+    marker = "Библиотека КИП и А/"
+    idx = p.find(marker)
+    if idx >= 0:
+        rel = p[idx + len(marker):]
+        return "library/" + rel
+    # Если путь начинается с ИОС — конвертируем как картинку
+    if p.startswith("ИОС/"):
+        return _convert_image_path(raw_path)
+    return raw_path
+
+
 def _unescape_url(url: str) -> str:
     """Расшифровывает экранированные символы в URL."""
     return url.replace("\\u0026", "&").replace("&amp;", "&")
@@ -175,7 +241,14 @@ def convert_xlsx_to_json(xlsx_path: str, json_path: str) -> bool:
             obj = {}
             for i, val in enumerate(row):
                 if i < len(headers):
-                    obj[headers[i]] = str(val) if val is not None else ""
+                    header_name = headers[i]
+                    cell_val = str(val) if val is not None else ""
+                    # Конвертируем пути картинок и файлов в web-пути
+                    if header_name == "Image":
+                        cell_val = _convert_image_path(cell_val)
+                    elif header_name == "Файл":
+                        cell_val = _convert_file_path(cell_val)
+                    obj[header_name] = cell_val
             data_rows.append(obj)
 
         all_data[config["id"]] = {
