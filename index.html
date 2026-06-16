@@ -3406,7 +3406,6 @@
             let active = document.querySelector('.page-content.active');
             if (!active) return;
             let targets = active.querySelectorAll('.pinch-zoom-target');
-            let parentWidth = active.clientWidth;
             targets.forEach(function(el) {
                 // Не масштабируем ref-info-block — у них свой обработчик
                 if (el.classList.contains('ref-info-block')) return;
@@ -3422,17 +3421,12 @@
                         // Компенсация ширины: zoom увеличивает визуальную ширину,
                         // уменьшаем CSS-ширину, чтобы визуально блок оставался на месте
                         el.style.width = Math.round(el._pzOrigWidth / scale) + 'px';
-                        // Жёсткая привязка к левому краю
-                        el.style.marginLeft = '0';
-                        el.style.marginRight = 'auto';
                     }
                 } else {
                     el.classList.remove('zoomed');
                     el.style.zoom = '';
                     if (!isTicketBody) {
                         el.style.width = '';
-                        el.style.marginLeft = '';
-                        el.style.marginRight = '';
                     }
                     el._pzOrigWidth = null;
                 }
@@ -3451,15 +3445,10 @@
                 // Компенсация ширины: zoom увеличивает визуальную ширину,
                 // уменьшаем CSS-ширину, чтобы визуально блок оставался на месте
                 block.style.width = Math.round(block._pzOrigWidth / scale) + 'px';
-                // Жёсткая привязка к левому краю — предотвращает смещение вправо
-                block.style.marginLeft = '0';
-                block.style.marginRight = 'auto';
             } else {
                 block.classList.remove('zoomed');
                 block.style.zoom = '';
                 block.style.width = '';
-                block.style.marginLeft = '';
-                block.style.marginRight = '';
                 block._pzOrigWidth = null;
             }
             refBlockScales.set(block, scale);
@@ -3474,8 +3463,6 @@
                 active.querySelectorAll('.pinch-zoom-target').forEach(function(el) {
                     el.style.zoom = '';
                     el.style.width = '';
-                    el.style.marginLeft = '';
-                    el.style.marginRight = '';
                     el._pzOrigWidth = null;
                     el.classList.remove('zoomed');
                 });
@@ -3485,8 +3472,6 @@
             active.querySelectorAll('.ref-info-block').forEach(function(el) {
                 el.style.zoom = '';
                 el.style.width = '';
-                el.style.marginLeft = '';
-                el.style.marginRight = '';
                 el._pzOrigWidth = null;
                 el.classList.remove('zoomed');
                 refBlockScales.delete(el);
