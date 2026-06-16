@@ -718,19 +718,22 @@
     .ticket-item-body { display: none; border-top: 1px solid var(--card-border); }
     .ticket-item.open .ticket-item-body { display: block; overflow-y: auto; -webkit-overflow-scrolling: touch; flex: 1 1 0; min-height: 0; }
     /* Открытый билет — полноэкранный flex-контейнер */
-    .ticket-item.open { display: flex; flex-direction: column; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; border-radius: 0; margin: 0; border: none; background: var(--bg-tertiary); }
+    .ticket-item.open { display: flex; flex-direction: column; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100; border-radius: 0; margin: 0; border: none; background: var(--bg-tertiary); overflow: hidden; height: 100vh; height: 100dvh; }
     .ticket-item.open .ticket-item-header { position: relative; top: auto; flex-shrink: 0; z-index: 41; background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 0; padding: 16px; }
     .ticket-item.open .ticket-item-num { font-size: 18px; }
     /* Блокировка прокрутки страницы при открытом билете */
     body.ticket-open { overflow: hidden !important; position: fixed; width: 100%; }
-    /* Кнопка «Следующий билет» — снаружи тела, внизу ticket-item */
-    .ticket-next-btn { display: none; }
-    .ticket-item.open .ticket-next-btn { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--card-bg); border-top: 1px solid var(--card-border); flex-shrink: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s, transform .1s; }
-    .ticket-item.open .ticket-next-btn:active { background: var(--active-bg); transform: scale(0.97); }
-    .ticket-next-label { font-size: 13px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.4px; }
+    /* Навигация между билетами — снаружи тела, внизу ticket-item */
+    .ticket-nav-bar { display: none; }
+    .ticket-item.open .ticket-nav-bar { display: flex; align-items: stretch; background: var(--card-bg); border-top: 1px solid var(--card-border); flex-shrink: 0; }
+    .ticket-nav-btn { display: flex; align-items: center; flex: 1; padding: 14px 16px; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .15s, transform .1s; }
+    .ticket-nav-btn:active { background: var(--active-bg); transform: scale(0.97); }
+    .ticket-nav-prev { justify-content: flex-start; gap: 10px; border-right: 1px solid var(--card-border); }
+    .ticket-nav-next { justify-content: flex-end; gap: 10px; text-align: right; }
+    .ticket-next-label { font-size: 12px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.4px; }
     [data-theme="light"] .ticket-next-label { color: rgba(0,0,0,0.35); }
-    .ticket-next-title { font-size: 17px; font-weight: 600; color: var(--accent-blue); margin-top: 4px; }
-    .ticket-next-chevron { width: 20px; height: 20px; stroke: var(--accent-blue); flex-shrink: 0; opacity: 0.6; }
+    .ticket-next-title { font-size: 15px; font-weight: 600; color: var(--accent-blue); margin-top: 3px; }
+    .ticket-nav-chevron { width: 18px; height: 18px; stroke: var(--accent-blue); flex-shrink: 0; opacity: 0.6; }
 
     .ticket-q { padding: 16px 18px 0; }
     .ticket-q:last-child .ticket-q-divider { display: none; }
@@ -744,6 +747,31 @@
     [data-theme="light"] .ticket-a-text { color: rgba(0,0,0,0.55); }
     .ticket-ref { font-size: 17px; color: #D2B48C; margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(210,180,140,0.25); line-height: 1.5; }
     [data-theme="light"] .ticket-ref { color: #8B7355; border-top-color: rgba(139,115,85,0.2); }
+    .ticket-ref-link { color: inherit; text-decoration: none; border-bottom: 1px dashed rgba(210,180,140,0.5); transition: border-color .2s, color .2s; }
+    .ticket-ref-link:hover { border-bottom-style: solid; border-bottom-color: #D2B48C; color: #E8C87A; }
+    .ticket-ref-link:active { opacity: 0.7; }
+    [data-theme="light"] .ticket-ref-link { border-bottom-color: rgba(139,115,85,0.4); }
+    [data-theme="light"] .ticket-ref-link:hover { border-bottom-color: #8B7355; color: #A0845C; }
+
+    /* Карточка-ссылка "Открыть изображение" в ответе билета.
+       OneDrive-ссылки нельзя встроить как <img>, поэтому открываются в новой вкладке. */
+    .ticket-a-imglink { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding: 12px 14px; border-radius: 10px; background: rgba(210,180,140,0.08); border: 1px solid rgba(210,180,140,0.25); color: #D2B48C; text-decoration: none; font-size: 15px; font-weight: 500; transition: background .2s, border-color .2s, transform .12s; -webkit-tap-highlight-color: transparent; }
+    .ticket-a-imglink:hover { background: rgba(210,180,140,0.14); border-color: rgba(210,180,140,0.45); color: #E8C87A; }
+    .ticket-a-imglink:active { transform: scale(0.985); }
+    .ticket-a-imglink-icon { width: 22px; height: 22px; flex-shrink: 0; color: inherit; }
+    .ticket-a-imglink-text { flex: 1; line-height: 1.3; }
+    .ticket-a-imglink-ext { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; color: inherit; }
+    [data-theme="light"] .ticket-a-imglink { background: rgba(139,115,85,0.06); border-color: rgba(139,115,85,0.22); color: #8B7355; }
+    [data-theme="light"] .ticket-a-imglink:hover { background: rgba(139,115,85,0.1); border-color: rgba(139,115,85,0.4); color: #A0845C; }
+
+    /* Полноэкранный просмотр картинки */
+    .ticket-img-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: rgba(0,0,0,0.92); align-items: center; justify-content: center; flex-direction: column; }
+    .ticket-img-overlay.active { display: flex; }
+    .ticket-img-overlay-content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 50px 16px 16px; min-height: 0; }
+    .ticket-img-overlay-content img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 4px; }
+    .ticket-img-overlay-close { position: absolute; top: 12px; right: 16px; font-size: 32px; color: rgba(255,255,255,0.7); cursor: pointer; z-index: 201; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background .15s; -webkit-tap-highlight-color: transparent; }
+    .ticket-img-overlay-close:active { background: rgba(255,255,255,0.15); }
+    body.ticket-img-viewing { overflow: hidden !important; }
 
     .ticket-empty { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.3); font-size: 14px; }
     [data-theme="light"] .ticket-empty { color: rgba(0,0,0,0.3); }
@@ -753,7 +781,9 @@
     [data-theme="light"] .ticket-item { border-color: rgba(20,20,19,0.08); }
     [data-theme="light"] .ticket-item.open { background: #F0EEE6; }
     [data-theme="light"] .ticket-item.open .ticket-item-header { background: rgba(240,238,230,0.92); }
-    [data-theme="light"] .ticket-item.open .ticket-next-btn { background: rgba(240,238,230,0.92); border-top-color: rgba(20,20,19,0.08); }
+    [data-theme="light"] .ticket-item.open .ticket-nav-bar { background: rgba(240,238,230,0.92); border-top-color: rgba(20,20,19,0.08); }
+    [data-theme="light"] .ticket-nav-btn:active { background: rgba(0,0,0,0.05); }
+    [data-theme="light"] .ticket-nav-prev { border-right-color: rgba(20,20,19,0.08); }
     [data-theme="light"] .ticket-item-header:active { background: rgba(0,0,0,0.03); }
     [data-theme="light"] .ticket-q { border-bottom-color: rgba(0,0,0,0.05); }
 
@@ -3073,12 +3103,20 @@
     let isNavigating = false;
     /* ========== Экзаменационные билеты ========== */
     let _ticketsData = null;
+    // Уникальный параметр для cache-busting на одну сессию.
+    // Меняется при каждой полной перезагрузке страницы, поэтому
+    // браузер и SW всегда тянут свежий JSON при новом открытии приложения.
+    const _ticketsCacheBust = 't' + Date.now();
     const TICKET_IDS = ['tickets-4', 'tickets-5', 'tickets-6', 'tickets-1000v'];
 
-    async function loadTicketsData() {
-        if (_ticketsData) return _ticketsData;
+    async function loadTicketsData(force) {
+        // In-memory кэш на одну сессию — чтобы не дёргать сервер
+        // при каждом переходе на страницу билетов.
+        // force=true — принудительно обновить (например, после обновления SW).
+        if (_ticketsData && !force) return _ticketsData;
         try {
-            const r = await fetch('data/exam-tickets.json');
+            const url = 'data/exam-tickets.json?v=' + encodeURIComponent(_ticketsCacheBust);
+            const r = await fetch(url);
             if (!r.ok) throw new Error(r.status);
             _ticketsData = await r.json();
             // Обновить бейджи на главной странице билетов
@@ -3092,7 +3130,7 @@
             return _ticketsData;
         } catch (e) {
             console.error('Ошибка загрузки билетов:', e);
-            return null;
+            return _ticketsData; // вернуть предыдущие данные, если есть
         }
     }
 
@@ -3143,11 +3181,29 @@
                 const answer = q['\u041e\u0442\u0432\u0435\u0442'] || '';
                 if (answer) {
                     html += '<div class="ticket-a-label">Ответ</div>';
+                    // Если в столбце Image рабочая ссылка (http/https) — вставляем
+                    // кликабельную карточку-ссылку перед текстом ответа.
+                    // OneDrive-ссылки формата https://1drv.ms/b/c/... нельзя встроить
+                    // как <img>, поэтому открываем в новой вкладке.
+                    const imgSrc = (q['Image'] || '').trim();
+                    if (isWorkingUrl(imgSrc)) {
+                        html += '<a class="ticket-a-imglink" href="' + escHtml(imgSrc) + '" target="_blank" rel="noopener">';
+                        html += '<svg class="ticket-a-imglink-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                        html += '<span class="ticket-a-imglink-text">Открыть изображение</span>';
+                        html += '<svg class="ticket-a-imglink-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+                        html += '</a>';
+                    }
                     html += '<div class="ticket-a-text">' + escHtml(answer) + '</div>';
                 }
                 const ref = q['\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b'] || '';
+                const fileUrl = (q['\u0424\u0430\u0439\u043b'] || '').trim();
                 if (ref) {
-                    html += '<div class="ticket-ref">' + escHtml(ref) + '</div>';
+                    if (isWorkingUrl(fileUrl)) {
+                        // Литература кликабельна — ссылка на файл открывается в новой вкладке
+                        html += '<div class="ticket-ref"><a class="ticket-ref-link" href="' + escHtml(fileUrl) + '" target="_blank" rel="noopener">' + escHtml(ref) + '</a></div>';
+                    } else {
+                        html += '<div class="ticket-ref">' + escHtml(ref) + '</div>';
+                    }
                 }
                 html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6 Q20 0 40 6 Q60 12 80 6 Q100 0 120 6 Q140 12 160 6 Q180 0 200 6 Q220 12 240 6 Q260 0 280 6 Q300 12 320 6 Q340 0 360 6 Q380 12 400 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>';
                 html += '</div>';
@@ -3155,12 +3211,25 @@
 
             html += '</div>'; // конец ticket-item-body
 
-            // Кнопка «Следующий билет» — снаружи тела, на уровне ticket-item (кроме последнего)
-            if (ti < ticketKeys.length - 1) {
-                const nextTitle = ticketKeys[ti + 1];
-                html += '<div class="ticket-next-btn" onclick="goToNextTicket(' + (ti + 1) + ')">';
-                html += '<div><div class="ticket-next-label">Следующий билет</div><div class="ticket-next-title">' + escHtml(nextTitle) + '</div></div>';
-                html += '<svg class="ticket-next-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+            // Навигация между билетами — снаружи тела, на уровне ticket-item
+            const hasPrev = ti > 0;
+            const hasNext = ti < ticketKeys.length - 1;
+            if (hasPrev || hasNext) {
+                html += '<div class="ticket-nav-bar">';
+                if (hasPrev) {
+                    const prevTitle = ticketKeys[ti - 1];
+                    html += '<div class="ticket-nav-btn ticket-nav-prev" onclick="goToTicket(' + (ti - 1) + ')">';
+                    html += '<svg class="ticket-nav-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>';
+                    html += '<div><div class="ticket-next-label">Предыдущий</div><div class="ticket-next-title">' + escHtml(prevTitle) + '</div></div>';
+                    html += '</div>';
+                }
+                if (hasNext) {
+                    const nextTitle = ticketKeys[ti + 1];
+                    html += '<div class="ticket-nav-btn ticket-nav-next" onclick="goToTicket(' + (ti + 1) + ')">';
+                    html += '<div><div class="ticket-next-label">Следующий</div><div class="ticket-next-title">' + escHtml(nextTitle) + '</div></div>';
+                    html += '<svg class="ticket-nav-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+                    html += '</div>';
+                }
                 html += '</div>';
             }
 
@@ -3170,14 +3239,53 @@
         container.innerHTML = html || '<div class="ticket-empty">Ничего не найдено</div>';
     }
 
+    // Полноэкранный просмотр картинки билета
+    function openTicketImage(imgEl) {
+        // Создать overlay для полноэкранного просмотра
+        let overlay = document.getElementById('ticket-img-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'ticket-img-overlay';
+            overlay.className = 'ticket-img-overlay';
+            overlay.innerHTML = '<div class="ticket-img-overlay-close" onclick="closeTicketImage()">&times;</div><div class="ticket-img-overlay-content"><img id="ticket-img-overlay-full" src="" alt=""></div>';
+            document.body.appendChild(overlay);
+        }
+        const fullImg = document.getElementById('ticket-img-overlay-full');
+        fullImg.src = imgEl.src;
+        overlay.classList.add('active');
+        document.body.classList.add('ticket-img-viewing');
+    }
+
+    function closeTicketImage() {
+        const overlay = document.getElementById('ticket-img-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+        document.body.classList.remove('ticket-img-viewing');
+    }
+
     function escHtml(s) {
         const d = document.createElement('div');
         d.textContent = s;
         return d.innerHTML;
     }
 
+    // Проверка, что значение ячейки является рабочей ссылкой.
+    // Рабочей считается строка, начинающаяся с http:// или https://
+    // и содержащая домен. Локальные пути (images/..., library/...) и
+    // пустые ячейки не считаются рабочей ссылкой и не применяются.
+    function isWorkingUrl(s) {
+        if (!s) return false;
+        const str = String(s).trim();
+        if (!str) return false;
+        return /^https?:\/\/[^\s\/]+(\/\S*)?$/i.test(str);
+    }
+
     // Запомненная позиция прокрутки для восстановления при закрытии билета
     let _savedScrollY = 0;
+
+    // Запомненное состояние scrolled для корректного восстановления
+    let _wasPageScrolled = false;
 
     function toggleTicketItem(el) {
         const wasOpen = el.classList.contains('open');
@@ -3193,6 +3301,8 @@
             el.classList.add('open');
             // Заблокировать прокрутку страницы
             _savedScrollY = window.scrollY || window.pageYOffset;
+            // Запомнить, была ли страница уже в состоянии scrolled
+            _wasPageScrolled = page ? page.classList.contains('scrolled') : false;
             document.body.classList.add('ticket-open');
             document.body.style.top = '-' + _savedScrollY + 'px';
             // Скрыть nav-bar и сжать заголовок страницы (как при прокрутке вниз)
@@ -3204,23 +3314,24 @@
             document.body.classList.remove('ticket-open');
             document.body.style.top = '';
             window.scrollTo(0, _savedScrollY);
-            // Вернуть nav-bar и заголовок в исходное состояние
-            if (page && page.classList.contains('scrolled')) {
+            // Вернуть nav-bar и заголовок в исходное состояние только если мы сами добавили scrolled
+            if (page && page.classList.contains('scrolled') && !_wasPageScrolled) {
                 page.classList.remove('scrolled');
             }
         }
     }
 
-    // Переход к следующему билету
-    function goToNextTicket(nextIndex) {
-        const container = document.querySelector('.ticket-item.open')?.closest('.ticket-list');
+    // Переход к другому билету (по индексу)
+    function goToTicket(nextIndex) {
+        // Сначала находим текущий открытый билет и его контейнер
+        const current = document.querySelector('.ticket-item.open');
+        if (!current) return;
+        const container = current.closest('.ticket-list');
         if (!container) return;
         // Закрыть текущий билет (без снятия блокировки body)
-        const current = container.querySelector('.ticket-item.open');
-        if (current) {
-            current.classList.remove('open');
-            current.querySelector('.ticket-item-body').scrollTop = 0;
-        }
+        current.classList.remove('open');
+        const currentBody = current.querySelector('.ticket-item-body');
+        if (currentBody) currentBody.scrollTop = 0;
         // Открыть следующий билет
         const next = container.querySelector('.ticket-item[data-ticket-index="' + nextIndex + '"]');
         if (next) {
@@ -3228,12 +3339,32 @@
             // Прокрутить тело билета наверх
             const body = next.querySelector('.ticket-item-body');
             if (body) body.scrollTop = 0;
+        } else {
+            // Следующий билет не найден — разблокировать страницу
+            document.body.classList.remove('ticket-open');
+            document.body.style.top = '';
+            window.scrollTo(0, _savedScrollY);
+            const page = container.closest('.page-content');
+            if (page && page.classList.contains('scrolled')) {
+                page.classList.remove('scrolled');
+            }
         }
     }
 
     async function initTicketsPage(catId) {
         const container = document.getElementById('tickets-container-' + catId);
         if (!container) return;
+        // Закрыть все открытые билеты (на случай повторного входа на страницу)
+        document.querySelectorAll('.ticket-item.open').forEach(item => {
+            item.classList.remove('open');
+            const body = item.querySelector('.ticket-item-body');
+            if (body) body.scrollTop = 0;
+        });
+        // Снять блокировку прокрутки, если осталась от предыдущего билета
+        if (document.body.classList.contains('ticket-open')) {
+            document.body.classList.remove('ticket-open');
+            document.body.style.top = '';
+        }
         container.innerHTML = '<div class="ticket-loading">Загрузка…</div>';
         const data = await loadTicketsData();
         if (data) {
@@ -3248,11 +3379,17 @@
         if (page === 'minesweeper') { setTimeout(() => { if (typeof msInit === 'function') msInit(); }, 50); }
         if (TICKET_IDS.includes(page)) { setTimeout(() => initTicketsPage(page), 30); }
         if (page === 'exam-tickets') { setTimeout(() => loadTicketsData(), 30); }
-        // Снять блокировку прокрутки при уходе со страницы
+        // Снять блокировку прокрутки и закрыть открытые билеты при уходе со страницы
         if (document.body.classList.contains('ticket-open')) {
             document.body.classList.remove('ticket-open');
             document.body.style.top = '';
         }
+        // Закрыть все открытые билеты при навигации на другую страницу
+        document.querySelectorAll('.ticket-item.open').forEach(item => {
+            item.classList.remove('open');
+            const body = item.querySelector('.ticket-item-body');
+            if (body) body.scrollTop = 0;
+        });
         let active = document.querySelector('.page-content.active');
         let currentPageId = active ? active.id.replace('page-', '') : 'dashboard';
         if (active && addToHistory) { if (currentPageId !== page) pageHistory.push(currentPageId); }
