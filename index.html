@@ -1189,14 +1189,29 @@
     .pinch-zoom-target {
         touch-action: pan-y;
     }
+    /* При зуме — горизонтальная прокрутка, если контент шире блока */
+    .pinch-zoom-target.zoomed {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+        left: 0;
+    }
     /* Тело открытого билета прокручивается целиком при зуме */
     .pinch-zoom-target.zoomed.ticket-item-body {
         overflow-y: auto;
+        overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
     }
     /* Блоки «Справочная информация» — независимый масштаб щипком */
     .ref-info-block {
         touch-action: pan-y;
+    }
+    .ref-info-block.zoomed {
+        transform-origin: top left;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        position: relative;
+        left: 0;
     }
 
     /* ====== Custom Select Dropdown ====== */
@@ -1543,7 +1558,7 @@
             <div class="scale-form"><div class="scale-form-label">Тип выходного сигнала</div><select id="sigType" class="scale-field" onchange="setSignalDefaults()" autocomplete="off"><optgroup label="Токовые"><option value="4_20">4 – 20 мА</option><option value="0_20">0 – 20 мА</option><option value="0_5mA">0 – 5 мА</option></optgroup><optgroup label="Напряжения"><option value="0_10V">0 – 10 В</option><option value="1_5V">1 – 5 В</option><option value="0_5V">0 – 5 В</option><option value="bipolar_10">-10 – +10 В</option></optgroup><optgroup label="Пневматические"><option value="20_100_kPa">20 – 100 кПа</option><option value="0_2_1_0_bar">0,2 – 1,0 бар</option><option value="3_15_psi">3 – 15 psi</option><option value="0_2_1_0_kgf_cm2" selected>0,2 – 1,0 кгс/см²</option></optgroup><optgroup label="Другие"><option value="custom">Своё</option></optgroup></select>
             <div id="sigCustomRange" style="margin-top:8px;"><div class="scale-form-label">Диапазон сигнала</div><input type="text" inputmode="numeric" id="sigMin" class="scale-field" placeholder="Минимум" style="margin-bottom:6px;" autocomplete="off" enterkeyhint="next"><input type="text" inputmode="numeric" id="sigMax" class="scale-field" placeholder="Максимум" autocomplete="off" enterkeyhint="next"><input type="text" inputmode="text" id="sigUnitCustom" class="scale-field" placeholder="Ед. измерения" value="мА" style="margin-top:6px;" autocomplete="off" enterkeyhint="done" ><div style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:4px; padding-left:4px;" id="sigUnitLabel">мА</div></div></div>
             <button type="button" class="scale-calc-btn" onclick="calcScaleSignal()"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>Рассчитать</button>
-            <div id="scaleResultsArea" class="converter-result-group" style="display:none;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="converter-result-label-title">Расчётные значения</div><button type="button" class="query-btn" onclick="copyScaleTable()" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div><div id="scaleTableContainer" style="overflow-x:auto;"></div><div id="scaleInfo" style="margin-top:14px; padding:14px 18px; background:rgba(13,17,23,0.5); border-radius:10px; font-size:15px; color:rgba(255,255,255,0.35); line-height:1.6;"></div><div id="scaleCustomCalcPanel" style="display:none;"><div class="converter-result-label-title" style="margin-top:16px;">Расчёт произвольных значений</div><div class="scale-form" style="margin-top:8px;"><div style="color:rgba(255,255,255,0.25); font-size:11px; margin-bottom:10px; line-height:1.4;">Введите значение в любое поле — другое рассчитается автоматически</div><div class="scale-form-label">Значение шкалы (<span id="scaleQueryUnit">ед.</span>)</div><input type="text" inputmode="numeric" id="queryScaleVal" class="scale-field" placeholder="Например: 50" oninput="queryFromScaleLive()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Сигнал (<span id="scaleQuerySigUnit">мА</span>)</div><input type="text" inputmode="numeric" id="querySigVal" class="scale-field" placeholder="Например: 12" oninput="queryFromSignalLive()" autocomplete="off" enterkeyhint="done"></div></div></div>
+            <div id="scaleResultsArea" class="converter-result-group" style="display:none;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="converter-result-label-title">Расчётные значения</div><button type="button" class="query-btn" onclick="copyScaleTable()" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div><div id="scaleTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"></div><div id="scaleInfo" style="margin-top:14px; padding:14px 18px; background:rgba(13,17,23,0.5); border-radius:10px; font-size:15px; color:rgba(255,255,255,0.35); line-height:1.6;"></div><div id="scaleCustomCalcPanel" style="display:none;"><div class="converter-result-label-title" style="margin-top:16px;">Расчёт произвольных значений</div><div class="scale-form" style="margin-top:8px;"><div style="color:rgba(255,255,255,0.25); font-size:11px; margin-bottom:10px; line-height:1.4;">Введите значение в любое поле — другое рассчитается автоматически</div><div class="scale-form-label">Значение шкалы (<span id="scaleQueryUnit">ед.</span>)</div><input type="text" inputmode="numeric" id="queryScaleVal" class="scale-field" placeholder="Например: 50" oninput="queryFromScaleLive()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Сигнал (<span id="scaleQuerySigUnit">мА</span>)</div><input type="text" inputmode="numeric" id="querySigVal" class="scale-field" placeholder="Например: 12" oninput="queryFromSignalLive()" autocomplete="off" enterkeyhint="done"></div></div></div>
         </div>
 
         <!-- ======================== АВТОМАТИЧЕСКИЙ ВЫКЛЮЧАТЕЛЬ ======================== -->
@@ -2753,7 +2768,7 @@
             <div class="scale-form"><div class="scale-form-label">Подвесная система</div><input type="text" inputmode="numeric" id="suspension_mass" class="scale-field" value="0" placeholder="0" autocomplete="off" enterkeyhint="done"><div style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:4px; padding-left:4px;"> Масса тарелки/крюка, г</div></div>
             <div class="scale-form"><div class="scale-form-label">Выходной сигнал</div><select id="buoy_signal_type" class="scale-field" onchange="updateBuoySignalUnit()" autocomplete="off"><optgroup label="Токовые"><option value="4_20">4 – 20 мА</option><option value="0_20">0 – 20 мА</option><option value="0_5mA">0 – 5 мА</option></optgroup><optgroup label="Напряжения"><option value="0_10V">0 – 10 В</option><option value="1_5V">1 – 5 В</option><option value="0_5V">0 – 5 В</option><option value="bipolar_10">-10 – +10 В</option></optgroup><optgroup label="Пневматические"><option value="20_100_kPa">20 – 100 кПа</option><option value="0_2_1_0_bar">0,2 – 1,0 бар</option><option value="3_15_psi">3 – 15 psi</option><option value="0_2_1_0_kgf_cm2" selected>0,2 – 1,0 кгс/см²</option></optgroup><optgroup label="Другие"><option value="custom">Своё</option></optgroup></select><div id="customSignalRange" style="display:none; margin-top:12px;"><div style="display:flex; gap:8px;"><input type="text" inputmode="numeric" id="signal_min_custom" class="scale-field" style="flex:1;" placeholder="Мин." autocomplete="off" enterkeyhint="next"><input type="text" inputmode="numeric" id="signal_max_custom" class="scale-field" style="flex:1;" placeholder="Макс." autocomplete="off" enterkeyhint="done"></div><input type="text" inputmode="numeric" id="signal_unit_custom" class="scale-field" style="margin-top:8px;" placeholder="Ед. измерения (например: мА, В, кПа)" value="мА" autocomplete="off" enterkeyhint="done" ></div><div id="signalUnitDisplay" style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:8px; padding-left:4px;"> Сигнал: 0,2-1,0 кгс/см²</div></div>
             <button type="button" class="converter-convert-btn" onclick="calculateBuoyCalibration()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать калибровку</button>
-            <div id="buoyResults" class="converter-result-group" style="display:none;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="converter-result-label-title">Таблица калибровки (шаг 10%)</div><button type="button" class="query-btn" onclick="copyBuoyTable()" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div><div id="buoyTableContainer" style="overflow-x:auto;"></div><div id="buoyInfo" style="margin-top:14px; padding:14px 18px; background:rgba(13,17,23,0.5); border-radius:10px; font-size:15px; color:rgba(255,255,255,0.35); line-height:1.6;"></div><div id="buoyCustomCalcPanel" style="display:none;"><div class="converter-result-label-title" style="margin-top:16px;">Расчёт произвольных значений</div><div class="scale-form" style="margin-top:8px;"><div style="color:rgba(255,255,255,0.25); font-size:11px; margin-bottom:10px; line-height:1.4;">Введите значение в любое поле — два других рассчитаются автоматически</div><div class="scale-form-label">Уровень (%)</div><input type="text" inputmode="numeric" id="buoyCustomLevel" class="scale-field" placeholder="Например: 37,5" oninput="calcBuoyFromLevel()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Масса гирь (г)</div><input type="text" inputmode="numeric" id="buoyCustomMass" class="scale-field" placeholder="Например: 542,3" oninput="calcBuoyFromMass()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Сигнал (<span id="buoyCustomSigUnit">мА</span>)</div><input type="text" inputmode="numeric" id="buoyCustomSignal" class="scale-field" placeholder="Например: 9,6" oninput="calcBuoyFromSignal()" autocomplete="off" enterkeyhint="done"></div></div></div>
+            <div id="buoyResults" class="converter-result-group" style="display:none;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="converter-result-label-title">Таблица калибровки (шаг 10%)</div><button type="button" class="query-btn" onclick="copyBuoyTable()" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div><div id="buoyTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"></div><div id="buoyInfo" style="margin-top:14px; padding:14px 18px; background:rgba(13,17,23,0.5); border-radius:10px; font-size:15px; color:rgba(255,255,255,0.35); line-height:1.6;"></div><div id="buoyCustomCalcPanel" style="display:none;"><div class="converter-result-label-title" style="margin-top:16px;">Расчёт произвольных значений</div><div class="scale-form" style="margin-top:8px;"><div style="color:rgba(255,255,255,0.25); font-size:11px; margin-bottom:10px; line-height:1.4;">Введите значение в любое поле — два других рассчитаются автоматически</div><div class="scale-form-label">Уровень (%)</div><input type="text" inputmode="numeric" id="buoyCustomLevel" class="scale-field" placeholder="Например: 37,5" oninput="calcBuoyFromLevel()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Масса гирь (г)</div><input type="text" inputmode="numeric" id="buoyCustomMass" class="scale-field" placeholder="Например: 542,3" oninput="calcBuoyFromMass()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Сигнал (<span id="buoyCustomSigUnit">мА</span>)</div><input type="text" inputmode="numeric" id="buoyCustomSignal" class="scale-field" placeholder="Например: 9,6" oninput="calcBuoyFromSignal()" autocomplete="off" enterkeyhint="done"></div></div></div>
         </div>
     </div>
 </div>
@@ -3394,12 +3409,37 @@
             if (!active) return;
             let targets = active.querySelectorAll('.pinch-zoom-target');
             targets.forEach(function(el) {
+                // Не масштабируем ref-info-block — у них свой обработчик
+                if (el.classList.contains('ref-info-block')) return;
+                // Билеты не нуждаются в компенсации ширины и горизонтальной прокрутке
+                let isTicketBody = el.classList.contains('ticket-item-body');
                 if (scale > 1.0) {
+                    // Сохранить исходную ширину до первого зума
+                    if (!el._pzOrigWidth) {
+                        el._pzOrigWidth = el.getBoundingClientRect().width;
+                    }
                     el.classList.add('zoomed');
                     el.style.zoom = scale;
+                    if (!isTicketBody) {
+                        // Компенсация ширины: zoom увеличивает визуальную ширину,
+                        // поэтому уменьшаем CSS-ширину, чтобы визуально блок оставался на месте
+                        el.style.width = Math.round(el._pzOrigWidth / scale) + 'px';
+                        // Горизонтальная прокрутка, если контент выходит за рамки
+                        el.style.overflowX = 'auto';
+                        // Привязка к левому краю
+                        el.style.marginLeft = '0';
+                        el.style.marginRight = '0';
+                    }
                 } else {
                     el.classList.remove('zoomed');
                     el.style.zoom = '';
+                    if (!isTicketBody) {
+                        el.style.width = '';
+                        el.style.overflowX = '';
+                        el.style.marginLeft = '';
+                        el.style.marginRight = '';
+                    }
+                    el._pzOrigWidth = null;
                 }
             });
             pageScales[active.id] = scale;
@@ -3408,29 +3448,28 @@
         // Применить масштаб к конкретному блоку ref-info-block
         function applyRefBlockScale(block, scale) {
             if (scale > 1.0) {
-                // Сохранить исходные размеры и отступы до первого зума
-                if (!block._pzOrigData) {
-                    var cs = getComputedStyle(block);
-                    block._pzOrigData = {
-                        width: block.getBoundingClientRect().width,
-                        marginLeft: parseFloat(cs.marginLeft),
-                        marginRight: parseFloat(cs.marginRight)
-                    };
+                // Сохранить исходную ширину до первого зума
+                if (!block._pzOrigWidth) {
+                    block._pzOrigWidth = block.getBoundingClientRect().width;
                 }
                 block.classList.add('zoomed');
                 block.style.zoom = scale;
-                // Компенсация: zoom масштабирует всё (ширину, padding, margin),
-                // поэтому уменьшаем CSS-значения, чтобы визуально они остались как у оригинала
-                block.style.width = Math.round(block._pzOrigData.width / scale) + 'px';
-                block.style.marginLeft = Math.round(block._pzOrigData.marginLeft / scale) + 'px';
-                block.style.marginRight = Math.round(block._pzOrigData.marginRight / scale) + 'px';
+                // Компенсация: zoom увеличивает визуальную ширину, поэтому
+                // уменьшаем CSS-ширину, чтобы визуально блок оставался на месте
+                block.style.width = Math.round(block._pzOrigWidth / scale) + 'px';
+                // Горизонтальная прокрутка, если текст выходит за рамки блока
+                block.style.overflowX = 'auto';
+                // Гарантируем привязку к левому краю — zoom масштабирует от верхнего левого угла
+                block.style.marginLeft = '0';
+                block.style.marginRight = '0';
             } else {
                 block.classList.remove('zoomed');
                 block.style.zoom = '';
                 block.style.width = '';
+                block.style.overflowX = '';
                 block.style.marginLeft = '';
                 block.style.marginRight = '';
-                block._pzOrigData = null;
+                block._pzOrigWidth = null;
             }
             refBlockScales.set(block, scale);
         }
@@ -3443,6 +3482,11 @@
             if (scale && scale !== 1.0) {
                 active.querySelectorAll('.pinch-zoom-target').forEach(function(el) {
                     el.style.zoom = '';
+                    el.style.width = '';
+                    el.style.overflowX = '';
+                    el.style.marginLeft = '';
+                    el.style.marginRight = '';
+                    el._pzOrigWidth = null;
                     el.classList.remove('zoomed');
                 });
                 delete pageScales[active.id];
@@ -3451,9 +3495,10 @@
             active.querySelectorAll('.ref-info-block').forEach(function(el) {
                 el.style.zoom = '';
                 el.style.width = '';
+                el.style.overflowX = '';
                 el.style.marginLeft = '';
                 el.style.marginRight = '';
-                el._pzOrigData = null;
+                el._pzOrigWidth = null;
                 el.classList.remove('zoomed');
                 refBlockScales.delete(el);
             });
@@ -3608,9 +3653,9 @@
                 }
             });
 
-            // 2. Контейнеры расчётных таблиц (scaleTableContainer, buoyTableContainer)
+            // 2. Контейнеры расчётных таблиц (scaleTableContainer, buoyTableContainer, wsTableContainer, tempTableContainer)
             //    Это именно таблицы, без итоговых данных
-            document.querySelectorAll('#scaleTableContainer, #buoyTableContainer').forEach(function(el) {
+            document.querySelectorAll('#scaleTableContainer, #buoyTableContainer, #wsTableContainer, #tempTableContainer').forEach(function(el) {
                 if (!el.classList.contains('pinch-zoom-target')) el.classList.add('pinch-zoom-target');
             });
 
@@ -3896,7 +3941,6 @@ function showTempTable(fromUnit, toUnit, baseCelsius) {
 function setSignalDefaults() { let type=document.getElementById('sigType').value; let def={'4_20':[4,20],'0_20':[0,20],'0_5mA':[0,5],'0_10V':[0,10],'1_5V':[1,5],'0_5V':[0,5],'bipolar_10':[-10,10],'20_100_kPa':[20,100],'0_2_1_0_bar':['0,2','1,0'],'3_15_psi':[3,15],'0_2_1_0_kgf_cm2':['0,2','1,0']}; let customDiv=document.getElementById('sigCustomRange'); if(def[type]){document.getElementById('sigMin').value=def[type][0]; document.getElementById('sigMax').value=def[type][1]; customDiv.style.display='none';} else{document.getElementById('sigMin').value='0'; document.getElementById('sigMax').value='100'; document.getElementById('sigUnitCustom').value='%'; customDiv.style.display='block';} document.getElementById('sigUnitLabel').innerText=sigUnitLabels[type]; }
     function setScaleDefaults() { let type=document.getElementById('scalePreset').value; let def={'0_100':[0,100,'%'],'0_20':[0,20,'мА'],'0_5mA':[0,5,'мА'],'0_10V':[0,10,'В'],'1_5V':[1,5,'В'],'0_5V':[0,5,'В'],'bipolar_10':[-10,10,'В'],'20_100_kPa':[20,100,'кПа'],'0_2_1_0_bar':['0,2','1,0','бар'],'3_15_psi':[3,15,'psi'],'0_2_1_0_kgf_cm2':['0,2','1,0','кгс/см²']}; let customDiv=document.getElementById('scaleCustomRange'); if(def[type]){document.getElementById('scaleMin').value=def[type][0]; document.getElementById('scaleMax').value=def[type][1]; document.getElementById('scaleUnitName').value=def[type][2]; customDiv.style.display='none';} else{customDiv.style.display='block';} }
     function calcScaleSignal() { let smin=parseLocaleNumber(document.getElementById('scaleMin').value); let smax=parseLocaleNumber(document.getElementById('scaleMax').value); let gmin=parseLocaleNumber(document.getElementById('sigMin').value); let gmax=parseLocaleNumber(document.getElementById('sigMax').value); let scaleType=document.getElementById('scaleType').value; if(isNaN(smin)||isNaN(smax)||isNaN(gmin)||isNaN(gmax)){showToast('Заполните все поля');return;} if(smin===smax||gmin===gmax){showToast('Пределы не должны совпадать');return;} document.getElementById('scaleResultsArea').style.display='block'; let unit=document.getElementById('scaleUnitName').value||'ед.'; let sigRange=getSignalRangeAndUnit(document.getElementById('sigType').value); let sigUnit=sigRange.unit; let typeLabels={linear:'Линейная',quadratic:'Квадратичная',sqrt:'Корнеизвлекающая'}; let pct=[0,5,10,15,20,25,30,40,50,60,70,75,80,90,95,100]; let html='<table style="min-width:100%;width:100%;border-collapse:collapse;"><thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">%</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Шкала ('+unit+')</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Сигнал ('+sigUnit+')</th></tr></thead><tbody>'; for(let i=0;i<pct.length;i++){ let pr=pct[i]/100; let scaleVal=smin+(smax-smin)*pr; let sigVal; if(scaleType==='quadratic'){ sigVal=gmin+(gmax-gmin)*pr*pr; } else if(scaleType==='sqrt'){ sigVal=gmin+(gmax-gmin)*Math.sqrt(pr); } else { sigVal=gmin+(gmax-gmin)*pr; } let bg=i%2?'rgba(22,27,34,0.4)':'rgba(13,17,23,0.4)'; html+=`<tr style="background:${bg};"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.4);">${pct[i]}</td><td style="padding:8px 12px;font-size:14px;color:#e0e0e0;">${formatNumber(scaleVal)}</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">${formatNumber(sigVal)}</td></tr>`; } html+='</tbody></table>'; document.getElementById('scaleTableContainer').innerHTML=html; document.getElementById('scaleInfo').innerHTML='Тип шкалы: <b style="color:#4a8fc7;">'+typeLabels[scaleType]+'</b> · Шкала: '+formatNumber(smin)+' – '+formatNumber(smax)+' '+unit+' · Сигнал: '+sigRange.label; document.getElementById('scaleQueryUnit').textContent=unit; document.getElementById('scaleQuerySigUnit').textContent=sigUnit; document.getElementById('scaleCustomCalcPanel').style.display='block'; document.getElementById('queryScaleVal').value=''; document.getElementById('querySigVal').value=''; setTimeout(()=>document.getElementById('scaleResultsArea').scrollIntoView({behavior:'smooth',block:'start'}),100); }
-    function copyScaleTable(){ let tbl=document.querySelector('#scaleTableContainer table'); if(!tbl){showToast('Нет данных');return;} let txt=''; tbl.querySelectorAll('tr').forEach(r=>{let c=[];r.querySelectorAll('th,td').forEach(d=>c.push(d.textContent.trim()));txt+=c.join('\t')+'\n';}); navigator.clipboard.writeText(txt).then(()=>showToast('Таблица скопирована')).catch(()=>showToast('Ошибка копирования')); }
     function queryFromScaleLive(){ let smin=parseLocaleNumber(document.getElementById('scaleMin').value),smax=parseLocaleNumber(document.getElementById('scaleMax').value),gmin=parseLocaleNumber(document.getElementById('sigMin').value),gmax=parseLocaleNumber(document.getElementById('sigMax').value),scaleType=document.getElementById('scaleType').value,q=parseLocaleNumber(document.getElementById('queryScaleVal').value),unit=document.getElementById('scaleUnitName').value||'ед.',sigRange=getSignalRangeAndUnit(document.getElementById('sigType').value),sigUnit=sigRange.unit;if(isNaN(q)){document.getElementById('querySigVal').value='';return;} let p=(q-smin)/(smax-smin); let sig; if(scaleType==='quadratic'){sig=gmin+(gmax-gmin)*p*p;} else if(scaleType==='sqrt'){sig=gmin+(gmax-gmin)*Math.sqrt(p);} else{sig=gmin+(gmax-gmin)*p;} document.getElementById('querySigVal').value=formatNumber(sig); }
     function queryFromSignalLive(){ let smin=parseLocaleNumber(document.getElementById('scaleMin').value),smax=parseLocaleNumber(document.getElementById('scaleMax').value),gmin=parseLocaleNumber(document.getElementById('sigMin').value),gmax=parseLocaleNumber(document.getElementById('sigMax').value),scaleType=document.getElementById('scaleType').value,q=parseLocaleNumber(document.getElementById('querySigVal').value),unit=document.getElementById('scaleUnitName').value||'ед.',sigRange=getSignalRangeAndUnit(document.getElementById('sigType').value),sigUnit=sigRange.unit;if(isNaN(q)){document.getElementById('queryScaleVal').value='';return;} let p=(q-gmin)/(gmax-gmin); let val_lin; if(scaleType==='quadratic'){val_lin=Math.sqrt(p);} else if(scaleType==='sqrt'){val_lin=p*p;} else{val_lin=p;} let val=smin+(smax-smin)*val_lin; document.getElementById('queryScaleVal').value=formatNumber(val); }
 
@@ -4357,9 +4401,8 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         html += '<div class="converter-result-item"><span class="converter-result-label">Цена поверочного деления (e)</span><span class="converter-result-value">' + formatNumber(e) + ' ' + unitLabel + '</span></div>';
 
         // Таблица пределов погрешности по диапазонам
-        let classNames = {'I':'I (специальный)', 'II':'II (высокий)', 'III':'III (средний)', 'IIII':'IIII (обычный)'};
-        html += '<div style="margin-top:8px;overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;">';
-        html += '<thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Диапазон нагрузки</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">МПЕ (±)</th></tr></thead><tbody>';
+        let tableHtml = '<table style="min-width:100%;width:100%;border-collapse:collapse;">';
+        tableHtml += '<thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Диапазон нагрузки</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">МПЕ (±)</th></tr></thead><tbody>';
 
         let ranges = [];
         if (oimlClass === 'I') {
@@ -4380,9 +4423,12 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
             let upperMass = upperE * e;
             let mpe = r[2] * e;
             let bg = i % 2 ? 'rgba(22,27,34,0.4)' : 'rgba(13,17,23,0.4)';
-            html += '<tr style="background:' + bg + ';"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.6);">от ' + formatNumber(lowerMass) + ' до ' + formatNumber(upperMass) + ' ' + unitLabel + '</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">± ' + formatNumber(mpe) + ' ' + unitLabel + ' (' + r[2] + 'e)</td></tr>';
+            tableHtml += '<tr style="background:' + bg + ';"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.6);">от ' + formatNumber(lowerMass) + ' до ' + formatNumber(upperMass) + ' ' + unitLabel + '</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">± ' + formatNumber(mpe) + ' ' + unitLabel + ' (' + r[2] + 'e)</td></tr>';
         }
-        html += '</tbody></table></div>';
+        tableHtml += '</tbody></table>';
+
+        html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; margin-bottom:0;"><div class="converter-result-label-title">Пределы погрешности по диапазонам</div><button type="button" class="query-btn" onclick="copyCalcTable(\'wsTableContainer\')" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div>';
+        html += '<div id="wsTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);">' + tableHtml + '</div>';
 
         document.getElementById('ws_results').innerHTML = html;
         document.getElementById('ws_results').style.display = 'block';
@@ -4527,9 +4573,8 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         // Таблица погрешности по диапазонам нагрузки
         if (sysClass) {
             let ranges = getClassRanges(sysClass);
-            html += '<div style="margin-top:12px;padding:6px 0;font-size:12px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.5px;">Погрешность по диапазонам нагрузки</div>';
-            html += '<div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;">';
-            html += '<thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Диапазон нагрузки</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">МПЕ OIML R 76</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Расчётная \u0394<sub>\u03A3</sub></th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:center;">Запас</th></tr></thead><tbody>';
+            let tableHtml = '<table style="min-width:100%;width:100%;border-collapse:collapse;">';
+            tableHtml += '<thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Диапазон нагрузки</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">МПЕ OIML R 76</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Расчётная \u0394<sub>\u03A3</sub></th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:center;">Запас</th></tr></thead><tbody>';
 
             for (let i = 0; i < ranges.length; i++) {
                 let lowerE = ranges[i];
@@ -4550,15 +4595,17 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
                 let margin = ((mpe - actualMass) / mpe * 100);
 
                 let bg = i % 2 ? 'rgba(22,27,34,0.4)' : 'rgba(13,17,23,0.4)';
-                html += '<tr style="background:' + bg + ';">';
-                html += '<td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.6);">от ' + formatNumber(lowerMass) + ' до ' + formatNumber(upperMass) + ' ' + unitLabel + '</td>';
-                html += '<td style="padding:8px 12px;font-size:14px;color:#4ac771;">\u00B1 ' + formatNumber(mpe) + ' ' + unitLabel + ' (' + mpeMultiplier + '<span style="text-transform:none;font-style:italic;">e</span>)</td>';
-                html += '<td style="padding:8px 12px;font-size:14px;' + (pass ? 'color:rgba(255,255,255,0.6);' : 'color:#e74c3c;') + '">\u00B1 ' + formatNumber(actualMass) + ' ' + unitLabel + '</td>';
-                html += '<td style="padding:8px 12px;font-size:14px;text-align:center;' + (pass ? 'color:#4ac771;' : 'color:#e74c3c;') + '">' + (pass ? (margin > 0 ? formatNumber(margin) + '%' : '<1%') : 'превышение') + '</td>';
-                html += '</tr>';
+                tableHtml += '<tr style="background:' + bg + ';">';
+                tableHtml += '<td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.6);">от ' + formatNumber(lowerMass) + ' до ' + formatNumber(upperMass) + ' ' + unitLabel + '</td>';
+                tableHtml += '<td style="padding:8px 12px;font-size:14px;color:#4ac771;">\u00B1 ' + formatNumber(mpe) + ' ' + unitLabel + ' (' + mpeMultiplier + '<span style="text-transform:none;font-style:italic;">e</span>)</td>';
+                tableHtml += '<td style="padding:8px 12px;font-size:14px;' + (pass ? 'color:rgba(255,255,255,0.6);' : 'color:#e74c3c;') + '">\u00B1 ' + formatNumber(actualMass) + ' ' + unitLabel + '</td>';
+                tableHtml += '<td style="padding:8px 12px;font-size:14px;text-align:center;' + (pass ? 'color:#4ac771;' : 'color:#e74c3c;') + '">' + (pass ? (margin > 0 ? formatNumber(margin) + '%' : '<1%') : 'превышение') + '</td>';
+                tableHtml += '</tr>';
             }
 
-            html += '</tbody></table></div>';
+            tableHtml += '</tbody></table>';
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; margin-bottom:0;"><div class="converter-result-label-title">Погрешность по диапазонам нагрузки</div><button type="button" class="query-btn" onclick="copyCalcTable(\'wsTableContainer\')" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div>';
+            html += '<div id="wsTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);">' + tableHtml + '</div>';
         }
 
         // Формула расчёта
@@ -4661,8 +4708,8 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
         html += '<div class="converter-result-item"><span class="converter-result-label">Цена поверочного деления (e)</span><span class="converter-result-value">' + formatNumber(e) + ' ' + unitLabel + '</span></div>';
 
         // Таблица пределов погрешности
-        html += '<div style="margin-top:8px;overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;">';
-        html += '<thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Диапазон нагрузки</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">МПЕ (±)</th></tr></thead><tbody>';
+        let tableHtml = '<table style="min-width:100%;width:100%;border-collapse:collapse;">';
+        tableHtml += '<thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">Диапазон нагрузки</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">МПЕ (±)</th></tr></thead><tbody>';
 
         let ranges = [];
         if (oimlClass === 'I') {
@@ -4683,9 +4730,12 @@ function setSignalDefaults() { let type=document.getElementById('sigType').value
             let upperMass = upperE * e;
             let mpe = r[2] * e;
             let bg = i % 2 ? 'rgba(22,27,34,0.4)' : 'rgba(13,17,23,0.4)';
-            html += '<tr style="background:' + bg + ';"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.6);">от ' + formatNumber(lowerMass) + ' до ' + formatNumber(upperMass) + ' ' + unitLabel + '</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">± ' + formatNumber(mpe) + ' ' + unitLabel + ' (' + r[2] + 'e)</td></tr>';
+            tableHtml += '<tr style="background:' + bg + ';"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.6);">от ' + formatNumber(lowerMass) + ' до ' + formatNumber(upperMass) + ' ' + unitLabel + '</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">± ' + formatNumber(mpe) + ' ' + unitLabel + ' (' + r[2] + 'e)</td></tr>';
         }
-        html += '</tbody></table></div>';
+        tableHtml += '</tbody></table>';
+
+        html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; margin-bottom:0;"><div class="converter-result-label-title">Пределы погрешности по диапазонам</div><button type="button" class="query-btn" onclick="copyCalcTable(\'wsTableContainer\')" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div>';
+        html += '<div id="wsTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);">' + tableHtml + '</div>';
 
         document.getElementById('ws_results').innerHTML = html;
         document.getElementById('ws_results').style.display = 'block';
@@ -4763,8 +4813,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         document.getElementById('buoyCustomMass').value = formatBuoyNumber(mass_kg * 1000);
     }
 
-    function copyBuoyTable(){ let t=document.getElementById('buoyTableContainer'); if(!t)return; let rows=t.querySelectorAll('tr'), data=[]; for(let i=0;i<rows.length;i++){ let cells=rows[i].querySelectorAll('th,td'), row=[]; for(let j=0;j<cells.length;j++) row.push(cells[j].innerText); data.push(row.join('\t')); } navigator.clipboard.writeText(data.join('\n')).then(()=>showToast('Таблица скопирована')).catch(()=>showToast('Ошибка копирования')); }
-    function calculateBuoyCalibration(){ let d=parseLocaleNumber(document.getElementById('buoy_diam').value); let l=parseLocaleNumber(document.getElementById('buoy_length').value); let w=parseLocaleNumber(document.getElementById('buoy_weight_kg').value); let rho=parseLocaleNumber(document.getElementById('liquid_density').value); let m_s=parseLocaleNumber(document.getElementById('suspension_mass').value) / 1000; let st=document.getElementById('buoy_signal_type').value; let method=getSelectedCalibMethod(); if(isNaN(d)||d<=0){showToast('Введите диаметр');return;} if(isNaN(l)||l<=0){showToast('Введите длину');return;} if(method==='without_buoy'&&(isNaN(w)||w<=0)){showToast('Введите вес буйка');return;} if(isNaN(rho)||rho<=0){showToast('Введите плотность жидкости');return;} if(isNaN(m_s)||m_s<0){showToast('Введите массу подвеса');return;} let sigRange=getBuoySignalRangeAndUnit(st); if(st==='custom'&&(isNaN(sigRange.min)||isNaN(sigRange.max))){showToast('Введите диапазон сигнала');return;} let vol=calcBuoyVolume(d,l); let results=[]; for(let p=0;p<=100;p+=10){ let m_buoy=calcBuoyancyMass(p,d,l,rho); let mass_kg=method==='without_buoy'? w - m_buoy + m_s : m_buoy + m_s; let sig=calculateBuoySignalValue(p,st); results.push({pct:p, mass_kg:mass_kg, signal:sig.value, sigUnit:sig.unit}); } let html='<div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;"><thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;">Уровень (%)</th><th style="padding:10px 12px;font-size:13px;color:#4ac771;">Масса гирь (г)</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;">Сигнал ('+results[0].sigUnit+')</th></tr></thead><tbody>'; for(let i=0;i<results.length;i++){ let r=results[i]; let bg=i%2?'rgba(22,27,34,0.4)':'rgba(13,17,23,0.4)'; html+=`<tr style="background:${bg};"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.4);">${r.pct}</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">${formatBuoyNumber(r.mass_kg*1000)}</td><td style="padding:8px 12px;font-size:14px;color:#5b9bd5;">${formatBuoyNumber(r.signal)}</td></tr>`; } html+='</tbody></table></div>'; let methodName=method==='without_buoy'?'Без буйка':'С буйком'; let formulaText=method==='without_buoy'?'m_гири = m_буйка − m_выт + m_подвеса':'m_гири = m_выт + m_подвеса'; let infoHtml=`<strong>${methodName}</strong><br> ${formulaText}<br>`; if(method==='without_buoy') infoHtml+=` Вес буйка: ${formatBuoyNumber(w)} кг<br>`; infoHtml+=` Плотность: ${formatBuoyNumber(rho)} кг/м³<br> Объём: ${formatBuoyNumber(vol*1e6)} см³<br> Масса гирь: ${formatBuoyNumber(results[results.length-1].mass_kg*1000)} г (100%)<br> Сигнал: ${sigRange.label}`; document.getElementById('buoyTableContainer').innerHTML=html; document.getElementById('buoyInfo').innerHTML=infoHtml; lastBuoyParams={d:d,l:l,w:w,rho:rho,m_s:m_s,st:st,method:method}; let sigUnitEl=document.getElementById('buoyCustomSigUnit'); if(sigUnitEl) sigUnitEl.innerText=results[0].sigUnit; document.getElementById('buoyCustomLevel').value=''; document.getElementById('buoyCustomMass').value=''; document.getElementById('buoyCustomSignal').value=''; document.getElementById('buoyCustomCalcPanel').style.display='block'; document.getElementById('buoyResults').style.display='block'; setTimeout(()=>document.getElementById('buoyResults').scrollIntoView({behavior:'smooth',block:'start'}),100); }
+    function copyBuoyTable(){ copyCalcTable('buoyTableContainer'); }
+    function copyScaleTable(){ copyCalcTable('scaleTableContainer'); }
+    // Универсальная функция копирования таблицы из контейнера
+    function copyCalcTable(containerId){ let t=document.getElementById(containerId); if(!t){showToast('Нет данных');return;} let tbl=t.querySelector('table'); if(!tbl){showToast('Нет данных');return;} let rows=tbl.querySelectorAll('tr'), data=[]; for(let i=0;i<rows.length;i++){ let cells=rows[i].querySelectorAll('th,td'), row=[]; for(let j=0;j<cells.length;j++) row.push(cells[j].innerText.trim()); data.push(row.join('\t')); } navigator.clipboard.writeText(data.join('\n')).then(()=>showToast('Таблица скопирована')).catch(()=>showToast('Ошибка копирования')); }
+    function calculateBuoyCalibration(){ let d=parseLocaleNumber(document.getElementById('buoy_diam').value); let l=parseLocaleNumber(document.getElementById('buoy_length').value); let w=parseLocaleNumber(document.getElementById('buoy_weight_kg').value); let rho=parseLocaleNumber(document.getElementById('liquid_density').value); let m_s=parseLocaleNumber(document.getElementById('suspension_mass').value) / 1000; let st=document.getElementById('buoy_signal_type').value; let method=getSelectedCalibMethod(); if(isNaN(d)||d<=0){showToast('Введите диаметр');return;} if(isNaN(l)||l<=0){showToast('Введите длину');return;} if(method==='without_buoy'&&(isNaN(w)||w<=0)){showToast('Введите вес буйка');return;} if(isNaN(rho)||rho<=0){showToast('Введите плотность жидкости');return;} if(isNaN(m_s)||m_s<0){showToast('Введите массу подвеса');return;} let sigRange=getBuoySignalRangeAndUnit(st); if(st==='custom'&&(isNaN(sigRange.min)||isNaN(sigRange.max))){showToast('Введите диапазон сигнала');return;} let vol=calcBuoyVolume(d,l); let results=[]; for(let p=0;p<=100;p+=10){ let m_buoy=calcBuoyancyMass(p,d,l,rho); let mass_kg=method==='without_buoy'? w - m_buoy + m_s : m_buoy + m_s; let sig=calculateBuoySignalValue(p,st); results.push({pct:p, mass_kg:mass_kg, signal:sig.value, sigUnit:sig.unit}); } let html='<table style="min-width:100%;width:100%;border-collapse:collapse;"><thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;">Уровень (%)</th><th style="padding:10px 12px;font-size:13px;color:#4ac771;">Масса гирь (г)</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;">Сигнал ('+results[0].sigUnit+')</th></tr></thead><tbody>'; for(let i=0;i<results.length;i++){ let r=results[i]; let bg=i%2?'rgba(22,27,34,0.4)':'rgba(13,17,23,0.4)'; html+=`<tr style="background:${bg};"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.4);">${r.pct}</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">${formatBuoyNumber(r.mass_kg*1000)}</td><td style="padding:8px 12px;font-size:14px;color:#5b9bd5;">${formatBuoyNumber(r.signal)}</td></tr>`; } html+='</tbody></table>'; let methodName=method==='without_buoy'?'Без буйка':'С буйком'; let formulaText=method==='without_buoy'?'m_гири = m_буйка − m_выт + m_подвеса':'m_гири = m_выт + m_подвеса'; let infoHtml=`<strong>${methodName}</strong><br> ${formulaText}<br>`; if(method==='without_buoy') infoHtml+=` Вес буйка: ${formatBuoyNumber(w)} кг<br>`; infoHtml+=` Плотность: ${formatBuoyNumber(rho)} кг/м³<br> Объём: ${formatBuoyNumber(vol*1e6)} см³<br> Масса гирь: ${formatBuoyNumber(results[results.length-1].mass_kg*1000)} г (100%)<br> Сигнал: ${sigRange.label}`; document.getElementById('buoyTableContainer').innerHTML=html; document.getElementById('buoyInfo').innerHTML=infoHtml; lastBuoyParams={d:d,l:l,w:w,rho:rho,m_s:m_s,st:st,method:method}; let sigUnitEl=document.getElementById('buoyCustomSigUnit'); if(sigUnitEl) sigUnitEl.innerText=results[0].sigUnit; document.getElementById('buoyCustomLevel').value=''; document.getElementById('buoyCustomMass').value=''; document.getElementById('buoyCustomSignal').value=''; document.getElementById('buoyCustomCalcPanel').style.display='block'; document.getElementById('buoyResults').style.display='block'; setTimeout(()=>document.getElementById('buoyResults').scrollIntoView({behavior:'smooth',block:'start'}),100); }
     function selectCalibMethod(m){ localStorage.setItem('buoy_calib_method',m); navigateTo('buoy-calc'); }
     function getSelectedCalibMethod(){ let m=localStorage.getItem('buoy_calib_method'); return (m==='with_buoy'||m==='without_buoy')?m:'with_buoy'; }
     function setCalibMethodOnForm(){ let m=getSelectedCalibMethod(); let ind=document.getElementById('selectedMethodText'); if(ind) ind.innerText=m==='with_buoy'?'С буйком':'Без буйка'; updateBuoyCalcTitle(); let wCont=document.getElementById('buoyWeightContainer'); if(wCont) wCont.style.display=m==='with_buoy'?'none':'block'; }
@@ -5009,8 +5062,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             html+=`<div class="converter-result-item"><span class="converter-result-label">Диапазон</span><span class="converter-result-value">${formatNumber(tMin)} … ${formatNumber(tMax)} °C</span></div>`;
             html+=`<div class="converter-result-item"><span class="converter-result-label">R₀ (при 0°C)</span><span class="converter-result-value">${sd.r0} Ом</span></div>`;
             html+=`<div class="converter-result-item"><span class="converter-result-label">Формула</span><span class="converter-result-value">${sd.formula}</span></div>`;
-            html+=`<div style="margin-top:14px;"><div class="converter-result-label-title">Таблица значений (шаг ${formatNumber(step)}°C)</div>`;
-            html+=`<div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;"><thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">t, °C</th><th style="padding:10px 12px;font-size:13px;color:#4ac771;text-align:left;">R(t), Ом</th></tr></thead><tbody>`;
+            html+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; margin-bottom:0;"><div class="converter-result-label-title">Таблица значений (шаг ${formatNumber(step)}°C)</div><button type="button" class="query-btn" onclick="copyCalcTable('tempTableContainer')" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div>`;
+            html+=`<div id="tempTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;"><thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">t, °C</th><th style="padding:10px 12px;font-size:13px;color:#4ac771;text-align:left;">R(t), Ом</th></tr></thead><tbody>`;
             let start=Math.ceil(tMin/step)*step;
             let end=Math.floor(tMax/step)*step;
             if(start>tMax||end<tMin){start=tMin;end=tMax;}
@@ -5025,7 +5078,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 let rv=isCu?calcCuResistance(tMin,sd.r0,sd.alpha):calcRtdResistance(tMin,sd.r0,sd.nsc);
                 html+=`<tr style="background:rgba(13,17,23,0.4);"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.4);">${formatNumber(tMin)}</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">${formatNumber(rv)}</td></tr>`;
             }
-            html+=`</tbody></table></div></div>`;
+            html+=`</tbody></table></div>`;
             resDiv.innerHTML=html;
         } else {
             let tcType=document.getElementById('temp_tc_type').value;
@@ -5035,8 +5088,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             html+=`<div class="converter-result-item"><span class="converter-result-label">Диапазон</span><span class="converter-result-value">${formatNumber(tMin)} … ${formatNumber(tMax)} °C</span></div>`;
             html+=`<div class="converter-result-item"><span class="converter-result-label">E(0°C)</span><span class="converter-result-value">0,000 мВ</span></div>`;
             html+=`<div class="converter-result-item"><span class="converter-result-label">Формула</span><span class="converter-result-value">E = Σ cᵢ·tⁱ (полином НИСТ)</span></div>`;
-            html+=`<div style="margin-top:14px;"><div class="converter-result-label-title">Таблица значений (шаг ${formatNumber(step)}°C)</div>`;
-            html+=`<div style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;"><thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">t, °C</th><th style="padding:10px 12px;font-size:13px;color:#4ac771;text-align:left;">E(t), мВ</th></tr></thead><tbody>`;
+            html+=`<div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; margin-bottom:0;"><div class="converter-result-label-title">Таблица значений (шаг ${formatNumber(step)}°C)</div><button type="button" class="query-btn" onclick="copyCalcTable('tempTableContainer')" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div>`;
+            html+=`<div id="tempTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"><table style="min-width:100%;width:100%;border-collapse:collapse;"><thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;text-align:left;">t, °C</th><th style="padding:10px 12px;font-size:13px;color:#4ac771;text-align:left;">E(t), мВ</th></tr></thead><tbody>`;
             let start=Math.ceil(tMin/step)*step;
             let end=Math.floor(tMax/step)*step;
             if(start>tMax||end<tMin){start=tMin;end=tMax;}
@@ -5051,7 +5104,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 let ev=calcTcVoltage(tMin,tcType);
                 html+=`<tr style="background:rgba(13,17,23,0.4);"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.4);">${formatNumber(tMin)}</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">${formatNumber(ev)}</td></tr>`;
             }
-            html+=`</tbody></table></div></div>`;
+            html+=`</tbody></table></div>`;
             resDiv.innerHTML=html;
         }
         resDiv.style.display='block';
