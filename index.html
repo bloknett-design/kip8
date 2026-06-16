@@ -198,7 +198,7 @@
     .nav-btn-home:active { background: rgba(45, 62, 82, 0.15); border-color: rgba(74, 143, 199, 0.5); }
     .nav-separator { color: rgba(255,255,255,0.18); font-size: 16px; padding: 0 4px; font-weight: 300; }
     
-    .content-header { padding: 14px 20px 10px; position: relative; z-index: 2; }
+    .content-header { padding: 14px 16px 10px; position: relative; z-index: 2; }
     .content-header h2 { color: #e0e0e0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
     .content-header p { color: rgba(255,255,255,0.35); font-size: 12px; margin-top: 5px; }
     
@@ -226,7 +226,7 @@
     
     .warning-banner {
         display: flex; align-items: center; gap: 12px;
-        margin: 8px 16px 0; padding: 10px 12px;
+        margin: 8px 0 0; padding: 10px 12px;
         background: var(--warning-bg);
         border: 1px solid var(--warning-border);
         border-radius: 12px; position: relative; z-index: 2;
@@ -244,10 +244,10 @@
     
     .scale-form, .converter-form { 
         background: var(--card-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-        border: 1px solid rgba(74, 143, 199, 0.2); border-radius: 14px; margin: 8px 16px; padding: 14px; 
+        border: 1px solid rgba(74, 143, 199, 0.2); border-radius: 14px; margin: 8px 0; padding: 14px 16px; 
         position: relative; z-index: 2;
     }
-    .kit-dev-form { padding: 10px 12px !important; margin: 4px 16px !important; border-radius: 10px !important; }
+    .kit-dev-form { padding: 10px 12px !important; margin: 4px 0 !important; border-radius: 10px !important; }
     .kit-dev-form .scale-form-label { font-size: 10px; margin-bottom: 3px; }
     .kit-dev-form .scale-field { height: 36px !important; padding: 6px 10px !important; margin-bottom: 8px !important; font-size: 12px !important; border-radius: 8px !important; }
     .kit-dev-form select.scale-field { min-height: 36px !important; height: 36px !important; font-size: 12px !important; }
@@ -293,7 +293,7 @@
     
     .converter-convert-btn, .scale-calc-btn {
         display: flex; align-items: center; justify-content: center; gap: 8px;
-        width: calc(100% - 32px); margin: 16px 16px 10px; padding: 14px;
+        width: 100%; margin: 16px 0 10px; padding: 14px;
         border: none; border-radius: 12px; color: #fff; font-size: 15px; font-weight: 600;
         font-family: 'Inter', sans-serif; cursor: pointer; pointer-events: auto;
         touch-action: manipulation; transition: all 0.25s; -webkit-tap-highlight-color: transparent;
@@ -303,7 +303,7 @@
     .converter-convert-btn svg, .scale-calc-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; pointer-events: none; }
     .converter-convert-btn, .scale-calc-btn { background: linear-gradient(135deg, #2563eb, #3b82f6); box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25); }
     
-    .converter-result-group { margin: 6px 16px 10px; position: relative; z-index: 2; }
+    .converter-result-group { margin: 6px 0 10px; position: relative; z-index: 2; }
     .converter-result-label-title { color: rgba(255,255,255,0.3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; padding-left: 4px; font-weight: 500; }
     .converter-result-item {
         display: flex; justify-content: space-between; align-items: center;
@@ -315,7 +315,7 @@
     .converter-result-value { color: #4a8fc7; font-size: 14px; font-weight: 600; }
     @keyframes slideIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     
-    .buoy-select-container { display: flex; flex-direction: row; gap: 10px; padding: 8px 16px; justify-content: center; align-items: stretch; position: relative; z-index: 2; }
+    .buoy-select-container { display: flex; flex-direction: row; gap: 10px; padding: 8px 0; justify-content: center; align-items: stretch; position: relative; z-index: 2; }
     .buoy-card {
         flex: 1; background: rgba(30, 42, 56, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         border: 1px solid rgba(74, 143, 199, 0.2); border-radius: 14px 14px 0 0; cursor: pointer;
@@ -381,7 +381,7 @@
         line-height: 1.5;
     }
     
-    .method-indicator { background: rgba(30, 42, 56, 0.75); backdrop-filter: blur(8px); margin: 10px 16px; padding: 12px 14px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(74, 143, 199, 0.15); position: relative; z-index: 2; }
+    .method-indicator { background: rgba(30, 42, 56, 0.75); backdrop-filter: blur(8px); margin: 10px 0; padding: 12px 14px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(74, 143, 199, 0.15); position: relative; z-index: 2; }
     
     .query-btn {
         width: 100%; min-height: 44px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 10px;
@@ -456,7 +456,7 @@
         .kit-dev-form .scale-field { height: 36px !important; padding: 6px 8px !important; font-size: 12px !important; }
         .kit-dev-form select.scale-field { min-height: 36px !important; height: 36px !important; font-size: 12px !important; }
         select.scale-field option, select.form-field option { font-size: 13px; }
-        .warning-banner { margin: 8px 12px 0; padding: 10px 12px; }
+        .warning-banner { margin: 8px 0 0; padding: 10px 12px; }
         .buoy-card-title { font-size: 22px; }
         .buoy-card-desc { font-size: 12px; }
         .buoy-card-body { padding: 10px 12px; }
@@ -483,7 +483,7 @@
         .buoy-card-body { padding: 8px 10px; }
         .buoy-card-formula { padding: 5px 10px; }
         .buoy-card-formula .formula-inline { font-size: 13px; }
-        .buoy-select-container { flex-direction: column; padding: 6px 12px; gap: 8px; }
+        .buoy-select-container { flex-direction: column; padding: 6px 0; gap: 8px; }
         .header-title svg.led-display { height: 28px; }
     }
     @media (min-width: 481px) { .menu-btn { max-width: 480px; } }
@@ -1679,7 +1679,7 @@
             <button type="button" class="converter-convert-btn" onclick="calcCircuitBreaker()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать автомат</button>
 
             <div id="cbResults" class="converter-result-group" style="display:none;"></div>
-            <div style="margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Номинальный ток (I<sub>n</sub>):</b> выбирается из стандартного ряда: 1, 2, 3, 4, 6, 10, 16, 20, 25, 32, 40, 50, 63 А. Автоматический выключатель должен выдерживать номинальный ток неограниченно долго.</div>
@@ -1817,7 +1817,7 @@
             <button type="button" class="converter-convert-btn" onclick="calcOrificeDp()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать перепад Δp</button>
 
             <div id="opResultsDp" class="converter-result-group" style="display:none;"></div>
-            <div style="margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Принцип измерения:</b> сужающее устройство (диафрагма) создаёт местное сужение потока, в результате которого скорость потока увеличивается, а статическое давление падает. Перепад давления пропорционален квадрату расхода.</div>
@@ -1919,7 +1919,7 @@
             <button type="button" class="converter-convert-btn" onclick="calcOrificeFlow()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать расход Q</button>
 
             <div id="opResultsFlow" class="converter-result-group" style="display:none;"></div>
-            <div style="margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Расход через диафрагму:</b> определяется по перепаду давления на сужающем устройстве. Зависимость квадратичная: при увеличении расхода в 2 раза перепад давления возрастает в 4 раза.</div>
@@ -2040,7 +2040,7 @@
             <button type="button" class="converter-convert-btn" onclick="calcOrificeDiameter()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать диафрагму</button>
 
             <div id="opResultsDiameter" class="converter-result-group" style="display:none;"></div>
-            <div style="margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Расчёт диаметра диафрагмы:</b> выполняется итерационным методом, так как коэффициент расхода α зависит от относительной площади m = (d/D)², которая неизвестна до определения диаметра d.</div>
@@ -2219,7 +2219,7 @@
             <div id="rtd_range_warning" style="color:#c7964a; font-size:11px; margin-top:4px; padding-left:4px; display:none;"></div></div>
             <button type="button" class="converter-convert-btn" onclick="calcRtdError()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать погрешность</button>
             <div id="rtdResults" class="converter-result-group" style="display:none;"></div>
-            <div style="margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">ГОСТ 6651-2009</b> — Термопреобразователи сопротивления из платины, меди и никеля. Общие технические требования и методы испытаний.</div>
@@ -2672,7 +2672,7 @@
             <div id="ws_results" class="converter-result-group" style="display:none;"></div>
 
             <!-- Справочная информация: Механические весы -->
-            <div id="ws_ref_mech" style="margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div id="ws_ref_mech" style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Механические весы</b> — средства измерения массы, основанные на принципе рычажного уравновешивания (равноплечие весы) или упругой деформации (пружинные весы). Погрешность определяется по ГОСТ OIML R 76-1-2011 и зависит от класса точности и нагрузки.</div>
@@ -2685,7 +2685,7 @@
             </div>
 
             <!-- Справочная информация: Электронные весы автономные -->
-            <div id="ws_ref_els" style="display:none;margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div id="ws_ref_els" style="display:none;margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Электронные весы автономные</b> — весы с цифровой индикацией и встроенным измерительным преобразователем (тензодатчиком), не требующие подключения к внешним вторичным приборам или АСУТП. Погрешность определяется по ГОСТ OIML R 76-1-2011 и зависит от класса точности и нагрузки.</div>
@@ -2697,7 +2697,7 @@
             </div>
 
             <!-- Справочная информация: Тензометрические системы -->
-            <div id="ws_ref_elc" style="display:none;margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div id="ws_ref_elc" style="display:none;margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Тензометрические весоизмерительные системы (ТВЭУ)</b> — измерительные системы, состоящие из тензодатчика(ов), балансировочной коробки (БК) и модуля ввода АСУТП. Погрешность рассчитывается как суммарная составляющих каждого элемента измерительного канала с учётом их взаимного влияния.</div>
@@ -2729,7 +2729,7 @@
             </div>
             <button type="button" class="converter-convert-btn" onclick="calcErrorKit()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать суммарную погрешность</button>
             <div id="errorKitResults" class="converter-result-group" style="display:none;"></div>
-            <div style="margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Комплект приборов</b> — при измерении одной величины последовательно соединёнными средствами измерений (например, датчик + нормирующий преобразователь + вторичный прибор) суммарная погрешность определяется комбинацией погрешностей каждого прибора в комплекте.</div>
@@ -6244,7 +6244,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                             </div>
             <button type="button" class="converter-convert-btn" onclick="calcTempSensor()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать</button>
             <div id="tempSensorResults" class="converter-result-group" style="display:none;"></div>
-            <div style="margin:14px 16px 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#4a8fc7;fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:#e0e0e0;letter-spacing:-0.2px;">Справочная информация</span></div>
                 <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
                     <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Термопреобразователи сопротивления (ТС):</b> измеряют температуру по изменению электрического сопротивления чувствительного элемента. Для медных ТС: R(t) = R₀·(1 + α·t). Для платиновых: R(t) = R₀·[1 + A·t + B·t² + C·(t−100)·t³] (ниже 0°C добавляется член C).</div>
