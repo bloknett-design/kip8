@@ -3200,23 +3200,33 @@
                     // Если в столбце Image рабочая ссылка (http/https) — вставляем
                     // превью картинки перед текстом ответа.
                     // По клику на превью — открывается полноэкранный просмотр (overlay).
-                    // Если картинка не загрузилась (например, ссылка OneDrive share-link
-                    // вместо прямой ссылки на файл) — показываем fallback-карточку
+                    // Если картинка не загрузилась — показываем fallback-карточку
                     // "Открыть изображение" с открытием в новой вкладке.
-                    // Чтобы превью работало для OneDrive-картинок, нужно вставлять
-                    // ПРЯМУЮ ссылку (формат download), а не share-ссылку 1drv.ms:
-                    //   https://onedrive.live.com/download?resid=XXX&authkey=YYY
-                    // Получить её можно через "Встроить" → заменить embed на download.
+                    // Поддерживаемые источники:
+                    //   1) Google Drive share-ссылка (https://drive.google.com/file/d/FILE_ID/...)
+                    //      — автоматически конвертируется в прямой URL thumbnail + полный размер.
+                    //      В Excel достаточно вставить share-ссылку "Anyone with the link".
+                    //   2) OneDrive share-ссылка (https://1drv.ms/...) — превью не загрузится
+                    //      (OneDrive отдаёт HTML, не PNG), сработает fallback. Чтобы превью
+                    //      работало для OneDrive, нужно вставлять ПРЯМУЮ ссылку (формат download):
+                    //      https://onedrive.live.com/download?resid=XXX&authkey=YYY
+                    //   3) Любая прямая HTTPS-ссылка на PNG/JPG — работает как есть.
                     const imgSrc = (q['Image'] || '').trim();
                     if (isWorkingUrl(imgSrc)) {
                         // Контейнер превью: изначально показывает <img>,
                         // при ошибке — fallback-карточку.
                         // Уникальный id для управления таймаутом.
                         const imgId = 'timg_' + ti + '_' + (q['ID'] || Math.random().toString(36).slice(2,8));
-                        html += '<div class="ticket-a-img-wrap" id="' + imgId + '_wrap" data-img-src="' + escHtml(imgSrc) + '">';
-                        // Превью <img>. onerror скроет его и покажет fallback.
-                        // onerror срабатывает для 4xx/5xx и ошибок декодирования, но НЕ для висящих запросов.
-                        html += '<img class="ticket-a-img" id="' + imgId + '" src="' + escHtml(imgSrc) + '" alt="Схема" loading="lazy" onclick="openTicketImage(this)" onerror="ticketImgFail(\'' + imgId + '\')" onload="ticketImgOk(\'' + imgId + '\')">';
+                        // Если ссылка Google Drive — получаем прямые URL превью и полного размера.
+                        // Для OneDrive/прочих share-ссылок превью, скорее всего, не загрузится,
+                        // сработает fallback на оригинальную ссылку.
+                        const gdrive = gdriveShareToDirect(imgSrc);
+                        const thumbSrc = gdrive ? gdrive.thumb : imgSrc;
+                        const fullSrc  = gdrive ? gdrive.full  : imgSrc;
+                        html += '<div class="ticket-a-img-wrap" id="' + imgId + '_wrap" data-img-src="' + escHtml(fullSrc) + '">';
+                        // Превью <img>. data-full-src используется лайтбоксом для загрузки полного размера.
+                        // onerror скроет его и покажет fallback-карточку.
+                        html += '<img class="ticket-a-img" id="' + imgId + '" src="' + escHtml(thumbSrc) + '" data-full-src="' + escHtml(fullSrc) + '" alt="Схема" loading="lazy" onclick="openTicketImage(this)" onerror="ticketImgFail(\'' + imgId + '\')" onload="ticketImgOk(\'' + imgId + '\')">';
                         // Fallback-карточка: видна только если <img> не загрузился
                         html += '<a class="ticket-a-imglink" href="' + escHtml(imgSrc) + '" target="_blank" rel="noopener">';
                         html += '<svg class="ticket-a-imglink-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
@@ -3346,7 +3356,10 @@
             }, { passive: true });
         }
         const fullImg = document.getElementById('ticket-img-overlay-full');
-        fullImg.src = imgEl.src;
+        // Используем полный размер если есть data-full-src (Google Drive full-res),
+        // иначе тот же src что и у превью.
+        const fullSrc = imgEl.getAttribute('data-full-src') || imgEl.src;
+        fullImg.src = fullSrc;
         overlay.classList.add('active');
         document.body.classList.add('ticket-img-viewing');
     }
@@ -3379,6 +3392,33 @@
         const str = String(s).trim();
         if (!str) return false;
         return /^https?:\/\/[^\s\/]+(\/\S*)?$/i.test(str);
+    }
+
+    // Конвертация Google Drive share-ссылки в прямые URL картинки.
+    // Google Drive share-ссылка: https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+    // Возвращает { fileId, thumb, full, share } или null, если ссылка не Google Drive.
+    //   thumb — уменьшенная копия для превью (drive.google.com/thumbnail?id=...&sz=w800)
+    //   full  — полный размер через lh3.googleusercontent.com/d/FILE_ID
+    //   share — оригинальная share-ссылка (для fallback в новую вкладку)
+    // Для публичных файлов (Anyone with the link) оба URL отдают PNG/JPG напрямую.
+    function gdriveShareToDirect(shareUrl) {
+        if (!shareUrl) return null;
+        const str = String(shareUrl).trim();
+        if (!/drive\.google\.com/i.test(str)) return null;
+        let fileId = null;
+        let m = str.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (m) fileId = m[1];
+        if (!fileId) {
+            m = str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (m) fileId = m[1];
+        }
+        if (!fileId) return null;
+        return {
+            fileId: fileId,
+            thumb: 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800',
+            full: 'https://lh3.googleusercontent.com/d/' + fileId,
+            share: str
+        };
     }
 
     // Запомненная позиция прокрутки для восстановления при закрытии билета
