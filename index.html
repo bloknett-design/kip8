@@ -3408,20 +3408,29 @@
         // Применить масштаб к конкретному блоку ref-info-block
         function applyRefBlockScale(block, scale) {
             if (scale > 1.0) {
-                // Сохранить исходную ширину до первого зума
-                if (!block._pzOrigWidth) {
-                    block._pzOrigWidth = block.getBoundingClientRect().width;
+                // Сохранить исходные размеры и отступы до первого зума
+                if (!block._pzOrigData) {
+                    var cs = getComputedStyle(block);
+                    block._pzOrigData = {
+                        width: block.getBoundingClientRect().width,
+                        marginLeft: parseFloat(cs.marginLeft),
+                        marginRight: parseFloat(cs.marginRight)
+                    };
                 }
                 block.classList.add('zoomed');
                 block.style.zoom = scale;
-                // Компенсация ширины: CSS-ширина уменьшается, zoom масштабирует обратно —
-                // визуальная ширина остаётся как у оригинала, а текст увеличивается
-                block.style.width = Math.round(block._pzOrigWidth / scale) + 'px';
+                // Компенсация: zoom масштабирует всё (ширину, padding, margin),
+                // поэтому уменьшаем CSS-значения, чтобы визуально они остались как у оригинала
+                block.style.width = Math.round(block._pzOrigData.width / scale) + 'px';
+                block.style.marginLeft = Math.round(block._pzOrigData.marginLeft / scale) + 'px';
+                block.style.marginRight = Math.round(block._pzOrigData.marginRight / scale) + 'px';
             } else {
                 block.classList.remove('zoomed');
                 block.style.zoom = '';
                 block.style.width = '';
-                block._pzOrigWidth = null;
+                block.style.marginLeft = '';
+                block.style.marginRight = '';
+                block._pzOrigData = null;
             }
             refBlockScales.set(block, scale);
         }
@@ -3442,7 +3451,9 @@
             active.querySelectorAll('.ref-info-block').forEach(function(el) {
                 el.style.zoom = '';
                 el.style.width = '';
-                el._pzOrigWidth = null;
+                el.style.marginLeft = '';
+                el.style.marginRight = '';
+                el._pzOrigData = null;
                 el.classList.remove('zoomed');
                 refBlockScales.delete(el);
             });
