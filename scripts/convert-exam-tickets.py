@@ -55,6 +55,48 @@ SHEETS_CONFIG = {
 }
 
 
+# ============================================================
+# Стандартизация имён полей
+# ============================================================
+# Excel-таблица содержит русские заголовки с пробелами и спецсимволами
+# (№ билета, № вопроса, Название литературы и т.д.).
+# Для JSON используем латинские snake_case имена — это упрощает
+# работу в JavaScript, устраняет проблемы с кодировками в escape-
+# последовательностях (\u2116 для № и т.д.) и делает код читаемее.
+#
+# Фронтенд PWA (index.html) читает новые имена, но также поддерживает
+# старые русские имена как fallback — это обеспечивает плавную
+# миграцию, если где-то остался старый JSON.
+FIELD_NAME_MAP = {
+    "ID": "id",
+    "№ билета": "ticket_number",
+    "№билета": "ticket_number",        # вариант без пробела (для надёжности)
+    "№ вопроса": "question_number",
+    "№вопроса": "question_number",     # вариант без пробела
+    "Вопрос": "question",
+    "Ответ": "answer",
+    "Image": "image_url",
+    "Название литературы": "literature_name",
+    "Файл": "file_url",
+}
+
+# Обратное отображение (для fallback в JS) — не используется в конвертере,
+# но задокументировано здесь для согласованности с фронтендом.
+FIELD_NAME_REVERSE_MAP = {v: k for k, v in FIELD_NAME_MAP.items()}
+
+
+def _normalize_field_name(raw_name: str) -> str:
+    """Конвертирует русское имя поля из Excel в стандартное латинское.
+
+    Если поле не входит в FIELD_NAME_MAP — возвращает оригинальное имя
+    (это позволяет добавлять новые столбцы в Excel без изменения кода).
+    """
+    if not raw_name:
+        return ""
+    name = raw_name.strip()
+    return FIELD_NAME_MAP.get(name, name)
+
+
 def _is_http_url(s: str) -> bool:
     """Возвращает True, если строка начинается с http:// или https://.
 
@@ -226,28 +268,30 @@ def convert_xlsx_to_json(xlsx_path: str, json_path: str) -> bool:
             continue
 
         headers = [str(h) if h else "" for h in rows[0]]
+        # Стандартизируем имена полей: русские → латинские snake_case
+        normalized_headers = [_normalize_field_name(h) for h in headers]
         data_rows = []
 
         for row in rows[1:]:
             obj = {}
             for i, val in enumerate(row):
-                if i < len(headers):
-                    header_name = headers[i]
+                if i < len(normalized_headers):
+                    field_name = normalized_headers[i]
                     cell_val = str(val) if val is not None else ""
                     # Единый принцип: только HTTP/HTTPS-ссылки.
                     # Локальные/относительные пути игнорируются —
                     # фронтенд PWA отображает только URL.
-                    if header_name == "Image":
+                    if field_name == "image_url":
                         cell_val = _normalize_image_field(cell_val)
-                    elif header_name == "Файл":
+                    elif field_name == "file_url":
                         cell_val = _normalize_file_field(cell_val)
-                    obj[header_name] = cell_val
+                    obj[field_name] = cell_val
             data_rows.append(obj)
 
         all_data[config["id"]] = {
             "title": config["title"],
             "sheet": sheet_name,
-            "headers": headers,
+            "headers": normalized_headers,
             "rows": data_rows,
             "total": len(data_rows),
         }
