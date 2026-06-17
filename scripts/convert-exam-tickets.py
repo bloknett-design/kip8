@@ -8,6 +8,18 @@
   3. Конвертируем все листы в JSON и сохраняем.
 
 Запускается через GitHub Actions (workflow_dispatch или schedule).
+
+Единый принцип работы с картинками (поле Image):
+  - Значение из ячейки столбца Image копируется в JSON КАК ЕСТЬ.
+  - В Excel-таблице должны быть указаны ТОЛЬКО HTTP/HTTPS-ссылки
+    на изображения (например, Google Drive share-ссылка с доступом
+    «Anyone with the link», либо прямая ссылка на PNG/JPG).
+  - Любые другие значения (локальные Windows-пути, относительные пути
+    вида images/tickets/...) НЕ КОНВЕРТИРУЮТСЯ и НЕ ОТОБРАЖАЮТСЯ в PWA —
+    они просто сохраняются в JSON как строка, но фронтенд через
+    isWorkingUrl() их отклонит.
+  - Это гарантирует, что картинки грузятся по единому принципу —
+    только по URL из ячейки Image.
 """
 
 import json
@@ -43,70 +55,49 @@ SHEETS_CONFIG = {
 }
 
 
-# Префикс пути к картинкам в Excel, который нужно заменить на web-путь
-_IMAGE_PATH_PREFIX = "ИОС\\2. рабочая документация\\по слесарям КИП\\инструктажи, проверка знаний\\Билеты на допуск к самостоятельной работе\\кип_app\\Билеты_Images\\"
-# Префикс пути к файлам библиотеки в Excel
-_LIBRARY_PATH_PREFIX = "Библиотека КИП и А\\"
-
-
 def _is_http_url(s: str) -> bool:
     """Возвращает True, если строка начинается с http:// или https://.
-    Такие значения — это рабочие ссылки (например, OneDrive share URL),
-    их нельзя конвертировать в локальные пути.
+
+    Это ЕДИНСТВЕННЫЙ допустимый формат значения для поля Image.
+    Любые другие значения (локальные пути, относительные пути) будут
+    проигнорированы фронтендом PWA через функцию isWorkingUrl().
     """
     return s.strip().lower().startswith(("http://", "https://"))
 
 
-def _convert_image_path(raw_path: str) -> str:
-    """Конвертирует локальный путь картинки из Excel в web-путь.
+def _normalize_image_field(raw_value: str) -> str:
+    """Нормализует значение поля Image из Excel.
 
-    Пример: ИОС\\...\\Билеты_Images\\приборы\\сх_термосопр.png → images/tickets/приборы/сх_термосопр.png
-
-    OneDrive/HTTP-ссылки (https://1drv.ms/i/c/...) пропускаются как есть.
+    Единый принцип: только HTTP/HTTPS-ссылки.
+    - Если значение — URL (http/https) → пропускаем как есть.
+    - Если значение — что-то другое (локальный путь Windows,
+      относительный путь, имя файла) → возвращаем пустую строку,
+      чтобы в JSON не попал неработающий путь.
     """
-    if not raw_path.strip():
+    if not raw_value or not raw_value.strip():
         return ""
-    # OneDrive/HTTP-ссылки не конвертируем — отдаём как есть
-    if _is_http_url(raw_path):
-        return raw_path.strip()
-    # Заменяем обратные слеши на прямые
-    p = raw_path.replace("\\", "/")
-    # Ищем папку Билеты_Images и берём путь после неё
-    marker = "Билеты_Images/"
-    idx = p.find(marker)
-    if idx >= 0:
-        rel = p[idx + len(marker):]
-        return "images/tickets/" + rel
-    # Если маркер не найден, пробуем извлечь имя файла
-    filename = p.split("/")[-1]
-    if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp')):
-        return "images/tickets/" + filename
-    return raw_path
+    if _is_http_url(raw_value):
+        return raw_value.strip()
+    # Любое нерабочее значение игнорируем — оно не должно отображаться.
+    # В логе конвертера это будет видно как предупреждение.
+    print(f"  [ВНИМАНИЕ] Поле Image содержит не-URL значение, "
+          f"оно будет проигнорировано в PWA: {raw_value[:80]}",
+          file=sys.stderr)
+    return ""
 
 
-def _convert_file_path(raw_path: str) -> str:
-    """Конвертирует локальный путь файла из Excel в web-путь.
+def _normalize_file_field(raw_value: str) -> str:
+    """Нормализует значение поля Файл (ссылка на файл литературы).
 
-    Пример: Библиотека КИП и А\\Электробезопасность\\1. ПУЭ 6 и 7.pdf → library/Электробезопасность/1. ПУЭ 6 и 7.pdf
-
-    OneDrive/HTTP-ссылки (https://1drv.ms/b/c/...) пропускаются как есть.
+    Аналогично полю Image: принимаются только HTTP/HTTPS-ссылки.
     """
-    if not raw_path.strip():
+    if not raw_value or not raw_value.strip():
         return ""
-    # OneDrive/HTTP-ссылки не конвертируем — отдаём как есть
-    if _is_http_url(raw_path):
-        return raw_path.strip()
-    p = raw_path.replace("\\", "/")
-    # Убираем префикс «Библиотека КИП и А/»
-    marker = "Библиотека КИП и А/"
-    idx = p.find(marker)
-    if idx >= 0:
-        rel = p[idx + len(marker):]
-        return "library/" + rel
-    # Если путь начинается с ИОС — конвертируем как картинку
-    if p.startswith("ИОС/"):
-        return _convert_image_path(raw_path)
-    return raw_path
+    if _is_http_url(raw_value):
+        return raw_value.strip()
+    # Нерабочие пути — игнорируем (но не выводим предупреждение,
+    # т.к. поле Файл может быть пустым, если литература без ссылки)
+    return ""
 
 
 def _unescape_url(url: str) -> str:
@@ -243,11 +234,13 @@ def convert_xlsx_to_json(xlsx_path: str, json_path: str) -> bool:
                 if i < len(headers):
                     header_name = headers[i]
                     cell_val = str(val) if val is not None else ""
-                    # Конвертируем пути картинок и файлов в web-пути
+                    # Единый принцип: только HTTP/HTTPS-ссылки.
+                    # Локальные/относительные пути игнорируются —
+                    # фронтенд PWA отображает только URL.
                     if header_name == "Image":
-                        cell_val = _convert_image_path(cell_val)
+                        cell_val = _normalize_image_field(cell_val)
                     elif header_name == "Файл":
-                        cell_val = _convert_file_path(cell_val)
+                        cell_val = _normalize_file_field(cell_val)
                     obj[header_name] = cell_val
             data_rows.append(obj)
 
