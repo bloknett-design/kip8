@@ -744,11 +744,13 @@
 
     .ticket-q { padding: 16px 18px 0; }
     .ticket-q:last-child .ticket-q-divider { display: none; }
-    .ticket-q-divider { display: flex; align-items: center; justify-content: center; padding: 14px 0 6px; color: rgba(74,143,199,0.35); }
     /* Разделитель-перфорация в стиле диаграммной ленты КИПиА: ряд пробитых
-       отверстий вдоль тонкой осевой линии (как у ленты самописца). */
+       овальных отверстий вдоль тонкой осевой линии (как у ленты самописца).
+       Отверстия вытянуты по горизонтали — характерная форма перфорации
+       круговых диаграммных лент самописцев. */
+    .ticket-q-divider { display: flex; align-items: center; justify-content: center; padding: 14px 0 6px; color: rgba(74,143,199,0.75); }
     .ticket-q-divider svg { width: 100%; max-width: 320px; height: auto; display: block; }
-    [data-theme="light"] .ticket-q-divider { color: rgba(74,143,199,0.3); }
+    [data-theme="light"] .ticket-q-divider { color: rgba(37,99,235,0.55); }
     .ticket-q-num { font-size: 16px; font-weight: 600; color: #E07050; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
     [data-theme="light"] .ticket-q-num { color: #8B7355; }
     .ticket-q-text { font-size: 18px; color: var(--text-primary); line-height: 1.5; margin-bottom: 12px; }
@@ -3256,7 +3258,7 @@
                         html += '<div class="ticket-ref">' + escHtml(ref) + '</div>';
                     }
                 }
-                html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 14" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><line x1="0" y1="7" x2="400" y2="7" stroke="currentColor" stroke-width="0.5" opacity="0.4"/><g stroke="currentColor" stroke-width="1" fill="none"><circle cx="9" cy="7" r="2.5"/><circle cx="27" cy="7" r="2.5"/><circle cx="45" cy="7" r="2.5"/><circle cx="63" cy="7" r="2.5"/><circle cx="81" cy="7" r="2.5"/><circle cx="99" cy="7" r="2.5"/><circle cx="117" cy="7" r="2.5"/><circle cx="135" cy="7" r="2.5"/><circle cx="153" cy="7" r="2.5"/><circle cx="171" cy="7" r="2.5"/><circle cx="189" cy="7" r="2.5"/><circle cx="207" cy="7" r="2.5"/><circle cx="225" cy="7" r="2.5"/><circle cx="243" cy="7" r="2.5"/><circle cx="261" cy="7" r="2.5"/><circle cx="279" cy="7" r="2.5"/><circle cx="297" cy="7" r="2.5"/><circle cx="315" cy="7" r="2.5"/><circle cx="333" cy="7" r="2.5"/><circle cx="351" cy="7" r="2.5"/><circle cx="369" cy="7" r="2.5"/><circle cx="387" cy="7" r="2.5"/></g></svg></div>';
+                html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 16" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><line x1="0" y1="8" x2="400" y2="8" stroke="currentColor" stroke-width="0.5" opacity="0.45"/><g stroke="currentColor" stroke-width="1.4" fill="none"><ellipse cx="9" cy="8" rx="4" ry="2.5"/><ellipse cx="27" cy="8" rx="4" ry="2.5"/><ellipse cx="45" cy="8" rx="4" ry="2.5"/><ellipse cx="63" cy="8" rx="4" ry="2.5"/><ellipse cx="81" cy="8" rx="4" ry="2.5"/><ellipse cx="99" cy="8" rx="4" ry="2.5"/><ellipse cx="117" cy="8" rx="4" ry="2.5"/><ellipse cx="135" cy="8" rx="4" ry="2.5"/><ellipse cx="153" cy="8" rx="4" ry="2.5"/><ellipse cx="171" cy="8" rx="4" ry="2.5"/><ellipse cx="189" cy="8" rx="4" ry="2.5"/><ellipse cx="207" cy="8" rx="4" ry="2.5"/><ellipse cx="225" cy="8" rx="4" ry="2.5"/><ellipse cx="243" cy="8" rx="4" ry="2.5"/><ellipse cx="261" cy="8" rx="4" ry="2.5"/><ellipse cx="279" cy="8" rx="4" ry="2.5"/><ellipse cx="297" cy="8" rx="4" ry="2.5"/><ellipse cx="315" cy="8" rx="4" ry="2.5"/><ellipse cx="333" cy="8" rx="4" ry="2.5"/><ellipse cx="351" cy="8" rx="4" ry="2.5"/><ellipse cx="369" cy="8" rx="4" ry="2.5"/><ellipse cx="387" cy="8" rx="4" ry="2.5"/></g></svg></div>';
                 html += '</div>';
             }
 
