@@ -131,6 +131,67 @@
         position: absolute;
         left: 20px;
     }
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        position: absolute;
+        right: 20px;
+    }
+    /* Офлайн-индикатор — компактный значок Wi-Fi в правом верхнем углу шапки.
+       Онлайн: зелёные волны, Офлайн: серые волны с перечёркиванием.
+       Без текста — только значок, размер ~22px. */
+    .connection-indicator {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(74, 199, 113, 0.12);
+        color: #4ac771;
+        border: 1px solid rgba(74, 199, 113, 0.25);
+        transition: background .3s, color .3s, border-color .3s;
+        cursor: help;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .connection-indicator svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .connection-indicator.offline {
+        background: rgba(160, 160, 160, 0.10);
+        color: rgba(160, 160, 160, 0.6);
+        border-color: rgba(160, 160, 160, 0.25);
+    }
+    .connection-indicator.offline .wifi-cross {
+        display: block;
+    }
+    .connection-indicator .wifi-cross {
+        display: none;
+    }
+    @keyframes pulseDot2 {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    .connection-indicator:not(.offline) svg {
+        animation: pulseDot2 3s ease-in-out infinite;
+    }
+    [data-theme="light"] .connection-indicator {
+        background: rgba(90, 138, 58, 0.10);
+        color: #5a8a3a;
+        border-color: rgba(90, 138, 58, 0.25);
+    }
+    [data-theme="light"] .connection-indicator.offline {
+        background: rgba(120, 120, 120, 0.08);
+        color: rgba(120, 120, 120, 0.7);
+        border-color: rgba(120, 120, 120, 0.25);
+    }
     .header-title svg.led-display {
         height: 44px; width: auto;
         transform: skewX(-9deg);
@@ -317,6 +378,41 @@
     .scale-field:last-child, .form-field:last-child { margin-bottom: 0; }
     .scale-field:focus, .form-field:focus { border-color: rgba(74, 143, 199, 0.5); box-shadow: 0 0 0 3px rgba(74, 143, 199, 0.12); }
     .form-field::placeholder { color: rgba(255,255,255,0.15); }
+
+    /* Стили для валидации полей ввода (#12).
+       При невалидном значении поле получает класс .input-error,
+       подсвечивается красной рамкой + показывает подсказку. */
+    .scale-field.input-error, .form-field.input-error {
+        border-color: rgba(199, 74, 74, 0.7) !important;
+        background: rgba(199, 74, 74, 0.08) !important;
+        box-shadow: 0 0 0 3px rgba(199, 74, 74, 0.12) !important;
+        animation: shake 0.3s ease-in-out;
+    }
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-3px); }
+        75% { transform: translateX(3px); }
+    }
+    [data-theme="light"] .scale-field.input-error,
+    [data-theme="light"] .form-field.input-error {
+        border-color: rgba(180, 50, 50, 0.7) !important;
+        background: rgba(180, 50, 50, 0.06) !important;
+        box-shadow: 0 0 0 3px rgba(180, 50, 50, 0.10) !important;
+    }
+    .input-error-msg {
+        display: block;
+        color: #c74a4a;
+        font-size: 11px;
+        margin-top: -8px;
+        margin-bottom: 8px;
+        padding-left: 4px;
+        animation: fadeIn 0.2s ease-out;
+    }
+    [data-theme="light"] .input-error-msg { color: #b83a3a; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
     
     .converter-convert-btn, .scale-calc-btn {
         display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -1489,6 +1585,19 @@
 </g>
 </svg></div>
 
+            <div class="header-right">
+                <div class="connection-indicator" id="connectionIndicator" title="Онлайн">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Три дуги Wi-Fi разного радиуса -->
+                        <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                        <line x1="12" y1="20" x2="12.01" y2="20"/>
+                        <!-- Линия перечёркивания (видна только в офлайн-режиме) -->
+                        <line class="wifi-cross" x1="4" y1="4" x2="20" y2="20" stroke-width="2"/>
+                    </svg>
+                </div>
+            </div>
+
         </div>
     </header>
 
@@ -1643,9 +1752,9 @@
             <div class="page-inline-header"><div class="page-inline-header-title">Шкала-сигнал</div></div>
     <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
             <div class="scale-form"><div class="scale-form-label">Тип шкалы</div><select id="scaleType" class="scale-field" autocomplete="off"><option value="linear" selected data-hint="прямая">Линейная</option><option value="quadratic" data-hint="сигнал ∝ X²">Квадратичная</option><option value="sqrt" data-hint="сигнал ∝ √X">Корнеизвлекающая</option></select><div style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:4px; padding-left:4px;">Линейная: прямая зависимость · Квадратичная: сигнал ∝ (шкала)² · Корнеизвлекающая: сигнал ∝ √(шкала)</div></div>
-            <div class="scale-form"><div class="scale-form-label">Диапазон шкалы измерения</div><select id="scalePreset" class="scale-field" onchange="setScaleDefaults()" autocomplete="off"><option value="0_100" selected>0 – 100 %</option><option value="4_20" data-hint="ток">4 – 20 мА</option><option value="0_20" data-hint="ток">0 – 20 мА</option><option value="0_5mA" data-hint="ток">0 – 5 мА</option><option value="0_10V" data-hint="напряжение">0 – 10 В</option><option value="1_5V" data-hint="напряжение">1 – 5 В</option><option value="0_5V" data-hint="напряжение">0 – 5 В</option><option value="bipolar_10" data-hint="напряжение">-10 – +10 В</option><option value="20_100_kPa" data-hint="пневматика">20 – 100 кПа</option><option value="0_2_1_0_bar" data-hint="пневматика">0,2 – 1,0 бар</option><option value="3_15_psi" data-hint="пневматика">3 – 15 psi</option><option value="0_2_1_0_kgf_cm2" data-hint="пневматика">0,2 – 1,0 кгс/см²</option><option value="custom" data-hint="Вручную">Своё значение</option></select><div id="scaleCustomRange" style="margin-top:12px;"><input type="text" inputmode="numeric" id="scaleMin" class="scale-field" placeholder="Минимум шкалы" value="0" style="margin-bottom:6px;" autocomplete="off" enterkeyhint="next"><input type="text" inputmode="numeric" id="scaleMax" class="scale-field" placeholder="Максимум шкалы" value="100" autocomplete="off" enterkeyhint="next"><input type="text" inputmode="text" id="scaleUnitName" class="scale-field" placeholder="Ед. измерения" value="%" style="margin-top:6px;" autocomplete="off" enterkeyhint="done" ></div></div>
+            <div class="scale-form"><div class="scale-form-label">Диапазон шкалы измерения</div><select id="scalePreset" class="scale-field" onchange="setScaleDefaults()" autocomplete="off"><option value="0_100" selected>0 – 100 %</option><option value="4_20" data-hint="ток">4 – 20 мА</option><option value="0_20" data-hint="ток">0 – 20 мА</option><option value="0_5mA" data-hint="ток">0 – 5 мА</option><option value="0_10V" data-hint="напряжение">0 – 10 В</option><option value="1_5V" data-hint="напряжение">1 – 5 В</option><option value="0_5V" data-hint="напряжение">0 – 5 В</option><option value="bipolar_10" data-hint="напряжение">-10 – +10 В</option><option value="20_100_kPa" data-hint="пневматика">20 – 100 кПа</option><option value="0_2_1_0_bar" data-hint="пневматика">0,2 – 1,0 бар</option><option value="3_15_psi" data-hint="пневматика">3 – 15 psi</option><option value="0_2_1_0_kgf_cm2" data-hint="пневматика">0,2 – 1,0 кгс/см²</option><option value="custom" data-hint="Вручную">Своё значение</option></select><div id="scaleCustomRange" style="margin-top:12px;"><input type="text" inputmode="numeric" id="scaleMin" class="scale-field" placeholder="Минимум шкалы" value="0" style="margin-bottom:6px;" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)"><input type="text" inputmode="numeric" id="scaleMax" class="scale-field" placeholder="Максимум шкалы" value="100" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)"><input type="text" inputmode="text" id="scaleUnitName" class="scale-field" placeholder="Ед. измерения" value="%" style="margin-top:6px;" autocomplete="off" enterkeyhint="done" ></div></div>
             <div class="scale-form"><div class="scale-form-label">Тип выходного сигнала</div><select id="sigType" class="scale-field" onchange="setSignalDefaults()" autocomplete="off"><optgroup label="Токовые"><option value="4_20">4 – 20 мА</option><option value="0_20">0 – 20 мА</option><option value="0_5mA">0 – 5 мА</option></optgroup><optgroup label="Напряжения"><option value="0_10V">0 – 10 В</option><option value="1_5V">1 – 5 В</option><option value="0_5V">0 – 5 В</option><option value="bipolar_10">-10 – +10 В</option></optgroup><optgroup label="Пневматические"><option value="20_100_kPa">20 – 100 кПа</option><option value="0_2_1_0_bar">0,2 – 1,0 бар</option><option value="3_15_psi">3 – 15 psi</option><option value="0_2_1_0_kgf_cm2" selected>0,2 – 1,0 кгс/см²</option></optgroup><optgroup label="Другие"><option value="0_100_pct">0 – 100 %</option><option value="custom">Своё</option></optgroup></select>
-            <div id="sigCustomRange" style="margin-top:8px;"><div class="scale-form-label">Диапазон сигнала</div><input type="text" inputmode="numeric" id="sigMin" class="scale-field" placeholder="Минимум" style="margin-bottom:6px;" autocomplete="off" enterkeyhint="next"><input type="text" inputmode="numeric" id="sigMax" class="scale-field" placeholder="Максимум" autocomplete="off" enterkeyhint="next"><input type="text" inputmode="text" id="sigUnitCustom" class="scale-field" placeholder="Ед. измерения" value="мА" style="margin-top:6px;" autocomplete="off" enterkeyhint="done" ><div style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:4px; padding-left:4px;" id="sigUnitLabel">мА</div></div></div>
+            <div id="sigCustomRange" style="margin-top:8px;"><div class="scale-form-label">Диапазон сигнала</div><input type="text" inputmode="numeric" id="sigMin" class="scale-field" placeholder="Минимум" style="margin-bottom:6px;" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)"><input type="text" inputmode="numeric" id="sigMax" class="scale-field" placeholder="Максимум" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)"><input type="text" inputmode="text" id="sigUnitCustom" class="scale-field" placeholder="Ед. измерения" value="мА" style="margin-top:6px;" autocomplete="off" enterkeyhint="done" ><div style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:4px; padding-left:4px;" id="sigUnitLabel">мА</div></div></div>
             <button type="button" class="scale-calc-btn" onclick="calcScaleSignal()"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>Рассчитать</button>
             <div id="scaleResultsArea" class="converter-result-group" style="display:none;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="converter-result-label-title">Расчётные значения</div><button type="button" class="query-btn" onclick="copyScaleTable()" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div><div id="scaleTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"></div><div id="scaleInfo" style="margin-top:14px; padding:14px 18px; background:rgba(13,17,23,0.5); border-radius:10px; font-size:15px; color:rgba(255,255,255,0.35); line-height:1.6;"></div><div id="scaleCustomCalcPanel" style="display:none;"><div class="converter-result-label-title" style="margin-top:16px;">Расчёт произвольных значений</div><div class="scale-form" style="margin-top:8px;"><div style="color:rgba(255,255,255,0.25); font-size:11px; margin-bottom:10px; line-height:1.4;">Введите значение в любое поле — другое рассчитается автоматически</div><div class="scale-form-label">Значение шкалы (<span id="scaleQueryUnit">ед.</span>)</div><input type="text" inputmode="numeric" id="queryScaleVal" class="scale-field" placeholder="Например: 50" oninput="queryFromScaleLive()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Сигнал (<span id="scaleQuerySigUnit">мА</span>)</div><input type="text" inputmode="numeric" id="querySigVal" class="scale-field" placeholder="Например: 12" oninput="queryFromSignalLive()" autocomplete="off" enterkeyhint="done"></div></div></div>
         </div>
@@ -1794,6 +1903,13 @@
             </div>
 
             <div class="menu-btn-row">
+                <div class="menu-btn" onclick="navigateTo('orifice-quick')" style="border-color:rgba(74,199,113,0.35);">
+                    <div class="menu-btn-text">
+                        <div class="menu-btn-label" style="color:#4ac771;">Быстрый расчёт (градуировка)</div>
+                        <div class="menu-btn-sublabel">Прикидочный расчёт Δp по расходу и диаметру трубы — без ГОСТ</div>
+                    </div>
+                    <i class="menu-btn-arrow" style="color:rgba(74,199,113,0.6);">›</i>
+                </div>
                 <div class="menu-btn" onclick="navigateTo('orifice-dp')">
                     <div class="menu-btn-text">
                         <div class="menu-btn-label">Перепад давления</div>
@@ -1814,6 +1930,79 @@
                         <div class="menu-btn-sublabel">Расчёт d₂₀ по расходу Q и перепаду Δp</div>
                     </div>
                     <i class="menu-btn-arrow">›</i>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== БЫСТРЫЙ РАСЧЁТ ДИАФРАГМ (градуировка) ======================== -->
+        <div id="page-orifice-quick" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Быстрый расчёт диафрагмы</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="navigateTo('orifice-select')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+
+            <div class="content-header" style="padding: 14px 20px 10px;">
+                <h2 style="color: #e0e0e0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px;">Прикидочный расчёт</h2>
+                <p style="color: rgba(255,255,255,0.35); font-size: 12px; margin-top: 5px;">Упрощённая формула для оценки перепада на диафрагме без полного расчёта по ГОСТ</p>
+            </div>
+
+            <div class="scale-form">
+                <div class="scale-form-label">Тип среды</div>
+                <select id="oq_medium" class="scale-field" onchange="updateOqMediumDefaults()" autocomplete="off">
+                    <option value="water" selected>Вода (жидкость)</option>
+                    <option value="air">Воздух (газ)</option>
+                    <option value="steam">Пар (насыщенный)</option>
+                    <option value="gas">Природный газ</option>
+                </select>
+            </div>
+
+            <div class="scale-form">
+                <div class="scale-form-label">Расход (Q)</div>
+                <div style="display:flex; gap:8px; margin-bottom:12px; align-items:stretch;">
+                    <input type="text" inputmode="numeric" id="oq_flow" class="scale-field" style="flex:2; margin-bottom:0;" value="10" placeholder="Расход" autocomplete="off" enterkeyhint="next" oninput="validatePositiveField(this)">
+                    <select id="oq_flow_unit" class="scale-field" style="flex:1; margin-bottom:0;" autocomplete="off">
+                        <option value="m3h" selected>м³/ч</option>
+                        <option value="lmin">л/мин</option>
+                        <option value="kgh">кг/ч</option>
+                        <option value="t_h">т/ч</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="scale-form">
+                <div class="scale-form-label">Внутренний диаметр трубы (D)</div>
+                <div style="display:flex; gap:8px; margin-bottom:12px; align-items:stretch;">
+                    <input type="text" inputmode="numeric" id="oq_d_pipe" class="scale-field" style="flex:2; margin-bottom:0;" value="50" placeholder="мм" autocomplete="off" enterkeyhint="next" oninput="validatePositiveField(this)">
+                    <span class="scale-field" style="flex:0.4; margin-bottom:0; display:flex; align-items:center; justify-content:center; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:13px;">мм</span>
+                </div>
+            </div>
+
+            <div class="scale-form">
+                <div class="scale-form-label">Относительный диаметр диафрагмы (β = d/D)</div>
+                <div style="display:flex; gap:8px; margin-bottom:12px; align-items:stretch;">
+                    <input type="text" inputmode="numeric" id="oq_beta" class="scale-field" style="flex:2; margin-bottom:0;" value="0.5" placeholder="0.2 – 0.7" autocomplete="off" enterkeyhint="next" oninput="validateRangeField(this, 0.1, 0.8)">
+                    <span class="scale-field" style="flex:0.4; margin-bottom:0; display:flex; align-items:center; justify-content:center; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:13px;">—</span>
+                </div>
+                <div style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:-6px; margin-bottom:8px; padding-left:4px;">Типичные значения: 0.5 (стандарт), 0.2–0.7 (диапазон)</div>
+            </div>
+
+            <div class="scale-form">
+                <div class="scale-form-label">Плотность среды (ρ)</div>
+                <div style="display:flex; gap:8px; margin-bottom:12px; align-items:stretch;">
+                    <input type="text" inputmode="numeric" id="oq_rho" class="scale-field" style="flex:2; margin-bottom:0;" value="1000" placeholder="кг/м³" autocomplete="off" enterkeyhint="done" oninput="validatePositiveField(this)">
+                    <span class="scale-field" style="flex:0.4; margin-bottom:0; display:flex; align-items:center; justify-content:center; background:transparent; border:none; color:rgba(255,255,255,0.4); font-size:13px;">кг/м³</span>
+                </div>
+            </div>
+
+            <button type="button" class="converter-convert-btn" onclick="calcOrificeQuick()"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 16 16 12 12 8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Рассчитать перепад</button>
+
+            <div id="oq_results" class="converter-result-group" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Упрощённая формула:</b> Δp = (ρ · Q²) / (2 · α² · β⁴ · A²), где A — площадь сечения трубы, α ≈ 0.62 — коэффициент расхода.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Назначение:</b> прикидочный расчёт для оценки перепада давления на стандартной диафрагме. Не учитывает температурные поправки, шероховатость трубы, сжимаемость газов.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Для точного расчёта:</b> используйте раздел «Перепад давления» (ГОСТ 26969-86).</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Стандартные значения β:</b> 0.5 (типовой), 0.6 (повышенная точность), 0.3 (малые расходы).</div>
                 </div>
             </div>
         </div>
@@ -4192,7 +4381,96 @@ function showToast(msg) { let t = document.getElementById('toast'); document.get
         volume: { units: { 'm3':{label:'м³',factor:1}, 'l':{label:'литр',factor:0.001}, 'ml':{label:'мл',factor:0.000001}, 'cm3':{label:'см³',factor:0.000001}, 'gal':{label:'галлон US',factor:0.00378541}, 'bbl':{label:'баррель',factor:0.158987}, 'ft3':{label:'куб. фут',factor:0.0283168}, 'dm3':{label:'дм³',factor:0.001} } }
     };
     function parseLocaleNumber(s){ if(typeof s!=='string')s=String(s); return parseFloat(s.replace(',','.')); }
-    function formatNumber(n) { if (n===0) return '0'; if (Math.abs(n)>=1e9||Math.abs(n)<0.00001&&n!==0) return n.toExponential(4).replace('.',','); let d=Math.abs(n)>=100?2:Math.abs(n)>=1?4:6; return parseFloat(n.toFixed(d)).toString().replace('.',','); }
+
+    // ============================================================
+    // Валидация полей ввода (#12)
+    // ============================================================
+    // При невалидном значении поле подсвечивается красной рамкой
+    // и под ним показывается подсказка. При исправлении — рамка
+    // и подсказка исчезают.
+    //
+    // Использование:
+    //   <input oninput="validateNumericField(this)" />
+    //   <input oninput="validatePositiveField(this)" />
+    //   <input oninput="validateField(this, val => val > 0, 'Должно быть > 0')" />
+    // ============================================================
+
+    // Универсальная функция валидации. Принимает элемент, функцию-предикат
+    // (должна вернуть true, если значение валидно) и сообщение об ошибке.
+    function validateField(input, isValid, errorMsg) {
+        // Удаляем предыдущую подсказку, если была
+        const existingMsg = input.parentElement.querySelector('.input-error-msg[data-for="' + input.id + '"]');
+        if (existingMsg) existingMsg.remove();
+
+        const raw = input.value.trim();
+        if (raw === '') {
+            // Пустое поле не считаем ошибкой — это будет проверено при submit
+            input.classList.remove('input-error');
+            return true;
+        }
+
+        const val = parseLocaleNumber(raw);
+        const valid = isValid(val, raw);
+        if (valid) {
+            input.classList.remove('input-error');
+        } else {
+            input.classList.add('input-error');
+            // Добавляем подсказку под полем
+            const msg = document.createElement('span');
+            msg.className = 'input-error-msg';
+            msg.dataset.for = input.id;
+            msg.textContent = errorMsg || 'Некорректное значение';
+            // Вставляем после поля
+            input.parentNode.insertBefore(msg, input.nextSibling);
+        }
+        return valid;
+    }
+
+    // Готовые валидаторы для типовых случаев
+    function validateNumericField(input) {
+        return validateField(input, (val) => !isNaN(val), 'Введите число');
+    }
+    function validatePositiveField(input) {
+        return validateField(input, (val) => !isNaN(val) && val > 0, 'Должно быть положительным числом');
+    }
+    function validateNonNegativeField(input) {
+        return validateField(input, (val) => !isNaN(val) && val >= 0, 'Должно быть неотрицательным числом');
+    }
+    function validateRangeField(input, min, max) {
+        return validateField(input, (val) => !isNaN(val) && val >= min && val <= max,
+            'Должно быть в диапазоне ' + min + '–' + max);
+    }
+
+    // Утилита: снять ошибку с поля (вызывается при успешном расчёте)
+    function clearFieldError(input) {
+        if (!input) return;
+        input.classList.remove('input-error');
+        const msg = input.parentElement.querySelector('.input-error-msg[data-for="' + input.id + '"]');
+        if (msg) msg.remove();
+    }
+
+    // Утилита: проверить, есть ли ошибки валидации в контейнере
+    // (например, в форме расчёта). Возвращает true, если есть ошибки.
+    function hasValidationErrors(container) {
+        if (!container) return false;
+        return container.querySelectorAll('.input-error').length > 0;
+    }
+    // Форматирование числа с русской запятой и разделением разрядов
+    // неразрывным пробелом: 1234567.89 → "1 234 567,89"
+    // Соответствует ГОСТ-стилю и русской типографике.
+    function formatNumber(n) {
+        if (n===0) return '0';
+        if (Math.abs(n)>=1e9||Math.abs(n)<0.00001&&n!==0) return n.toExponential(4).replace('.',',');
+        let d=Math.abs(n)>=100?2:Math.abs(n)>=1?4:6;
+        // Округляем до нужного числа знаков, затем заменяем точку на запятую
+        let s = parseFloat(n.toFixed(d)).toString().replace('.',',');
+        // Добавляем неразрывные пробелы между разрядами целой части
+        // \u00A0 — неразрывный пробел (not \u0020), чтобы число не разрывалось
+        // при переносе строки. Разделяем только целую часть (до запятой).
+        const parts = s.split(',');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+        return parts.join(',');
+    }
 function roundNumber(n) {
     if (n === 0) return '0';
     let absN = Math.abs(n);
@@ -4200,15 +4478,20 @@ function roundNumber(n) {
     // Round to 2 significant figures: keep first 2 digits, rest zeros
     let order = Math.floor(Math.log10(absN));
     let dp = 1 - order; // decimal places needed for 2 sig figs
+    let s;
     if (dp < 0) {
         // Round to nearest 10^(-dp) for large numbers
         let factor = Math.pow(10, -dp);
         let result = Math.round(n / factor) * factor;
-        return result.toString().replace('.',',');
+        s = result.toString().replace('.',',');
     } else {
         let result = parseFloat(n.toFixed(dp));
-        return result.toString().replace('.',',');
+        s = result.toString().replace('.',',');
     }
+    // Разделяем разряды целой части неразрывным пробелом
+    const parts = s.split(',');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+    return parts.join(',');
 }
     function convertUnits(cat) { if (cat==='temp') { convertTemp(); return; } let d=unitData[cat]; let val=parseLocaleNumber(document.getElementById(`conv-${cat}-input`).value); let from=document.getElementById(`conv-${cat}-unit`).value; let resDiv=document.getElementById(`conv-${cat}-results`); let tableDiv=document.getElementById(`conv-${cat}-table`); if(tableDiv) tableDiv.style.display='none'; if(isNaN(val)) { resDiv.innerHTML='<p style="text-align:center;color:#c74a4a;font-size:14px;padding:16px;">Введите значение</p>'; return; } let base=val*d.units[from].factor; let html='<div class="converter-result-label-title">Результаты</div>'; let delay=0; for(let u in d.units){ if(u===from) continue; let v=base/d.units[u].factor; html+=`<div class="converter-result-item" style="animation-delay:${delay}ms;cursor:pointer;" onclick="showConverterTable('${cat}','${from}','${u}',${base})"><span class="converter-result-label">${d.units[u].label}</span><span class="converter-result-value">${formatNumber(v)} <span style="color:rgba(255,255,255,0.25);font-weight:400;font-size:0.85em;">(${roundNumber(v)})</span></span></div>`; delay+=40; } resDiv.innerHTML=html; }
     function convertTemp() { let val=parseLocaleNumber(document.getElementById('conv-temp-input').value); let from=document.getElementById('conv-temp-unit').value; let resDiv=document.getElementById('conv-temp-results'); let tableDiv=document.getElementById('conv-temp-table'); if(tableDiv) tableDiv.style.display='none'; if(isNaN(val)) { resDiv.innerHTML='<p style="text-align:center;color:#c74a4a;font-size:14px;padding:16px;">Введите значение</p>'; return; } let c=from==='C'?val:from==='F'?(val-32)*5/9:from==='K'?val-273.15:from==='R'?val*1.25:(val-491.67)*5/9; let tU={'C':{label:'°C',fn:z=>z},'F':{label:'°F',fn:z=>z*9/5+32},'K':{label:'K',fn:z=>z+273.15},'R':{label:'°R',fn:z=>z*0.8},'Ra':{label:'°Ra',fn:z=>(z+273.15)*9/5}}; let html='<div class="converter-result-label-title">Результаты</div>'; let delay=0; for(let u in tU){ if(u===from) continue; let v=tU[u].fn(c); html+=`<div class="converter-result-item" style="animation-delay:${delay}ms;cursor:pointer;" onclick="showTempTable('${from}','${u}',${c})"><span class="converter-result-label">${tU[u].label}</span><span class="converter-result-value">${formatNumber(v)} <span style="color:rgba(255,255,255,0.25);font-weight:400;font-size:0.85em;">(${roundNumber(v)})</span></span></div>`; delay+=40; } resDiv.innerHTML=html; }
@@ -5104,7 +5387,16 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
     function calculateSignalValue(pct,st){ let r=getSignalRangeAndUnit(st); if(r.isCustom && (isNaN(r.min)||isNaN(r.max))) return {value:0,unit:r.unit,isValid:false}; if(r.min===r.max) return {value:r.min,unit:r.unit,isValid:true}; return {value:r.min+(pct/100)*(r.max-r.min),unit:r.unit,isValid:true}; }
     function calcBuoyVolume(d,l){ let r=(d/1000)/2, l_m=l/1000; return Math.PI*r*r*l_m; }
     function calcBuoyancyMass(pct,d,l,rho){ let l_m=l/1000, sub=(pct/100)*l_m; if(sub<=0)return 0; if(sub>l_m)sub=l_m; let r=(d/1000)/2; return Math.PI*r*r*sub*rho; }
-    function formatBuoyNumber(n){ if(n===0)return '0'; if(Math.abs(n)<0.0001)return n.toExponential(4).replace('.',','); let d=Math.abs(n)>=100?2:Math.abs(n)>=1?3:4; return parseFloat(n.toFixed(d)).toString().replace('.',','); }
+    function formatBuoyNumber(n){
+        if(n===0)return '0';
+        if(Math.abs(n)<0.0001)return n.toExponential(4).replace('.',',');
+        let d=Math.abs(n)>=100?2:Math.abs(n)>=1?3:4;
+        let s = parseFloat(n.toFixed(d)).toString().replace('.',',');
+        // Разделяем разряды целой части неразрывным пробелом
+        const parts = s.split(',');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+        return parts.join(',');
+    }
     let lastBuoyParams = null;
 
     function clearBuoyCustomFields(exceptId) {
@@ -5478,6 +5770,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         return r0*(1+alpha*t);
     }
     function calcTcVoltage(t,type){
+        // Все коэффициенты — NIST ITS-90 (SRD 60), в мВ.
+        // Полином: E(t) = c0 + c1·t + c2·t² + ... + cn·t^n
+        // Коэффициенты записаны от низших степеней к высшим (c0, c1, c2, ...).
+        // Источник: NIST Standard Reference Database 60, версия 2.0
         let mv=0;
         if(type==='K'){
             if(t<0){
@@ -5497,57 +5793,70 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             }
         } else if(type==='T'){
+            // T (медь-константан): диапазоны -270..0°C и 0..400°C
             if(t>=0){
-                let c=[0,2.592800e-2,-7.602961e-4,4.637791e-5,-2.165394e-6,6.048144e-8,-7.293422e-10];
+                // NIST ITS-90, диапазон 0..400°C (9 коэффициентов, степени 0..8)
+                let c=[0, 3.8748106364e-2, 3.3292227880e-5, 2.0618243404e-7, -2.1882256846e-9, 1.0996880928e-11, -3.0815758772e-14, 4.5479135290e-17, -2.7512901673e-20];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             } else {
-                let c=[0,2.5949192e-2,-2.1316967e-3,7.9018692e-5,-4.8277513e-6,-2.5705510e-7,3.0990545e-8,-3.1776515e-9,2.8555359e-10,-1.2743389e-11];
+                // NIST ITS-90, диапазон -270..0°C (15 коэффициентов, степени 0..14)
+                let c=[0, 3.8748106364e-2, 4.4194434347e-5, 1.1844323105e-7, 2.0032973554e-8, 9.0138019559e-10, 2.2651156593e-11, 3.6071154205e-13, 3.8493939883e-15, 2.8213521925e-17, 1.4251594779e-19, 4.8768662286e-22, 1.0795539270e-24, 1.3945027062e-27, 7.9795153927e-31];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             }
         } else if(type==='N'){
+            // N (никросил-нисил): диапазоны -270..0°C и 0..1300°C
             if(t>=0){
-                let c=[0,2.560682e-2,1.497613e-4,-2.768767e-5,2.816179e-6,-1.522396e-7,3.601868e-9,-3.467403e-11];
+                // NIST ITS-90, диапазон 0..1300°C (11 коэффициентов, степени 0..10)
+                let c=[0, 2.5929394601e-2, 1.5710141880e-5, 4.3825627237e-8, -2.5261169794e-10, 6.4311819339e-13, -1.0063471519e-15, 9.9745338992e-19, -6.0863245607e-22, 2.0849229339e-25, -3.0682196151e-29];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             } else {
-                let c=[0,2.592939e-2,-1.548991e-3,3.575407e-5,-1.992859e-7,-1.801801e-8,8.393395e-10,-1.728223e-11];
+                // NIST ITS-90, диапазон -270..0°C (9 коэффициентов, степени 0..8)
+                let c=[0, 2.6159105962e-2, 1.0957484228e-5, -9.3841111554e-8, -4.6412039759e-11, -2.6303357716e-12, -2.2653438003e-14, -7.6089300791e-17, -9.3419667835e-20];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             }
         } else if(type==='E'){
+            // E (хромель-константан): диапазоны -270..0°C и 0..1000°C
             if(t>=0){
-                let c=[0,5.8695844e-2,5.7410995e-5,-8.930991e-8,1.3393587e-10,-1.7022404e-13,1.9416091e-16,-9.6391842e-20];
+                // NIST ITS-90, диапазон 0..1000°C (11 коэффициентов, степени 0..10)
+                let c=[0, 5.8665508710e-2, 4.5032275582e-5, 2.8908407212e-8, -3.3056896652e-10, 6.5024403270e-13, -1.9197495504e-16, -1.2536600497e-18, 2.1489217569e-21, -1.4388041782e-24, 3.5960899481e-28];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             } else {
-                let c=[0,5.8695844e-2,5.7410995e-5,-8.930991e-8,1.3393587e-10,-1.7022404e-13,1.9416091e-16,-9.6391842e-20];
+                // NIST ITS-90, диапазон -270..0°C (14 коэффициентов)
+                let c=[0, 5.8665508708e-2, 4.5410977124e-5, -7.7998048686e-7, -2.5800160843e-8, -5.9452583057e-10, -9.3214058667e-12, -1.0287605534e-13, -8.0370123621e-16, -4.3979497391e-18, -1.6414776355e-20, -3.9673619516e-23, -5.5827328721e-26, -3.4657842013e-29];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             }
         } else if(type==='R'){
+            // R (платинородий-платина 13%): 3 диапазона
             if(t>=1064.18){
-                let c=[2.9515792e0,-2.5206125e-3,1.5956440e-5,-7.6408590e-9,2.0530520e-12,-2.9335960e-16];
+                // NIST ITS-90, диапазон 1064.18..1664.5°C
+                let c=[2.9515792532e0, -2.5206125133e-3, 1.5956450187e-5, -7.6408594758e-9, 2.0530529102e-12, -2.9335966817e-16];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
-            } else if(t>=0){
-                let c=[0,5.289617e-3,1.39111e-5,-2.388556e-8,3.569160e-11,-4.623476e-14,5.007774e-17,-3.731058e-20,1.577164e-23];
-                let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
-            } else {
-                let c=[0,5.289617e-3,1.39111e-5,-2.388556e-8,3.569160e-11,-4.623476e-14,5.007774e-17,-3.731058e-20,1.577164e-23];
+            } else if(t>=-50){
+                // NIST ITS-90, диапазон -50..1064.18°C (10 коэффициентов)
+                let c=[0, 5.2896172977e-3, 1.3916658978e-5, -2.3885569302e-8, 3.5691600106e-11, -4.6234766630e-14, 5.0077744103e-17, -3.7310588619e-20, 1.5771648237e-23, -2.8103862525e-27];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             }
         } else if(type==='S'){
+            // S (платинородий-платина 10%): 3 диапазона
             if(t>=1064.18){
-                let c=[1.3290044e0,3.3450931e-3,6.5480519e-6,-1.6485626e-9,1.2998961e-16];
+                // NIST ITS-90, диапазон 1064.18..1664.5°C (5 коэффициентов)
+                let c=[1.3290044409e0, 3.3450931134e-3, 6.5480519282e-6, -1.6485625921e-9, 1.2998960517e-14];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
-            } else if(t>=0){
-                let c=[0,5.4031331e-6,1.2593429e-5,-2.3247797e-8,3.2202882e-11,-3.3146520e-14,2.5574425e-17,-1.2506887e-20,2.7144318e-24];
-                let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
-            } else {
-                let c=[0,5.4031331e-6,1.2593429e-5,-2.3247797e-8,3.2202882e-11,-3.3146520e-14,2.5574425e-17,-1.2506887e-20,2.7144318e-24];
+            } else if(t>=-50){
+                // NIST ITS-90, диапазон -50..1064.18°C (9 коэффициентов)
+                // ВАЖНО: ранее здесь был баг — c1=5.4e-6 вместо 5.4e-3
+                let c=[0, 5.4031330863e-3, 1.2593428974e-5, -2.3247796869e-8, 3.2202882304e-11, -3.3146519639e-14, 2.5574425179e-17, -1.2506887139e-20, 2.7144317615e-24];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             }
         } else if(type==='B'){
+            // B (платинородий-платинородий 30%/6%): 2 диапазона, начинается с 0°C
             if(t>=630.615){
-                let c=[-3.8938168e-2,3.1019775e-4,-8.8627159e-8,1.1295763e-11,-4.2789760e-16];
+                // NIST ITS-90, диапазон 630.615..1820°C (9 коэффициентов)
+                let c=[-3.8938168621e0, 2.8571747470e-2, -8.4885104785e-5, 1.5785280164e-7, -1.6835344864e-10, 1.1109794013e-13, -4.4515431033e-17, 9.8975640821e-21, -9.3791330289e-25];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             } else {
-                let c=[-2.4650818e-1,4.2386323e-3,-3.7202336e-6,5.8057311e-9,-5.1985638e-12,3.0534464e-15];
+                // NIST ITS-90, диапазон 0..630.615°C (7 коэффициентов)
+                let c=[0, -2.4650818346e-4, 5.9040421171e-6, -1.3257931636e-9, 1.5668291901e-12, -1.6944529240e-15, 6.2990347094e-19];
                 let p=1; for(let i=0;i<c.length;i++){ mv+=c[i]*p; p*=t; }
             }
         }
@@ -5779,6 +6088,138 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             case 'bar': return dp * 1e5;
             default: return dp * 1000;
         }
+    }
+
+    // ============================================================
+    // Быстрый расчёт диафрагмы (#9)
+    // ============================================================
+    // Упрощённая формула для прикидочной оценки перепада давления
+    // на стандартной диафрагме без полного расчёта по ГОСТ 26969-86.
+    //
+    // Формула: Δp = (ρ · Q²) / (2 · α² · β⁴ · A²)
+    //   где:
+    //     ρ — плотность среды, кг/м³
+    //     Q — объёмный расход, м³/с
+    //     α — коэффициент расхода (для стандартной диафрагмы ≈ 0.62)
+    //     β — относительный диаметр (d/D), безразмерный
+    //     A — площадь сечения трубы, м² = π·D²/4
+    //
+    // Возвращает перепад в Па. Для отображения конвертирует в кПа и мм вод.ст.
+    // ============================================================
+
+    // Дефолтные плотности для разных сред (при нормальных условиях)
+    const OQ_DEFAULT_RHO = {
+        water: 1000,    // кг/м³
+        air: 1.293,     // кг/м³ при 0°C, 101.325 кПа
+        steam: 0.590,   // кг/м³ (насыщенный пар при 100°C)
+        gas: 0.800      // кг/м³ (приблизительно для природного газа)
+    };
+
+    // Обновление плотности при смене типа среды
+    function updateOqMediumDefaults() {
+        const medium = document.getElementById('oq_medium').value;
+        const rhoInput = document.getElementById('oq_rho');
+        if (rhoInput && OQ_DEFAULT_RHO[medium]) {
+            rhoInput.value = OQ_DEFAULT_RHO[medium];
+            clearFieldError(rhoInput);
+        }
+    }
+
+    // Перевод расхода в м³/с (использует существующую convertOpFlowToM3s
+    // с учётом плотности для массовых единиц)
+    function oqFlowToM3s(flow, unit, rho) {
+        // lmin → л/мин, нет в convertOpFlowToM3s — добавим обработку
+        if (unit === 'lmin') {
+            return flow / 60000;  // 1 л/мин = 0.001/60 м³/с
+        }
+        return convertOpFlowToM3s(flow, unit, rho);
+    }
+
+    // Главная функция быстрого расчёта
+    function calcOrificeQuick() {
+        const flow = parseLocaleNumber(document.getElementById('oq_flow').value);
+        const flowUnit = document.getElementById('oq_flow_unit').value;
+        const dPipe_mm = parseLocaleNumber(document.getElementById('oq_d_pipe').value);
+        const beta = parseLocaleNumber(document.getElementById('oq_beta').value);
+        const rho = parseLocaleNumber(document.getElementById('oq_rho').value);
+
+        // Валидация
+        if (isNaN(flow) || flow <= 0) { showToast('Введите расход'); return; }
+        if (isNaN(dPipe_mm) || dPipe_mm <= 0) { showToast('Введите диаметр трубы'); return; }
+        if (isNaN(beta) || beta <= 0 || beta >= 1) { showToast('β должно быть в диапазоне 0–1'); return; }
+        if (isNaN(rho) || rho <= 0) { showToast('Введите плотность среды'); return; }
+
+        // Проверяем ошибки валидации в форме
+        if (hasValidationErrors(document.getElementById('page-orifice-quick'))) {
+            showToast('Исправьте ошибки в полях');
+            return;
+        }
+
+        // Константы
+        const ALPHA = 0.62;  // коэффициент расхода для стандартной диафрагмы
+        const dPipe_m = dPipe_mm / 1000;  // мм → м
+        const area = Math.PI * dPipe_m * dPipe_m / 4;  // площадь трубы, м²
+
+        // Перевод расхода в м³/с
+        const q_m3s = oqFlowToM3s(flow, flowUnit, rho);
+
+        // Расчёт перепада давления по упрощённой формуле
+        // Δp = (ρ · Q²) / (2 · α² · β⁴ · A²)
+        const dp_pa = (rho * q_m3s * q_m3s) / (2 * ALPHA * ALPHA * Math.pow(beta, 4) * area * area);
+
+        // Диаметр диафрагмы (для справки)
+        const d_orifice_mm = dPipe_mm * beta;
+
+        // Перевод в удобные единицы
+        const dp_kpa = dp_pa / 1000;
+        const dp_mmh2o = dp_pa / 9.80665;
+        const dp_bar = dp_pa / 1e5;
+
+        // Скорость в трубе (для справки)
+        const v_pipe = q_m3s / area;  // м/с
+
+        // Формирование результата
+        const mediumNames = {
+            water: 'Вода',
+            air: 'Воздух',
+            steam: 'Пар (насыщенный)',
+            gas: 'Природный газ'
+        };
+        const medium = document.getElementById('oq_medium').value;
+
+        let html = '<div class="converter-result-label-title">Результаты прикидочного расчёта</div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Среда</span><span class="converter-result-value">' + mediumNames[medium] + '</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Расход Q</span><span class="converter-result-value">' + formatNumber(flow) + ' ' + flowUnit + '</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Объёмный расход (в СИ)</span><span class="converter-result-value">' + formatNumber(q_m3s) + ' м³/с</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Диаметр трубы D</span><span class="converter-result-value">' + formatNumber(dPipe_mm) + ' мм</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Относительный диаметр β</span><span class="converter-result-value">' + formatNumber(beta) + '</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Диаметр диафрагмы d = β·D</span><span class="converter-result-value">' + formatNumber(d_orifice_mm) + ' мм</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Скорость в трубе v</span><span class="converter-result-value">' + formatNumber(v_pipe) + ' м/с</span></div>';
+        html += '<div class="converter-result-item" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--card-border);"><span class="converter-result-label">Перепад Δp (Па)</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(dp_pa) + ' Па</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Перепад Δp (кПа)</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(dp_kpa) + ' кПа</span></div>';
+        if (dp_mmh2o < 100000) {
+            html += '<div class="converter-result-item"><span class="converter-result-label">Перепад Δp (мм вод.ст.)</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(dp_mmh2o) + ' мм вод.ст.</span></div>';
+        }
+        if (dp_bar > 0.001) {
+            html += '<div class="converter-result-item"><span class="converter-result-label">Перепад Δp (бар)</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(dp_bar) + ' бар</span></div>';
+        }
+
+        // Информация о формуле
+        html += '<div style="margin-top:14px; padding:14px 18px; background:rgba(13,17,23,0.5); border-radius:10px; font-size:13px; color:rgba(255,255,255,0.45); line-height:1.6;">';
+        html += '<b style="color:rgba(255,255,255,0.7);">Формула:</b> Δp = (ρ · Q²) / (2 · α² · β⁴ · A²)<br>';
+        html += '<b style="color:rgba(255,255,255,0.7);">Параметры:</b> α = 0.62 (коэффициент расхода), A = π·D²/4 = ' + formatNumber(area) + ' м²<br>';
+        html += '<b style="color:rgba(255,255,255,0.7);">Подставлено:</b> Δp = (' + formatNumber(rho) + ' · ' + formatNumber(q_m3s) + '²) / (2 · 0.62² · ' + formatNumber(beta) + '⁴ · ' + formatNumber(area) + '²) = ' + formatNumber(dp_pa) + ' Па';
+        html += '</div>';
+
+        // Предупреждение о точности
+        html += '<div style="margin-top:10px; padding:12px 14px; background:rgba(199,150,74,0.10); border:1px solid rgba(199,150,74,0.25); border-radius:10px; font-size:12px; color:#c7964a; line-height:1.5;">';
+        html += '<b>⚠ Прикидочный расчёт.</b> Результат — оценка. Для точного расчёта по ГОСТ 26969-86 используйте раздел «Перепад давления». Упрощённая формула не учитывает: температурные поправки, шероховатость трубы, сжимаемость газов, поправки на вязкость.';
+        html += '</div>';
+
+        const results = document.getElementById('oq_results');
+        results.innerHTML = html;
+        results.style.display = 'block';
+        setTimeout(() => results.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
     function getOpThermalD(d20_mm, material, temp) {
         let alpha = opThermalExpansion[material] || 11.9e-6;
@@ -6037,6 +6478,34 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         if(firstActive) { requestAnimationFrame(()=>firstActive.classList.add('visible')); updateBottomNavActive(firstActive.id.replace('page-','')); }
         let appHeader = document.querySelector('.app-header');
         if(appHeader && firstActive) appHeader.style.display = (firstActive.id === 'page-dashboard') ? 'block' : 'none';
+
+        // Обработка location.hash при загрузке — для PWA shortcuts.
+        // Если URL содержит #page-id (например, /kip8/#exam-tickets),
+        // открываем соответствующую страницу сразу.
+        // Это позволяет manifest shortcuts работать.
+        if (location.hash && location.hash.length > 1) {
+            const hashPage = location.hash.substring(1);
+            const target = document.getElementById('page-' + hashPage);
+            if (target) {
+                // Небольшая задержка, чтобы visible-класс успел примениться
+                setTimeout(function() { navigateTo(hashPage, false); }, 50);
+            }
+        }
+
+        // Обработка hashchange — если пользователь меняет хэш вручную
+        // или через кнопку "назад" в браузере
+        window.addEventListener('hashchange', function() {
+            if (location.hash && location.hash.length > 1) {
+                const hashPage = location.hash.substring(1);
+                const target = document.getElementById('page-' + hashPage);
+                if (target) {
+                    const active = document.querySelector('.page-content.active');
+                    if (active && active.id !== 'page-' + hashPage) {
+                        navigateTo(hashPage, false);
+                    }
+                }
+            }
+        });
     });
 
     // Theme toggle functionality
@@ -6647,6 +7116,34 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+</script>
+
+<!-- Офлайн-индикатор: обновление статуса подключения -->
+<script>
+// Утилита для обновления компактного значка Wi-Fi в правом верхнем углу шапки.
+// Онлайн: зелёные волны Wi-Fi с лёгкой пульсацией.
+// Офлайн: серые волны с перечёркиванием (через класс .offline).
+// Tooltip (title) показывает подробный статус.
+function updateConnectionIndicator() {
+    const el = document.getElementById('connectionIndicator');
+    if (!el) return;
+    const isOnline = navigator.onLine;
+    if (isOnline) {
+        el.classList.remove('offline');
+        el.title = 'Онлайн — данные актуальны';
+    } else {
+        el.classList.add('offline');
+        el.title = 'Офлайн — показаны закэшированные данные';
+    }
+}
+
+// Слушаем события online/offline
+window.addEventListener('online', updateConnectionIndicator);
+window.addEventListener('offline', updateConnectionIndicator);
+
+// При загрузке страницы устанавливаем начальный статус
+document.addEventListener('DOMContentLoaded', updateConnectionIndicator);
+window.addEventListener('load', updateConnectionIndicator);
 </script>
 
 <!-- About Modal -->

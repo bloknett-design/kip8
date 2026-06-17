@@ -40,5 +40,70 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Экзаменационные билеты",
+      "short_name": "Билеты",
+      "description": "Билеты до 1000 В, 4/5/6 разряд",
+      "url": "/kip8/?source=pwa#exam-tickets",
+      "icons": [
+        { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Конвертер единиц",
+      "short_name": "Конвертер",
+      "description": "Перевод давления, температуры, расхода",
+      "url": "/kip8/?source=pwa#converter",
+      "icons": [
+        { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Расчёт погрешности",
+      "short_name": "Погрешность",
+      "description": "Расчёт погрешности по ГОСТ 8.401-80",
+      "url": "/kip8/?source=pwa#error-select",
+      "icons": [
+        { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Шкала-сигнал",
+      "short_name": "Шкала",
+      "description": "Расчёт диапазонов шкалы и сигнала",
+      "url": "/kip8/?source=pwa#scale-signal",
+      "icons": [
+        { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Буйковый уровнемер",
+      "short_name": "Буи",
+      "description": "Калибровка буйковых уровнемеров",
+      "url": "/kip8/?source=pwa#buoy-select",
+      "icons": [
+        { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Датчики температуры",
+      "short_name": "ТС и ТП",
+      "description": "Расчёт R и мВ по температуре",
+      "url": "/kip8/?source=pwa#temp-sensors",
+      "icons": [
+        { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    },
+    {
+      "name": "Быстрый расчёт диафрагмы",
+      "short_name": "Диафрагма",
+      "description": "Прикидочный расчёт перепада на диафрагме",
+      "url": "/kip8/?source=pwa#orifice-quick",
+      "icons": [
+        { "src": "images/icon-192.png", "sizes": "192x192", "type": "image/png" }
+      ]
+    }
   ]
 }
