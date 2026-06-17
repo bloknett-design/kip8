@@ -8,9 +8,6 @@
 <meta name="theme-color" content="#1a2233" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F0EEE6" media="(prefers-color-scheme: light)">
 <meta name="apple-mobile-web-app-title" content="КИПиА">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <link rel="apple-touch-icon" href="images/icon.png">
 <link rel="manifest" href="manifest.json">
 <title>КИПиА</title>
@@ -36,6 +33,19 @@
         --warning-bg: rgba(199, 150, 74, 0.12);
         --warning-border: rgba(199, 150, 74, 0.25);
         --warning-text: #c7964a;
+        /* Дополнительные семантические цвета (используются в JS-генерируемом
+           контенте: таблицы, info-блоки, значения результатов) */
+        --text-secondary: rgba(255, 255, 255, 0.55);   /* приглушённый текст */
+        --text-muted: rgba(255, 255, 255, 0.4);        /* очень приглушённый (проценты, подписи) */
+        --text-faint: rgba(255, 255, 255, 0.25);       /* placeholder, hint */
+        --accent-green: #4ac771;                       /* значения в таблицах */
+        --accent-gold: #c7964a;                        /* предупреждения (= --warning-text) */
+        --table-head-bg: rgba(22, 27, 34, 0.7);        /* фон шапки таблиц */
+        --table-row-bg: rgba(13, 17, 23, 0.4);         /* фон чётной строки */
+        --table-row-alt-bg: rgba(22, 27, 34, 0.4);     /* фон нечётной строки */
+        --info-box-bg: rgba(13, 17, 23, 0.5);          /* info-блоки (например, #buoyInfo) */
+        --border-subtle: rgba(255, 255, 255, 0.08);    /* тонкая граница */
+        --icon-stroke: rgba(255, 255, 255, 0.2);       /* обводка SVG-иконок */
     }
 
     [data-theme="light"] {
@@ -54,6 +64,18 @@
         --warning-bg: rgba(198, 97, 63, 0.06);
         --warning-border: rgba(198, 97, 63, 0.18);
         --warning-text: #9E4E30;
+        /* Соответствующие светлые варианты */
+        --text-secondary: rgba(20, 20, 19, 0.65);
+        --text-muted: rgba(20, 20, 19, 0.5);
+        --text-faint: rgba(20, 20, 19, 0.35);
+        --accent-green: #5a8a3a;
+        --accent-gold: #9E4E30;
+        --table-head-bg: rgba(198, 97, 63, 0.06);
+        --table-row-bg: rgba(20, 20, 19, 0.02);
+        --table-row-alt-bg: rgba(255, 255, 255, 0.45);
+        --info-box-bg: rgba(232, 230, 220, 0.5);
+        --border-subtle: rgba(20, 20, 19, 0.1);
+        --icon-stroke: rgba(20, 20, 19, 0.2);
     }
 
     * { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
@@ -909,97 +931,110 @@
         background: radial-gradient(ellipse at center, transparent 40%, rgba(240, 238, 230, 0.85) 95%);
     }
 
-    /* Light theme: comprehensive text/background visibility fixes */
+    /* ============================================================
+       Временные переопределения инлайн-стилей для светлой темы
+       ============================================================
+       В идеале инлайн-стили в HTML должны быть заменены на CSS-классы
+       с переменными (var(--text-muted), var(--accent-blue) и т.д.).
+       Пока это не сделано, используем селекторы по подстроке атрибута
+       style, чтобы переопределять тёмные цвета на светлые.
 
-    /* Override ALL inline rgba(255,255,255,...) colors on ANY element */
+       Все цвета берутся из CSS-переменных, определённых в
+       [data-theme="light"] выше — это централизует управление.
+
+       TODO: постепенно заменить инлайн-стили на классы и удалить
+             эти правила.
+       ============================================================ */
+
+    /* Приглушённый белый текст → тёмный приглушённый */
     [data-theme="light"] [style*="color:rgba(255,255,255"],
     [data-theme="light"] [style*="color: rgba(255,255,255"],
     [data-theme="light"] [style*="color:rgba(255, 255, 255"],
     [data-theme="light"] [style*="color: rgba(255, 255, 255"] {
-        color: rgba(20, 20, 19, 0.5) !important;
+        color: var(--text-muted) !important;
     }
 
-    /* Override inline #e0e0e0 / #e8e8e8 colors on ANY element */
+    /* Основной текст (#e0e0e0, #e8e8e8) → тёмный */
     [data-theme="light"] [style*="color:#e0e0e0"],
     [data-theme="light"] [style*="color: #e0e0e0"],
     [data-theme="light"] [style*="color:#e8e8e8"] {
-        color: #141413 !important;
+        color: var(--text-primary) !important;
     }
 
-    /* Override inline #4a8fc7 (accent blue) colors on ANY element */
+    /* Синий акцент (#4a8fc7) → оранжевый */
     [data-theme="light"] [style*="color:#4a8fc7"],
     [data-theme="light"] [style*="color: #4a8fc7"] {
-        color: #C6613F !important;
+        color: var(--accent-blue) !important;
     }
 
-    /* Override inline #4ac771 (green accent) on ANY element */
+    /* Зелёный акцент (#4ac771) → тёмно-зелёный */
     [data-theme="light"] [style*="color:#4ac771"],
     [data-theme="light"] [style*="color: #4ac771"] {
-        color: #5a8a3a !important;
+        color: var(--accent-green) !important;
     }
 
-    /* Override inline #c7964a (gold accent) on ANY element */
+    /* Золотой акцент (#c7964a) → тёмно-красный */
     [data-theme="light"] [style*="color:#c7964a"],
     [data-theme="light"] [style*="color: #c7964a"] {
-        color: #9E4E30 !important;
+        color: var(--accent-gold) !important;
     }
 
-    /* Override inline gold border colors */
+    /* Золотая граница → оранжевая граница */
     [data-theme="light"] [style*="border-color:rgba(199,150,74"],
     [data-theme="light"] [style*="border-color: rgba(199,150,74"] {
-        border-color: rgba(198, 97, 63, 0.3) !important;
+        border-color: var(--warning-border) !important;
     }
 
-    /* Override inline gold text/arrow colors */
+    /* Золотой текст (rgba-форма) → оранжевый */
     [data-theme="light"] [style*="color:rgba(199,150,74"],
     [data-theme="light"] [style*="color: rgba(199,150,74"] {
-        color: rgba(198, 97, 63, 0.5) !important;
+        color: var(--warning-text) !important;
     }
 
-    /* Fix dark backgrounds in JS-generated tables and info boxes */
+    /* Тёмный фон в JS-генерируемых таблицах и info-блоках → светлый */
     [data-theme="light"] [style*="background:rgba(13,17,23"],
     [data-theme="light"] [style*="background:rgba(22,27,34"],
     [data-theme="light"] [style*="background:rgba(30,42,56"] {
-        background: rgba(232, 230, 220, 0.35) !important;
+        background: var(--table-row-bg) !important;
     }
 
-    /* Fix inline border colors with white */
+    /* Тонкая белая граница → тёмная тонкая */
     [data-theme="light"] [style*="border:1px solid rgba(255,255,255"],
     [data-theme="light"] [style*="border-bottom:1px solid rgba(255,255,255"] {
-        border-color: rgba(20, 20, 19, 0.1) !important;
+        border-color: var(--border-subtle) !important;
     }
 
-    /* Table header rows: override dark inline background */
+    /* Шапка таблиц: тёмный инлайн-фон → светлый акцентный */
     [data-theme="light"] .converter-result-group table thead tr[style],
     [data-theme="light"] .scale-form table thead tr[style] {
-        background: rgba(198, 97, 63, 0.06) !important;
+        background: var(--table-head-bg) !important;
     }
 
-    /* Table body rows: light alternating backgrounds */
+    /* Тело таблиц: чередующиеся светлые строки */
     [data-theme="light"] .converter-result-group table tbody tr[style],
     [data-theme="light"] .scale-form table tbody tr[style] {
-        background: rgba(20, 20, 19, 0.02) !important;
+        background: var(--table-row-bg) !important;
     }
     [data-theme="light"] .converter-result-group table tbody tr:nth-child(even)[style],
     [data-theme="light"] .scale-form table tbody tr:nth-child(even)[style] {
-        background: rgba(255, 255, 255, 0.45) !important;
+        background: var(--table-row-alt-bg) !important;
     }
 
-    /* buoyInfo dark box: override inline dark background and light text */
+    /* Info-блок буя: тёмный фон + светлый текст → светлый фон + тёмный текст */
     [data-theme="light"] #buoyInfo {
-        background: rgba(232, 230, 220, 0.5) !important;
-        color: rgba(20, 20, 19, 0.65) !important;
+        background: var(--info-box-bg) !important;
+        color: var(--text-secondary) !important;
     }
 
-    /* signalUnitDisplay hint text */
+    /* Подпись единицы измерения сигнала */
     [data-theme="light"] #signalUnitDisplay {
-        color: rgba(20, 20, 19, 0.45) !important;
+        color: var(--text-muted) !important;
     }
 
-    /* Fix SVG strokes with white color (library arrows, etc.) */
+    /* SVG-иконки с белой обводкой → тёмная обводка */
     [data-theme="light"] svg[style*="stroke:rgba(255,255,255"],
     [data-theme="light"] svg[style*="stroke: rgba(255,255,255"] {
-        stroke: rgba(20, 20, 19, 0.2) !important;
+        stroke: var(--icon-stroke) !important;
     }
 
     /* Library page menu-btn-arrow SVG override */
@@ -1010,7 +1045,7 @@
     /* Converter result items */
     [data-theme="light"] .converter-result-item {
         background: rgba(232, 230, 220, 0.55);
-        border-color: rgba(20, 20, 19, 0.08);
+        border-color: var(--border-subtle);
     }
 
     /* Buttons */
