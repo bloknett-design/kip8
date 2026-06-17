@@ -78,12 +78,17 @@
     
     .page-content { 
         display: none; position: relative; z-index: 2;
-        opacity: 0; transform: translateY(10px);
-        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 0;
+        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow-x: clip;
     }
     .page-content.active { display: block; padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
-    .page-content.visible { opacity: 1; transform: translateY(0); }
+    /* ВАЖНО: здесь намеренно НЕТ transform. Любой transform (даже translateY(0))
+       создаёт содержащий блок для потомков с position: fixed, из-за чего
+       .ticket-item.open (position: fixed; top: 0) позиционируется относительно
+       .page-content, а не окна вьюпорта. Это приводило к поломке открытия
+       билетов в нижней части экрана. Анимация появления — только opacity. */
+    .page-content.visible { opacity: 1; }
     
     .app-header {
         position: sticky; top: 0; z-index: 60;
