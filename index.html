@@ -3205,7 +3205,8 @@
         // Группировка по номеру билета
         const groups = {};
         for (const row of cat.rows) {
-            const key = row['\u2116 \u0431\u0438\u043b\u0435\u0442\u0430'] || row['\u2116\u0431\u0438\u043b\u0435\u0442\u0430'] || 'Билет';
+            // getField() читает новое имя (ticket_number) с fallback на старые русские.
+            const key = getField(row, 'ticket_number', '\u2116 \u0431\u0438\u043b\u0435\u0442\u0430') || 'Билет';
             if (!groups[key]) groups[key] = [];
             groups[key].push(row);
         }
@@ -3221,9 +3222,9 @@
             let filtered = questions;
             if (lowerFilter) {
                 filtered = questions.filter(q =>
-                    (q['\u0412\u043e\u043f\u0440\u043e\u0441'] || '').toLowerCase().includes(lowerFilter) ||
-                    (q['\u041e\u0442\u0432\u0435\u0442'] || '').toLowerCase().includes(lowerFilter) ||
-                    (q['\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430'] || '').toLowerCase().includes(lowerFilter)
+                    getField(q, 'question', '\u0412\u043e\u043f\u0440\u043e\u0441').toLowerCase().includes(lowerFilter) ||
+                    getField(q, 'answer', '\u041e\u0442\u0432\u0435\u0442').toLowerCase().includes(lowerFilter) ||
+                    getField(q, 'question_number', '\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430').toLowerCase().includes(lowerFilter)
                 );
                 if (filtered.length === 0) continue;
             }
@@ -3238,9 +3239,9 @@
 
             for (const q of filtered) {
                 html += '<div class="ticket-q">';
-                html += '<div class="ticket-q-num">' + (q['\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430'] || '') + '</div>';
-                html += '<div class="ticket-q-text">' + escHtml(q['\u0412\u043e\u043f\u0440\u043e\u0441'] || '') + '</div>';
-                const answer = q['\u041e\u0442\u0432\u0435\u0442'] || '';
+                html += '<div class="ticket-q-num">' + escHtml(getField(q, 'question_number', '\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430')) + '</div>';
+                html += '<div class="ticket-q-text">' + escHtml(getField(q, 'question', '\u0412\u043e\u043f\u0440\u043e\u0441')) + '</div>';
+                const answer = getField(q, 'answer', '\u041e\u0442\u0432\u0435\u0442');
                 // ЕДИНЫЙ ПРИНЦИП: картинка вставляется только если в
                 // столбце Image Excel-таблицы указан рабочий URL (http/https).
                 // В Excel-таблице должны быть ссылки Google Drive share
@@ -3262,12 +3263,12 @@
                 //   - onerror → ticketImgFail(): если превью не загрузилось,
                 //     показывается fallback-карточка "Открыть изображение"
                 //     со ссылкой на оригинальный URL в новой вкладке.
-                const imgSrc = (q['Image'] || '').trim();
+                const imgSrc = getField(q, 'image_url', 'Image').trim();
                 if (isWorkingUrl(imgSrc)) {
                     // Контейнер превью: изначально показывает <img>,
                     // при ошибке — fallback-карточку.
                     // Уникальный id для управления таймаутом.
-                    const imgId = 'timg_' + ti + '_' + (q['ID'] || Math.random().toString(36).slice(2,8));
+                    const imgId = 'timg_' + ti + '_' + (getField(q, 'id', 'ID') || Math.random().toString(36).slice(2,8));
                     // Если ссылка Google Drive — получаем прямые URL превью и полного размера.
                     // Для OneDrive/прочих share-ссылок превью, скорее всего, не загрузится,
                     // сработает fallback на оригинальную ссылку.
@@ -3292,8 +3293,8 @@
                     html += '<div class="ticket-a-label">Ответ</div>';
                     html += '<div class="ticket-a-text">' + escHtml(answer) + '</div>';
                 }
-                const ref = q['\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b'] || '';
-                const fileUrl = (q['\u0424\u0430\u0439\u043b'] || '').trim();
+                const ref = getField(q, 'literature_name', '\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b');
+                const fileUrl = getField(q, 'file_url', '\u0424\u0430\u0439\u043b').trim();
                 if (ref) {
                     if (isWorkingUrl(fileUrl)) {
                         // Литература кликабельна — ссылка на файл открывается в новой вкладке
@@ -3436,6 +3437,19 @@
         const d = document.createElement('div');
         d.textContent = s;
         return d.innerHTML;
+    }
+
+    // Утилита для чтения поля билета с обратной совместимостью.
+    // В JSON данные могут храниться под новыми латинскими именами
+    // (ticket_number, question, answer, image_url, ...) или под
+    // старыми русскими (№ билета, Вопрос, Ответ, Image, ...).
+    // Эта функция сначала ищет новое имя, при отсутствии — старое.
+    // Позволяет плавно мигрировать на новую схему имён.
+    function getField(obj, newName, oldName) {
+        if (!obj) return '';
+        if (obj[newName] !== undefined) return obj[newName] || '';
+        if (oldName && obj[oldName] !== undefined) return obj[oldName] || '';
+        return '';
     }
 
     // Проверка, что значение ячейки является рабочей ссылкой.
@@ -6599,6 +6613,29 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').then(function(reg) {
             // Проверять обновления SW каждые 30 минут
             setInterval(function() { reg.update(); }, 30 * 60 * 1000);
+
+            // Регистрация фоновой синхронизации для обновления данных
+            // (exam-tickets.json). Сработает при появлении сети, если
+            // браузер поддерживает Background Sync API. Safari/Firefox
+            // не поддерживают — тихо игнорируется.
+            if ('SyncManager' in window) {
+                reg.sync.register('kipia-sync-data').catch(function() {
+                    // Sync API недоступен или заблокирован — не критично
+                });
+            }
+
+            // Слушаем сообщения от SW (например, "данные обновились")
+            navigator.serviceWorker.addEventListener('message', function(event) {
+                if (!event.data) return;
+                if (event.data.type === 'DATA_REFRESHED') {
+                    // SW обновил exam-tickets.json в фоне — сбросим
+                    // in-memory кэш, чтобы при следующем открытии билетов
+                    // загрузилась свежая версия
+                    if (typeof _ticketsData !== 'undefined') {
+                        _ticketsData = null;
+                    }
+                }
+            });
         }).catch(function(err) {
             // Ошибка регистрации SW — приложение работает без офлайна
         });
