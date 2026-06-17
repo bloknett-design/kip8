@@ -7023,7 +7023,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         </div>
     </div>
     <div class="sidebar-content">
-        <div class="sidebar-item" onclick="location.reload(); toggleSidebar();">
+        <div class="sidebar-item" onclick="refreshAppData(); toggleSidebar();">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             <span>Обновить</span>
         </div>
@@ -7144,7 +7144,7 @@ if ('serviceWorker' in navigator) {
 <!-- Кнопка обновления: статус подключения + действие по клику -->
 <script>
 // Утилита обновления визуального состояния кнопки обновления.
-// Онлайн: зелёный, кликабельный. Офлайн: серый, неактивный.
+// Онлайн: зелёный, кликабельный. Офлайн: красный, неактивный.
 // Анимация (.refreshing) добавляется отдельно — только на время обновления.
 function updateConnectionIndicator() {
     const el = document.getElementById('connectionIndicator');
@@ -7241,9 +7241,126 @@ async function refreshAppData() {
 window.addEventListener('online', updateConnectionIndicator);
 window.addEventListener('offline', updateConnectionIndicator);
 
-// При загрузке страницы устанавливаем начальный статус
+// Более надёжная проверка подключения через HEAD-запрос.
+// navigator.onLine в TWA WebView иногда возвращает true даже без сети.
+// Делаем быстрый запрос к manifest.json (он маленький и всегда есть).
+// Если запрос успешен → онлайн, если таймаут/ошибка → офлайн.
+async function checkRealConnection() {
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const response = await fetch('manifest.json?v=check' + Date.now(), {
+            method: 'HEAD',
+            cache: 'no-cache',
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return response.ok;
+    } catch (e) {
+        return false;
+    }
+}
+
+// Периодическое обновление статуса подключения.
+// Проверяем каждые 15 секунд — navigator.onLine в TWA ненадёжен.
+async function periodicConnectionCheck() {
+    const el = document.getElementById('connectionIndicator');
+    if (!el) return;
+    if (el.classList.contains('refreshing')) return;
+    const isReallyOnline = await checkRealConnection();
+    const elCurrentlyOffline = el.classList.contains('offline');
+    if (isReallyOnline && elCurrentlyOffline) {
+        el.classList.remove('offline');
+        el.title = 'Обновить данные приложения';
+    } else if (!isReallyOnline && !elCurrentlyOffline) {
+        el.classList.add('offline');
+        el.title = 'Офлайн — обновление недоступно';
+    }
+}
+
+// Слушаем события online/offline
+window.addEventListener('online', updateConnectionIndicator);
+window.addEventListener('offline', updateConnectionIndicator);
+
+// При загрузке страницы устанавливаем начальный статус + запускаем периодическую проверку
 document.addEventListener('DOMContentLoaded', updateConnectionIndicator);
-window.addEventListener('load', updateConnectionIndicator);
+window.addEventListener('load', function() {
+    updateConnectionIndicator();
+    setInterval(periodicConnectionCheck, 15000);
+    setTimeout(periodicConnectionCheck, 3000);
+});
+
+// ============================================================
+// Pull-to-refresh — свайп вниз для обновления
+// ============================================================
+(function() {
+    let ptrStartY = 0;
+    let ptrPulling = false;
+    let ptrCurrentY = 0;
+    const PTR_THRESHOLD = 70;
+    const PTR_RESISTANCE = 0.5;
+
+    const ptrIndicator = document.createElement('div');
+    ptrIndicator.id = 'ptrIndicator';
+    ptrIndicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(74,199,113,0.10);z-index:9998;transition:height 0.2s ease;pointer-events:none;';
+    ptrIndicator.innerHTML = '<svg id="ptrSpinner" viewBox="0 0 24 24" width="24" height="24" style="stroke:#7ec699;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>';
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.insertBefore(ptrIndicator, document.body.firstChild);
+    });
+
+    document.addEventListener('touchstart', function(e) {
+        if (e.touches.length !== 1) return;
+        if (window.scrollY > 0) return;
+        if (document.body.classList.contains('ticket-open')) return;
+        if (document.body.classList.contains('ticket-img-viewing')) return;
+        ptrStartY = e.touches[0].clientY;
+        ptrPulling = true;
+        ptrCurrentY = ptrStartY;
+    }, { passive: true });
+
+    document.addEventListener('touchmove', function(e) {
+        if (!ptrPulling) return;
+        ptrCurrentY = e.touches[0].clientY;
+        const diff = (ptrCurrentY - ptrStartY) * PTR_RESISTANCE;
+        if (diff > 0) {
+            const height = Math.min(diff, PTR_THRESHOLD * 1.5);
+            ptrIndicator.style.height = height + 'px';
+            const spinner = document.getElementById('ptrSpinner');
+            if (spinner) {
+                const rotation = Math.min(diff / PTR_THRESHOLD, 1) * 180;
+                spinner.style.transform = 'rotate(' + rotation + 'deg)';
+            }
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+        if (!ptrPulling) return;
+        ptrPulling = false;
+        const diff = (ptrCurrentY - ptrStartY) * PTR_RESISTANCE;
+        if (diff >= PTR_THRESHOLD) {
+            ptrIndicator.style.height = '50px';
+            const spinner = document.getElementById('ptrSpinner');
+            if (spinner) {
+                spinner.style.transition = 'none';
+                spinner.style.animation = 'spinRefresh 0.8s linear infinite';
+            }
+            refreshAppData().then(() => {
+                setTimeout(() => {
+                    ptrIndicator.style.height = '0';
+                    if (spinner) {
+                        spinner.style.animation = '';
+                        spinner.style.transition = 'transform 0.2s';
+                        spinner.style.transform = '';
+                    }
+                }, 200);
+            });
+        } else {
+            ptrIndicator.style.height = '0';
+            const spinner = document.getElementById('ptrSpinner');
+            if (spinner) spinner.style.transform = '';
+        }
+    }, { passive: true });
+})();
 </script>
 
 <!-- About Modal -->
