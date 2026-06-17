@@ -141,8 +141,11 @@
     /* Кнопка обновления — компактный значок в самом верхнем правом углу экрана.
        Фиксированная позиция, поверх всех элементов (z-index: 9999).
        Размер 20×20px, без фона/рамки (минимализм).
-       Кликабельная — запускает refreshAppData().
-       Анимация вращения только во время обновления (.refreshing). */
+       Три состояния с пастельными цветами:
+         — онлайн (по умолчанию): пастельный зелёный
+         — офлайн (.offline): пастельный красный
+         — обновление (.refreshing): пастельный оранжевый + анимация вращения
+       Анимация: минимум 1 оборот (0.8с) даже при мгновенном обновлении. */
     .connection-indicator {
         position: fixed;
         top: calc(6px + env(safe-area-inset-top, 0px));
@@ -152,9 +155,10 @@
         justify-content: center;
         width: 20px;
         height: 20px;
-        color: rgba(74, 199, 113, 0.85);
+        /* Пастельный зелёный — мягкий, приглушённый */
+        color: #7ec699;
         cursor: pointer;
-        transition: color .2s, transform .1s;
+        transition: color .3s ease, transform .1s;
         -webkit-tap-highlight-color: transparent;
         user-select: none;
         z-index: 9999;
@@ -163,7 +167,7 @@
         transform: scale(0.88);
     }
     .connection-indicator:hover {
-        color: #4ac771;
+        color: #6bb588;
     }
     .connection-indicator svg {
         width: 16px;
@@ -174,12 +178,18 @@
         stroke-linecap: round;
         stroke-linejoin: round;
     }
+    /* Офлайн — пастельный красный (мягкий, не агрессивный) */
     .connection-indicator.offline {
-        color: rgba(160, 160, 160, 0.5);
+        color: #e0978d;
         cursor: not-allowed;
     }
     .connection-indicator.offline:hover {
-        color: rgba(160, 160, 160, 0.5);
+        color: #e0978d;
+    }
+    /* Обновление — пастельный оранжевый + анимация вращения */
+    .connection-indicator.refreshing {
+        color: #e8b87a;
+        cursor: progress;
     }
     /* Анимация вращения — только при классе .refreshing */
     @keyframes spinRefresh {
@@ -190,13 +200,16 @@
         animation: spinRefresh 0.8s linear infinite;
     }
     [data-theme="light"] .connection-indicator {
-        color: rgba(90, 138, 58, 0.85);
+        color: #6ba87a;
     }
     [data-theme="light"] .connection-indicator:hover {
-        color: #5a8a3a;
+        color: #5a9a6a;
     }
     [data-theme="light"] .connection-indicator.offline {
-        color: rgba(120, 120, 120, 0.5);
+        color: #c97a72;
+    }
+    [data-theme="light"] .connection-indicator.refreshing {
+        color: #d49a5a;
     }
     .header-title svg.led-display {
         height: 44px; width: auto;
@@ -6581,7 +6594,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
     // Haptic feedback on navigation and button presses
     document.addEventListener('click', function(e) {
-        const target = e.target.closest('.nav-btn, .menu-btn, .bottom-nav-item, .converter-convert-btn, .scale-calc-btn, .query-btn, .header-btn');
+        const target = e.target.closest('.nav-btn, .menu-btn, .bottom-nav-item, .converter-convert-btn, .scale-calc-btn, .query-btn, .header-btn, .ticket-cat-card, .ticket-item-header, .ticket-nav-btn, .ticket-a-img, .ticket-a-imglink, .ticket-img-overlay-close, .ticket-ref-link, .connection-indicator');
         if (target && navigator.vibrate) {
             navigator.vibrate(15);
         }
@@ -7154,11 +7167,13 @@ function updateConnectionIndicator() {
 // Что делает:
 //   1. Проверяет подключение (если офлайн — показывает toast и выходит)
 //   2. Добавляет класс .refreshing → запускает анимацию вращения значка
+//      + меняет цвет на пастельный оранжевый
 //   3. Параллельно:
 //      - просит Service Worker обновиться (reg.update())
 //      - принудительно перезагружает exam-tickets.json (force=true)
-//   4. По завершении снимает .refreshing и показывает toast с результатом
-//   5. Если открыта страница билетов — перерисовывает её с новыми данными
+//   4. Гарантирует минимум 1 оборот анимации (0.8с) даже при мгновенном обновлении
+//   5. По завершении снимает .refreshing и показывает toast с результатом
+//   6. Если открыта страница билетов — перерисовывает её с новыми данными
 async function refreshAppData() {
     const el = document.getElementById('connectionIndicator');
     if (!el) return;
@@ -7174,9 +7189,11 @@ async function refreshAppData() {
         return;
     }
 
-    // Запускаем анимацию
+    // Запускаем анимацию (минимум 1 оборот = 0.8с)
     el.classList.add('refreshing');
     el.title = 'Обновление…';
+    const startTime = Date.now();
+    const MIN_ANIMATION_MS = 800;  // минимум 1 оборот (0.8с при 0.8с/оборот)
 
     try {
         // 1. Просим Service Worker проверить обновления
@@ -7209,9 +7226,14 @@ async function refreshAppData() {
     } catch (e) {
         showToast('Ошибка обновления: ' + (e.message || e));
     } finally {
-        // Снимаем анимацию
-        el.classList.remove('refreshing');
-        updateConnectionIndicator();  // восстанавливаем title
+        // Гарантируем минимум 1 оборот анимации (0.8с),
+        // даже если обновление прошло мгновенно.
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, MIN_ANIMATION_MS - elapsed);
+        setTimeout(() => {
+            el.classList.remove('refreshing');
+            updateConnectionIndicator();  // восстанавливаем цвет и title
+        }, remaining);
     }
 }
 
