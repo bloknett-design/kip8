@@ -138,22 +138,32 @@
         position: absolute;
         right: 20px;
     }
-    /* Офлайн-индикатор — компактный значок Wi-Fi в правом верхнем углу шапки.
-       Онлайн: зелёные волны, Офлайн: серые волны с перечёркиванием.
-       Без текста — только значок, размер ~22px. */
+    /* Кнопка обновления — компактный значок в самом верхнем правом углу экрана.
+       Фиксированная позиция, поверх всех элементов (z-index: 9999).
+       Размер 20×20px, без фона/рамки (минимализм).
+       Кликабельная — запускает refreshAppData().
+       Анимация вращения только во время обновления (.refreshing). */
     .connection-indicator {
+        position: fixed;
+        top: calc(6px + env(safe-area-inset-top, 0px));
+        right: calc(8px + env(safe-area-inset-right, 0px));
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: rgba(74, 199, 113, 0.12);
-        color: #4ac771;
-        border: 1px solid rgba(74, 199, 113, 0.25);
-        transition: background .3s, color .3s, border-color .3s;
-        cursor: help;
+        width: 20px;
+        height: 20px;
+        color: rgba(74, 199, 113, 0.85);
+        cursor: pointer;
+        transition: color .2s, transform .1s;
         -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        z-index: 9999;
+    }
+    .connection-indicator:active {
+        transform: scale(0.88);
+    }
+    .connection-indicator:hover {
+        color: #4ac771;
     }
     .connection-indicator svg {
         width: 16px;
@@ -165,32 +175,28 @@
         stroke-linejoin: round;
     }
     .connection-indicator.offline {
-        background: rgba(160, 160, 160, 0.10);
-        color: rgba(160, 160, 160, 0.6);
-        border-color: rgba(160, 160, 160, 0.25);
+        color: rgba(160, 160, 160, 0.5);
+        cursor: not-allowed;
     }
-    .connection-indicator.offline .wifi-cross {
-        display: block;
+    .connection-indicator.offline:hover {
+        color: rgba(160, 160, 160, 0.5);
     }
-    .connection-indicator .wifi-cross {
-        display: none;
+    /* Анимация вращения — только при классе .refreshing */
+    @keyframes spinRefresh {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
-    @keyframes pulseDot2 {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
-    }
-    .connection-indicator:not(.offline) svg {
-        animation: pulseDot2 3s ease-in-out infinite;
+    .connection-indicator.refreshing svg {
+        animation: spinRefresh 0.8s linear infinite;
     }
     [data-theme="light"] .connection-indicator {
-        background: rgba(90, 138, 58, 0.10);
+        color: rgba(90, 138, 58, 0.85);
+    }
+    [data-theme="light"] .connection-indicator:hover {
         color: #5a8a3a;
-        border-color: rgba(90, 138, 58, 0.25);
     }
     [data-theme="light"] .connection-indicator.offline {
-        background: rgba(120, 120, 120, 0.08);
-        color: rgba(120, 120, 120, 0.7);
-        border-color: rgba(120, 120, 120, 0.25);
+        color: rgba(120, 120, 120, 0.5);
     }
     .header-title svg.led-display {
         height: 44px; width: auto;
@@ -1586,20 +1592,24 @@
 </svg></div>
 
             <div class="header-right">
-                <div class="connection-indicator" id="connectionIndicator" title="Онлайн">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Три дуги Wi-Fi разного радиуса -->
-                        <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
-                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
-                        <line x1="12" y1="20" x2="12.01" y2="20"/>
-                        <!-- Линия перечёркивания (видна только в офлайн-режиме) -->
-                        <line class="wifi-cross" x1="4" y1="4" x2="20" y2="20" stroke-width="2"/>
-                    </svg>
-                </div>
+                <!-- intentionally empty: refresh button moved to fixed position -->
             </div>
 
         </div>
     </header>
+
+    <!-- Кнопка обновления — фиксированная позиция в самом верхнем правом углу.
+         Поверх всех элементов (z-index: 9999), не зависит от шапки. -->
+    <div class="connection-indicator" id="connectionIndicator" title="Обновить данные"
+         onclick="refreshAppData()" role="button" aria-label="Обновить данные приложения">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <!-- Значок обновления/синхронизации: две круговые стрелки -->
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+            <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+        </svg>
+    </div>
 
     <div id="contentArea">
         <!-- DASHBOARD -->
@@ -7118,22 +7128,90 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-<!-- Офлайн-индикатор: обновление статуса подключения -->
+<!-- Кнопка обновления: статус подключения + действие по клику -->
 <script>
-// Утилита для обновления компактного значка Wi-Fi в правом верхнем углу шапки.
-// Онлайн: зелёные волны Wi-Fi с лёгкой пульсацией.
-// Офлайн: серые волны с перечёркиванием (через класс .offline).
-// Tooltip (title) показывает подробный статус.
+// Утилита обновления визуального состояния кнопки обновления.
+// Онлайн: зелёный, кликабельный. Офлайн: серый, неактивный.
+// Анимация (.refreshing) добавляется отдельно — только на время обновления.
 function updateConnectionIndicator() {
     const el = document.getElementById('connectionIndicator');
     if (!el) return;
     const isOnline = navigator.onLine;
     if (isOnline) {
         el.classList.remove('offline');
-        el.title = 'Онлайн — данные актуальны';
+        el.title = 'Обновить данные приложения';
+        el.setAttribute('aria-label', 'Обновить данные приложения');
     } else {
         el.classList.add('offline');
-        el.title = 'Офлайн — показаны закэшированные данные';
+        el.classList.remove('refreshing');  // в офлайне анимацию не показываем
+        el.title = 'Офлайн — обновление недоступно';
+        el.setAttribute('aria-label', 'Офлайн — обновление недоступно');
+    }
+}
+
+// Главная функция обновления данных приложения.
+// Вызывается по клику на значок обновления в правом верхнем углу.
+// Что делает:
+//   1. Проверяет подключение (если офлайн — показывает toast и выходит)
+//   2. Добавляет класс .refreshing → запускает анимацию вращения значка
+//   3. Параллельно:
+//      - просит Service Worker обновиться (reg.update())
+//      - принудительно перезагружает exam-tickets.json (force=true)
+//   4. По завершении снимает .refreshing и показывает toast с результатом
+//   5. Если открыта страница билетов — перерисовывает её с новыми данными
+async function refreshAppData() {
+    const el = document.getElementById('connectionIndicator');
+    if (!el) return;
+
+    // Если офлайн — обновлять нечем
+    if (!navigator.onLine) {
+        showToast('Нет подключения к интернету');
+        return;
+    }
+
+    // Если уже обновляется — не запускать повторно
+    if (el.classList.contains('refreshing')) {
+        return;
+    }
+
+    // Запускаем анимацию
+    el.classList.add('refreshing');
+    el.title = 'Обновление…';
+
+    try {
+        // 1. Просим Service Worker проверить обновления
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(reg => reg.update()).catch(() => {});
+        }
+
+        // 2. Принудительно перезагружаем данные билетов
+        //    force=true → игнорирует in-memory кэш и идёт в сеть
+        //    Также сбрасываем cache-bust, чтобы получить свежий JSON
+        if (typeof _ticketsData !== 'undefined') {
+            _ticketsData = null;  // сброс in-memory кэша
+        }
+        if (typeof loadTicketsData === 'function') {
+            await loadTicketsData(true);
+        }
+
+        // 3. Если открыта страница билетов — перерисовываем
+        if (typeof renderTickets === 'function') {
+            const activePage = document.querySelector('.page-content.active');
+            if (activePage) {
+                const pageId = activePage.id.replace('page-', '');
+                if (pageId && pageId.indexOf('tickets-') === 0) {
+                    renderTickets(pageId, '');
+                }
+            }
+        }
+
+        showToast('Данные обновлены');
+    } catch (e) {
+        showToast('Ошибка обновления: ' + (e.message || e));
+    } finally {
+        // Снимаем анимацию
+        el.classList.remove('refreshing');
+        updateConnectionIndicator();  // восстанавливаем title
     }
 }
 
