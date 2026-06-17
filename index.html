@@ -6562,11 +6562,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
         navigator.serviceWorker.register('./sw.js').then(function(reg) {
-            console.log('SW registered:', reg.scope);
             // Проверять обновления SW каждые 30 минут
             setInterval(function() { reg.update(); }, 30 * 60 * 1000);
         }).catch(function(err) {
-            console.log('SW registration failed:', err);
+            // Ошибка регистрации SW — приложение работает без офлайна
         });
 
         // Автообновление страницы при активации нового Service Worker
