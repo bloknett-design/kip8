@@ -714,7 +714,7 @@
     .page-content.scrolled .ticket-item-header { top: 44px; }
     .ticket-item.open .ticket-item-header { border-radius: 12px 12px 0 0; border-bottom: 1px solid var(--card-border); }
     .ticket-item-header:active { background: var(--active-bg); }
-    .ticket-item-num { font-size: 20px; font-weight: 600; color: #E07050; }
+    .ticket-item-num { font-size: 20px; font-weight: 600; color: var(--accent-blue); }
     .ticket-item-count { font-size: 14px; color: rgba(255,255,255,0.35); }
     [data-theme="light"] .ticket-item-count { color: rgba(0,0,0,0.35); }
     /* Светлая тема: тёплый красно-коричневый, читаемый на светлом фоне */
@@ -745,7 +745,9 @@
     .ticket-q { padding: 16px 18px 0; }
     .ticket-q:last-child .ticket-q-divider { display: none; }
     .ticket-q-divider { display: flex; align-items: center; justify-content: center; padding: 14px 0 6px; color: rgba(74,143,199,0.35); }
-    .ticket-q-divider svg { width: 100%; max-width: 320px; height: 10px; }
+    /* Разделитель-перфорация в стиле диаграммной ленты КИПиА: ряд пробитых
+       отверстий вдоль тонкой осевой линии (как у ленты самописца). */
+    .ticket-q-divider svg { width: 100%; max-width: 320px; height: auto; display: block; }
     [data-theme="light"] .ticket-q-divider { color: rgba(74,143,199,0.3); }
     .ticket-q-num { font-size: 16px; font-weight: 600; color: #E07050; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
     [data-theme="light"] .ticket-q-num { color: #8B7355; }
@@ -3254,7 +3256,7 @@
                         html += '<div class="ticket-ref">' + escHtml(ref) + '</div>';
                     }
                 }
-                html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 6 Q20 0 40 6 Q60 12 80 6 Q100 0 120 6 Q140 12 160 6 Q180 0 200 6 Q220 12 240 6 Q260 0 280 6 Q300 12 320 6 Q340 0 360 6 Q380 12 400 6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></div>';
+                html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 14" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><line x1="0" y1="7" x2="400" y2="7" stroke="currentColor" stroke-width="0.5" opacity="0.4"/><g stroke="currentColor" stroke-width="1" fill="none"><circle cx="9" cy="7" r="2.5"/><circle cx="27" cy="7" r="2.5"/><circle cx="45" cy="7" r="2.5"/><circle cx="63" cy="7" r="2.5"/><circle cx="81" cy="7" r="2.5"/><circle cx="99" cy="7" r="2.5"/><circle cx="117" cy="7" r="2.5"/><circle cx="135" cy="7" r="2.5"/><circle cx="153" cy="7" r="2.5"/><circle cx="171" cy="7" r="2.5"/><circle cx="189" cy="7" r="2.5"/><circle cx="207" cy="7" r="2.5"/><circle cx="225" cy="7" r="2.5"/><circle cx="243" cy="7" r="2.5"/><circle cx="261" cy="7" r="2.5"/><circle cx="279" cy="7" r="2.5"/><circle cx="297" cy="7" r="2.5"/><circle cx="315" cy="7" r="2.5"/><circle cx="333" cy="7" r="2.5"/><circle cx="351" cy="7" r="2.5"/><circle cx="369" cy="7" r="2.5"/><circle cx="387" cy="7" r="2.5"/></g></svg></div>';
                 html += '</div>';
             }
 
