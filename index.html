@@ -3206,48 +3206,55 @@
                 html += '<div class="ticket-q-num">' + (q['\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430'] || '') + '</div>';
                 html += '<div class="ticket-q-text">' + escHtml(q['\u0412\u043e\u043f\u0440\u043e\u0441'] || '') + '</div>';
                 const answer = q['\u041e\u0442\u0432\u0435\u0442'] || '';
+                // ЕДИНЫЙ ПРИНЦИП: картинка вставляется только если в
+                // столбце Image Excel-таблицы указан рабочий URL (http/https).
+                // В Excel-таблице должны быть ссылки Google Drive share
+                // (с доступом "Anyone with the link") или прямые HTTPS-ссылки
+                // на PNG/JPG/WebP. Любые другие значения (локальные пути,
+                // относительные пути) игнорируются — картинка не вставляется.
+                //
+                // ВАЖНО: картинка рендерится НЕЗАВИСИМО от наличия текста ответа.
+                // В инженерных билетах нормально, когда ответом является только
+                // схема/рисунок без текста (например, "Действие эл. тока на
+                // организм человека" — ответом служит схема).
+                //
+                // Логика отображения:
+                //   - gdriveShareToDirect() конвертирует Google Drive share-ссылку
+                //     в прямой URL превью (drive.google.com/thumbnail?id=...) и
+                //     полного размера (lh3.googleusercontent.com/d/...).
+                //   - <img> загружает превью. data-full-src используется лайтбоксом
+                //     (openTicketImage) для загрузки полного размера по клику.
+                //   - onerror → ticketImgFail(): если превью не загрузилось,
+                //     показывается fallback-карточка "Открыть изображение"
+                //     со ссылкой на оригинальный URL в новой вкладке.
+                const imgSrc = (q['Image'] || '').trim();
+                if (isWorkingUrl(imgSrc)) {
+                    // Контейнер превью: изначально показывает <img>,
+                    // при ошибке — fallback-карточку.
+                    // Уникальный id для управления таймаутом.
+                    const imgId = 'timg_' + ti + '_' + (q['ID'] || Math.random().toString(36).slice(2,8));
+                    // Если ссылка Google Drive — получаем прямые URL превью и полного размера.
+                    // Для OneDrive/прочих share-ссылок превью, скорее всего, не загрузится,
+                    // сработает fallback на оригинальную ссылку.
+                    const gdrive = gdriveShareToDirect(imgSrc);
+                    const thumbSrc = gdrive ? gdrive.thumb : imgSrc;
+                    const fullSrc  = gdrive ? gdrive.full  : imgSrc;
+                    html += '<div class="ticket-a-img-wrap" id="' + imgId + '_wrap" data-img-src="' + escHtml(fullSrc) + '">';
+                    // Превью <img>. data-full-src используется лайтбоксом для загрузки полного размера.
+                    // onerror скроет его и покажет fallback-карточку.
+                    html += '<img class="ticket-a-img" id="' + imgId + '" src="' + escHtml(thumbSrc) + '" data-full-src="' + escHtml(fullSrc) + '" alt="Схема" loading="lazy" onclick="openTicketImage(this)" onerror="ticketImgFail(\'' + imgId + '\')" onload="ticketImgOk(\'' + imgId + '\')">';
+                    // Fallback-карточка: видна только если <img> не загрузился
+                    html += '<a class="ticket-a-imglink" href="' + escHtml(imgSrc) + '" target="_blank" rel="noopener">';
+                    html += '<svg class="ticket-a-imglink-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                    html += '<span class="ticket-a-imglink-text">Открыть изображение</span>';
+                    html += '<svg class="ticket-a-imglink-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+                    html += '</a>';
+                    html += '</div>';
+                }
+                // Текст ответа рендерится отдельно — только если он есть.
+                // Если ответа нет, но есть картинка — показывается только картинка.
                 if (answer) {
                     html += '<div class="ticket-a-label">Ответ</div>';
-                    // ЕДИНЫЙ ПРИНЦИП: картинка вставляется только если в
-                    // столбце Image Excel-таблицы указан рабочий URL (http/https).
-                    // В Excel-таблице должны быть ссылки Google Drive share
-                    // (с доступом "Anyone with the link") или прямые HTTPS-ссылки
-                    // на PNG/JPG/WebP. Любые другие значения (локальные пути,
-                    // относительные пути) игнорируются — картинка не вставляется.
-                    //
-                    // Логика отображения:
-                    //   - gdriveShareToDirect() конвертирует Google Drive share-ссылку
-                    //     в прямой URL превью (drive.google.com/thumbnail?id=...) и
-                    //     полного размера (lh3.googleusercontent.com/d/...).
-                    //   - <img> загружает превью. data-full-src используется лайтбоксом
-                    //     (openTicketImage) для загрузки полного размера по клику.
-                    //   - onerror → ticketImgFail(): если превью не загрузилось,
-                    //     показывается fallback-карточка "Открыть изображение"
-                    //     со ссылкой на оригинальный URL в новой вкладке.
-                    const imgSrc = (q['Image'] || '').trim();
-                    if (isWorkingUrl(imgSrc)) {
-                        // Контейнер превью: изначально показывает <img>,
-                        // при ошибке — fallback-карточку.
-                        // Уникальный id для управления таймаутом.
-                        const imgId = 'timg_' + ti + '_' + (q['ID'] || Math.random().toString(36).slice(2,8));
-                        // Если ссылка Google Drive — получаем прямые URL превью и полного размера.
-                        // Для OneDrive/прочих share-ссылок превью, скорее всего, не загрузится,
-                        // сработает fallback на оригинальную ссылку.
-                        const gdrive = gdriveShareToDirect(imgSrc);
-                        const thumbSrc = gdrive ? gdrive.thumb : imgSrc;
-                        const fullSrc  = gdrive ? gdrive.full  : imgSrc;
-                        html += '<div class="ticket-a-img-wrap" id="' + imgId + '_wrap" data-img-src="' + escHtml(fullSrc) + '">';
-                        // Превью <img>. data-full-src используется лайтбоксом для загрузки полного размера.
-                        // onerror скроет его и покажет fallback-карточку.
-                        html += '<img class="ticket-a-img" id="' + imgId + '" src="' + escHtml(thumbSrc) + '" data-full-src="' + escHtml(fullSrc) + '" alt="Схема" loading="lazy" onclick="openTicketImage(this)" onerror="ticketImgFail(\'' + imgId + '\')" onload="ticketImgOk(\'' + imgId + '\')">';
-                        // Fallback-карточка: видна только если <img> не загрузился
-                        html += '<a class="ticket-a-imglink" href="' + escHtml(imgSrc) + '" target="_blank" rel="noopener">';
-                        html += '<svg class="ticket-a-imglink-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-                        html += '<span class="ticket-a-imglink-text">Открыть изображение</span>';
-                        html += '<svg class="ticket-a-imglink-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
-                        html += '</a>';
-                        html += '</div>';
-                    }
                     html += '<div class="ticket-a-text">' + escHtml(answer) + '</div>';
                 }
                 const ref = q['\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b'] || '';
