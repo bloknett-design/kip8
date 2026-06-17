@@ -1,13 +1,20 @@
 {
-  "name": "КИПиА",
+  "id": "/kip8/?source=pwa",
+  "name": "КИПиА — справочник инженера",
   "short_name": "КИПиА",
-  "description": "Справочник и калькулятор контрольно-измерительных приборов и автоматики",
-  "start_url": "./index.html",
+  "description": "Справочник и калькулятор контрольно-измерительных приборов и автоматики: переводы единиц, расчёт погрешностей, калибровка датчиков, экзаменационные билеты.",
+  "start_url": "/kip8/?source=pwa",
+  "scope": "/kip8/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "any",
   "background_color": "#1a2233",
   "theme_color": "#1a2233",
   "lang": "ru",
+  "dir": "ltr",
+  "categories": ["productivity", "utilities", "education"],
+  "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "images/icon-192.png",
