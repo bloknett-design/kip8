@@ -1548,7 +1548,7 @@
     <header class="app-header">
         <div class="app-header-inner">
             <div class="header-left">
-<div class="header-btn" id="menuBtn" onclick="toggleSidebar()" style="margin-right:6px;display:flex;">
+<div class="header-btn" id="menuBtn" onclick="toggleSidebar()" style="margin-right:6px;display:flex;background:transparent;border:none;">
     <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:rgba(74,143,199,0.9);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </div>
             </div>
@@ -7315,7 +7315,7 @@ window.addEventListener('load', function() {
     let ptrStartY = 0;
     let ptrPulling = false;
     let ptrCurrentY = 0;
-    const PTR_THRESHOLD = 70;  // минимальное расстояние свайпа (px)
+    const PTR_THRESHOLD = 50;  // минимальное расстояние свайпа (px)
 
     document.addEventListener('touchstart', function(e) {
         if (e.touches.length !== 1) return;
@@ -7341,6 +7341,11 @@ window.addEventListener('load', function() {
         if (diff >= PTR_THRESHOLD) {
             refreshAppData();
         }
+    }, { passive: true });
+
+    // Сброс при прерывании касания (звонок, уведомление и т.д.)
+    document.addEventListener('touchcancel', function() {
+        ptrPulling = false;
     }, { passive: true });
 })();
 </script>
