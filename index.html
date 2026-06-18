@@ -178,13 +178,27 @@
         stroke-linecap: round;
         stroke-linejoin: round;
     }
-    /* Офлайн — пастельный красный (мягкий, не агрессивный) */
+    /* Офлайн — пастельный красный (мягкий, не агрессивный) + зачёркивание */
     .connection-indicator.offline {
         color: #e0978d;
         cursor: not-allowed;
+        position: relative;
     }
     .connection-indicator.offline:hover {
         color: #e0978d;
+    }
+    /* Зачёркивающая линия поверх значка при отсутствии связи */
+    .connection-indicator.offline::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 10%;
+        right: 10%;
+        height: 2px;
+        background: currentColor;
+        transform: rotate(-45deg);
+        transform-origin: center;
+        z-index: 1;
     }
     /* Обновление — пастельный оранжевый + анимация вращения */
     .connection-indicator.refreshing {
@@ -666,9 +680,10 @@
     }
     .sidebar.active { transform: translateX(0); }
     .sidebar-header {
-        display: flex; align-items: center; justify-content: space-between;
+        display: flex; align-items: center; gap: 10px;
         padding: 16px 20px; border-bottom: 1px solid rgba(74, 143, 199, 0.15); height: 56px;
     }
+    .sidebar-header .sidebar-title { flex: 1; }
     .sidebar-title {
         font-size: 20px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px;
     }
@@ -1533,10 +1548,9 @@
     <header class="app-header">
         <div class="app-header-inner">
             <div class="header-left">
-<div class="header-btn" id="menuBtn" onclick="toggleSidebar()" style="margin-right:6px;display:none;">
-    <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:rgba(74,143,199,0.9);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+<div class="header-btn" id="menuBtn" onclick="toggleSidebar()" style="margin-right:6px;display:flex;">
+    <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:rgba(74,143,199,0.9);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
 </div>
-<img class="header-logo" id="headerLogo" src="images/logo_black.png" alt="КИП" style="width:48px;height:48px;border-radius:12px;cursor:pointer;" onclick="event.stopPropagation(); toggleSidebar();">
             </div>
 <div class="header-title"><svg class="led-display" viewBox="0 0 362 88" xmlns="http://www.w3.org/2000/svg">
 <defs>
@@ -7017,6 +7031,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div id="sidebar" class="sidebar">
     <div class="sidebar-header">
+        <img id="headerLogo" src="images/logo_black.png" alt="КИПиА" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;">
         <div class="sidebar-title">Меню</div>
         <div class="header-btn" onclick="toggleSidebar()" style="width:32px;height:32px;border-radius:8px;">
             <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:rgba(74,143,199,0.9);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -7291,22 +7306,16 @@ window.addEventListener('load', function() {
 });
 
 // ============================================================
-// Pull-to-refresh — свайп вниз для обновления
+// Pull-to-refresh — свайп вниз для обновления (упрощённая версия)
 // ============================================================
+// Без визуального индикатора и анимации — просто вызывает
+// refreshAppData() (ту же функцию, что и кнопка обновления).
+// Срабатывает при свайпе вниз с самого верха страницы (scrollY=0).
 (function() {
     let ptrStartY = 0;
     let ptrPulling = false;
     let ptrCurrentY = 0;
-    const PTR_THRESHOLD = 70;
-    const PTR_RESISTANCE = 0.5;
-
-    const ptrIndicator = document.createElement('div');
-    ptrIndicator.id = 'ptrIndicator';
-    ptrIndicator.style.cssText = 'position:fixed;top:0;left:0;right:0;height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(74,199,113,0.10);z-index:9998;transition:height 0.2s ease;pointer-events:none;';
-    ptrIndicator.innerHTML = '<svg id="ptrSpinner" viewBox="0 0 24 24" width="24" height="24" style="stroke:#7ec699;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/><path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/></svg>';
-    document.addEventListener('DOMContentLoaded', function() {
-        document.body.insertBefore(ptrIndicator, document.body.firstChild);
-    });
+    const PTR_THRESHOLD = 70;  // минимальное расстояние свайпа (px)
 
     document.addEventListener('touchstart', function(e) {
         if (e.touches.length !== 1) return;
@@ -7321,43 +7330,16 @@ window.addEventListener('load', function() {
     document.addEventListener('touchmove', function(e) {
         if (!ptrPulling) return;
         ptrCurrentY = e.touches[0].clientY;
-        const diff = (ptrCurrentY - ptrStartY) * PTR_RESISTANCE;
-        if (diff > 0) {
-            const height = Math.min(diff, PTR_THRESHOLD * 1.5);
-            ptrIndicator.style.height = height + 'px';
-            const spinner = document.getElementById('ptrSpinner');
-            if (spinner) {
-                const rotation = Math.min(diff / PTR_THRESHOLD, 1) * 180;
-                spinner.style.transform = 'rotate(' + rotation + 'deg)';
-            }
-        }
     }, { passive: true });
 
     document.addEventListener('touchend', function(e) {
         if (!ptrPulling) return;
         ptrPulling = false;
-        const diff = (ptrCurrentY - ptrStartY) * PTR_RESISTANCE;
+        const diff = ptrCurrentY - ptrStartY;
+        // Если свайп вниз достаточный — запускаем обновление
+        // (ту же функцию, что и кнопка обновления в шторке и значок в углу)
         if (diff >= PTR_THRESHOLD) {
-            ptrIndicator.style.height = '50px';
-            const spinner = document.getElementById('ptrSpinner');
-            if (spinner) {
-                spinner.style.transition = 'none';
-                spinner.style.animation = 'spinRefresh 0.8s linear infinite';
-            }
-            refreshAppData().then(() => {
-                setTimeout(() => {
-                    ptrIndicator.style.height = '0';
-                    if (spinner) {
-                        spinner.style.animation = '';
-                        spinner.style.transition = 'transform 0.2s';
-                        spinner.style.transform = '';
-                    }
-                }, 200);
-            });
-        } else {
-            ptrIndicator.style.height = '0';
-            const spinner = document.getElementById('ptrSpinner');
-            if (spinner) spinner.style.transform = '';
+            refreshAppData();
         }
     }, { passive: true });
 })();
