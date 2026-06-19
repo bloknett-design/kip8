@@ -182,21 +182,21 @@
     .connection-indicator.offline {
         color: #e0978d;
         cursor: not-allowed;
-        position: relative;
     }
     .connection-indicator.offline:hover {
         color: #e0978d;
     }
-    /* Зачёркивающая линия поверх значка при отсутствии связи */
+    /* Зачёркивающая линия поверх значка при отсутствии связи.
+       position: absolute относительно .connection-indicator (который fixed). */
     .connection-indicator.offline::after {
         content: '';
         position: absolute;
         top: 50%;
-        left: 10%;
-        right: 10%;
+        left: 0;
+        right: 0;
         height: 2px;
         background: currentColor;
-        transform: rotate(-45deg);
+        transform: translateY(-50%) rotate(-45deg);
         transform-origin: center;
         z-index: 1;
     }
