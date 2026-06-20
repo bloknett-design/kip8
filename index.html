@@ -138,13 +138,13 @@
         position: absolute;
         right: 20px;
     }
-    /* Кнопка обновления — компактный значок в самом верхнем правом углу экрана.
+    /* Кнопка обновления — компактный значок облака в самом верхнем правом углу.
        Фиксированная позиция, поверх всех элементов (z-index: 9999).
        Размер 20×20px, без фона/рамки (минимализм).
        Три состояния с пастельными цветами:
-         — онлайн (по умолчанию): пастельный зелёный
-         — офлайн (.offline): пастельный красный
-         — обновление (.refreshing): пастельный оранжевый + анимация вращения
+         — онлайн: пастельный зелёный, только облако
+         — офлайн: пастельный красный, облако + диагональная линия
+         — обновление: пастельный оранжевый, облако + вращающиеся стрелки
        Анимация: минимум 1 оборот (0.8с) даже при мгновенном обновлении. */
     .connection-indicator {
         position: fixed;
@@ -155,7 +155,6 @@
         justify-content: center;
         width: 20px;
         height: 20px;
-        /* Пастельный зелёный — мягкий, приглушённый */
         color: #7ec699;
         cursor: pointer;
         transition: color .3s ease, transform .1s;
@@ -170,15 +169,25 @@
         color: #6bb588;
     }
     .connection-indicator svg {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         stroke: currentColor;
         fill: none;
         stroke-width: 2;
         stroke-linecap: round;
         stroke-linejoin: round;
+        position: absolute;
     }
-    /* Офлайн — пастельный красный (мягкий, не агрессивный) + зачёркивание */
+    /* По умолчанию: облако видимо, стрелки скрыты */
+    .connection-indicator .icon-cloud { display: block; }
+    .connection-indicator .icon-refresh { display: none; }
+    /* При обновлении: стрелки видны и вращаются, облако скрыто */
+    .connection-indicator.refreshing .icon-cloud { display: none; }
+    .connection-indicator.refreshing .icon-refresh { display: block; }
+    /* Линия перечёркивания облака — скрыта по умолчанию, видна в офлайн */
+    .connection-indicator .cloud-cross { display: none; }
+    .connection-indicator.offline .cloud-cross { display: block; }
+    /* Офлайн — пастельный красный */
     .connection-indicator.offline {
         color: #e0978d;
         cursor: not-allowed;
@@ -186,21 +195,7 @@
     .connection-indicator.offline:hover {
         color: #e0978d;
     }
-    /* Зачёркивающая линия поверх значка при отсутствии связи.
-       position: absolute относительно .connection-indicator (который fixed). */
-    .connection-indicator.offline::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: currentColor;
-        transform: translateY(-50%) rotate(-45deg);
-        transform-origin: center;
-        z-index: 1;
-    }
-    /* Обновление — пастельный оранжевый + анимация вращения */
+    /* Обновление — пастельный оранжевый */
     .connection-indicator.refreshing {
         color: #e8b87a;
         cursor: progress;
@@ -210,7 +205,7 @@
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
-    .connection-indicator.refreshing svg {
+    .connection-indicator.refreshing .icon-refresh {
         animation: spinRefresh 0.8s linear infinite;
     }
     [data-theme="light"] .connection-indicator {
@@ -549,10 +544,10 @@
     .query-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; pointer-events: none; }
     
     .toast {
-        position: fixed; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); left: 16px; right: 16px;
+        position: fixed; top: calc(56px + env(safe-area-inset-top, 0px)); left: 16px; right: 16px;
         background: rgba(30, 42, 56, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         color: #e0e0e0; padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 8px;
-        font-size: 13px; z-index: 200; transform: translateY(100px); opacity: 0;
+        font-size: 13px; z-index: 200; transform: translateY(-100px); opacity: 0;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(74, 143, 199, 0.2);
     }
     .toast.show { transform: translateY(0); opacity: 1; }
@@ -1626,11 +1621,20 @@
     </header>
 
     <!-- Кнопка обновления — фиксированная позиция в самом верхнем правом углу.
-         Поверх всех элементов (z-index: 9999), не зависит от шапки. -->
+         Поверх всех элементов (z-index: 9999), не зависит от шапки.
+         Онлайн: зелёное облако (3 выступа). Офлайн: красное облако + перечёркивание.
+         Обновление: оранжевые вращающиеся стрелки (без облака). -->
     <div class="connection-indicator" id="connectionIndicator" title="Обновить данные"
          onclick="refreshAppData()" role="button" aria-label="Обновить данные приложения">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <!-- Значок обновления/синхронизации: две круговые стрелки -->
+        <!-- Облако с 4 выступами (видно в онлайн/офлайн) -->
+        <svg class="icon-cloud" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <!-- Асимметричное облако с 4 выступами разного размера -->
+            <path d="M5 18 a3 3 0 0 1 0-5 a4 4 0 0 1 5-3 a5 5 0 0 1 8 0 a4 4 0 0 1 3 8 H5z"/>
+            <!-- Диагональная линия перечёркивания: симметричные выступы за контур -->
+            <line class="cloud-cross" x1="4.5" y1="3.5" x2="20.5" y2="20.5"/>
+        </svg>
+        <!-- Стрелки обновления (видны только при обновлении, вращаются) -->
+        <svg class="icon-refresh" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <polyline points="23 4 23 10 17 10"/>
             <polyline points="1 20 1 14 7 14"/>
             <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
