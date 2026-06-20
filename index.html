@@ -326,10 +326,10 @@
     /* Все menu-btn-row используют grid с gap: 4px — кнопки растянуты на всю ширину, плотно */
     .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 8px 8px 10px; position: relative; z-index: 2; }
     #page-dashboard .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 8px 8px 10px; }
-    #page-dashboard .menu-btn { width: 100%; margin: 0; min-height: 76px; }
+    #page-dashboard .menu-btn { width: 100%; margin: 0; min-height: 65px; }
     .menu-btn {
         display: flex; align-items: center; justify-content: flex-start; position: relative;
-        width: 100%; min-width: 0; min-height: 44px; padding: 14px 16px; margin: 0;
+        width: 100%; min-width: 0; min-height: 44px; padding: 6px 16px; margin: 0;
         background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         border: 1px solid var(--card-border); border-radius: 14px; cursor: pointer;
         overflow: hidden; -webkit-user-select: none; user-select: none;
@@ -603,10 +603,11 @@
     
 
     @media (max-width: 480px) {
-        .menu-btn { width: 100%; margin: 0; padding: 12px 14px; min-height: 52px; }
+        .menu-btn { width: 100%; margin: 0; padding: 6px 14px; min-height: 52px; }
         .menu-btn-label { font-size: 17px; } .menu-btn-sublabel { font-size: 13px; }
         #page-dashboard .menu-btn-label { font-size: 21px; }
         #page-dashboard .menu-btn-sublabel { font-size: 15px; }
+        #page-dashboard .menu-btn { min-height: 61px; }
         .nav-btn { padding: 9px 14px; font-size: 13px; }
         .form-field, .scale-field { padding: 9px 12px; font-size: 14px; height: 40px; }
         select.scale-field, select.form-field { font-size: 13px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
@@ -622,11 +623,12 @@
         .header-title svg.led-display { height: 36px; }
     }
     @media (max-width: 400px) {
-        .menu-btn { width: 100%; margin: 0; padding: 10px 12px; min-height: 50px; }
+        .menu-btn { width: 100%; margin: 0; padding: 5px 12px; min-height: 50px; }
         .menu-btn-label { font-size: 16px; } .menu-btn-sublabel { font-size: 12px; }
         #page-dashboard .menu-btn-label { font-size: 19px; }
         #page-dashboard .menu-btn-sublabel { font-size: 14px; }
-        /* На 375-400px все тексты умещаются в 1 строку — текущий min-height: 76px достаточен */
+        #page-dashboard .menu-btn { min-height: 57px; }
+        /* На 375-400px все тексты умещаются в 1 строку — текущий min-height: 57px достаточен */
         .nav-btn { padding: 8px 12px; font-size: 12px; gap: 5px; }
         .nav-btn svg { width: 12px; height: 12px; }
         .form-field, .scale-field { padding: 8px 10px; font-size: 13px; height: 38px; }
@@ -651,18 +653,24 @@
        align-items: center в .menu-btn центрирует контент по вертикали — кнопки выглядят сбалансированно. */
 
     /* 341–374px: подзаголовки типа "ГОСТ 8.401-80, ГОСТ OIML R 76-1-2011, ТС, ТП" переносятся на 2 строки.
-       min-height: 90px вмещает 1 строку заголовка + 2 строки подзаголовка. */
+       min-height: 75px вмещает 1 строку заголовка + 2 строки подзаголовка (padding 5px×2). */
     @media (max-width: 374px) {
-        #page-dashboard .menu-btn { min-height: 90px; }
+        #page-dashboard .menu-btn { min-height: 75px; }
     }
 
     /* ≤340px: заголовок "Автоматический выключатель" тоже переносится на 2 строки.
        Уменьшаем шрифт до 17/12px (с 19/14px), чтобы сократить количество переносов и пустое пространство.
-       min-height: 110px вмещает 2 строки заголовка + 2 строки подзаголовка. */
+       min-height: 68px вмещает 1 строку заголовка + 2 строки подзаголовка при уменьшенном шрифте. */
     @media (max-width: 340px) {
-        #page-dashboard .menu-btn { min-height: 110px; }
+        #page-dashboard .menu-btn { min-height: 68px; }
         #page-dashboard .menu-btn-label { font-size: 17px; }
         #page-dashboard .menu-btn-sublabel { font-size: 12px; }
+    }
+
+    /* ≤300px: на очень узких экранах (280-300px) даже с уменьшенным шрифтом "Автоматический выключатель"
+       переносится на 2 строки + 2 строки подзаголовка. min-height: 89px для баланса. */
+    @media (max-width: 300px) {
+        #page-dashboard .menu-btn { min-height: 89px; }
     }
 
     @media (min-width: 481px) { .menu-btn { max-width: 480px; } }
