@@ -178,10 +178,15 @@
         stroke-linejoin: round;
         position: absolute;
     }
-    /* По умолчанию: облако видимо, стрелки скрыты */
-    .connection-indicator .icon-cloud { display: block; }
+    /* По умолчанию: облако скрыто, стрелки скрыты.
+       Облако появляется только при классе .cloud-visible (5с после обновления/восстановления)
+       или при .offline (красное, постоянно). */
+    .connection-indicator .icon-cloud { display: none; }
     .connection-indicator .icon-refresh { display: none; }
-    /* При обновлении: стрелки видны и вращаются, облако скрыто */
+    /* Облако видимо когда: онлайн+cloud-visible, ИЛИ offline */
+    .connection-indicator.cloud-visible .icon-cloud { display: block; }
+    .connection-indicator.offline .icon-cloud { display: block; }
+    /* При обновлении: стрелки видны, облако скрыто */
     .connection-indicator.refreshing .icon-cloud { display: none; }
     .connection-indicator.refreshing .icon-refresh { display: block; }
     /* Линия перечёркивания облака — скрыта по умолчанию, видна в офлайн */
@@ -1626,12 +1631,12 @@
          Обновление: оранжевые вращающиеся стрелки (без облака). -->
     <div class="connection-indicator" id="connectionIndicator" title="Обновить данные"
          onclick="refreshAppData()" role="button" aria-label="Обновить данные приложения">
-        <!-- Облако с 4 выступами (видно в онлайн/офлайн) -->
+        <!-- Облако с 3 выступами (видно в онлайн/офлайн) -->
         <svg class="icon-cloud" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <!-- Асимметричное облако с 4 выступами разного размера -->
-            <path d="M5 18 a3 3 0 0 1 0-5 a4 4 0 0 1 5-3 a5 5 0 0 1 8 0 a4 4 0 0 1 3 8 H5z"/>
-            <!-- Диагональная линия перечёркивания: симметричные выступы за контур -->
-            <line class="cloud-cross" x1="4.5" y1="3.5" x2="20.5" y2="20.5"/>
+            <!-- Асимметричное облако: слева маленький, в центре средний, справа большой выступ -->
+            <path d="M5 18 a3 3 0 0 1 0-6 a4.5 4.5 0 0 1 8-2 a6 6 0 0 1 7 8 H5z"/>
+            <!-- Диагональная линия: верхний выступ минимальный -->
+            <line class="cloud-cross" x1="6" y1="7" x2="19.5" y2="20"/>
         </svg>
         <!-- Стрелки обновления (видны только при обновлении, вращаются) -->
         <svg class="icon-refresh" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -7162,9 +7167,26 @@ if ('serviceWorker' in navigator) {
 
 <!-- Кнопка обновления: статус подключения + действие по клику -->
 <script>
+// Таймер для авто-скрытия зелёного облака через 5 секунд
+let _cloudHideTimer = null;
+
+// Показать зелёное облако на 5 секунд, затем скрыть.
+// Вызывается после обновления данных или при восстановлении связи.
+function showCloudBriefly() {
+    const el = document.getElementById('connectionIndicator');
+    if (!el) return;
+    if (el.classList.contains('offline')) return;  // в офлайне не показываем зелёное
+    el.classList.add('cloud-visible');
+    if (_cloudHideTimer) clearTimeout(_cloudHideTimer);
+    _cloudHideTimer = setTimeout(() => {
+        el.classList.remove('cloud-visible');
+        _cloudHideTimer = null;
+    }, 5000);
+}
+
 // Утилита обновления визуального состояния кнопки обновления.
-// Онлайн: зелёный, кликабельный. Офлайн: красный, неактивный.
-// Анимация (.refreshing) добавляется отдельно — только на время обновления.
+// Онлайн: облако скрыто (появляется на 5с после обновления/восстановления).
+// Офлайн: красное облако с перечёркиванием (видно постоянно).
 function updateConnectionIndicator() {
     const el = document.getElementById('connectionIndicator');
     if (!el) return;
@@ -7175,62 +7197,45 @@ function updateConnectionIndicator() {
         el.setAttribute('aria-label', 'Обновить данные приложения');
     } else {
         el.classList.add('offline');
-        el.classList.remove('refreshing');  // в офлайне анимацию не показываем
+        el.classList.remove('refreshing');
+        el.classList.remove('cloud-visible');  // в офлайне зелёное не нужно
         el.title = 'Офлайн — обновление недоступно';
         el.setAttribute('aria-label', 'Офлайн — обновление недоступно');
     }
 }
 
 // Главная функция обновления данных приложения.
-// Вызывается по клику на значок обновления в правом верхнем углу.
-// Что делает:
-//   1. Проверяет подключение (если офлайн — показывает toast и выходит)
-//   2. Добавляет класс .refreshing → запускает анимацию вращения значка
-//      + меняет цвет на пастельный оранжевый
-//   3. Параллельно:
-//      - просит Service Worker обновиться (reg.update())
-//      - принудительно перезагружает exam-tickets.json (force=true)
-//   4. Гарантирует минимум 1 оборот анимации (0.8с) даже при мгновенном обновлении
-//   5. По завершении снимает .refreshing и показывает toast с результатом
-//   6. Если открыта страница билетов — перерисовывает её с новыми данными
 async function refreshAppData() {
     const el = document.getElementById('connectionIndicator');
     if (!el) return;
 
-    // Если офлайн — обновлять нечем
     if (!navigator.onLine) {
         showToast('Нет подключения к интернету');
         return;
     }
 
-    // Если уже обновляется — не запускать повторно
     if (el.classList.contains('refreshing')) {
         return;
     }
 
-    // Запускаем анимацию (минимум 1 оборот = 0.8с)
     el.classList.add('refreshing');
+    el.classList.remove('cloud-visible');  // скрываем облако на время обновления
     el.title = 'Обновление…';
     const startTime = Date.now();
-    const MIN_ANIMATION_MS = 800;  // минимум 1 оборот (0.8с при 0.8с/оборот)
+    const MIN_ANIMATION_MS = 800;
 
     try {
-        // 1. Просим Service Worker проверить обновления
         if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
             navigator.serviceWorker.ready.then(reg => reg.update()).catch(() => {});
         }
 
-        // 2. Принудительно перезагружаем данные билетов
-        //    force=true → игнорирует in-memory кэш и идёт в сеть
-        //    Также сбрасываем cache-bust, чтобы получить свежий JSON
         if (typeof _ticketsData !== 'undefined') {
-            _ticketsData = null;  // сброс in-memory кэша
+            _ticketsData = null;
         }
         if (typeof loadTicketsData === 'function') {
             await loadTicketsData(true);
         }
 
-        // 3. Если открыта страница билетов — перерисовываем
         if (typeof renderTickets === 'function') {
             const activePage = document.querySelector('.page-content.active');
             if (activePage) {
@@ -7245,25 +7250,25 @@ async function refreshAppData() {
     } catch (e) {
         showToast('Ошибка обновления: ' + (e.message || e));
     } finally {
-        // Гарантируем минимум 1 оборот анимации (0.8с),
-        // даже если обновление прошло мгновенно.
         const elapsed = Date.now() - startTime;
         const remaining = Math.max(0, MIN_ANIMATION_MS - elapsed);
         setTimeout(() => {
             el.classList.remove('refreshing');
-            updateConnectionIndicator();  // восстанавливаем цвет и title
+            updateConnectionIndicator();
+            // Показываем зелёное облако на 5 секунд после обновления
+            showCloudBriefly();
         }, remaining);
     }
 }
 
 // Слушаем события online/offline
-window.addEventListener('online', updateConnectionIndicator);
+window.addEventListener('online', function() {
+    updateConnectionIndicator();
+    showCloudBriefly();  // при восстановлении связи — показать зелёное облако на 5с
+});
 window.addEventListener('offline', updateConnectionIndicator);
 
 // Более надёжная проверка подключения через HEAD-запрос.
-// navigator.onLine в TWA WebView иногда возвращает true даже без сети.
-// Делаем быстрый запрос к manifest.json (он маленький и всегда есть).
-// Если запрос успешен → онлайн, если таймаут/ошибка → офлайн.
 async function checkRealConnection() {
     try {
         const controller = new AbortController();
@@ -7281,7 +7286,6 @@ async function checkRealConnection() {
 }
 
 // Периодическое обновление статуса подключения.
-// Проверяем каждые 15 секунд — navigator.onLine в TWA ненадёжен.
 async function periodicConnectionCheck() {
     const el = document.getElementById('connectionIndicator');
     if (!el) return;
@@ -7291,15 +7295,13 @@ async function periodicConnectionCheck() {
     if (isReallyOnline && elCurrentlyOffline) {
         el.classList.remove('offline');
         el.title = 'Обновить данные приложения';
+        showCloudBriefly();  // восстановилось — показать зелёное на 5с
     } else if (!isReallyOnline && !elCurrentlyOffline) {
         el.classList.add('offline');
+        el.classList.remove('cloud-visible');
         el.title = 'Офлайн — обновление недоступно';
     }
 }
-
-// Слушаем события online/offline
-window.addEventListener('online', updateConnectionIndicator);
-window.addEventListener('offline', updateConnectionIndicator);
 
 // При загрузке страницы устанавливаем начальный статус + запускаем периодическую проверку
 document.addEventListener('DOMContentLoaded', updateConnectionIndicator);
