@@ -1433,6 +1433,52 @@
         touch-action: pan-y;
     }
 
+    /* Сворачиваемые блоки «Справочная информация» — аккордеон */
+    /* Заголовок становится кликабельным, контент анимированно скрывается */
+    .ref-info-collapsible .ref-info-header {
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        transition: margin-bottom 0.25s ease;
+    }
+    /* Chevron — стрелка вниз справа в заголовке; свёрнут = поворот на -90° */
+    .ref-info-chevron {
+        margin-left: auto;
+        width: 16px;
+        height: 16px;
+        stroke: var(--text-secondary, rgba(255,255,255,0.5));
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+        transition: transform 0.25s ease;
+    }
+    .ref-info-collapsible.ref-info-collapsed .ref-info-chevron {
+        transform: rotate(-90deg);
+    }
+    /* При сворачивании убираем нижний отступ заголовка — иначе остаётся зазор */
+    .ref-info-collapsible.ref-info-collapsed .ref-info-header {
+        margin-bottom: 0 !important;
+    }
+    /* Контент — анимация через max-height + opacity */
+    .ref-info-collapsible .ref-info-content {
+        overflow: hidden;
+        max-height: 3000px; /* с запасом под любой блок */
+        opacity: 1;
+        transition: max-height 0.35s ease, opacity 0.2s ease;
+    }
+    .ref-info-collapsible.ref-info-collapsed .ref-info-content {
+        max-height: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
+    /* Светлая тема — chevron потемнее для контраста */
+    [data-theme="light"] .ref-info-chevron {
+        stroke: var(--text-secondary, rgba(20,20,19,0.5));
+    }
+
     /* ====== Custom Select Dropdown ====== */
     .cs-wrapper { position: relative; width: 100%; margin-bottom: 12px; }
     .cs-wrapper:last-child { margin-bottom: 0; }
@@ -4328,6 +4374,57 @@
                 if (!table.classList.contains('pinch-zoom-target')) {
                     table.classList.add('pinch-zoom-target');
                 }
+            });
+
+            // 7. Сворачиваемые блоки «Справочная информация» (аккордеон)
+            //    Назначаем header/content, добавляем chevron и обработчик клика.
+            //    Исходное состояние — свёрнут. Клик по заголовку — toggle.
+            //    Идем по всем ref-info-block, чтобы охватить и стандартные блоки
+            //    (div с background), и любые будущие варианты.
+            document.querySelectorAll('.ref-info-block').forEach(function(block) {
+                if (block.dataset.refCollapsibleInit) return;
+                // Найти header: первый дочерний DIV, содержащий span с текстом «Справочная информация»
+                let header = null;
+                let content = null;
+                let children = block.children;
+                for (let i = 0; i < children.length; i++) {
+                    let child = children[i];
+                    if (child.tagName !== 'DIV') continue;
+                    if (!header) {
+                        let span = child.querySelector('span');
+                        if (span && span.textContent && span.textContent.trim() === 'Справочная информация') {
+                            header = child;
+                            continue;
+                        }
+                    }
+                    if (header && !content) {
+                        // Контент — следующий DIV после header
+                        content = child;
+                        break;
+                    }
+                }
+                if (!header || !content) return; // структура нестандартная — пропускаем
+                block.dataset.refCollapsibleInit = 'true';
+                block.classList.add('ref-info-collapsible', 'ref-info-collapsed');
+                header.classList.add('ref-info-header');
+                content.classList.add('ref-info-content');
+                // Добавить chevron, если его ещё нет
+                if (!header.querySelector('.ref-info-chevron')) {
+                    let chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    chevron.setAttribute('class', 'ref-info-chevron');
+                    chevron.setAttribute('viewBox', '0 0 24 24');
+                    chevron.setAttribute('fill', 'none');
+                    let poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+                    poly.setAttribute('points', '6 9 12 15 18 9');
+                    chevron.appendChild(poly);
+                    header.appendChild(chevron);
+                }
+                // Обработчик клика на header — toggle свернутого состояния
+                header.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    block.classList.toggle('ref-info-collapsed');
+                    if (navigator.vibrate) navigator.vibrate(15);
+                });
             });
         }
 
