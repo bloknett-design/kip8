@@ -1743,6 +1743,23 @@
             <button type="button" class="converter-convert-btn" onclick="convertUnits('pressure')"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-pressure-results"></div>
             <div class="converter-result-group" id="conv-pressure-table" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                                                            <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Давление</b> — физическая величина, равная отношению нормальной составляющей силы, действующей на поверхность, к площади этой поверхности: p = F/S. Является одним из основных параметров, определяющих состояние среды (ГОСТ 8.271-77 «Средства измерений давления»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Виды давления:</b> абсолютное (отсчёт от нуля), избыточное (отсчёт от атмосферного), вакуумметрическое (ниже атмосферного), дифференциальное (разность двух давлений).</div>
+<div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Паскаль (Па):</b> единица давления в СИ, 1 Па = 1 Н/м². Определена через основные единицы СИ: ньютон на квадратный метр (ГОСТ 8.417-2002 «ГСИ. Единицы величин»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Бар (бар):</b> внесистемная единица, 1 бар = 10⁵ Па = 100 кПа = 0,1 МПа. Допущена к применению в промышленности (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Килограмм-сила на см² (кгс/см²):</b> техническая атмосфера (ат), 1 кгс/см² = 98066,5 Па. Внесистемная, применяется в котлонадзоре (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Миллиметр ртутного столба (мм рт. ст.):</b> 1 мм рт. ст. = 133,322 Па. Внесистемная, применяется в вакуумной технике и медицине (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Миллиметр водяного столба (мм вод. ст.):</b> 1 мм вод. ст. = 9,80665 Па. Применяется для малых давлений и перепадов (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Фунт на квадратный дюйм (PSI):</b> 1 PSI ≈ 6894,76 Па. Внесистемная единица США/Великобритании (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Атмосфера физическая (атм):</b> 1 атм = 101325 Па = 760 мм рт. ст. Нормальное атмосферное давление (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Нормативный документ:</b> ГОСТ 8.417-2002 «ГСИ. Единицы величин», ГОСТ 8.271-77 «Средства измерений давления».</div>
+</div>
+                </div>
+            </div>
         </div>
 
         <!-- Расход -->
@@ -1753,6 +1770,23 @@
             <button type="button" class="converter-convert-btn" onclick="convertUnits('flow')"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-flow-results"></div>
             <div class="converter-result-group" id="conv-flow-table" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                                                            <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Расход</b> — количество вещества (жидкости, газа, пара), проходящее через поперечное сечение трубопровода в единицу времени. Является основным параметром при учёте и контроле потоков сред (ГОСТ 15528-86 «Средства измерений расхода, массы или объёма протекающей жидкости и газа»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Виды расхода:</b> объёмный (м³/с, м³/ч) — объём за единицу времени; массовый (кг/с, кг/ч) — масса за единицу времени. Связь: Q_масс = Q_объём × ρ.</div>
+<div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Кубический метр в секунду (м³/с):</b> производная единица СИ объёмного расхода, 1 м³/с = 3600 м³/ч (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Кубический метр в час (м³/ч):</b> 1 м³/ч = 0,000278 м³/с = 16,67 л/мин. Допущена к применению в промышленности (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Литр в минуту (л/мин):</b> 1 л/мин = 0,0000167 м³/с = 0,06 м³/ч. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Литр в секунду (л/с):</b> 1 л/с = 0,001 м³/с = 3,6 м³/ч. Применяется в гидравлике (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Килограмм в секунду (кг/с):</b> производная единица СИ массового расхода (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Килограмм в час (кг/ч):</b> 1 кг/ч = 0,000278 кг/с. Допущена к применению (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Тонна в час (т/ч):</b> 1 т/ч = 1000 кг/ч = 0,278 кг/с. Применяется для больших расходов (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Связь объёмного и массового:</b> Q_масс = Q_объём × ρ, где ρ — плотность среды (кг/м³).</div>
+</div>
+                </div>
+            </div>
         </div>
 
         <!-- Вес и масса -->
@@ -1763,6 +1797,21 @@
             <button type="button" class="converter-convert-btn" onclick="convertUnits('mass')"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-mass-results"></div>
             <div class="converter-result-group" id="conv-mass-table" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                                                            <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Масса</b> — физическая величина, одна из основных характеристик материи, определяющая её инерционные и гравитационные свойства. В СИ является одной из семи основных величин (ГОСТ 8.417-2002 «ГСИ. Единицы величин»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Свойства массы:</b> инертность — сопротивление изменению состояния движения; гравитационное свойство — способность притягивать другие массы. Масса не зависит от скорости тела (при v ≪ c) и места измерения.</div>
+<div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Килограмм (кг):</b> основная единица массы в СИ. Определена через постоянную Планка h = 6,626×10⁻³⁴ Дж·с (ГОСТ 8.417-2002). Единственная базовая единица с приставкой.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Грамм (г):</b> 1 г = 0,001 кг = 10⁻³ кг. Дольная единица СИ (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Миллиграмм (мг):</b> 1 мг = 0,000001 кг = 10⁻⁶ кг. Дольная единица СИ (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Тонна (т):</b> 1 т = 1000 кг. Внесистемная единица, допущена к применению (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Фунт (lb):</b> 1 lb = 0,453592 кг. Внесистемная единица США/Великобритании (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Унция (oz):</b> 1 oz = 28,3495 г = 0,02835 кг. Внесистемная единица (ГОСТ 8.417-2002, прил. Г).</div>
+</div>
+                </div>
+            </div>
         </div>
 
         <!-- Температура -->
@@ -1773,6 +1822,21 @@
             <button type="button" class="converter-convert-btn" onclick="convertTemp()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-temp-results"></div>
             <div class="converter-result-group" id="conv-temp-table" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                                                            <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Температура</b> — физическая величина, характеризующая состояние термодинамического равновесия системы. Определяет среднюю кинетическую энергию теплового движения частиц вещества. Является одной из основных величин СИ (ГОСТ 8.558-2009 «ГСИ. Государственная поверочная схема для средств измерений температуры»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Температурные шкалы:</b> термодинамическая (Кельвина) — основана на втором начале термодинамики; практические (Цельсия, Фаренгейта) — привязаны к фазовым переходам воды.</div>
+<div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Градус Цельсия (°C):</b> производная единица СИ температуры. 0 °C — точка плавления льда, 100 °C — кипения воды (при 101,325 кПа). Связь с кельвином: t°C = T − 273,15 (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Кельвин (K):</b> основная единица термодинамической температуры в СИ. 0 K = −273,15 °C (абсолютный ноль). Определена через постоянную Больцмана (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Градус Фаренгейта (°F):</b> внесистемная единица. t°F = t°C × 9/5 + 32. 0 °C = 32 °F, 100 °C = 212 °F. Применяется в США (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Градус Ранкина (°Ra):</b> T°Ra = (t°C + 273,15) × 9/5. Абсолютная шкала Фаренгейта. 0 K = 0 °Ra (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Градус Рёмера (°R):</b> историческая шкала, 0 °R = −17,83 °C. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Нормативный документ:</b> ГОСТ 8.417-2002 «ГСИ. Единицы величин», ГОСТ 8.558-2009 «ГСИ. Государственная поверочная схема для средств измерений температуры».</div>
+</div>
+                </div>
+            </div>
         </div>
 
         <!-- Длина и расстояние -->
@@ -1783,6 +1847,23 @@
             <button type="button" class="converter-convert-btn" onclick="convertUnits('length')"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-length-results"></div>
             <div class="converter-result-group" id="conv-length-table" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                                                            <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Длина</b> — физическая величина, одна из основных в СИ, характеризующая протяжённость объекта в одном измерении. Является базовой для производных величин: площади (м²), объёма (м³), скорости (м/с) (ГОСТ 8.417-2002 «ГСИ. Единицы величин»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">В технике:</b> различают номинальный размер (заданный), действительный (измеренный), предельные (макс/мин допустимые). Погрешность измерения длины нормируется по ГОСТ 8.051-81.</div>
+<div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Метр (м):</b> основная единица длины в СИ. Определён через расстояние, которое проходит свет в вакууме за 1/299792458 секунды (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Километр (км):</b> 1 км = 1000 м. Кратная единица СИ (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Сантиметр (см) и миллиметр (мм):</b> дольные единицы СИ, 1 см = 0,01 м, 1 мм = 0,001 м (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Микрометр (мкм):</b> 1 мкм = 10⁻⁶ м. Дольная единица СИ, применяется в точной механике (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Дюйм (in):</b> 1 in = 25,4 мм = 0,0254 м. Внесистемная единица, применяется в трубопроводах (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Фут (ft):</b> 1 ft = 0,3048 м = 12 in. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Ярд (yd):</b> 1 yd = 0,9144 м = 3 ft. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Миля (mi):</b> 1 mi = 1609,344 м = 5280 ft. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+</div>
+                </div>
+            </div>
         </div>
 
         <!-- Плотность -->
@@ -1793,6 +1874,21 @@
             <button type="button" class="converter-convert-btn" onclick="convertUnits('density')"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-density-results"></div>
             <div class="converter-result-group" id="conv-density-table" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                                                            <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Плотность</b> — физическая величина, равная отношению массы вещества к занимаемому им объёму: ρ = m/V. Характеризует концентрацию массы в пространстве. Производная величина СИ (ГОСТ 8.417-2002 «ГСИ. Единицы величин»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Зависимость от условий:</b> плотность жидкостей зависит от температуры и давления (слабо), газов — сильно. Для газов различают плотность при рабочих и нормальных условиях (0 °C, 101,325 кПа).</div>
+<div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Килограмм на кубический метр (кг/м³):</b> производная единица плотности в СИ. ρ = m/V (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Грамм на кубический сантиметр (г/см³):</b> 1 г/см³ = 1000 кг/м³ = 1 кг/л. Дольная единица СИ (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Грамм на литр (г/л):</b> 1 г/л = 1 кг/м³. Внесистемная, допущена к применению (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Килограмм на литр (кг/л):</b> 1 кг/л = 1000 кг/м³ = 1 г/см³. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Плотность воды:</b> 1000 кг/м³ при 4 °C. Плотность ртути: 13546 кг/м³ при 20 °C.</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Удельный вес (γ):</b> γ = ρ × g, где g = 9,80665 м/с². Единица: Н/м³. Отличается от плотности на ускорение свободного падения.</div>
+</div>
+                </div>
+            </div>
         </div>
 
         <!-- Время -->
@@ -1803,6 +1899,23 @@
             <button type="button" class="converter-convert-btn" onclick="convertUnits('time')"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-time-results"></div>
             <div class="converter-result-group" id="conv-time-table" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                                                            <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Время</b> — физическая величина, одна из основных в СИ, характеризующая последовательность событий и длительность процессов. Не может быть определена через другие величины — является базовой (ГОСТ 8.417-2002 «ГСИ. Единицы величин»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">В измерительной технике:</b> время срабатывания, время отклика, постоянная времени — важнейшие динамические характеристики приборов. Нормируются по ГОСТ 8.009-84 «ГСИ. Нормируемые метрологические характеристики средств измерений».</div>
+<div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Секунда (с):</b> основная единица времени в СИ. Определена через частоту перехода между уровнями сверхтонкой структуры основного состояния атома цезия-133: 9 192 631 770 периодов (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Миллисекунда (мс):</b> 1 мс = 0,001 с. Дольная единица СИ, применяется в КИП для времени срабатывания (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Минута (мин):</b> 1 мин = 60 с. Внесистемная, допущена к применению (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Час (ч):</b> 1 ч = 3600 с = 60 мин. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Сутки (сут):</b> 1 сут = 86400 с = 24 ч. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Неделя:</b> 1 неделя = 604800 с = 7 сут. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Месяц и год:</b> 1 месяц ≈ 2 592 000 с (30 сут), 1 год = 365,25 сут ≈ 31 557 600 с. Внесистемные (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Нормативный документ:</b> ГОСТ 8.417-2002 «ГСИ. Единицы величин».</div>
+</div>
+                </div>
+            </div>
         </div>
 
         <!-- Объём -->
@@ -1813,6 +1926,23 @@
             <button type="button" class="converter-convert-btn" onclick="convertUnits('volume')"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-volume-results"></div>
             <div class="converter-result-group" id="conv-volume-table" style="display:none;"></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                                                            <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Объём</b> — физическая величина, характеризующая пространственную вместимость объекта, производная от длины: V = L×W×H (для прямоугольного параллелепипеда). Является количественной мерой пространства, занимаемого телом (ГОСТ 8.417-2002 «ГСИ. Единицы величин»).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">В измерительной технике:</b> различают объём резервуара (вместимость), объём жидкости (заполнение), объёмный расход (м³/ч). В мерном деле применяется поверка мерников по ГОСТ 8.570-2000.</div>
+<div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Кубический метр (м³):</b> производная единица объёма в СИ, 1 м³ = 1000 дм³ = 10⁶ см³ (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Литр (л):</b> 1 л = 0,001 м³ = 1 дм³. Внесистемная, допущена к применению. Историческое определение: объём 1 кг воды при 4 °C (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Миллилитр (мл):</b> 1 мл = 0,001 л = 1 см³. Дольная от литра (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Кубический сантиметр (см³):</b> 1 см³ = 0,000001 м³ = 1 мл. Дольная единица СИ (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Кубический дециметр (дм³):</b> 1 дм³ = 0,001 м³ = 1 л. Дольная единица СИ (ГОСТ 8.417-2002).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Галлон US (gal):</b> 1 gal = 3,78541 л = 0,003785 м³. Внесистемная единица США (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Баррель (bbl):</b> 1 bbl = 158,987 л = 0,15899 м³. Внесистемная, применяется в нефтяной промышленности (ГОСТ 8.417-2002, прил. Г).</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Кубический фут (ft³):</b> 1 ft³ = 28,3168 л = 0,02832 м³. Внесистемная (ГОСТ 8.417-2002, прил. Г).</div>
+</div>
+                </div>
+            </div>
         </div>
 
         <!-- ======================== ШКАЛА-СИГНАЛ ======================== -->
@@ -1824,7 +1954,18 @@
             <div class="scale-form"><div class="scale-form-label">Тип выходного сигнала</div><select id="sigType" class="scale-field" onchange="setSignalDefaults()" autocomplete="off"><optgroup label="Токовые"><option value="4_20">4 – 20 мА</option><option value="0_20">0 – 20 мА</option><option value="0_5mA">0 – 5 мА</option></optgroup><optgroup label="Напряжения"><option value="0_10V">0 – 10 В</option><option value="1_5V">1 – 5 В</option><option value="0_5V">0 – 5 В</option><option value="bipolar_10">-10 – +10 В</option></optgroup><optgroup label="Пневматические"><option value="20_100_kPa">20 – 100 кПа</option><option value="0_2_1_0_bar">0,2 – 1,0 бар</option><option value="3_15_psi">3 – 15 psi</option><option value="0_2_1_0_kgf_cm2" selected>0,2 – 1,0 кгс/см²</option></optgroup><optgroup label="Другие"><option value="0_100_pct">0 – 100 %</option><option value="custom">Своё</option></optgroup></select>
             <div id="sigCustomRange" style="margin-top:8px;"><div class="scale-form-label">Диапазон сигнала</div><input type="text" inputmode="numeric" id="sigMin" class="scale-field" placeholder="Минимум" style="margin-bottom:6px;" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)"><input type="text" inputmode="numeric" id="sigMax" class="scale-field" placeholder="Максимум" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)"><input type="text" inputmode="text" id="sigUnitCustom" class="scale-field" placeholder="Ед. измерения" value="мА" style="margin-top:6px;" autocomplete="off" enterkeyhint="done" ><div style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:4px; padding-left:4px;" id="sigUnitLabel">мА</div></div></div>
             <button type="button" class="scale-calc-btn" onclick="calcScaleSignal()"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/><line x1="8" y1="18" x2="16" y2="18"/></svg>Рассчитать</button>
-            <div id="scaleResultsArea" class="converter-result-group" style="display:none;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="converter-result-label-title">Расчётные значения</div><button type="button" class="query-btn" onclick="copyScaleTable()" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div><div id="scaleTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"></div><div id="scaleInfo" style="margin-top:14px; padding:14px 18px; background:rgba(13,17,23,0.5); border-radius:10px; font-size:15px; color:rgba(255,255,255,0.35); line-height:1.6;"></div><div id="scaleCustomCalcPanel" style="display:none;"><div class="converter-result-label-title" style="margin-top:16px;">Расчёт произвольных значений</div><div class="scale-form" style="margin-top:8px;"><div style="color:rgba(255,255,255,0.25); font-size:11px; margin-bottom:10px; line-height:1.4;">Введите значение в любое поле — другое рассчитается автоматически</div><div class="scale-form-label">Значение шкалы (<span id="scaleQueryUnit">ед.</span>)</div><input type="text" inputmode="numeric" id="queryScaleVal" class="scale-field" placeholder="Например: 50" oninput="queryFromScaleLive()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Сигнал (<span id="scaleQuerySigUnit">мА</span>)</div><input type="text" inputmode="numeric" id="querySigVal" class="scale-field" placeholder="Например: 12" oninput="queryFromSignalLive()" autocomplete="off" enterkeyhint="done"></div></div></div>
+            <div id="scaleResultsArea" class="converter-result-group" style="display:none;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><div class="converter-result-label-title">Расчётные значения</div><button type="button" class="query-btn" onclick="copyScaleTable()" style="width:auto; padding:5px 10px; font-size:11px;"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Копировать</button></div><div id="scaleTableContainer" style="overflow-x:auto;border-radius:10px;border:1px solid rgba(255,255,255,0.05);"></div><div id="scaleInfo" style="margin-top:14px; padding:14px 18px; background:rgba(13,17,23,0.5); border-radius:10px; font-size:15px; color:rgba(255,255,255,0.35); line-height:1.6;"></div><div id="scaleCustomCalcPanel" style="display:none;"><div class="converter-result-label-title" style="margin-top:16px;">Расчёт произвольных значений</div><div class="scale-form" style="margin-top:8px;"><div style="color:rgba(255,255,255,0.25); font-size:11px; margin-bottom:10px; line-height:1.4;">Введите значение в любое поле — другое рассчитается автоматически</div><div class="scale-form-label">Значение шкалы (<span id="scaleQueryUnit">ед.</span>)</div><input type="text" inputmode="numeric" id="queryScaleVal" class="scale-field" placeholder="Например: 50" oninput="queryFromScaleLive()" autocomplete="off" enterkeyhint="done"><div class="scale-form-label">Сигнал (<span id="scaleQuerySigUnit">мА</span>)</div><input type="text" inputmode="numeric" id="querySigVal" class="scale-field" placeholder="Например: 12" oninput="queryFromSignalLive()" autocomplete="off" enterkeyhint="done"></div></div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Унифицированные сигналы:</b> 4–20 мА (токовый, с «живым нулём»), 0–10 В (напряжение), 0–5 мА, 1–5 В.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">«Живой ноль» (4 мА):</b> позволяет отличить нулевое измерение от обрыва линии. При обрыве ток = 0 мА, что легко обнаружить.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Пневматические сигналы:</b> 20–100 кПа (0,2–1,0 бар, 3–15 psi, 0,2–1,0 кгс/см²) — стандарт для пневматики.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Типы шкалы:</b> линейная (сигнал ∝ X), квадратичная (сигнал ∝ X²), корнеизвлекающая (сигнал ∝ √X). Квадратичная — для расходомеров с диафрагмой.</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Нормативный документ:</b> ГОСТ 26.010-80 «Средства измерений и автоматизации. Сигналы тока и напряжения электрические аналоговые».</div>
+                </div>
+            </div>
         </div>
 
         <!-- ======================== АВТОМАТИЧЕСКИЙ ВЫКЛЮЧАТЕЛЬ ======================== -->
@@ -2498,7 +2639,18 @@
         <div id="page-tickets-6" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-title">Билеты на 6 разряд</div></div>
             <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="navigateTo('exam-tickets')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Билеты</span></div></div>
-            <div id="tickets-container-tickets-6" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
+            <div id="tickets-container-tickets-6" class="ticket-list"><div class="ticket-loading">Загрузка…</div>
+
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;">
+                <div class="info-header" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;" onclick="toggleInfoBlock(this)"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span><svg class="info-chevron" viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></div>
+                <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Принцип буйкового уровнемера:</b> чувствительный элемент (буйок) погружается в жидкость. Выталкивающая сила по закону Архимеда: F = ρ × g × V_погр, где V_погр — объём погружённой части буйка.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Метод «с буйком»:</b> m_гири = m_выт + m_подвеса, где m_выт = ρ × V_погр — масса вытесненной жидкости.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Метод «без буйка»:</b> m_гири = m_буйка − m_выт + m_подвеса. Гирями имитируют выталкивающую силу.</div>
+                    <div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Объём буйка:</b> V = π × (d/2)² × L, где d — диаметр, L — длина буйка.</div>
+                    <div><b style="color:rgba(255,255,255,0.7);">Нормативный документ:</b> ГОСТ 22520-85 «Датчики давления, разрежения и перепада давления ГСП с пневматическими аналоговыми выходными сигналами».</div>
+                </div>
+            </div>
         </div>
 
         <!-- ======================== РАСЧЁТ ПОГРЕШНОСТИ ======================== -->
