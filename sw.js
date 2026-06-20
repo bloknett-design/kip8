@@ -7,7 +7,7 @@
 // свежие версии файлов из ASSETS.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v11';
+const CACHE_VERSION = 'kipia-v1';
 const CACHE_NAME = CACHE_VERSION;
 
 // Файлы для пред-кэширования при установке SW.
