@@ -323,12 +323,13 @@
     .content-header h2 { color: #e0e0e0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
     .content-header p { color: rgba(255,255,255,0.35); font-size: 12px; margin-top: 5px; }
     
-    .menu-btn-row { display: flex; flex-direction: column; align-items: center; padding: 10px 0 12px; position: relative; z-index: 2; }
-    #page-dashboard .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 10px 16px 12px; }
+    /* Все menu-btn-row используют grid с gap: 4px — кнопки растянуты на всю ширину, плотно */
+    .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 8px 8px 10px; position: relative; z-index: 2; }
+    #page-dashboard .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 8px 8px 10px; }
     #page-dashboard .menu-btn { width: 100%; margin: 0; min-height: 64px; }
     .menu-btn {
         display: flex; align-items: center; justify-content: flex-start; position: relative;
-        width: calc(100% - 32px); min-width: 0; min-height: 44px; padding: 14px 16px; margin: 5px 16px;
+        width: 100%; min-width: 0; min-height: 44px; padding: 14px 16px; margin: 0;
         background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         border: 1px solid var(--card-border); border-radius: 14px; cursor: pointer;
         overflow: hidden; -webkit-user-select: none; user-select: none;
@@ -602,7 +603,7 @@
     
 
     @media (max-width: 480px) {
-        .menu-btn { width: calc(100% - 24px); margin: 4px 12px; padding: 12px 14px; }
+        .menu-btn { width: 100%; margin: 0; padding: 12px 14px; }
         .menu-btn-label { font-size: 14px; } .menu-btn-sublabel { font-size: 10px; }
         #page-dashboard .menu-btn-label { font-size: 18px; }
         #page-dashboard .menu-btn-sublabel { font-size: 12px; }
@@ -621,7 +622,7 @@
         .header-title svg.led-display { height: 36px; }
     }
     @media (max-width: 400px) {
-        .menu-btn { width: calc(100% - 16px); margin: 3px 8px; padding: 10px 12px; }
+        .menu-btn { width: 100%; margin: 0; padding: 10px 12px; }
         .menu-btn-label { font-size: 13px; } .menu-btn-sublabel { font-size: 9px; }
         #page-dashboard .menu-btn-label { font-size: 16px; }
         #page-dashboard .menu-btn-sublabel { font-size: 11px; }
