@@ -3511,6 +3511,10 @@
                 const badge = document.getElementById(badgeId);
                 if (badge) badge.textContent = cat.total + ' вопр.';
             }
+            // Фоновый pre-cache картинок для офлайн-просмотра.
+            // Запускается асинхронно, не блокирует UI. SW перехватит запросы
+            // и закэширует opaque responses. После этого картинки доступны офлайн.
+            try { precacheTicketImages(); } catch (e) { console.warn('[precache] Ошибка запуска:', e); }
             return _ticketsData;
         } catch (e) {
             console.error('Ошибка загрузки билетов:', e);
@@ -3817,6 +3821,99 @@
             full: 'https://lh3.googleusercontent.com/d/' + fileId,
             share: str
         };
+    }
+
+    // === Фоновый pre-cache картинок билетов для офлайн-просмотра ===
+    // После загрузки exam-tickets.json фоном, через requestIdleCallback, скачиваем
+    // все картинки билетов (превью + полный размер). SW перехватывает эти запросы
+    // (ветка 2 в sw.js) и кэширует opaque responses. После этого картинки доступны
+    // офлайн без необходимости открывать каждый билет вручную.
+    //
+    // Параметры:
+    //   - параллельность = 3 (чтобы не перегружать сеть и не блокировать UI)
+    //   - запросы с mode:'no-cors' (как у <img>) → opaque responses, кэшируются SW
+    //   - запускается через requestIdleCallback, чтобы не мешать основной работе
+    //   - ошибки игнорируются — это фоновая задача, не блокирующая UI
+    let _precacheStarted = false;
+    function precacheTicketImages() {
+        if (_precacheStarted) return; // защита от повторного запуска
+        if (!('caches' in window) || !navigator.serviceWorker) return; // нет поддержки SW
+        if (!_ticketsData) return;
+        _precacheStarted = true;
+
+        // Собираем уникальные URL картинок из всех 4 категорий билетов
+        const urls = new Set();
+        for (const catId of TICKET_IDS) {
+            const cat = _ticketsData[catId];
+            if (!cat || !Array.isArray(cat.rows)) continue;
+            for (const row of cat.rows) {
+                const imgUrl = (getField(row, 'image_url', 'Image') || '').trim();
+                if (!isWorkingUrl(imgUrl)) continue;
+                const gdrive = gdriveShareToDirect(imgUrl);
+                if (gdrive) {
+                    urls.add(gdrive.thumb);  // превью
+                    urls.add(gdrive.full);   // полный размер
+                } else {
+                    // Не Google Drive — кэшируем оригинальный URL (может не сработать для opaque)
+                    urls.add(imgUrl);
+                }
+            }
+        }
+        if (urls.size === 0) {
+            console.log('[precache] Нет картинок для кэширования');
+            return;
+        }
+        console.log('[precache] Запланирована загрузка ' + urls.size + ' картинок для офлайна');
+
+        // Очередь с параллельностью 3
+        const queue = Array.from(urls);
+        let idx = 0;
+        let inFlight = 0;
+        let done = 0;
+        let failed = 0;
+
+        function scheduleNext() {
+            // Запускаем следующий запрос через requestIdleCallback
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(fetchNext);
+            } else {
+                setTimeout(fetchNext, 50);
+            }
+        }
+
+        function fetchNext() {
+            if (idx >= queue.length) {
+                if (inFlight === 0) {
+                    console.log('[precache] Завершено: ' + done + ' OK, ' + failed + ' ошибок из ' + queue.length);
+                }
+                return;
+            }
+            const url = queue[idx++];
+            inFlight++;
+            // mode:'no-cors' — как у <img>. SW получит opaque response и закэширует.
+            // cache:'no-store' — не используем HTTP-кэш браузера, только SW Cache API.
+            fetch(url, { mode: 'no-cors', cache: 'no-store' })
+                .then(() => { done++; })
+                .catch(() => { failed++; })
+                .finally(() => {
+                    inFlight--;
+                    if (idx < queue.length) {
+                        scheduleNext(); // запустить следующий (заполняет освободившийся слот)
+                    } else if (inFlight === 0) {
+                        console.log('[precache] Завершено: ' + done + ' OK, ' + failed + ' ошибок из ' + queue.length);
+                    }
+                });
+        }
+
+        // Старт: запускаем 3 параллельных запроса (или меньше, если картинок меньше)
+        const initialBatch = Math.min(3, queue.length);
+        for (let i = 0; i < initialBatch; i++) {
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(fetchNext);
+            } else {
+                setTimeout(fetchNext, 100 + i * 50);
+            }
+        }
     }
 
     // Запомненная позиция прокрутки для восстановления при закрытии билета
@@ -6690,6 +6787,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 }
             }
         });
+
+        // Запустить фоновый pre-cache картинок билетов при первой загрузке приложения.
+        // loadTicketsData() загрузит JSON → вызовет precacheTicketImages() →
+        // через requestIdleCallback фоном скачает все картинки через SW.
+        // Это позволяет открывать билеты офлайн без необходимости сначала зайти в раздел.
+        // Запускаем с задержкой 2с, чтобы не мешать первичной инициализации UI.
+        setTimeout(function() {
+            if (typeof loadTicketsData === 'function') {
+                loadTicketsData().catch(function(e) {
+                    console.warn('[precache] Не удалось запустить фоновый pre-cache:', e);
+                });
+            }
+        }, 2000);
     });
 
     // Theme toggle functionality

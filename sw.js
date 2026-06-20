@@ -7,7 +7,7 @@
 // свежие версии файлов из ASSETS.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v6';
+const CACHE_VERSION = 'kipia-v1';
 const CACHE_NAME = CACHE_VERSION;
 
 // Файлы для пред-кэширования при установке SW.
@@ -176,12 +176,17 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // ===== 2. Внешние ресурсы (шрифты Google, CDN) =====
+  // ===== 2. Внешние ресурсы (шрифты Google, CDN, картинки Google Drive) =====
+  // Для картинок билетов (drive.google.com/thumbnail, lh3.googleusercontent.com)
+  // запросы от <img> идут с mode:'no-cors' → response.type === 'opaque' (status 0).
+  // Opaque responses тоже кэшируем — в офлайне <img> сможет их отрендерить.
   if (!isLocal) {
     event.respondWith(
       fetch(request)
         .then(response => {
-          if (response.ok) {
+          // Кэшируем успешные ответы И opaque (no-cors) ответы.
+          // response.ok === false для opaque (status 0), но cache.put() их принимает.
+          if (response.ok || response.type === 'opaque') {
             const clone = response.clone();
             caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
           }
