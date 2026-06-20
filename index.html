@@ -3498,27 +3498,86 @@
         // при каждом переходе на страницу билетов.
         // force=true — принудительно обновить (например, после обновления SW).
         if (_ticketsData && !force) return _ticketsData;
+
+        // ===== STALE-WHILE-REVALIDATE для JSON =====
+        // Сначала пробуем прочитать закэшированный SW ответ (мгновенно).
+        // Если есть — используем как initial data и параллельно запускаем
+        // фоновое обновление из сети. Это позволяет повторно открывать
+        // приложение мгновенно, без ожидания сети.
+        if (!force && 'caches' in window) {
+            try {
+                // SW кэширует JSON по нормализованному ключу (без ?v=...).
+                // caches.match() с URL без query найдёт закэшированную запись.
+                const cached = await caches.match('data/exam-tickets.json');
+                if (cached) {
+                    _ticketsData = await cached.json();
+                    _updateTicketBadges();
+                    // Фоновое обновление (не блокирует return)
+                    _refreshTicketsInBackground();
+                    // Запускаем pre-cache картинок (он сам проверит, что уже закэшировано)
+                    try { precacheTicketImages(); } catch (e) { console.warn('[precache] Ошибка запуска:', e); }
+                    return _ticketsData;
+                }
+            } catch (e) {
+                console.warn('[tickets] Чтение из SW cache не удалось, fallback на fetch:', e);
+            }
+        }
+
+        // ===== Обычная загрузка из сети (первый запуск или force) =====
         try {
             const url = 'data/exam-tickets.json?v=' + encodeURIComponent(_ticketsCacheBust);
             const r = await fetch(url);
             if (!r.ok) throw new Error(r.status);
             _ticketsData = await r.json();
-            // Обновить бейджи на главной странице билетов
-            for (const id of TICKET_IDS) {
-                const cat = _ticketsData[id];
-                if (!cat) continue;
-                const badgeId = id.replace('tickets-', 'badge-');
-                const badge = document.getElementById(badgeId);
-                if (badge) badge.textContent = cat.total + ' вопр.';
-            }
+            _updateTicketBadges();
             // Фоновый pre-cache картинок для офлайн-просмотра.
-            // Запускается асинхронно, не блокирует UI. SW перехватит запросы
-            // и закэширует opaque responses. После этого картинки доступны офлайн.
             try { precacheTicketImages(); } catch (e) { console.warn('[precache] Ошибка запуска:', e); }
             return _ticketsData;
         } catch (e) {
             console.error('Ошибка загрузки билетов:', e);
             return _ticketsData; // вернуть предыдущие данные, если есть
+        }
+    }
+
+    // Обновить бейджи с количеством вопросов на главной странице билетов
+    function _updateTicketBadges() {
+        if (!_ticketsData) return;
+        for (const id of TICKET_IDS) {
+            const cat = _ticketsData[id];
+            if (!cat) continue;
+            const badgeId = id.replace('tickets-', 'badge-');
+            const badge = document.getElementById(badgeId);
+            if (badge) badge.textContent = cat.total + ' вопр.';
+        }
+    }
+
+    // Фоновое обновление JSON билетов из сети (stale-while-revalidate).
+    // Тихо: если сеть недоступна — ничего не делаем, у нас уже есть кэш.
+    // Если данные изменились — обновляем in-memory кэш и бейджи.
+    let _bgRefreshInFlight = false;
+    async function _refreshTicketsInBackground() {
+        if (_bgRefreshInFlight) return;
+        _bgRefreshInFlight = true;
+        try {
+            const url = 'data/exam-tickets.json?v=' + encodeURIComponent(_ticketsCacheBust);
+            const r = await fetch(url);
+            if (!r.ok) return;
+            const fresh = await r.json();
+            // Сравнить с текущими данными (простое сравнение строк)
+            if (_ticketsData && JSON.stringify(fresh) !== JSON.stringify(_ticketsData)) {
+                _ticketsData = fresh;
+                _updateTicketBadges();
+                console.log('[tickets] Данные обновлены в фоне');
+                // Если активна страница билетов — перерисовать
+                const active = document.querySelector('.page-content.active');
+                if (active && active.id && active.id.indexOf('page-tickets-') === 0) {
+                    renderTickets(active.id.replace('page-', ''), '');
+                }
+            }
+        } catch (e) {
+            // Сеть недоступна — тихо игнорируем, у нас уже есть кэш
+        } finally {
+            _bgRefreshInFlight = false;
         }
     }
 
@@ -6800,6 +6859,25 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 });
             }
         }, 2000);
+
+        // Запросить persistent storage — браузер не будет автоматически удалять
+        // кэш SW (включая картинки билетов) при нехватке места на устройстве.
+        // Особенно важно для TWA на Android — без этого через несколько недель
+        // неактивности кэш может быть очищен системой.
+        // Запрос делаем после короткой задержки, чтобы пользователь уже увидел UI.
+        if (navigator.storage && navigator.storage.persist) {
+            setTimeout(function() {
+                navigator.storage.persist().then(function(persisted) {
+                    if (persisted) {
+                        console.log('[storage] Persistent storage активирован — кэш защищён от автоудаления');
+                    } else {
+                        console.log('[storage] Persistent storage не предоставлен (норма для некоторых браузеров)');
+                    }
+                }).catch(function(e) {
+                    console.warn('[storage] Ошибка запроса persistent storage:', e);
+                });
+            }, 3000);
+        }
     });
 
     // Theme toggle functionality

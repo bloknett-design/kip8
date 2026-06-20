@@ -7,8 +7,17 @@
 // свежие версии файлов из ASSETS.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v1';
+const CACHE_VERSION = 'kipia-v33';
 const CACHE_NAME = CACHE_VERSION;
+
+// Отдельный кэш для картинок Google Drive (превью + полные).
+// ВАЖНО: эта версия НЕ зависит от CACHE_VERSION. При обновлении приложения
+// (инкременте CACHE_VERSION) кэш картинок сохраняется — пользователю не нужно
+// заново скачивать все 26 картинок после каждого релиза.
+// Инкрементируйте IMAGE_CACHE_VERSION только если нужно принудительно сбросить
+// кэш картинок (например, если в Google Drive заменили файлы с тем же ID).
+const IMAGE_CACHE_VERSION = 'kipia-images-v1';
+const IMAGE_CACHE_NAME = IMAGE_CACHE_VERSION;
 
 // Файлы для пред-кэширования при установке SW.
 // Эти ресурсы будут доступны в офлайне сразу после первой загрузки.
@@ -82,9 +91,11 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => {
-        // 1. Удалить все кэши с другими именами (старые версии)
+        // 1. Удалить все кэши с другими именами, КРОМЕ IMAGE_CACHE_NAME.
+        //    Кэш картинок переживает обновления CACHE_VERSION — иначе пользователю
+        //    пришлось бы заново скачивать все 26 картинок после каждого релиза.
         const deleteOldCaches = Promise.all(
-          keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+          keys.filter(k => k !== CACHE_NAME && k !== IMAGE_CACHE_NAME).map(k => caches.delete(k))
         );
         return deleteOldCaches.then(() => {
           // 2. В текущем кэше удалить записи, которых больше нет в ASSETS
@@ -180,7 +191,41 @@ self.addEventListener('fetch', event => {
   // Для картинок билетов (drive.google.com/thumbnail, lh3.googleusercontent.com)
   // запросы от <img> идут с mode:'no-cors' → response.type === 'opaque' (status 0).
   // Opaque responses тоже кэшируем — в офлайне <img> сможет их отрендерить.
+  //
+  // Стратегия для Google Drive картинок — STALE-WHILE-REVALIDATE:
+  //   - Сразу отдаём из кэша (мгновенный рендер <img>)
+  //   - Фоном идём в сеть и обновляем кэш (пользователь видит старую версию, следующая загрузка — свежую)
+  //   - Если кэша нет — идём в сеть (первая загрузка)
+  //   - Если сети нет и кэша нет — ошибка (картинка не отрендерится, сработает fallback)
+  //
+  // Стратегия для прочих внешних ресурсов (шрифты) — NETWORK-FIRST:
+  //   - Идём в сеть, при успехе кэшируем, при ошибке — отдаём из кэша.
   if (!isLocal) {
+    const isGoogleDriveImage = url.hostname === 'drive.google.com' ||
+                                url.hostname === 'lh3.googleusercontent.com';
+
+    if (isGoogleDriveImage) {
+      // Stale-while-revalidate через отдельный IMAGE_CACHE_NAME (переживает обновления версии)
+      event.respondWith(
+        caches.open(IMAGE_CACHE_NAME).then(cache => {
+          return cache.match(request).then(cached => {
+            // Фоновое обновление в сети (не блокирует ответ)
+            const fetchPromise = fetch(request).then(response => {
+              if (response.ok || response.type === 'opaque') {
+                cache.put(request, response.clone());
+              }
+              return response;
+            }).catch(() => null); // ошибка сети — тихо игнорируем (у нас уже есть cached или вернём ошибку)
+            // Если есть кэш — отдаём сразу; сеть обновит кэш для следующего раза.
+            // Если кэша нет — ждём сеть.
+            return cached || fetchPromise;
+          });
+        })
+      );
+      return;
+    }
+
+    // Прочие внешние ресурсы (шрифты Google, CDN) — network-first
     event.respondWith(
       fetch(request)
         .then(response => {
