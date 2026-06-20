@@ -626,6 +626,7 @@
         .menu-btn-label { font-size: 16px; } .menu-btn-sublabel { font-size: 12px; }
         #page-dashboard .menu-btn-label { font-size: 19px; }
         #page-dashboard .menu-btn-sublabel { font-size: 14px; }
+        /* На 375-400px все тексты умещаются в 1 строку — текущий min-height: 76px достаточен */
         .nav-btn { padding: 8px 12px; font-size: 12px; gap: 5px; }
         .nav-btn svg { width: 12px; height: 12px; }
         .form-field, .scale-field { padding: 8px 10px; font-size: 13px; height: 38px; }
@@ -643,6 +644,27 @@
         .buoy-select-container { flex-direction: column; padding: 6px 0; gap: 8px; }
         .header-title svg.led-display { height: 28px; }
     }
+
+    /* === Балансировка высоты кнопок главного меню на узких экранах === */
+    /* Проблема: на узких экранах длинные тексты переносятся на 2 строки, создавая разную высоту кнопок.
+       Решение: установить min-height достаточный для самого длинного контента на каждом брейкпоинте.
+       align-items: center в .menu-btn центрирует контент по вертикали — кнопки выглядят сбалансированно. */
+
+    /* 341–374px: подзаголовки типа "ГОСТ 8.401-80, ГОСТ OIML R 76-1-2011, ТС, ТП" переносятся на 2 строки.
+       min-height: 90px вмещает 1 строку заголовка + 2 строки подзаголовка. */
+    @media (max-width: 374px) {
+        #page-dashboard .menu-btn { min-height: 90px; }
+    }
+
+    /* ≤340px: заголовок "Автоматический выключатель" тоже переносится на 2 строки.
+       Уменьшаем шрифт до 17/12px (с 19/14px), чтобы сократить количество переносов и пустое пространство.
+       min-height: 110px вмещает 2 строки заголовка + 2 строки подзаголовка. */
+    @media (max-width: 340px) {
+        #page-dashboard .menu-btn { min-height: 110px; }
+        #page-dashboard .menu-btn-label { font-size: 17px; }
+        #page-dashboard .menu-btn-sublabel { font-size: 12px; }
+    }
+
     @media (min-width: 481px) { .menu-btn { max-width: 480px; } }
 
     .page-inline-header {
