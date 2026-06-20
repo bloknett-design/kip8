@@ -3649,7 +3649,12 @@
                 //     показывается fallback-карточка "Открыть изображение"
                 //     со ссылкой на оригинальный URL в новой вкладке.
                 const imgSrc = getField(q, 'image_url', 'Image').trim();
-                if (isWorkingUrl(imgSrc)) {
+                const hasImage = isWorkingUrl(imgSrc);
+                const hasAnswer = !!answer;
+                // Лейбл «Ответ» показывается всегда — даже если нет ни текста,
+                // ни картинки (в этом случае под лейблом будет заглушка).
+                html += '<div class="ticket-a-label">Ответ</div>';
+                if (hasImage) {
                     // Контейнер превью: изначально показывает <img>,
                     // при ошибке — fallback-карточку.
                     // Уникальный id для управления таймаутом.
@@ -3672,11 +3677,13 @@
                     html += '</a>';
                     html += '</div>';
                 }
-                // Текст ответа рендерится отдельно — только если он есть.
-                // Если ответа нет, но есть картинка — показывается только картинка.
-                if (answer) {
-                    html += '<div class="ticket-a-label">Ответ</div>';
+                // Текст ответа выводится после картинки (если есть).
+                // Если нет ни текста, ни картинки — выводим заглушку.
+                if (hasAnswer) {
                     html += '<div class="ticket-a-text">' + escHtml(answer) + '</div>';
+                } else if (!hasImage) {
+                    // Нет ни текста, ни картинки — заглушка под лейблом «Ответ»
+                    html += '<div class="ticket-a-text" style="color:rgba(255,255,255,0.35);font-style:italic;">Ответ временно отсутствует</div>';
                 }
                 const ref = getField(q, 'literature_name', '\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b');
                 const fileUrl = getField(q, 'file_url', '\u0424\u0430\u0439\u043b').trim();
