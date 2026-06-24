@@ -7,7 +7,7 @@
 // свежие версии файлов из ASSETS.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v15';
+const CACHE_VERSION = 'kipia-v12';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).
@@ -21,9 +21,6 @@ const IMAGE_CACHE_NAME = IMAGE_CACHE_VERSION;
 
 // Файлы для пред-кэширования при установке SW.
 // Эти ресурсы будут доступны в офлайне сразу после первой загрузки.
-// ВАЖНО: pue-mobile.html (6.5 МБ) встроен ВНУТРЬ index.html как
-// <script type="text/plain" id="pue-content">. Поэтому отдельный файл
-// pue7/pue-mobile.html не нужен — он кэшируется как часть index.html.
 const ASSETS = [
   './',
   './index.html',
