@@ -136,43 +136,14 @@ const _mockNavigator = {
 // Будут извлечены из index.html автоматически — они объявлены в тех же <script> блоках.
 
 function extractFunctions() {
-    let html = fs.readFileSync(INDEX_HTML, 'utf-8');
+    const html = fs.readFileSync(INDEX_HTML, 'utf-8');
 
-    // ВАЖНО: сначала вырезаем <script type="text/plain" id="pue-content"> блок
-    // целиком (содержимое — встроенный pue-mobile.html, ~6.5 МБ HTML, в котором
-    // есть свои <script> теги). Если этого не сделать, regex ниже найдёт
-    // <script> теги внутри pue-content и попытается выполнить их как JS.
-    // Ищем открывающий тег и его закрывающий </script> (последний в файле,
-    // т.к. внутри pue-content все </script> экранированы как <\/script>).
-    const pueStartMarker = '<script type="text/plain" id="pue-content">';
-    const pueStartIdx = html.indexOf(pueStartMarker);
-    if (pueStartIdx !== -1) {
-        // Ищем последний </script> в файле — это закрывающий pue-content
-        const pueEndIdx = html.lastIndexOf('</script>');
-        if (pueEndIdx > pueStartIdx) {
-            // Вырезаем блок (включая открывающий и закрывающий теги)
-            html = html.slice(0, pueStartIdx) + html.slice(pueEndIdx + '</script>'.length);
-        }
-    }
-
-    // Извлекаем все <script> блоки (без src атрибута).
-    // Разрешённые type: отсутствует, "text/javascript", "application/javascript",
-    // "module" (хотя module не поддерживается в vm напрямую — но мы попробуем).
-    const scriptRegex = /<script(\s[^>]*)?>([\s\S]*?)<\/script>/gi;
+    // Извлекаем все <script> блоки (без src атрибута)
+    const scriptRegex = /<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi;
     let match;
     const scriptContents = [];
     while ((match = scriptRegex.exec(html)) !== null) {
-        const attrs = match[1] || '';
-        // Проверяем type атрибут
-        const typeMatch = attrs.match(/\btype\s*=\s*["']([^"']+)["']/i);
-        const type = typeMatch ? typeMatch[1].toLowerCase() : '';
-        // Пропускаем блоки с непустым type, который не является JS
-        if (type && type !== 'text/javascript' && type !== 'application/javascript' && type !== 'module') {
-            continue;
-        }
-        // Пропускаем блоки с src (внешние скрипты)
-        if (/\bsrc\s*=/i.test(attrs)) continue;
-        scriptContents.push(match[2]);
+        scriptContents.push(match[1]);
     }
 
     if (scriptContents.length === 0) {
