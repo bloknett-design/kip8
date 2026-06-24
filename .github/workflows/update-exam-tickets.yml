@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   # По расписанию — каждый день в 06:00 UTC (09:00 МСК)
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: '0 6 * * *'
 
 jobs:
   convert:
