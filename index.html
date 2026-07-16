@@ -323,13 +323,43 @@
     .content-header h2 { color: #e0e0e0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
     .content-header p { color: rgba(255,255,255,0.35); font-size: 12px; margin-top: 5px; }
     
-    /* Все menu-btn-row используют grid с gap: 4px — кнопки растянуты на всю ширину, плотно */
-    .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 8px 8px 10px; position: relative; z-index: 2; }
-    #page-dashboard .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 8px 8px 10px; }
-    #page-dashboard .menu-btn { width: 100%; margin: 0; min-height: 65px; }
+    /* Все menu-btn-row используют grid с gap: 2px — кнопки растянуты на всю ширину, минимальный зазор */
+    .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 2px; padding: 8px 8px 10px; position: relative; z-index: 2; }
+    #page-dashboard .menu-btn-row { display: grid; grid-template-columns: 1fr; gap: 2px; padding: 8px 8px 10px; }
+
+    /* ===== Группы блоков на главной странице ===== */
+    /* Контейнер группы с рамкой и заголовком цвета палитры */
+    .dashboard-group {
+        margin: 8px 8px 14px;
+        padding: 8px 8px 4px;
+        border: 1px solid var(--border-subtle, rgba(255,255,255,0.08));
+        border-radius: 12px;
+        background: rgba(255,255,255,0.015);
+    }
+    .dashboard-group-title {
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        padding: 6px 8px 8px;
+        margin: 0;
+        color: var(--accent-blue);
+    }
+    .dashboard-group-title-group-docs {
+        color: var(--accent-gold);
+    }
+    /* Внутри группы убираем внешние padding у menu-btn-row — они есть у контейнера */
+    .dashboard-group .menu-btn-row {
+        padding: 4px 0 6px;
+    }
+    [data-theme="light"] .dashboard-group {
+        border-color: rgba(20,20,19,0.12);
+        background: rgba(0,0,0,0.015);
+    }
+    
     .menu-btn {
         display: flex; align-items: center; justify-content: flex-start; position: relative;
-        width: 100%; min-width: 0; min-height: 44px; padding: 6px 16px; margin: 0;
+        width: 100%; min-width: 0; min-height: 65px; padding: 6px 16px; margin: 0;
         background: var(--card-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         border: 1px solid var(--card-border); border-radius: 14px; cursor: pointer;
         overflow: hidden; -webkit-user-select: none; user-select: none;
@@ -369,6 +399,8 @@
         border: 1px solid rgba(74, 143, 199, 0.2); border-radius: 14px; margin: 8px 0; padding: 14px 16px; 
         position: relative; z-index: 2;
     }
+    /* Схематичное изображение для геометрических калькуляторов.
+       Размещается по центру страницы под навигационной панелью. */
     .kit-dev-form { padding: 10px 12px !important; margin: 4px 0 !important; border-radius: 10px !important; }
     .kit-dev-form .scale-form-label { font-size: 10px; margin-bottom: 3px; }
     .kit-dev-form .scale-field { height: 36px !important; padding: 6px 10px !important; margin-bottom: 8px !important; font-size: 12px !important; border-radius: 8px !important; }
@@ -459,6 +491,400 @@
     .converter-convert-btn:active, .scale-calc-btn:active { transform: scale(0.97); opacity: 0.9; }
     .converter-convert-btn svg, .scale-calc-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; pointer-events: none; }
     .converter-convert-btn, .scale-calc-btn { background: linear-gradient(135deg, #2563eb, #3b82f6); box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25); }
+
+    /* ===== Быстрый доступ к разделам главной страницы ===== */
+    /* Контейнер с двумя кнопками внизу дашборда. Существует только внутри #page-dashboard. */
+    .dashboard-quick-nav {
+        display: grid; grid-template-columns: 1fr; gap: 10px;
+        padding: 8px 8px 16px; position: relative; z-index: 2;
+    }
+    /* Кнопка-дубликат существующего .converter-convert-btn (синий градиент), но без верхнего margin */
+    .dashboard-quick-nav .dashboard-quick-btn { margin: 0; }
+    /* Золотистая вариация для раздела «Документация» — в цвет группы .dashboard-group-title-group-docs */
+    .dashboard-quick-btn-docs {
+        background: linear-gradient(135deg, #b8842e, #c7964a) !important;
+        box-shadow: 0 3px 12px rgba(199, 150, 74, 0.25) !important;
+    }
+    [data-theme="light"] .dashboard-quick-btn-docs {
+        background: linear-gradient(135deg, #C6613F, #D97757) !important;
+        box-shadow: 0 3px 12px rgba(198, 97, 63, 0.25) !important;
+    }
+
+    /* ============================================================
+       НИЖНИЙ БАР ГЛАВНОЙ СТРАНИЦЫ (фиксированный, не прокручивается)
+       ============================================================ */
+    .dashboard-bottom-bar {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 80;
+        display: none; /* по умолчанию скрыт, показывается только на дашборде */
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        padding: 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        background: var(--bottom-nav-bg, rgba(23, 33, 43, 0.95));
+        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        border-top: 1px solid var(--card-border);
+    }
+    /* Вертикальная линия-разделитель между двумя кнопками.
+       Не доходит до верхнего и нижнего краёв бара на 14px (с учётом safe-area). */
+    .dashboard-bottom-bar::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 14px;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        width: 1px;
+        background: var(--card-border, rgba(74, 143, 199, 0.18));
+        transform: translateX(-50%);
+        pointer-events: none;
+        z-index: 1;
+    }
+    /* Показываем нижний бар только когда активна главная страница */
+    body:has(#page-dashboard.active) .dashboard-bottom-bar { display: grid; }
+    /* На дашборде добавляем нижний отступ, чтобы контент не перекрывался баром */
+    body:has(#page-dashboard.active) #contentArea { padding-bottom: 88px; }
+
+    .dashboard-bottom-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 16px 10px calc(16px + env(safe-area-inset-bottom, 0px));
+        border: none; border-radius: 0;
+        background: transparent;
+        color: var(--accent-blue, #4a8fc7); font-size: 14px; font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer; pointer-events: auto;
+        touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+        box-shadow: none;
+        transition: background 0.2s, opacity 0.2s;
+        min-height: 56px;
+        position: relative;
+        z-index: 2;
+    }
+    .dashboard-bottom-btn:active { background: rgba(255,255,255,0.05); opacity: 0.75; }
+    .dashboard-bottom-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .dashboard-bottom-btn span { line-height: 1.2; }
+    /* Кнопка «Документация» — золотистый цвет текста и иконки */
+    .dashboard-bottom-btn-docs {
+        color: var(--accent-gold, #c7964a);
+    }
+    [data-theme="light"] .dashboard-bottom-btn { color: #4a8fc7; }
+    [data-theme="light"] .dashboard-bottom-btn-docs { color: #b8842e; }
+    [data-theme="light"] .dashboard-bottom-btn:active { background: rgba(20,20,19,0.05); }
+    @media (max-width: 400px) {
+        .dashboard-bottom-btn { font-size: 12px; padding: 14px 8px calc(14px + env(safe-area-inset-bottom, 0px)); gap: 6px; }
+        .dashboard-bottom-btn svg { width: 18px; height: 18px; }
+    }
+
+    /* ============================================================
+       ЗАКРЕПЛЁННЫЕ ПОДРАЗДЕЛЫ НА ГЛАВНОЙ
+       ============================================================ */
+    .pinned-items-container {
+        padding: 0;
+    }
+    .pinned-items-title {
+        font-size: 11px; font-weight: 600; letter-spacing: 0.6px;
+        text-transform: uppercase;
+        color: var(--text-muted, rgba(255,255,255,0.35));
+        padding: 4px 8px 8px;
+    }
+    .pinned-empty-hint {
+        margin: 8px 8px 14px;
+        padding: 16px 18px;
+        background: var(--card-bg);
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        border: 1px dashed var(--card-border);
+        border-radius: 14px;
+        color: var(--text-muted, rgba(255,255,255,0.45));
+        font-size: 15px; line-height: 1.55;
+    }
+    .pinned-empty-hint b { color: var(--text-secondary, rgba(255,255,255,0.55)); }
+    .pinned-empty-hint .pin-empty-icon {
+        display: inline-flex; vertical-align: middle;
+        width: 20px; height: 20px; margin: 0 2px;
+        stroke: var(--accent-blue); fill: none; stroke-width: 2; stroke-linecap: round;
+    }
+
+    /* ============================================================
+       КНОПКА «ТРИ ТОЧКИ» НА ПУНКТАХ МЕНЮ
+       ============================================================ */
+    .menu-btn-overflow {
+        flex-shrink: 0;
+        width: 32px; height: 32px;
+        display: flex; align-items: center; justify-content: center;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        color: rgba(255,255,255,0.3);
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.2s;
+        margin-right: 4px;
+        pointer-events: auto;
+    }
+    .menu-btn-overflow:active { background: rgba(255,255,255,0.08); transform: scale(0.9); }
+    .menu-btn-overflow svg { width: 18px; height: 18px; fill: currentColor; }
+    [data-theme="light"] .menu-btn-overflow { color: rgba(20,20,19,0.35); }
+    [data-theme="light"] .menu-btn-overflow:active { background: rgba(20,20,19,0.08); }
+
+    /* ============================================================
+       BOTTOM SHEET ДЛЯ PIN/UNPIN
+       ============================================================ */
+    .pin-sheet-overlay {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 200;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+    }
+    .pin-sheet-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .pin-sheet {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 201;
+        background: var(--bg-primary, #1a1f26);
+        border-top-left-radius: 18px;
+        border-top-right-radius: 18px;
+        padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 -8px 30px rgba(0,0,0,0.4);
+        max-width: 520px;
+        margin: 0 auto;
+    }
+    .pin-sheet.active { transform: translateY(0); }
+    .pin-sheet-handle {
+        width: 36px; height: 4px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 2px;
+        margin: 4px auto 14px;
+    }
+    [data-theme="light"] .pin-sheet-handle { background: rgba(20,20,19,0.2); }
+    .pin-sheet-title {
+        font-size: 17px; font-weight: 700;
+        color: var(--text-primary, #e0e0e0);
+        text-align: center;
+        margin-bottom: 4px;
+    }
+    .pin-sheet-sublabel {
+        font-size: 13px;
+        color: var(--text-muted, rgba(255,255,255,0.4));
+        text-align: center;
+        margin-bottom: 18px;
+        line-height: 1.4;
+    }
+    .pin-sheet-action {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%;
+        padding: 14px;
+        border: none; border-radius: 12px;
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        color: #fff; font-size: 15px; font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25);
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.2s;
+    }
+    .pin-sheet-action:active { transform: scale(0.97); opacity: 0.9; }
+    .pin-sheet-action svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .pin-sheet-action.is-pinned {
+        background: linear-gradient(135deg, #c74a4a, #d9634a);
+        box-shadow: 0 3px 12px rgba(199, 74, 74, 0.25);
+    }
+    [data-theme="light"] .pin-sheet-action {
+        background: linear-gradient(135deg, #C6613F, #D97757);
+        box-shadow: 0 3px 12px rgba(198, 97, 63, 0.25);
+    }
+    [data-theme="light"] .pin-sheet-action.is-pinned {
+        background: linear-gradient(135deg, #C6613F, #D97757);
+        box-shadow: 0 3px 12px rgba(198, 97, 63, 0.25);
+    }
+    .pin-sheet-cancel {
+        display: block;
+        width: 100%;
+        padding: 13px;
+        margin-top: 8px;
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        background: transparent;
+        color: var(--text-secondary, rgba(255,255,255,0.6));
+        font-size: 14px; font-weight: 500;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.2s;
+    }
+    .pin-sheet-cancel:active { background: rgba(255,255,255,0.05); }
+    [data-theme="light"] .pin-sheet-cancel:active { background: rgba(20,20,19,0.05); }
+
+    /* Дополнительные кнопки перемещения в bottom sheet (для закреплённых пунктов) */
+    .pin-sheet-extra-actions {
+        display: flex; flex-direction: column; gap: 8px;
+        margin-bottom: 8px;
+    }
+    /* Вторичная кнопка — контурная, легче основной */
+    .pin-sheet-action-secondary {
+        background: transparent !important;
+        border: 1px solid var(--card-border);
+        color: var(--text-secondary, rgba(255,255,255,0.7));
+        box-shadow: none !important;
+    }
+    .pin-sheet-action-secondary:active { background: rgba(255,255,255,0.05) !important; }
+    [data-theme="light"] .pin-sheet-action-secondary {
+        color: var(--text-secondary, rgba(20,20,19,0.7));
+        border-color: rgba(20,20,19,0.15);
+    }
+    [data-theme="light"] .pin-sheet-action-secondary:active { background: rgba(20,20,19,0.05) !important; }
+    /* Отключённое состояние (первый пункт — кнопка «вверх», последний — «вниз») */
+    .pin-sheet-action:disabled,
+    .pin-sheet-action-secondary:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        pointer-events: none;
+        box-shadow: none !important;
+    }
+
+    /* ============================================================
+       ПЕРЕТАСКИВАНИЕ ЗАКРЕПЛЁННЫХ ПУНКТОВ (long-press + drag)
+       ============================================================ */
+    /* Контейнер закреплённых — отключаем выделение текста при долгом зажатии */
+    .pinned-items-row {
+        -webkit-user-select: none; user-select: none;
+        -webkit-touch-callout: none;
+    }
+    /* Картока закреплённого пункта — отключаем нативные жесты браузера (скролл, long-press меню).
+       Без этого pointermove начинает прокрутку страницы, инициируя pointercancel — drag срывается. */
+    .pinned-item {
+        touch-action: none;
+    }
+    /* SWIPE-TO-DELETE: обёртка карточки с подложками «Убрать» */
+    .pinned-item-cell {
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        margin-bottom: 4px;
+    }
+    .pinned-item-cell > .pinned-item {
+        position: relative;
+        z-index: 1;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 0;
+    }
+    .pinned-item-cell > .pinned-item.swipe-active {
+        transition: none;
+    }
+    .pinned-item-cell > .pinned-item.swipe-removing {
+        transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+        opacity: 0;
+    }
+    /* Подложка «Убрать» — абсолютная, под карточкой, красный градиент в стиле сайта */
+    .pinned-item-delete-bg {
+        position: absolute;
+        top: 0; bottom: 0;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #c74a4a, #d9634a);
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s;
+    }
+    .pinned-item-delete-bg svg {
+        width: 18px; height: 18px;
+        stroke: #fff; fill: none; stroke-width: 2;
+        stroke-linecap: round; stroke-linejoin: round;
+        flex-shrink: 0;
+    }
+    .pinned-item-delete-left  { left: 0;  padding-left: 20px;  justify-content: flex-start; }
+    .pinned-item-delete-right { right: 0; padding-right: 20px; justify-content: flex-end; }
+    /* Подложка видна когда карточка сдвинута в противоположную сторону */
+    .pinned-item-cell.swiping-right .pinned-item-delete-left  { opacity: 1; }
+    .pinned-item-cell.swiping-left  .pinned-item-delete-right { opacity: 1; }
+    [data-theme="light"] .pinned-item-delete-bg {
+        background: linear-gradient(135deg, #C6613F, #D97757);
+    }
+
+    /* ============================================================
+       SWIPE-TO-ADD: обёртка карточки подраздела с зелёными подложками «Добавить»
+       ============================================================ */
+    .subsection-cell {
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        margin-bottom: 4px;
+    }
+    .subsection-cell > .menu-btn {
+        position: relative;
+        z-index: 1;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 0;
+        /* touch-action: pan-y — разрешает вертикальный скролл страницы,
+           но отключает горизонтальные нативные жесты браузера.
+           Без этого на мобильных при горизонтальном свайпе браузер начинает
+           прокрутку страницы, что приводит к pointercancel и срыву swipe.
+           На ПК с мышью проблемы нет, т.к. мышь не генерирует touch-жесты. */
+        touch-action: pan-y;
+    }
+    .subsection-cell > .menu-btn.swipe-active {
+        transition: none;
+    }
+    /* Зелёная подложка «Добавить» — абсолютная, под карточкой */
+    .subsection-add-bg {
+        position: absolute;
+        top: 0; bottom: 0;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #3a9d5a, #4ac771);
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s;
+    }
+    .subsection-add-bg svg {
+        width: 18px; height: 18px;
+        stroke: #fff; fill: none; stroke-width: 2;
+        stroke-linecap: round; stroke-linejoin: round;
+        flex-shrink: 0;
+    }
+    .subsection-add-left  { left: 0;  padding-left: 20px;  justify-content: flex-start; }
+    .subsection-add-right { right: 0; padding-right: 20px; justify-content: flex-end; }
+    /* Подложка видна когда карточка сдвинута в противоположную сторону */
+    .subsection-cell.swiping-right .subsection-add-left  { opacity: 1; }
+    .subsection-cell.swiping-left  .subsection-add-right { opacity: 1; }
+    [data-theme="light"] .subsection-add-bg {
+        background: linear-gradient(135deg, #2d8a4a, #4ac771);
+    }
+    /* Картока в состоянии перетаскивания (оригинал) — полупрозрачная */
+    .pinned-item.pinned-item-dragging {
+        opacity: 0.3;
+        transform: scale(0.97);
+    }
+    /* Картока-цель, над которой сейчас находится перетаскиваемый элемент */
+    .pinned-item.pinned-item-drag-over {
+        border-color: var(--accent-blue, #4a8fc7) !important;
+        box-shadow: 0 0 0 2px rgba(74, 143, 199, 0.35);
+        transform: scale(1.01);
+    }
+    /* Клон карточки, следующий за пальцем/курсором */
+    .pinned-item-clone {
+        pointer-events: none !important;
+        opacity: 0.92;
+        box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+        transform: scale(1.02);
+        transition: none !important;
+    }
     
     .converter-result-group { margin: 6px 0 10px; position: relative; z-index: 2; }
     .converter-result-label-title { color: rgba(255,255,255,0.3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px; padding-left: 4px; font-weight: 500; }
@@ -550,11 +976,13 @@
     .query-btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; pointer-events: none; }
     
     .toast {
-        position: fixed; top: calc(56px + env(safe-area-inset-top, 0px)); left: 16px; right: 16px;
+        position: fixed; top: env(safe-area-inset-top, 0px); left: 8px; right: 8px;
+        height: 56px;
         background: rgba(30, 42, 56, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-        color: #e0e0e0; padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 8px;
-        font-size: 13px; z-index: 200; transform: translateY(-100px); opacity: 0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(74, 143, 199, 0.2);
+        color: #e0e0e0; padding: 0 16px; border-radius: 0 0 12px 12px; display: flex; align-items: center; gap: 8px;
+        font-size: 13px; z-index: 200; transform: translateY(-100%); opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(74, 143, 199, 0.2); border-top: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast svg { width: 18px; height: 18px; stroke: #4ac771; fill: none; stroke-width: 2; stroke-linecap: round; }
@@ -603,11 +1031,11 @@
     
 
     @media (max-width: 480px) {
-        .menu-btn { width: 100%; margin: 0; padding: 6px 14px; min-height: 52px; }
+        .menu-btn { width: 100%; margin: 0; padding: 6px 14px; min-height: 61px; }
         .menu-btn-label { font-size: 17px; } .menu-btn-sublabel { font-size: 13px; }
         #page-dashboard .menu-btn-label { font-size: 21px; }
         #page-dashboard .menu-btn-sublabel { font-size: 15px; }
-        #page-dashboard .menu-btn { min-height: 61px; }
+        
         .nav-btn { padding: 9px 14px; font-size: 13px; }
         .form-field, .scale-field { padding: 9px 12px; font-size: 14px; height: 40px; }
         select.scale-field, select.form-field { font-size: 13px; height: 40px; min-height: 40px; padding-top: 9px; padding-bottom: 9px; }
@@ -623,11 +1051,11 @@
         .header-title svg.led-display { height: 36px; }
     }
     @media (max-width: 400px) {
-        .menu-btn { width: 100%; margin: 0; padding: 5px 12px; min-height: 50px; }
+        .menu-btn { width: 100%; margin: 0; padding: 5px 12px; min-height: 57px; }
         .menu-btn-label { font-size: 16px; } .menu-btn-sublabel { font-size: 12px; }
         #page-dashboard .menu-btn-label { font-size: 19px; }
         #page-dashboard .menu-btn-sublabel { font-size: 14px; }
-        #page-dashboard .menu-btn { min-height: 57px; }
+        
         /* На 375-400px все тексты умещаются в 1 строку — текущий min-height: 57px достаточен */
         .nav-btn { padding: 8px 12px; font-size: 12px; gap: 5px; }
         .nav-btn svg { width: 12px; height: 12px; }
@@ -655,14 +1083,14 @@
     /* 341–374px: подзаголовки типа "ГОСТ 8.401-80, ГОСТ OIML R 76-1-2011, ТС, ТП" переносятся на 2 строки.
        min-height: 75px вмещает 1 строку заголовка + 2 строки подзаголовка (padding 5px×2). */
     @media (max-width: 374px) {
-        #page-dashboard .menu-btn { min-height: 75px; }
+        .menu-btn { min-height: 70px; }
     }
 
     /* ≤340px: заголовок "Автоматический выключатель" тоже переносится на 2 строки.
        Уменьшаем шрифт до 17/12px (с 19/14px), чтобы сократить количество переносов и пустое пространство.
        min-height: 68px вмещает 1 строку заголовка + 2 строки подзаголовка при уменьшенном шрифте. */
     @media (max-width: 340px) {
-        #page-dashboard .menu-btn { min-height: 68px; }
+        .menu-btn { min-height: 68px; }
         #page-dashboard .menu-btn-label { font-size: 17px; }
         #page-dashboard .menu-btn-sublabel { font-size: 12px; }
     }
@@ -670,7 +1098,7 @@
     /* ≤300px: на очень узких экранах (280-300px) даже с уменьшенным шрифтом "Автоматический выключатель"
        переносится на 2 строки + 2 строки подзаголовка. min-height: 89px для баланса. */
     @media (max-width: 300px) {
-        #page-dashboard .menu-btn { min-height: 89px; }
+        .menu-btn { min-height: 75px; }
     }
 
     @media (min-width: 481px) { .menu-btn { max-width: 480px; } }
@@ -687,14 +1115,8 @@
     .page-inline-header-title { font-size: 18px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px; }
     #page-dashboard ~ .app-header, body:has(#page-dashboard.active) .app-header { display: block; }
     body:has(.page-content.active:not(#page-dashboard)) .app-header { display: none; }
-
-
-
-
     .greek-gamma { font-family: Georgia, 'Times New Roman', serif; font-style: italic; text-transform: none; }
     .greek-delta { font-family: Georgia, 'Times New Roman', serif; font-style: italic; text-transform: none; }
-
-
     /* Sidebar */
     .sidebar-overlay {
         position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -719,11 +1141,11 @@
         font-size: 20px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px;
     }
     .sidebar-content {
-        flex: 1; overflow-y: auto; padding: 12px 0; -webkit-overflow-scrolling: touch;
+        flex: 1; overflow-y: auto; padding: 8px 0; -webkit-overflow-scrolling: touch;
     }
     .sidebar-item {
         display: flex; align-items: center; gap: 14px;
-        padding: 14px 20px; color: rgba(180, 200, 220, 0.9);
+        padding: 9px 20px; color: rgba(180, 200, 220, 0.9);
         font-size: 14px; font-weight: 500; cursor: pointer;
         transition: all 0.2s; border-left: 3px solid transparent;
         -webkit-tap-highlight-color: transparent; touch-action: manipulation;
@@ -731,9 +1153,71 @@
     .sidebar-item:active { background: rgba(74, 143, 199, 0.08); }
     .sidebar-item:hover { background: rgba(74, 143, 199, 0.05); border-left-color: rgba(74, 143, 199, 0.4); }
     .sidebar-item svg { flex-shrink: 0; }
+
+    /* Группа разделов с аккордеоном — по умолчанию только 3 первых пункта */
+    .sidebar-item-extra { display: none; }
+    .sidebar-group.expanded .sidebar-item-extra { display: flex; }
+    /* Кнопка «Показать все» / «Свернуть» */
+    .sidebar-show-more {
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        padding: 6px 20px 8px;
+        color: rgba(140, 170, 200, 0.55);
+        font-size: 12px; font-weight: 500;
+        cursor: pointer;
+        border: none; background: transparent;
+        -webkit-tap-highlight-color: transparent;
+        transition: color 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+    .sidebar-show-more:active { color: rgba(74, 143, 199, 0.9); }
+    .sidebar-show-more svg {
+        width: 14px; height: 14px;
+        stroke: currentColor; fill: none; stroke-width: 2;
+        stroke-linecap: round; stroke-linejoin: round;
+        transition: transform 0.25s;
+    }
+    .sidebar-group.expanded .sidebar-show-more svg { transform: rotate(180deg); }
+    [data-theme="light"] .sidebar-show-more { color: rgba(20, 20, 19, 0.5); }
+    [data-theme="light"] .sidebar-show-more:active { color: rgba(198, 97, 63, 0.9); }
+
+    /* Заголовок группы разделов в шторке меню */
+    .sidebar-group-title {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.6px;
+        text-transform: uppercase;
+        color: var(--accent-blue, #4a8fc7);
+        padding: 10px 20px 4px;
+        margin-top: 2px;
+    }
+    /* Группа «Документация» — золотистый акцент */
+    .sidebar-group-title-docs {
+        color: var(--accent-gold, #c7964a);
+    }
+    /* Первый заголовок группы — без верхнего отступа */
+    .sidebar-content .sidebar-group-title:first-child {
+        margin-top: 0;
+    }
+    /* Тонкий разделитель между разделами и сервисными кнопками */
+    .sidebar-divider {
+        height: 1px;
+        margin: 12px 20px;
+        background: var(--card-border, rgba(74, 143, 199, 0.18));
+        flex-shrink: 0;
+    }
+    [data-theme="light"] .sidebar-group-title {
+        color: #4a8fc7;
+    }
+    [data-theme="light"] .sidebar-group-title-docs {
+        color: #b8842e;
+    }
+    [data-theme="light"] .sidebar-divider {
+        background: rgba(20, 20, 19, 0.12);
+    }
+
     @media (max-width: 400px) {
         .sidebar { width: 260px; }
-        .sidebar-item { padding: 12px 16px; font-size: 13px; }
+        .sidebar-item { padding: 8px 16px; font-size: 13px; }
     }
 
     /* Light theme text color overrides */
@@ -1325,6 +1809,16 @@
     .ms-game-over-sub {
         font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 16px;
     }
+    /* ===== Placeholder button (раздел в разработке) ===== */
+    .menu-btn-placeholder {
+        opacity: 0.55;
+        pointer-events: none;
+        border-style: dashed;
+    }
+    [data-theme="light"] .menu-btn-placeholder {
+        opacity: 0.7;
+    }
+
     /* ===== Secret Minesweeper Button ===== */
     .menu-btn-secret {
         display: none;
@@ -1727,18 +2221,72 @@
     <div id="contentArea">
         <!-- DASHBOARD -->
         <div id="page-dashboard" class="page-content active">
-            
+
+            <!-- ===== Закреплённые пользователем подразделы ===== -->
+            <div id="pinnedItemsContainer" class="pinned-items-container"></div>
+
+            <!-- Секретная кнопка «Сапёр» — скрыта по умолчанию.
+                 Открывается 2 тапами по заголовку приложения. -->
             <div class="menu-btn-row">
-                <div class="menu-btn" onclick="navigateTo('converter')"><div class="menu-btn-text"><div class="menu-btn-label">Конвертер единиц</div><div class="menu-btn-sublabel">Давление, расход, температура и др.</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('scale-signal')"><div class="menu-btn-text"><div class="menu-btn-label">Шкала-сигнал</div><div class="menu-btn-sublabel">Расчёт диапазонов шкалы и сигнала</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('error-select')"><div class="menu-btn-text"><div class="menu-btn-label">Расчёт погрешности</div><div class="menu-btn-sublabel">ГОСТ 8.401-80, ГОСТ OIML R 76-1-2011, ТС, ТП</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('buoy-select')"><div class="menu-btn-text"><div class="menu-btn-label">Буйковый уровнемер</div><div class="menu-btn-sublabel">Калибровка, выталкивающая сила</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('temp-sensors')"><div class="menu-btn-text"><div class="menu-btn-label">Датчики температуры</div><div class="menu-btn-sublabel">Расчёт R и мВ по температуре (°C)</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('circuit-breaker')"><div class="menu-btn-text"><div class="menu-btn-label">Автоматический выключатель</div><div class="menu-btn-sublabel">Расчёт по мощности, току, сечению кабеля</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('orifice-select')"><div class="menu-btn-text"><div class="menu-btn-label">Сужающее устройство</div><div class="menu-btn-sublabel">Расчёт диафрагмы по расходу и перепаду</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('exam-tickets')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Экзаменационные билеты</div><div class="menu-btn-sublabel">4, 5, 6 разряд, до 1000 В</div></div><i class="menu-btn-arrow" style="color:rgba(199,150,74,0.4);">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('library')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Библиотека КИП и А</div><div class="menu-btn-sublabel">Документация, схемы, инструкции</div></div><i class="menu-btn-arrow" style="color:rgba(199,150,74,0.4);">›</i></div>
                 <div class="menu-btn menu-btn-secret" id="minesweeperBtn" onclick="navigateTo('minesweeper')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Сапёр</div></div></div>
+            </div>
+        </div>
+
+        <!-- ======================== ИНЖЕНЕРНЫЕ КАЛЬКУЛЯТОРЫ (родительское меню) ======================== -->
+        <div id="page-calculators" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Инженерные калькуляторы</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div class="menu-btn-row">
+                <div class="menu-btn" onclick="navigateTo('calc-kipa')"><div class="menu-btn-text"><div class="menu-btn-label">КИП и А</div><div class="menu-btn-sublabel">Конвертеры, погрешности, датчики, диафрагмы</div></div><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('calc-electro')"><div class="menu-btn-text"><div class="menu-btn-label">Электротехника</div><div class="menu-btn-sublabel">Автоматический выключатель</div></div><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('calc-geometry')"><div class="menu-btn-text"><div class="menu-btn-label">Геометрия</div><div class="menu-btn-sublabel">Площади, объёмы, сечения</div></div><i class="menu-btn-arrow">›</i></div>
+            </div>
+        </div>
+
+        <!-- ======================== ДОКУМЕНТАЦИЯ (родительское меню) ======================== -->
+        <div id="page-docs" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Документация</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div class="menu-btn-row">
+                <div class="menu-btn" onclick="navigateTo('exam-tickets')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Экзаменационные билеты</div><div class="menu-btn-sublabel">4, 5, 6 разряд, до 1000 В</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('exam-tickets')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(199,150,74,0.4);">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('library')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Библиотека КИП и А</div><div class="menu-btn-sublabel">Документация, схемы, инструкции</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('library')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(199,150,74,0.4);">›</i></div>
+            </div>
+        </div>
+
+        <!-- ======================== ИНЖЕНЕРНЫЕ КАЛЬКУЛЯТОРЫ — КИП и А ======================== -->
+        <div id="page-calc-kipa" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">КИП и А</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div class="menu-btn-row">
+                <div class="menu-btn" onclick="navigateTo('converter')"><div class="menu-btn-text"><div class="menu-btn-label">Конвертер единиц</div><div class="menu-btn-sublabel">Давление, расход, температура и др.</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('converter')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('scale-signal')"><div class="menu-btn-text"><div class="menu-btn-label">Шкала-сигнал</div><div class="menu-btn-sublabel">Расчёт диапазонов шкалы и сигнала</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('scale-signal')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('error-select')"><div class="menu-btn-text"><div class="menu-btn-label">Расчёт погрешности</div><div class="menu-btn-sublabel">ГОСТ 8.401-80, ГОСТ OIML R 76-1-2011, ТС, ТП</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('error-select')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('buoy-select')"><div class="menu-btn-text"><div class="menu-btn-label">Буйковый уровнемер</div><div class="menu-btn-sublabel">Калибровка, выталкивающая сила</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('buoy-select')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('temp-sensors')"><div class="menu-btn-text"><div class="menu-btn-label">Датчики температуры</div><div class="menu-btn-sublabel">Расчёт R и мВ по температуре (°C)</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('temp-sensors')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('orifice-select')"><div class="menu-btn-text"><div class="menu-btn-label">Сужающее устройство</div><div class="menu-btn-sublabel">Расчёт диафрагмы по расходу и перепаду</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('orifice-select')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+            </div>
+        </div>
+
+        <!-- ======================== ИНЖЕНЕРНЫЕ КАЛЬКУЛЯТОРЫ — ЭЛЕКТРОТЕХНИКА ======================== -->
+        <div id="page-calc-electro" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Электротехника</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div class="menu-btn-row">
+                <div class="menu-btn" onclick="navigateTo('circuit-breaker')"><div class="menu-btn-text"><div class="menu-btn-label">Автоматический выключатель</div><div class="menu-btn-sublabel">Расчёт по мощности, току, сечению кабеля</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('circuit-breaker')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+            </div>
+        </div>
+
+        <!-- ======================== ИНЖЕНЕРНЫЕ КАЛЬКУЛЯТОРЫ — ГЕОМЕТРИЯ ======================== -->
+        <div id="page-calc-geometry" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Геометрия</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div class="menu-btn-row">
+                <div class="menu-btn" onclick="navigateTo('geo-circle')"><div class="menu-btn-text"><div class="menu-btn-label">Круг</div><div class="menu-btn-sublabel">Площадь, периметр, радиус</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('geo-circle')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('geo-ring')"><div class="menu-btn-text"><div class="menu-btn-label">Кольцо</div><div class="menu-btn-sublabel">Площадь сечения, эквивалентный диаметр</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('geo-ring')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('geo-cylinder')"><div class="menu-btn-text"><div class="menu-btn-label">Цилиндр вертикальный</div><div class="menu-btn-sublabel">Объём, площадь поверхности</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('geo-cylinder')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('geo-horiz')"><div class="menu-btn-text"><div class="menu-btn-label">Цилиндр горизонтальный</div><div class="menu-btn-sublabel">Объём жидкости при частичном заполнении</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('geo-horiz')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('geo-sphere')"><div class="menu-btn-text"><div class="menu-btn-label">Сфера</div><div class="menu-btn-sublabel">Объём, площадь поверхности</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('geo-sphere')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('geo-cone')"><div class="menu-btn-text"><div class="menu-btn-label">Конус</div><div class="menu-btn-sublabel">Объём, образующая, площадь</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('geo-cone')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
             </div>
         </div>
 
@@ -1794,11 +2342,11 @@
         <div id="page-conv-pressure" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-title">Давление</div></div>
     <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
-            <div class="converter-form"><div class="form-label">Значение</div><input type="text" inputmode="numeric" id="conv-pressure-input" class="form-field" placeholder="Введите значение" autocomplete="off" enterkeyhint="done"><div class="form-label">Единица измерения</div><select id="conv-pressure-unit" class="form-field" autocomplete="off"><option value="Pa">Па</option><option value="kPa">кПа</option><option value="MPa" selected>МПа</option><option value="bar">бар</option><option value="mbar">мбар</option><option value="atm">атм</option><option value="kgf_cm2">кгс/см²</option><option value="mmHg">мм рт. ст.</option><option value="PSI">PSI</option><option value="mmH2O">мм вод. ст.</option></select></div>
+            <div class="converter-form"><div class="form-label">Значение</div><input type="text" inputmode="numeric" id="conv-pressure-input" class="form-field" placeholder="Введите значение" autocomplete="off" enterkeyhint="done"><div class="form-label">Единица измерения</div><select id="conv-pressure-unit" class="form-field" autocomplete="off"><option value="Pa">Па</option><option value="kPa">кПа</option><option value="MPa" selected>МПа</option><option value="bar">бар</option><option value="mbar">мбар</option><option value="atm">атм</option><option value="kgf_cm2">кгс/см²</option><option value="kgf_m2">кгс/м²</option><option value="mmHg">мм рт. ст.</option><option value="PSI">PSI</option><option value="mmH2O">мм вод. ст.</option></select></div>
             <button type="button" class="converter-convert-btn" onclick="convertUnits('pressure')"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Перевести</button>
             <div class="converter-result-group" id="conv-pressure-results"></div>
             <div class="converter-result-group" id="conv-pressure-table" style="display:none;"></div>
-            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span></div><div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;"><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Определение:</b> Давление — физическая величина, равная силе, действующей перпендикулярно на единицу площади: p = F/S. Единица СИ — паскаль (Па = Н/м²). В КИПиА применяются как абсолютное (от вакуума), так и избыточное (относительно атмосферы) давление.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Соотношения единиц:</b> 1 МПа = 10 бар = 10,197 кгс/см² = 9,869 атм = 7500,6 мм рт. ст. = 101971,6 мм вод. ст. = 145,04 PSI. 1 бар = 100 кПа = 0,1 МПа.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Атмосферное давление:</b> Нормальное атмосферное давление: 1 атм = 101325 Па = 760 мм рт. ст. = 1,0332 кгс/см² = 1013,25 мбар. На высоте 1 км падает примерно на 12%.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Типовые значения:</b> Водоснабжение 0,3–0,6 МПа; паропровод ТЭЦ 1,4–2,5 МПа; газовые сети 0,003–0,6 МПа; сжатый воздух 0,6–1,0 МПа; гидроиспытания 1,5·Pраб.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Избыточное vs абсолютное:</b> Манометр показывает избыточное давление (относительно атмосферы): p_изб = p_абс − p_атм. При отрицательном избыточном — вакуумметрия (разрежение).</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Нормативный документ:</b> ГОСТ 8.417-2002 «ГСИ. Единицы величин»; ГОСТ Р 8.802-2012 «ГСИ. Государственная поверочная схема для средств измерений давления»; ГОСТ 6521-72 «Манометры, вакуумметры...».</div></div></div>
+            <div style="margin:14px 0 10px;padding:14px 16px;background:var(--card-bg);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--card-border);border-radius:14px;position:relative;z-index:2;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span style="font-size:14px;font-weight:700;color:var(--text-primary);letter-spacing:-0.2px;">Справочная информация</span></div><div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.6;"><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Определение:</b> Давление — физическая величина, равная силе, действующей перпендикулярно на единицу площади: p = F/S. Единица СИ — паскаль (Па = Н/м²).</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Соотношения единиц:</b> 1 МПа = 10 бар = 10,197 кгс/см² = 9,869 атм = 7500,6 мм рт. ст. = 101971,6 мм вод. ст. = 145,04 PSI. 1 бар = 100 кПа = 0,1 МПа.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Атмосферное давление:</b> Нормальное атмосферное давление: 1 атм = 101325 Па = 760 мм рт. ст. = 1,0332 кгс/см² = 1013,25 мбар. На высоте 1 км падает примерно на 12%.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Абсолютное давление:</b> Давление, отсчитываемое от полного вакуума (нулевого давления). Обозначается индексом «абс» или «abs». Связь с избыточным: p_абс = p_изб + p_атм. Абсолютное давление всегда неотрицательно. Применяется в расчётах свойств газов, расходомерах переменного перепада, барометрах.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Избыточное (манометрическое) давление:</b> Давление, отсчитываемое от атмосферного. Обозначается «изб» или «g» (gauge). p_изб = p_абс − p_атм. Большинство манометров показывает именно избыточное давление. При отрицательном значении говорят о разрежении.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Дифференциальное давление (перепад):</b> Разность давлений между двумя точками, обозначается Δp. Применяется в расходомерах на сужающих устройствах (диафрагмах), гидростатических уровнемерах, системах контроля засорения фильтров. Типовые диапазоны: 0–100 кПа для диафрагм, 0–25 кПа для фильтров.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Гидростатическое давление:</b> Давление столба жидкости, определяемое формулой p = ρgh, где ρ — плотность, g = 9,80665 м/с², h — высота столба. Для воды (ρ = 1000 кг/м³) столб высотой 1 м создаёт давление 9,80665 кПа (1000 мм вод. ст.). Лежит в основе работы гидростатических уровнемеров.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Вакуум (разрежение):</b> Состояние, при котором абсолютное давление ниже атмосферного. Измеряется вакуумметрами в Па, кПа или мм рт. ст. Технический вакуум: до 100 кПа; низкий: 100 Па – 0,1 Па; средний: 0,1 Па – 1 мПа; высокий: < 1 мПа.</div><div style="margin-bottom:8px;"><b style="color:rgba(255,255,255,0.7);">Нормативный документ:</b> ГОСТ 8.417-2002 «ГСИ. Единицы величин»; ГОСТ Р 8.802-2012 «ГСИ. Государственная поверочная схема для средств измерений давления»; ГОСТ 6521-72 «Манометры, вакуумметры...».</div></div></div>
         </div>
 
         <!-- Расход -->
@@ -2022,6 +2570,111 @@
                     <div><b style="color:rgba(255,255,255,0.7);">Нормативный документ:</b> ГОСТ Р 50345-2010 (IEC 60898-1) «Автоматические выключатели для защиты от сверхтоков электроустановок бытового и аналогичного назначения».</div>
                 </div>
             </div>
+        </div>
+
+        <!-- ======================== ГЕОМЕТРИЯ: КРУГ ======================== -->
+        <div id="page-geo-circle" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Круг</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div style="text-align:center; padding: 12px 16px 0;">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Диаметр D</div>
+                <input type="text" inputmode="numeric" id="gc_diameter" class="scale-field" value="100" placeholder="мм" autocomplete="off" enterkeyhint="done" oninput="validateNumericField(this)">
+            </div>
+            <button type="button" class="converter-convert-btn scale-calc-btn" onclick="calcGeoCircle()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Рассчитать</button>
+            <div class="converter-result-group" id="gc_results" style="display:none;"></div>
+        </div>
+
+        <!-- ======================== ГЕОМЕТРИЯ: КОЛЬЦО ======================== -->
+        <div id="page-geo-ring" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Кольцо</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div style="text-align:center; padding: 12px 16px 0;">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Наружный диаметр D</div>
+                <input type="text" inputmode="numeric" id="gr_d_outer" class="scale-field" value="100" placeholder="мм" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Внутренний диаметр d</div>
+                <input type="text" inputmode="numeric" id="gr_d_inner" class="scale-field" value="80" placeholder="мм" autocomplete="off" enterkeyhint="done" oninput="validateNumericField(this)">
+            </div>
+            <button type="button" class="converter-convert-btn scale-calc-btn" onclick="calcGeoRing()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Рассчитать</button>
+            <div class="converter-result-group" id="gr_results" style="display:none;"></div>
+        </div>
+
+        <!-- ======================== ГЕОМЕТРИЯ: ЦИЛИНДР ВЕРТИКАЛЬНЫЙ ======================== -->
+        <div id="page-geo-cylinder" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Цилиндр вертикальный</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div style="text-align:center; padding: 12px 16px 0;">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Диаметр D</div>
+                <input type="text" inputmode="numeric" id="gcy_diameter" class="scale-field" value="2" placeholder="м" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Высота H</div>
+                <input type="text" inputmode="numeric" id="gcy_height" class="scale-field" value="3" placeholder="м" autocomplete="off" enterkeyhint="done" oninput="validateNumericField(this)">
+            </div>
+            <button type="button" class="converter-convert-btn scale-calc-btn" onclick="calcGeoCylinder()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Рассчитать</button>
+            <div class="converter-result-group" id="gcy_results" style="display:none;"></div>
+        </div>
+
+        <!-- ======================== ГЕОМЕТРИЯ: ЦИЛИНДР ГОРИЗОНТАЛЬНЫЙ ======================== -->
+        <div id="page-geo-horiz" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Цилиндр горизонтальный</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div style="text-align:center; padding: 12px 16px 0;">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Длина L</div>
+                <input type="text" inputmode="numeric" id="gh_length" class="scale-field" value="5" placeholder="м" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Диаметр D</div>
+                <input type="text" inputmode="numeric" id="gh_diameter" class="scale-field" value="2" placeholder="м" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Уровень жидкости h</div>
+                <input type="text" inputmode="numeric" id="gh_level" class="scale-field" value="1,5" placeholder="м" autocomplete="off" enterkeyhint="done" oninput="validateNumericField(this)">
+                <div style="color:rgba(255,255,255,0.25); font-size:10px; margin-top:4px; padding-left:4px;">Высота от дна до зеркала жидкости (0 ≤ h ≤ D)</div>
+            </div>
+            <button type="button" class="converter-convert-btn scale-calc-btn" onclick="calcGeoHorizCyl()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Рассчитать</button>
+            <div class="converter-result-group" id="gh_results" style="display:none;"></div>
+        </div>
+
+        <!-- ======================== ГЕОМЕТРИЯ: СФЕРА ======================== -->
+        <div id="page-geo-sphere" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Сфера</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div style="text-align:center; padding: 12px 16px 0;">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Диаметр D</div>
+                <input type="text" inputmode="numeric" id="gs_diameter" class="scale-field" value="2" placeholder="м" autocomplete="off" enterkeyhint="done" oninput="validateNumericField(this)">
+            </div>
+            <button type="button" class="converter-convert-btn scale-calc-btn" onclick="calcGeoSphere()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Рассчитать</button>
+            <div class="converter-result-group" id="gs_results" style="display:none;"></div>
+        </div>
+
+        <!-- ======================== ГЕОМЕТРИЯ: КОНУС ======================== -->
+        <div id="page-geo-cone" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Конус</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+            <div style="text-align:center; padding: 12px 16px 0;">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Диаметр основания D</div>
+                <input type="text" inputmode="numeric" id="gco_diameter" class="scale-field" value="2" placeholder="м" autocomplete="off" enterkeyhint="next" oninput="validateNumericField(this)">
+            </div>
+            <div class="scale-form">
+                <div class="scale-form-label">Высота H</div>
+                <input type="text" inputmode="numeric" id="gco_height" class="scale-field" value="3" placeholder="м" autocomplete="off" enterkeyhint="done" oninput="validateNumericField(this)">
+            </div>
+            <button type="button" class="converter-convert-btn scale-calc-btn" onclick="calcGeoCone()"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>Рассчитать</button>
+            <div class="converter-result-group" id="gco_results" style="display:none;"></div>
         </div>
 
         <!-- ======================== ВЫБОР РАСЧЁТА СУЖАЮЩЕГО УСТРОЙСТВА ======================== -->
@@ -2496,17 +3149,59 @@
                     </div>
                     <svg class="menu-btn-arrow" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: rgba(255,255,255,0.12); fill: none; stroke-width: 2; stroke-linecap: round;"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
-                <a href="https://drive.google.com/drive/folders/1P2anFE_5pHnArf9nwxV-y3GOQCVKHxwU?usp=drive_link" target="_blank" rel="noopener" class="menu-btn" style="text-decoration: none; color: inherit;">
+                <div class="menu-btn" onclick="navigateTo('library-electro')" style="cursor: pointer;">
                     <div class="menu-btn-text">
                         <div class="menu-btn-label">Электробезопасность</div>
                         <div class="menu-btn-sublabel">Правила, инструкции, группы по ЭБ</div>
                     </div>
                     <svg class="menu-btn-arrow" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: rgba(255,255,255,0.12); fill: none; stroke-width: 2; stroke-linecap: round;"><polyline points="9 18 15 12 9 6"/></svg>
-                </a>
+                </div>
                 <a href="https://drive.google.com/drive/folders/1yE2-G3LW71QVNrOZ374U-fnlcpT3RGD9?usp=drive_link" target="_blank" rel="noopener" class="menu-btn" style="text-decoration: none; color: inherit;">
                     <div class="menu-btn-text">
                         <div class="menu-btn-label">Справочник</div>
                         <div class="menu-btn-sublabel">Таблицы, коэффициенты, формулы</div>
+                    </div>
+                    <svg class="menu-btn-arrow" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: rgba(255,255,255,0.12); fill: none; stroke-width: 2; stroke-linecap: round;"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+            </div>
+        </div>
+
+        <!-- ======================== БИБЛИОТЕКА — ЭЛЕКТРОБЕЗОПАСНОСТЬ ======================== -->
+        <div id="page-library-electro" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-title">Электробезопасность</div></div>
+            <div class="nav-bar"><div class="nav-btn nav-btn-home" onclick="navigateTo('dashboard')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg><span>Главная</span></div><span class="nav-separator">‹</span><div class="nav-btn" onclick="goBack()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg><span>Назад</span></div></div>
+
+            <div class="content-header" style="padding: 14px 20px 10px;">
+                <h2 style="color: #e0e0e0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px;">Правила и инструкции</h2>
+                <p style="color: rgba(255,255,255,0.35); font-size: 12px; margin-top: 5px;">Документы открываются в Google Drive</p>
+            </div>
+
+            <div class="menu-btn-row">
+                <a href="https://drive.google.com/file/d/1Rmy2aUYEr8WG1R1Pzuucbb8QEwfBrj0y/view?usp=drive_link" target="_blank" rel="noopener" class="menu-btn" style="text-decoration: none; color: inherit;">
+                    <div class="menu-btn-text">
+                        <div class="menu-btn-label">ПУЭ 6 и 7</div>
+                        <div class="menu-btn-sublabel">Правила устройства электроустановок</div>
+                    </div>
+                    <svg class="menu-btn-arrow" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: rgba(255,255,255,0.12); fill: none; stroke-width: 2; stroke-linecap: round;"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+                <a href="https://drive.google.com/file/d/1xY7jxI5K-og2-UsNk5lhJy_qMogJB_oE/view?usp=drive_link" target="_blank" rel="noopener" class="menu-btn" style="text-decoration: none; color: inherit;">
+                    <div class="menu-btn-text">
+                        <div class="menu-btn-label">ПТЭЭП 2003</div>
+                        <div class="menu-btn-sublabel">Правила технической эксплуатации электроустановок потребителей</div>
+                    </div>
+                    <svg class="menu-btn-arrow" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: rgba(255,255,255,0.12); fill: none; stroke-width: 2; stroke-linecap: round;"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+                <a href="https://drive.google.com/file/d/1qMLjS89aAIQO6mSaCsU_Z2nOovyGGLTS/view?usp=drive_link" target="_blank" rel="noopener" class="menu-btn" style="text-decoration: none; color: inherit;">
+                    <div class="menu-btn-text">
+                        <div class="menu-btn-label">ПОТЭЭ 2022</div>
+                        <div class="menu-btn-sublabel">Правила по охране труда в электроустановках</div>
+                    </div>
+                    <svg class="menu-btn-arrow" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: rgba(255,255,255,0.12); fill: none; stroke-width: 2; stroke-linecap: round;"><polyline points="9 18 15 12 9 6"/></svg>
+                </a>
+                <a href="https://drive.google.com/file/d/1mFvdEmw0bYe_JP-W_H6Jiy57ZVfQedZn/view?usp=drive_link" target="_blank" rel="noopener" class="menu-btn" style="text-decoration: none; color: inherit;">
+                    <div class="menu-btn-text">
+                        <div class="menu-btn-label">Инструкция СО 153-34.03.603-2003</div>
+                        <div class="menu-btn-sublabel">Применение и испытание средств защиты, используемых в электроустановках</div>
                     </div>
                     <svg class="menu-btn-arrow" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: rgba(255,255,255,0.12); fill: none; stroke-width: 2; stroke-linecap: round;"><polyline points="9 18 15 12 9 6"/></svg>
                 </a>
@@ -3184,9 +3879,31 @@
     </div>
 </div>
 
-
-
 <div id="toast" class="toast"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg><span id="toastMessage"></span></div>
+
+<!-- ===== Нижний бар быстрого доступа (только на главной) ===== -->
+<div id="dashboardBottomBar" class="dashboard-bottom-bar">
+    <button type="button" class="dashboard-bottom-btn" onclick="navigateTo('calculators')">
+        <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
+        <span>Инженерные калькуляторы</span>
+    </button>
+    <button type="button" class="dashboard-bottom-btn dashboard-bottom-btn-docs" onclick="navigateTo('docs')">
+        <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Документация</span>
+    </button>
+</div>
+
+<!-- ===== Bottom sheet для pin/unpin подраздела ===== -->
+<div id="pinSheetOverlay" class="pin-sheet-overlay" onclick="closePinSheet()"></div>
+<div id="pinSheet" class="pin-sheet">
+    <div class="pin-sheet-handle"></div>
+    <div id="pinSheetTitle" class="pin-sheet-title">Подраздел</div>
+    <div id="pinSheetSublabel" class="pin-sheet-sublabel"></div>
+    <!-- Дополнительные кнопки перемещения (видны только для закреплённых пунктов) -->
+    <div id="pinSheetExtraActions" class="pin-sheet-extra-actions" style="display:none;"></div>
+    <button type="button" id="pinSheetAction" class="pin-sheet-action" onclick="executePinToggle()">Добавить на главную</button>
+    <button type="button" class="pin-sheet-cancel" onclick="closePinSheet()">Отмена</button>
+</div>
 
 <script>
     // ======================== ИГРА САПЁР ========================
@@ -3485,6 +4202,7 @@
     // ИСТОРИЯ И НАВИГАЦИЯ
     let pageHistory = [];
     let isNavigating = false;
+
     /* ========== Экзаменационные билеты ========== */
     let _ticketsData = null;
     // Уникальный параметр для cache-busting на одну сессию.
@@ -3689,10 +4407,11 @@
                 const fileUrl = getField(q, 'file_url', '\u0424\u0430\u0439\u043b').trim();
                 if (ref) {
                     if (isWorkingUrl(fileUrl)) {
-                        // Литература кликабельна — ссылка на файл открывается в новой вкладке
+                        // Прямая ссылка на файл PDF (Google Drive) — открывается в новой вкладке.
                         html += '<div class="ticket-ref"><a class="ticket-ref-link" href="' + escHtml(fileUrl) + '" target="_blank" rel="noopener">' + escHtml(ref) + '</a></div>';
                     } else {
-                        html += '<div class="ticket-ref">' + escHtml(ref) + '</div>';
+                        // Файл недоступен — просто показываем название литературы текстом.
+                        html += '<div class="ticket-ref"><span class="ticket-ref-link">' + escHtml(ref) + '</span></div>';
                     }
                 }
                 html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 16" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><line x1="0" y1="8" x2="400" y2="8" stroke="currentColor" stroke-width="0.5" opacity="0.45"/><g stroke="currentColor" stroke-width="0.8" fill="none"><rect x="7.11" y="5.5" width="8" height="5" rx="1"/><rect x="29.33" y="5.5" width="8" height="5" rx="1"/><rect x="51.56" y="5.5" width="8" height="5" rx="1"/><rect x="73.78" y="5.5" width="8" height="5" rx="1"/><rect x="96" y="5.5" width="8" height="5" rx="1"/><rect x="118.22" y="5.5" width="8" height="5" rx="1"/><rect x="140.44" y="5.5" width="8" height="5" rx="1"/><rect x="162.67" y="5.5" width="8" height="5" rx="1"/><rect x="184.89" y="5.5" width="8" height="5" rx="1"/><rect x="207.11" y="5.5" width="8" height="5" rx="1"/><rect x="229.33" y="5.5" width="8" height="5" rx="1"/><rect x="251.56" y="5.5" width="8" height="5" rx="1"/><rect x="273.78" y="5.5" width="8" height="5" rx="1"/><rect x="296" y="5.5" width="8" height="5" rx="1"/><rect x="318.22" y="5.5" width="8" height="5" rx="1"/><rect x="340.44" y="5.5" width="8" height="5" rx="1"/><rect x="362.67" y="5.5" width="8" height="5" rx="1"/><rect x="384.89" y="5.5" width="8" height="5" rx="1"/></g></svg></div>';
@@ -4101,6 +4820,10 @@
         if (target) { target.classList.add('active'); requestAnimationFrame(() => { requestAnimationFrame(() => target.classList.add('visible')); }); }
         window.scrollTo({ top: 0, behavior: 'smooth' });
         if (page === 'buoy-calc') { updateBuoyCalcTitle(); setCalibMethodOnForm(); }
+        // Обернуть карточки подразделов для swipe-to-add на страницах меню подразделов
+        if (page === 'calc-kipa' || page === 'calc-electro' || page === 'calc-geometry' || page === 'docs') {
+            wrapSubsectionItems('page-' + page);
+        }
         updateBottomNavActive(page);
         // Toggle global app-header visibility
         let appHeader = document.querySelector('.app-header');
@@ -4131,8 +4854,838 @@
         // Только history.back() — навигацию выполнит обработчик popstate
         history.back();
     }
+
+    // ============================================================
+    // ЗАКРЕПЛЁННЫЕ ПОДРАЗДЕЛЫ НА ГЛАВНОЙ СТРАНИЦЕ
+    // ============================================================
+    // Реестр всех подразделов, доступных для закрепления.
+    // key — уникальный идентификатор (совпадает с target страницы навигации).
+    // category: 'calculators' (синий) | 'docs' (золотистый) — для стилизации.
+    const SUBSECTIONS = {
+        // ===== КИП и А — подразделы (страница page-calc-kipa) =====
+        'converter':      { label: 'Конвертер единиц',          sublabel: 'Давление, расход, температура и др.',           target: 'converter',      category: 'calculators' },
+        'scale-signal':   { label: 'Шкала-сигнал',              sublabel: 'Расчёт диапазонов шкалы и сигнала',             target: 'scale-signal',   category: 'calculators' },
+        'error-select':   { label: 'Расчёт погрешности',        sublabel: 'ГОСТ 8.401-80, ГОСТ OIML R 76-1-2011, ТС, ТП',  target: 'error-select',   category: 'calculators' },
+        'buoy-select':    { label: 'Буйковый уровнемер',        sublabel: 'Калибровка, выталкивающая сила',                target: 'buoy-select',    category: 'calculators' },
+        'temp-sensors':   { label: 'Датчики температуры',       sublabel: 'Расчёт R и мВ по температуре (°C)',             target: 'temp-sensors',   category: 'calculators' },
+        'orifice-select': { label: 'Сужающее устройство',       sublabel: 'Расчёт диафрагмы по расходу и перепаду',        target: 'orifice-select', category: 'calculators' },
+        // ===== Электротехника — подразделы (страница page-calc-electro) =====
+        'circuit-breaker':{ label: 'Автоматический выключатель', sublabel: 'Расчёт по мощности, току, сечению кабеля',     target: 'circuit-breaker',category: 'calculators' },
+        // ===== Геометрия — подразделы (страница page-calc-geometry) =====
+        'geo-circle':    { label: 'Круг',                    sublabel: 'Площадь, периметр, радиус',                     target: 'geo-circle',    category: 'calculators' },
+        'geo-ring':      { label: 'Кольцо',                  sublabel: 'Площадь сечения, эквивалентный диаметр',        target: 'geo-ring',      category: 'calculators' },
+        'geo-cylinder':  { label: 'Цилиндр вертикальный',    sublabel: 'Объём, площадь поверхности',                    target: 'geo-cylinder',  category: 'calculators' },
+        'geo-horiz':     { label: 'Цилиндр горизонтальный',  sublabel: 'Объём жидкости при частичном заполнении',       target: 'geo-horiz',     category: 'calculators' },
+        'geo-sphere':    { label: 'Сфера',                   sublabel: 'Объём, площадь поверхности',                    target: 'geo-sphere',    category: 'calculators' },
+        'geo-cone':      { label: 'Конус',                   sublabel: 'Объём, образующая, площадь',                    target: 'geo-cone',      category: 'calculators' },
+        // ===== Документация — конечные страницы (страница page-docs) =====
+        'exam-tickets':  { label: 'Экзаменационные билеты',  sublabel: '4, 5, 6 разряд, до 1000 В',                      target: 'exam-tickets',  category: 'docs' },
+        'library':       { label: 'Библиотека КИП и А',      sublabel: 'Документация, схемы, инструкции',                target: 'library',       category: 'docs' }
+    };
+    const PINNED_STORAGE_KEY = 'pinnedSubsections';
+    let currentPinKey = null; // ключ подраздела, для которого открыт sheet
+
+    // Чтение списка закреплённых подразделов из localStorage.
+    // Возвращает массив ключей (например, ['calc-kipa', 'library']).
+    function getPinnedItems() {
+        try {
+            const raw = localStorage.getItem(PINNED_STORAGE_KEY);
+            if (!raw) return [];
+            const arr = JSON.parse(raw);
+            return Array.isArray(arr) ? arr.filter(k => SUBSECTIONS[k]) : [];
+        } catch (e) { return []; }
+    }
+
+    // Запись списка закреплённых подразделов в localStorage.
+    function setPinnedItems(arr) {
+        localStorage.setItem(PINNED_STORAGE_KEY, JSON.stringify(arr));
+    }
+
+    // Проверка, закреплён ли указанный подраздел.
+    function isPinned(key) {
+        return getPinnedItems().indexOf(key) !== -1;
+    }
+
+    // Переключение состояния закрепления подраздела.
+    function togglePin(key) {
+        let items = getPinnedItems();
+        if (items.indexOf(key) === -1) {
+            items.push(key);
+        } else {
+            items = items.filter(k => k !== key);
+        }
+        setPinnedItems(items);
+        renderPinnedItems();
+    }
+
+    // Экранирование HTML (защита от XSS при рендере пользовательских данных).
+    // Использует существующую функцию escHtml, если она есть.
+    function pinEscHtml(s) {
+        if (typeof escHtml === 'function') return escHtml(String(s));
+        return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    // Рендеринг контейнера закреплённых подразделов на дашборде.
+    // Вызывается при загрузке и после каждого pin/unpin.
+    function renderPinnedItems() {
+        const container = document.getElementById('pinnedItemsContainer');
+        if (!container) return;
+        const items = getPinnedItems();
+        if (items.length === 0) {
+            container.innerHTML =
+                '<div class="pinned-empty-hint">' +
+                'Закрепите часто используемые разделы — они появятся здесь. ' +
+                'Откройте «Инженерные калькуляторы» или «Документацию» в нижнем баре, ' +
+                'нажмите <svg class="pin-empty-icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg> на нужном пункте и выберите <b>«Добавить на главную»</b>, ' +
+                'или сделайте свайп влево/вправо по пункту — появится зелёная подложка <b>«Добавить»</b>.' +
+                '</div>';
+            return;
+        }
+        let html = '<div class="menu-btn-row pinned-items-row">';
+        items.forEach(key => {
+            const s = SUBSECTIONS[key];
+            if (!s) return;
+            const isDocs = s.category === 'docs';
+            const borderColor = isDocs ? 'border-color:rgba(199,150,74,0.35);' : '';
+            const labelColor  = isDocs ? 'color:#c7964a;' : '';
+            const arrowColor  = isDocs ? 'color:rgba(199,150,74,0.4);' : '';
+            html +=
+                '<div class="pinned-item-cell">' +
+                    '<div class="pinned-item-delete-bg pinned-item-delete-left"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Убрать</span></div>' +
+                    '<div class="pinned-item-delete-bg pinned-item-delete-right"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Убрать</span></div>' +
+                    '<div class="menu-btn pinned-item" data-pinned-key="' + key + '" onclick="navigateTo(\'' + s.target + '\')" style="' + borderColor + '">' +
+                        '<div class="menu-btn-text">' +
+                            '<div class="menu-btn-label" style="' + labelColor + '">' + pinEscHtml(s.label) + '</div>' +
+                            '<div class="menu-btn-sublabel">' + pinEscHtml(s.sublabel) + '</div>' +
+                        '</div>' +
+                        '<button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet(\'' + key + '\')">' +
+                            '<svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>' +
+                        '</button>' +
+                        '<i class="menu-btn-arrow" style="' + arrowColor + '">›</i>' +
+                    '</div>' +
+                '</div>';
+        });
+        html += '</div>';
+        container.innerHTML = html;
+        // После рендера вешаем обработчики long-press + drag-and-drop на каждую карточку.
+        attachPinnedDragHandlers();
+    }
+
+    // ============================================================
+    // ПЕРЕТАСКИВАНИЕ ЗАКРЕПЛЁННЫХ ПУНКТОВ (long-press + drag)
+    // ============================================================
+    // Использует Pointer Events — единый API для touch и мыши.
+    // Порог долгого зажатия: 500 мс без движения > 10px.
+    // Клон карточки следует за пальцем/курсором в position:fixed,
+    // оригинал получает класс .pinned-item-dragging (полупрозрачный).
+    // Карточка под курсором подсвечивается классом .pinned-item-drag-over.
+    const PINNED_DRAG_DELAY = 500;       // мс долгого зажатия до начала перетаскивания
+    const PINNED_DRAG_THRESHOLD = 10;    // px — если сдвинулись больше, long-press отменяется
+    const PINNED_SWIPE_DELETE_RATIO = 0.3; // доля ширины карточки для удаления свайпом
+    let pinnedDragState = null;          // { el, key, startX, startY, timer, clone, hoverEl, mode, width, currentDx }
+
+    function attachPinnedDragHandlers() {
+        const items = document.querySelectorAll('#pinnedItemsContainer .pinned-item');
+        items.forEach(el => {
+            el.addEventListener('pointerdown', onPinnedPointerDown);
+        });
+    }
+
+    function onPinnedPointerDown(e) {
+        // Игнорируем клики по кнопке «три точки» — она имеет свой onclick
+        if (e.target.closest('.menu-btn-overflow')) return;
+        // Только основная кнопка/палец
+        if (e.button !== undefined && e.button !== 0) return;
+        const el = e.currentTarget;
+        const key = el.getAttribute('data-pinned-key');
+        if (!key) return;
+        // Запрещаем нативные действия браузера (скролл, выделение, контекстное меню) —
+        // без этого при long-press на мобильном срабатывает pointercancel и drag срывается.
+        e.preventDefault();
+        const rect = el.getBoundingClientRect();
+        pinnedDragState = {
+            el: el,
+            cell: el.closest('.pinned-item-cell'),
+            key: key,
+            startX: e.clientX,
+            startY: e.clientY,
+            timer: setTimeout(() => startPinnedDrag(e), PINNED_DRAG_DELAY),
+            clone: null,
+            hoverEl: null,
+            // Смещение точки зажатия относительно левого-верхнего угла карточки.
+            // Вычисляется в startPinnedDrag, используется для точного следования клона за пальцем.
+            grabOffsetX: 0,
+            grabOffsetY: 0,
+            // Флаг того, что произошло реальное перетаскивание (был move после старта drag).
+            // Если pointerup сработал сразу после long-press без движения — это не перенос,
+            // а просто отпускание, ре-рендерить не нужно.
+            moved: false,
+            // Режим взаимодействия: 'idle' (ожидание), 'drag' (long-press + перенос), 'swipe' (быстрый свайп для удаления)
+            mode: 'idle',
+            // Ширина карточки — для расчёта порога удаления (30%)
+            width: rect.width,
+            // Текущее смещение по X в swipe-режиме
+            currentDx: 0
+        };
+        // Слушаем movement/up на window — чтобы поймать даже если палец вышел за пределы карточки
+        window.addEventListener('pointermove', onPinnedPointerMove);
+        window.addEventListener('pointerup', onPinnedPointerUp);
+        window.addEventListener('pointercancel', onPinnedPointerUp);
+    }
+
+    function onPinnedPointerMove(e) {
+        if (!pinnedDragState) return;
+        const st = pinnedDragState;
+        const dx = e.clientX - st.startX;
+        const dy = e.clientY - st.startY;
+        // Если drag ещё не начался (нет клона) и swipe не начался — определяем намерение пользователя
+        if (!st.clone && st.mode !== 'swipe') {
+            if (Math.abs(dx) > PINNED_DRAG_THRESHOLD || Math.abs(dy) > PINNED_DRAG_THRESHOLD) {
+                // Движение превысило порог — отменяем таймер long-press
+                clearTimeout(st.timer);
+                // Если горизонтальное движение превалирует (в 1.5 раза больше вертикали) — это свайп
+                if (Math.abs(dx) > Math.abs(dy) * 1.5) {
+                    startPinnedSwipe();
+                } else {
+                    // Вертикальное движение — пользователь скроллит страницу, отменяем взаимодействие
+                    cleanupPinnedDrag();
+                }
+            }
+            return;
+        }
+        // Swipe-режим — двигаем карточку и показываем подложку
+        if (st.mode === 'swipe') {
+            e.preventDefault();
+            updatePinnedSwipe(dx);
+            return;
+        }
+        // Перетаскивание активно — запрещаем браузеру прокрутку/другие действия
+        e.preventDefault();
+        st.moved = true;
+        // Точное следование клона за пальцем: позиция = курсор - смещение точки захвата.
+        // grabOffsetX/Y вычислены в startPinnedDrag, поэтому клон не «прыгает» к центру пальца.
+        st.clone.style.left = (e.clientX - st.grabOffsetX) + 'px';
+        st.clone.style.top = (e.clientY - st.grabOffsetY) + 'px';
+        // Находим карточку под курсором (исключая сам клон)
+        st.clone.style.pointerEvents = 'none';
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        const newHover = target ? target.closest('#pinnedItemsContainer .pinned-item') : null;
+        if (newHover !== st.hoverEl) {
+            if (st.hoverEl) st.hoverEl.classList.remove('pinned-item-drag-over');
+            if (newHover && newHover !== st.el) newHover.classList.add('pinned-item-drag-over');
+            st.hoverEl = newHover;
+        }
+    }
+
+    // Старт swipe-режима: карточка начинает следовать за пальцем по горизонтали.
+    function startPinnedSwipe() {
+        const st = pinnedDragState;
+        if (!st) return;
+        st.mode = 'swipe';
+        st.el.classList.add('swipe-active');
+        // Блокируем onclick карточки — иначе после отпускания сработает переход
+        st.el.style.pointerEvents = 'none';
+        if (navigator.vibrate) navigator.vibrate(10);
+    }
+
+    // Обновление позиции карточки при swipe.
+    // dx < 0 — свайп влево (показываем правую подложку «Убрать»).
+    // dx > 0 — свайп вправо (показываем левую подложку «Убрать»).
+    function updatePinnedSwipe(dx) {
+        const st = pinnedDragState;
+        if (!st) return;
+        // Сопротивление при выходе за пределы карточки (эффект «резины»)
+        let effectiveDx = dx;
+        if (Math.abs(dx) > st.width) {
+            const overshoot = Math.abs(dx) - st.width;
+            effectiveDx = Math.sign(dx) * (st.width + overshoot * 0.3);
+        }
+        st.currentDx = effectiveDx;
+        st.el.style.transform = 'translateX(' + effectiveDx + 'px)';
+        // Переключаем классы подложки в зависимости от направления
+        if (st.cell) {
+            st.cell.classList.toggle('swiping-left',  effectiveDx < 0);
+            st.cell.classList.toggle('swiping-right', effectiveDx > 0);
+        }
+    }
+
+    function onPinnedPointerUp(e) {
+        if (!pinnedDragState) return;
+        const st = pinnedDragState;
+        clearTimeout(st.timer);
+        // Swipe-завершение: проверяем порог удаления (30% ширины карточки)
+        if (st.mode === 'swipe') {
+            endPinnedSwipe();
+            return;
+        }
+        // Если перетаскивание не началось — это обычный тап, navigateTo сработает по onclick
+        if (!st.clone) {
+            cleanupPinnedDrag();
+            return;
+        }
+        // Завершаем перетаскивание — определяем целевую позицию.
+        // Если st.moved=false (long-press без движения и отпускание) — перенос не выполняем,
+        // но ре-рендер всё равно нужен, чтобы убрать клон и класс .pinned-item-dragging.
+        let didReorder = false;
+        if (st.moved && st.hoverEl && st.hoverEl !== st.el) {
+            const items = getPinnedItems();
+            const fromIdx = items.indexOf(st.key);
+            const toIdx = items.indexOf(st.hoverEl.getAttribute('data-pinned-key'));
+            if (fromIdx !== -1 && toIdx !== -1 && fromIdx !== toIdx) {
+                // Перенос элемента из fromIdx в toIdx
+                items.splice(fromIdx, 1);
+                items.splice(toIdx, 0, st.key);
+                setPinnedItems(items);
+                didReorder = true;
+                if (navigator.vibrate) navigator.vibrate(15);
+            }
+        }
+        cleanupPinnedDrag();
+        // Ре-рендер только если был реальный перенос (порядок изменился).
+        // Если просто long-press + отпускание без переноса — ре-рендер не нужен,
+        // cleanupPinnedDrag уже убрал клон и класс .pinned-item-dragging.
+        if (didReorder) {
+            renderPinnedItems();
+        } else {
+            // Восстанавливаем pointer-events на оригинале, чтобы onclick снова работал
+            // (cleanupPinnedDrag уже это сделал, но для надёжности — явно)
+        }
+    }
+
+    // Завершение swipe: если сдвиг > 30% ширины — удаляем пункт, иначе возвращаем на место.
+    function endPinnedSwipe() {
+        const st = pinnedDragState;
+        if (!st) return;
+        const threshold = st.width * PINNED_SWIPE_DELETE_RATIO;
+        const shouldDelete = Math.abs(st.currentDx) > threshold;
+        if (shouldDelete) {
+            // Анимация ухода карточки за пределы экрана
+            const direction = st.currentDx < 0 ? -1 : 1;
+            st.el.classList.remove('swipe-active');
+            st.el.classList.add('swipe-removing');
+            st.el.style.transform = 'translateX(' + (direction * st.width * 1.2) + 'px)';
+            if (navigator.vibrate) navigator.vibrate(30);
+            // После анимации (250мс) — удаляем пункт из localStorage и ре-рендерим
+            setTimeout(() => {
+                togglePin(st.key);
+                if (typeof showToast === 'function') {
+                    const label = SUBSECTIONS[st.key] ? SUBSECTIONS[st.key].label : '';
+                    showToast('«' + label + '» убрано с главной');
+                }
+            }, 250);
+            // Очищаем состояние, но не трогаем DOM — renderPinnedItems всё пересоздаст
+            const savedCell = st.cell;
+            pinnedDragState = null;
+            window.removeEventListener('pointermove', onPinnedPointerMove);
+            window.removeEventListener('pointerup', onPinnedPointerUp);
+            window.removeEventListener('pointercancel', onPinnedPointerUp);
+            // Если cell остался — снимаем классы подложки (на случай если ре-рендер задержится)
+            if (savedCell) {
+                savedCell.classList.remove('swiping-left', 'swiping-right');
+            }
+        } else {
+            // Возвращаем карточку на место
+            st.el.classList.remove('swipe-active');
+            st.el.style.transform = '';
+            if (st.cell) {
+                st.cell.classList.remove('swiping-left', 'swiping-right');
+            }
+            cleanupPinnedDrag();
+        }
+    }
+
+    function startPinnedDrag(e) {
+        const st = pinnedDragState;
+        if (!st) return;
+        // Создаём клон карточки
+        const rect = st.el.getBoundingClientRect();
+        // Запоминаем смещение точки захвата относительно левого-верхнего угла карточки.
+        // Это позволяет клону точно следовать за пальцем с той же точки, где палец нажал,
+        // без скачка к центру (как было при расчёте через offsetWidth/2).
+        st.grabOffsetX = st.startX - rect.left;
+        st.grabOffsetY = st.startY - rect.top;
+        const clone = st.el.cloneNode(true);
+        clone.classList.add('pinned-item-clone');
+        clone.style.position = 'fixed';
+        clone.style.left = rect.left + 'px';
+        clone.style.top = rect.top + 'px';
+        clone.style.width = rect.width + 'px';
+        clone.style.height = rect.height + 'px';
+        clone.style.zIndex = '9999';
+        clone.style.pointerEvents = 'none';
+        clone.style.margin = '0';
+        document.body.appendChild(clone);
+        st.clone = clone;
+        st.el.classList.add('pinned-item-dragging');
+        // Тактильный отклик — начало перетаскивания
+        if (navigator.vibrate) navigator.vibrate(30);
+        // Блокируем обычный onclick карточки (иначе после отпускания сработает переход)
+        st.el.style.pointerEvents = 'none';
+    }
+
+    function cleanupPinnedDrag() {
+        if (!pinnedDragState) return;
+        const st = pinnedDragState;
+        clearTimeout(st.timer);
+        if (st.clone) {
+            st.clone.remove();
+        }
+        if (st.el) {
+            st.el.classList.remove('pinned-item-dragging');
+            st.el.style.pointerEvents = '';
+        }
+        if (st.hoverEl) {
+            st.hoverEl.classList.remove('pinned-item-drag-over');
+        }
+        pinnedDragState = null;
+        window.removeEventListener('pointermove', onPinnedPointerMove);
+        window.removeEventListener('pointerup', onPinnedPointerUp);
+        window.removeEventListener('pointercancel', onPinnedPointerUp);
+    }
+
+    // ============================================================
+    // SWIPE-TO-ADD для подразделов на страницах меню
+    // ============================================================
+    // На страницах page-calc-kipa, page-calc-electro, page-calc-geometry, page-docs
+    // карточки подразделов можно свайпить влево/вправо для добавления на главную.
+    // Аналогично swipe-to-delete, но с зелёной подложкой «Добавить».
+    // Порог срабатывания: 30% ширины карточки.
+    const SUBSECTION_SWIPE_ADD_RATIO = 0.3;
+    const SUBSECTION_SWIPE_THRESHOLD = 10;
+    let subsectionSwipeState = null;
+
+    // Обёртка карточек подразделов в .subsection-cell с зелёными подложками «Добавить».
+    // Вызывается из navigateTo при переходе на страницы calc-kipa/calc-electro/calc-geometry/docs.
+    // Идемпотентна: повторный вызов не дублирует обёртки.
+    function wrapSubsectionItems(pageId) {
+        const page = document.getElementById(pageId);
+        if (!page) return;
+        // Найти все .menu-btn с onclick=navigateTo('...'), которые ещё не обёрнуты
+        const buttons = page.querySelectorAll('.menu-btn[onclick^="navigateTo("]');
+        buttons.forEach(btn => {
+            // Пропустить, если уже обёрнут
+            if (btn.closest('.subsection-cell')) return;
+            // Пропустить закреплённые пункты (у них data-pinned-key) — они на дашборде
+            if (btn.hasAttribute('data-pinned-key')) return;
+            // Пропустить плейсхолдеры (раздел в разработке)
+            if (btn.classList.contains('menu-btn-placeholder')) return;
+            // Пропустить секретную кнопку «Сапёр»
+            if (btn.id === 'minesweeperBtn') return;
+            // Извлечь ключ из onclick (например, navigateTo('converter') → 'converter')
+            const onclickAttr = btn.getAttribute('onclick') || '';
+            const match = onclickAttr.match(/navigateTo\(['"]([^'"]+)['"]\)/);
+            if (!match) return;
+            const key = match[1];
+            // Проверить, что ключ есть в реестре SUBSECTIONS
+            if (!SUBSECTIONS[key]) return;
+
+            // Создать обёртку .subsection-cell
+            const cell = document.createElement('div');
+            cell.className = 'subsection-cell';
+            cell.setAttribute('data-subsection-key', key);
+
+            // Создать две подложки «Добавить» (слева и справа) с иконкой «+»
+            const plusSvg = '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
+            const leftBg = document.createElement('div');
+            leftBg.className = 'subsection-add-bg subsection-add-left';
+            leftBg.innerHTML = plusSvg + '<span>Добавить</span>';
+            const rightBg = document.createElement('div');
+            rightBg.className = 'subsection-add-bg subsection-add-right';
+            rightBg.innerHTML = plusSvg + '<span>Добавить</span>';
+
+            // Вставить обёртку на место карточки, переместить карточку внутрь
+            btn.parentNode.insertBefore(cell, btn);
+            cell.appendChild(leftBg);
+            cell.appendChild(rightBg);
+            cell.appendChild(btn);
+
+            // Навесить pointer-обработчик для swipe
+            btn.addEventListener('pointerdown', onSubsectionPointerDown);
+        });
+    }
+
+    function onSubsectionPointerDown(e) {
+        // Игнорируем клики по кнопке «три точки»
+        if (e.target.closest('.menu-btn-overflow')) return;
+        if (e.button !== undefined && e.button !== 0) return;
+        const el = e.currentTarget;
+        const cell = el.closest('.subsection-cell');
+        if (!cell) return;
+        const key = cell.getAttribute('data-subsection-key');
+        if (!key) return;
+        // Если уже закреплён — swipe не нужен, пусть работает обычный тап
+        if (isPinned(key)) return;
+        // НЕ вызываем e.preventDefault() здесь — с touch-action: pan-y он не нужен,
+        // а его наличие может мешать обычному тапу (click event) на некоторых мобильных браузерах.
+        // preventDefault вызывается в onSubsectionPointerMove, когда swipe уже активен.
+        const rect = el.getBoundingClientRect();
+        subsectionSwipeState = {
+            el: el,
+            cell: cell,
+            key: key,
+            startX: e.clientX,
+            startY: e.clientY,
+            width: rect.width,
+            currentDx: 0,
+            active: false
+        };
+        window.addEventListener('pointermove', onSubsectionPointerMove);
+        window.addEventListener('pointerup', onSubsectionPointerUp);
+        window.addEventListener('pointercancel', onSubsectionPointerUp);
+    }
+
+    function onSubsectionPointerMove(e) {
+        if (!subsectionSwipeState) return;
+        const st = subsectionSwipeState;
+        const dx = e.clientX - st.startX;
+        const dy = e.clientY - st.startY;
+        // Пока swipe не активен — определяем намерение
+        if (!st.active) {
+            if (Math.abs(dx) > SUBSECTION_SWIPE_THRESHOLD || Math.abs(dy) > SUBSECTION_SWIPE_THRESHOLD) {
+                if (Math.abs(dx) > Math.abs(dy) * 1.5) {
+                    // Горизонтальное движение — старт swipe
+                    st.active = true;
+                    st.el.classList.add('swipe-active');
+                    st.el.style.pointerEvents = 'none';
+                    if (navigator.vibrate) navigator.vibrate(10);
+                } else {
+                    // Вертикальное движение — скролл страницы, отменяем
+                    cleanupSubsectionSwipe();
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+        e.preventDefault();
+        updateSubsectionSwipe(dx);
+    }
+
+    // Обновление позиции карточки при swipe.
+    // dx < 0 — свайп влево (показываем правую подложку «Добавить»).
+    // dx > 0 — свайп вправо (показываем левую подложку «Добавить»).
+    function updateSubsectionSwipe(dx) {
+        const st = subsectionSwipeState;
+        if (!st) return;
+        let effectiveDx = dx;
+        // Эффект «резины» при выходе за пределы карточки
+        if (Math.abs(dx) > st.width) {
+            const overshoot = Math.abs(dx) - st.width;
+            effectiveDx = Math.sign(dx) * (st.width + overshoot * 0.3);
+        }
+        st.currentDx = effectiveDx;
+        st.el.style.transform = 'translateX(' + effectiveDx + 'px)';
+        if (st.cell) {
+            st.cell.classList.toggle('swiping-left',  effectiveDx < 0);
+            st.cell.classList.toggle('swiping-right', effectiveDx > 0);
+        }
+    }
+
+    function onSubsectionPointerUp(e) {
+        if (!subsectionSwipeState) return;
+        endSubsectionSwipe();
+    }
+
+    // Завершение swipe: если сдвиг > 30% ширины — добавляем пункт на главную, иначе возвращаем на место.
+    function endSubsectionSwipe() {
+        const st = subsectionSwipeState;
+        if (!st) return;
+        const threshold = st.width * SUBSECTION_SWIPE_ADD_RATIO;
+        const shouldAdd = Math.abs(st.currentDx) > threshold;
+        if (shouldAdd && !isPinned(st.key)) {
+            // Добавляем пункт на главную
+            if (navigator.vibrate) navigator.vibrate(30);
+            const key = st.key;
+            togglePin(key);
+            if (typeof showToast === 'function') {
+                const label = SUBSECTIONS[key] ? SUBSECTIONS[key].label : '';
+                showToast('«' + label + '» добавлено на главную');
+            }
+            // Анимированно вернуть карточку на место (она остаётся на странице подраздела)
+            st.el.classList.remove('swipe-active');
+            st.el.style.transform = '';
+            if (st.cell) {
+                st.cell.classList.remove('swiping-left', 'swiping-right');
+            }
+            cleanupSubsectionSwipe();
+        } else {
+            // Возвращаем карточку на место
+            st.el.classList.remove('swipe-active');
+            st.el.style.transform = '';
+            if (st.cell) {
+                st.cell.classList.remove('swiping-left', 'swiping-right');
+            }
+            cleanupSubsectionSwipe();
+        }
+    }
+
+    function cleanupSubsectionSwipe() {
+        if (!subsectionSwipeState) return;
+        const st = subsectionSwipeState;
+        if (st.el) {
+            st.el.classList.remove('swipe-active');
+            st.el.style.pointerEvents = '';
+            st.el.style.transform = '';
+        }
+        if (st.cell) {
+            st.cell.classList.remove('swiping-left', 'swiping-right');
+        }
+        subsectionSwipeState = null;
+        window.removeEventListener('pointermove', onSubsectionPointerMove);
+        window.removeEventListener('pointerup', onSubsectionPointerUp);
+        window.removeEventListener('pointercancel', onSubsectionPointerUp);
+    }
+
+    // ============================================================
+    // КАЛЬКУЛЯТОРЫ ГЕОМЕТРИИ
+    // ============================================================
+
+    // Круг: площадь S = π·D²/4, периметр P = π·D, радиус R = D/2.
+    // D вводится в мм — площадь выводится в см² и м², периметр и радиус в мм.
+    function calcGeoCircle() {
+        let Dmm = parseLocaleNumber(document.getElementById('gc_diameter').value);
+        if (isNaN(Dmm) || Dmm <= 0) { showToast('Введите диаметр D'); return; }
+        // Перевод в см и м для площади
+        const Dcm = Dmm / 10;
+        const Dm  = Dmm / 1000;
+        const areaCm2 = Math.PI * Dcm * Dcm / 4;
+        const areaM2  = Math.PI * Dm * Dm / 4;
+        const perimeter = Math.PI * Dmm; // мм
+        const radius = Dmm / 2;          // мм
+        let html = '<div class="converter-result-label-title">Результат</div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Площадь S</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(areaCm2) + ' см² (' + formatNumber(areaM2) + ' м²)</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Периметр P</span><span class="converter-result-value">' + formatNumber(perimeter) + ' мм (' + formatNumber(perimeter / 1000) + ' м)</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Радиус R</span><span class="converter-result-value">' + formatNumber(radius) + ' мм</span></div>';
+        const res = document.getElementById('gc_results');
+        res.innerHTML = html;
+        res.style.display = 'block';
+        setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    // Кольцо: S = π·(D²−d²)/4, эквивалентный диаметр Dэкв = D − d.
+    // D и d в мм — площадь в см² и м², Dэкв в мм.
+    function calcGeoRing() {
+        let Dmm = parseLocaleNumber(document.getElementById('gr_d_outer').value);
+        let dmm = parseLocaleNumber(document.getElementById('gr_d_inner').value);
+        if (isNaN(Dmm) || Dmm <= 0) { showToast('Введите наружный диаметр D'); return; }
+        if (isNaN(dmm) || dmm <= 0) { showToast('Введите внутренний диаметр d'); return; }
+        if (dmm >= Dmm) { showToast('d должен быть меньше D'); return; }
+        const Dcm = Dmm / 10, dcm = dmm / 10;
+        const Dm  = Dmm / 1000, dm = dmm / 1000;
+        const areaCm2 = Math.PI * (Dcm * Dcm - dcm * dcm) / 4;
+        const areaM2  = Math.PI * (Dm * Dm - dm * dm) / 4;
+        const dEq = Dmm - dmm; // эквивалентный диаметр, мм
+        let html = '<div class="converter-result-label-title">Результат</div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Площадь S</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(areaCm2) + ' см² (' + formatNumber(areaM2) + ' м²)</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Эквивалентный диаметр Dэкв</span><span class="converter-result-value">' + formatNumber(dEq) + ' мм (' + formatNumber(dEq / 1000) + ' м)</span></div>';
+        const res = document.getElementById('gr_results');
+        res.innerHTML = html;
+        res.style.display = 'block';
+        setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    // Вертикальный цилиндр: V = π·D²·H/4, Sбок = π·D·H,
+    // Sполн = π·D·(D/2 + H), масса воды при ρ = 998 кг/м³.
+    // D и H в м.
+    function calcGeoCylinder() {
+        let D = parseLocaleNumber(document.getElementById('gcy_diameter').value);
+        let H = parseLocaleNumber(document.getElementById('gcy_height').value);
+        if (isNaN(D) || D <= 0) { showToast('Введите диаметр D'); return; }
+        if (isNaN(H) || H <= 0) { showToast('Введите высоту H'); return; }
+        const volume = Math.PI * D * D * H / 4;          // м³
+        const sideArea = Math.PI * D * H;                // м²
+        const fullArea = Math.PI * D * (D / 2 + H);      // м²
+        const waterMass = volume * 998;                  // кг (ρ = 998 кг/м³)
+        let html = '<div class="converter-result-label-title">Результат</div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Объём V</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(volume) + ' м³ (' + formatNumber(volume * 1000) + ' л)</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Площадь боковая Sбок</span><span class="converter-result-value">' + formatNumber(sideArea) + ' м²</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Площадь полная Sполн</span><span class="converter-result-value">' + formatNumber(fullArea) + ' м²</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Масса воды (ρ=998)</span><span class="converter-result-value">' + formatNumber(waterMass) + ' кг</span></div>';
+        const res = document.getElementById('gcy_results');
+        res.innerHTML = html;
+        res.style.display = 'block';
+        setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    // Горизонтальный цилиндр при частичном заполнении.
+    // Площадь сегмента круга: S = R²·arccos((R−h)/R) − (R−h)·√(2·R·h − h²)
+    // V = S·L, Vполн = π·D²·L/4, % заполнения = V/Vполн·100.
+    // L, D, h в м. ρ воды = 998 кг/м³.
+    function calcGeoHorizCyl() {
+        let L = parseLocaleNumber(document.getElementById('gh_length').value);
+        let D = parseLocaleNumber(document.getElementById('gh_diameter').value);
+        let h = parseLocaleNumber(document.getElementById('gh_level').value);
+        if (isNaN(L) || L <= 0) { showToast('Введите длину L'); return; }
+        if (isNaN(D) || D <= 0) { showToast('Введите диаметр D'); return; }
+        if (isNaN(h) || h < 0) { showToast('Введите уровень h'); return; }
+        if (h > D) { showToast('h не может быть больше D'); return; }
+        const R = D / 2;
+        let segmentArea;
+        if (h === 0) {
+            segmentArea = 0;
+        } else if (h === D) {
+            segmentArea = Math.PI * R * R;
+        } else if (h === R) {
+            segmentArea = Math.PI * R * R / 2;
+        } else {
+            // Общая формула площади кругового сегмента
+            segmentArea = R * R * Math.acos((R - h) / R) - (R - h) * Math.sqrt(2 * R * h - h * h);
+        }
+        const volume = segmentArea * L;                  // м³
+        const totalVolume = Math.PI * R * R * L;         // м³
+        const fillPercent = totalVolume > 0 ? (volume / totalVolume) * 100 : 0;
+        const waterMass = volume * 998;                  // кг
+        let html = '<div class="converter-result-label-title">Результат</div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Объём жидкости V</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(volume) + ' м³ (' + formatNumber(volume * 1000) + ' л)</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Полный объём Vполн</span><span class="converter-result-value">' + formatNumber(totalVolume) + ' м³ (' + formatNumber(totalVolume * 1000) + ' л)</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Заполнение</span><span class="converter-result-value">' + formatNumber(fillPercent) + ' %</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Площадь сегмента S</span><span class="converter-result-value">' + formatNumber(segmentArea) + ' м²</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Масса воды (ρ=998)</span><span class="converter-result-value">' + formatNumber(waterMass) + ' кг</span></div>';
+        const res = document.getElementById('gh_results');
+        res.innerHTML = html;
+        res.style.display = 'block';
+        setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    // Сфера: V = π·D³/6, S = π·D², масса воды при ρ = 998 кг/м³.
+    // D в м.
+    function calcGeoSphere() {
+        let D = parseLocaleNumber(document.getElementById('gs_diameter').value);
+        if (isNaN(D) || D <= 0) { showToast('Введите диаметр D'); return; }
+        const volume = Math.PI * D * D * D / 6;          // м³
+        const surface = Math.PI * D * D;                 // м²
+        const waterMass = volume * 998;                  // кг
+        let html = '<div class="converter-result-label-title">Результат</div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Объём V</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(volume) + ' м³ (' + formatNumber(volume * 1000) + ' л)</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Площадь поверхности S</span><span class="converter-result-value">' + formatNumber(surface) + ' м²</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Масса воды (ρ=998)</span><span class="converter-result-value">' + formatNumber(waterMass) + ' кг</span></div>';
+        const res = document.getElementById('gs_results');
+        res.innerHTML = html;
+        res.style.display = 'block';
+        setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    // Конус: V = π·D²·H/12, Sосн = π·D²/4,
+    // образующая L = √(H² + (D/2)²), Sбок = π·(D/2)·L.
+    // D и H в м.
+    function calcGeoCone() {
+        let D = parseLocaleNumber(document.getElementById('gco_diameter').value);
+        let H = parseLocaleNumber(document.getElementById('gco_height').value);
+        if (isNaN(D) || D <= 0) { showToast('Введите диаметр D'); return; }
+        if (isNaN(H) || H <= 0) { showToast('Введите высоту H'); return; }
+        const R = D / 2;
+        const volume = Math.PI * D * D * H / 12;         // м³
+        const baseArea = Math.PI * D * D / 4;            // м²
+        const slant = Math.sqrt(H * H + R * R);          // м, образующая
+        const sideArea = Math.PI * R * slant;            // м²
+        let html = '<div class="converter-result-label-title">Результат</div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Объём V</span><span class="converter-result-value" style="color:#4ac771;">' + formatNumber(volume) + ' м³ (' + formatNumber(volume * 1000) + ' л)</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Площадь основания Sосн</span><span class="converter-result-value">' + formatNumber(baseArea) + ' м²</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Образующая L</span><span class="converter-result-value">' + formatNumber(slant) + ' м</span></div>';
+        html += '<div class="converter-result-item"><span class="converter-result-label">Площадь боковая Sбок</span><span class="converter-result-value">' + formatNumber(sideArea) + ' м²</span></div>';
+        const res = document.getElementById('gco_results');
+        res.innerHTML = html;
+        res.style.display = 'block';
+        setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    // Открытие bottom sheet для pin/unpin указанного подраздела.
+    function openPinSheet(key) {
+        const s = SUBSECTIONS[key];
+        if (!s) return;
+        currentPinKey = key;
+        const pinned = isPinned(key);
+        document.getElementById('pinSheetTitle').textContent = s.label;
+        document.getElementById('pinSheetSublabel').textContent = s.sublabel;
+        const actionBtn = document.getElementById('pinSheetAction');
+        const extraActions = document.getElementById('pinSheetExtraActions');
+        if (pinned) {
+            // Для закреплённого пункта: показываем кнопки перемещения + красную «Убрать»
+            extraActions.style.display = 'flex';
+            renderPinSheetExtraActions(key);
+            actionBtn.classList.add('is-pinned');
+            actionBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Убрать с главной страницы';
+        } else {
+            // Для незакреплённого пункта: только синяя «Добавить»
+            extraActions.style.display = 'none';
+            actionBtn.classList.remove('is-pinned');
+            actionBtn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Добавить на главную страницу';
+        }
+        document.getElementById('pinSheetOverlay').classList.add('active');
+        document.getElementById('pinSheet').classList.add('active');
+        if (navigator.vibrate) navigator.vibrate(15);
+    }
+
+    // Рендеринг кнопок перемещения в bottom sheet.
+    // Кнопка «вверх» отключена для первого пункта, «вниз» — для последнего.
+    // Вызывается при открытии sheet и после каждого перемещения (для обновления disabled-состояний).
+    function renderPinSheetExtraActions(key) {
+        const items = getPinnedItems();
+        const idx = items.indexOf(key);
+        const isFirst = idx <= 0;
+        const isLast = idx === -1 || idx >= items.length - 1;
+        const extraActions = document.getElementById('pinSheetExtraActions');
+        if (!extraActions) return;
+        extraActions.innerHTML =
+            '<button type="button" class="pin-sheet-action pin-sheet-action-secondary"' + (isFirst ? ' disabled' : '') + ' onclick="movePinnedItem(\'' + key + '\', -1)">' +
+                '<svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>Переместить вверх' +
+            '</button>' +
+            '<button type="button" class="pin-sheet-action pin-sheet-action-secondary"' + (isLast ? ' disabled' : '') + ' onclick="movePinnedItem(\'' + key + '\', 1)">' +
+                '<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>Переместить вниз' +
+            '</button>';
+    }
+
+    // Перемещение закреплённого пункта вверх (-1) или вниз (+1).
+    // Сохраняет новый порядок в localStorage, ре-рендерит контейнер на дашборде
+    // и обновляет disabled-состояния кнопок в sheet (без закрытия sheet).
+    function movePinnedItem(key, direction) {
+        let items = getPinnedItems();
+        const idx = items.indexOf(key);
+        if (idx === -1) return;
+        const newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= items.length) return;
+        // Обмен элементов местами
+        const tmp = items[idx];
+        items[idx] = items[newIdx];
+        items[newIdx] = tmp;
+        setPinnedItems(items);
+        renderPinnedItems();
+        // Обновляем disabled-состояния кнопок в открытом sheet
+        renderPinSheetExtraActions(key);
+        if (navigator.vibrate) navigator.vibrate(15);
+    }
+
+    // Закрытие bottom sheet.
+    function closePinSheet() {
+        document.getElementById('pinSheetOverlay').classList.remove('active');
+        document.getElementById('pinSheet').classList.remove('active');
+        currentPinKey = null;
+    }
+
+    // Выполнение действия pin/unpin из sheet.
+    function executePinToggle() {
+        if (!currentPinKey) return;
+        const wasPinned = isPinned(currentPinKey);
+        togglePin(currentPinKey);
+        const label = SUBSECTIONS[currentPinKey] ? SUBSECTIONS[currentPinKey].label : '';
+        if (typeof showToast === 'function') {
+            showToast(wasPinned ? ('«' + label + '» убрано с главной') : ('«' + label + '» добавлено на главную'));
+        }
+        closePinSheet();
+    }
+
+    // Инициализация при загрузке — рендерим закреплённые пункты.
+    // Запускаем после готовности DOM.
+    document.addEventListener('DOMContentLoaded', renderPinnedItems);
+
     // Обработчик системной кнопки «Назад»
     window.addEventListener('popstate', function(e) {
+        // Если открыт pin-sheet — сначала закрыть его
+        if (document.getElementById('pinSheet').classList.contains('active')) {
+            closePinSheet();
+            history.pushState({ page: e.state ? e.state.page : 'dashboard' }, '', location.hash || '#dashboard');
+            return;
+        }
         // Если открыт билет — сначала закрыть его, а не уходить со страницы
         if (document.body.classList.contains('ticket-open')) {
             const openTicket = document.querySelector('.ticket-item.open');
@@ -4699,6 +6252,32 @@
     overlay.classList.toggle('active');
 }
 
+// Аккордеон в боковом меню: при разворачивании группы — сворачиваем ранее раскрытую.
+// Тогглит состояние группы: 3 видимих по умолчанию, при клике «Показать все» — все.
+function toggleSidebarGroup(groupEl) {
+    if (!groupEl) return;
+    const isExpanded = groupEl.classList.contains('expanded');
+    // Аккордеон: сворачиваем все остальные раскрытые группы и обновляем их текст
+    document.querySelectorAll('.sidebar-group.expanded').forEach(el => {
+        if (el !== groupEl) {
+            el.classList.remove('expanded');
+            const span = el.querySelector('.sidebar-show-more span');
+            const cnt = el.querySelectorAll('.sidebar-item-extra').length;
+            if (span) span.textContent = 'Показать все (' + cnt + ')';
+        }
+    });
+    // Тогглим текущую группу
+    groupEl.classList.toggle('expanded', !isExpanded);
+    // Обновляем текст кнопки: «Показать все (N)» ↔ «Свернуть»
+    const showMoreSpan = groupEl.querySelector('.sidebar-show-more span');
+    const count = groupEl.querySelectorAll('.sidebar-item-extra').length;
+    if (showMoreSpan) {
+        showMoreSpan.textContent = !isExpanded ? 'Свернуть' : ('Показать все (' + count + ')');
+    }
+    // Вибрация для тактильного отклика
+    if (navigator.vibrate) navigator.vibrate(15);
+}
+
 // Close sidebar when clicking outside
 document.addEventListener('click', function(e) {
     let sidebar = document.getElementById('sidebar');
@@ -4719,7 +6298,7 @@ function showToast(msg) { let t = document.getElementById('toast'); document.get
 
     // ======================== КОНВЕРТЕРЫ (полные данные) ========================
     const unitData = {
-        pressure: { units: { 'Pa':{label:'Па',factor:1}, 'kPa':{label:'кПа',factor:1000}, 'MPa':{label:'МПа',factor:1000000}, 'bar':{label:'бар',factor:100000}, 'mbar':{label:'мбар',factor:100}, 'atm':{label:'атм',factor:101325}, 'kgf_cm2':{label:'кгс/см²',factor:98066.5}, 'mmHg':{label:'мм рт. ст.',factor:133.322}, 'PSI':{label:'PSI',factor:6894.757}, 'mmH2O':{label:'мм вод. ст.',factor:9.80665} } },
+        pressure: { units: { 'Pa':{label:'Па',factor:1}, 'kPa':{label:'кПа',factor:1000}, 'MPa':{label:'МПа',factor:1000000}, 'bar':{label:'бар',factor:100000}, 'mbar':{label:'мбар',factor:100}, 'atm':{label:'атм',factor:101325}, 'kgf_cm2':{label:'кгс/см²',factor:98066.5}, 'kgf_m2':{label:'кгс/м²',factor:9.80665}, 'mmHg':{label:'мм рт. ст.',factor:133.322}, 'PSI':{label:'PSI',factor:6894.757}, 'mmH2O':{label:'мм вод. ст.',factor:9.80665} } },
         flow: { units: { 'm3h':{label:'м³/ч',factor:1}, 'm3s':{label:'м³/с',factor:3600}, 'l_min':{label:'л/мин',factor:0.06}, 'l_s':{label:'л/с',factor:3.6}, 't_h':{label:'т/ч',factor:1}, 'kg_s':{label:'кг/с',factor:3.6}, 'kg_h':{label:'кг/ч',factor:0.001} } },
         mass: { units: { 'kg':{label:'кг',factor:1}, 'g':{label:'г',factor:0.001}, 'mg':{label:'мг',factor:0.000001}, 't':{label:'т',factor:1000}, 'lb':{label:'фунт',factor:0.453592}, 'oz':{label:'унция',factor:0.0283495}, } },
         length: { units: { 'm':{label:'м',factor:1}, 'km':{label:'км',factor:1000}, 'cm':{label:'см',factor:0.01}, 'mm':{label:'мм',factor:0.001}, 'um':{label:'мкм',factor:0.000001}, 'mi':{label:'миля',factor:1609.344}, 'ft':{label:'фут',factor:0.3048}, 'in':{label:'дюйм',factor:0.0254}, 'yd':{label:'ярд',factor:0.9144} } },
@@ -6950,7 +8529,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
     // Haptic feedback on navigation and button presses
     document.addEventListener('click', function(e) {
-        const target = e.target.closest('.nav-btn, .menu-btn, .bottom-nav-item, .converter-convert-btn, .scale-calc-btn, .query-btn, .header-btn, .ticket-cat-card, .ticket-item-header, .ticket-nav-btn, .ticket-a-img, .ticket-a-imglink, .ticket-img-overlay-close, .ticket-ref-link, .connection-indicator');
+        const target = e.target.closest('.nav-btn, .menu-btn, .bottom-nav-item, .converter-convert-btn, .scale-calc-btn, .query-btn, .header-btn, .ticket-cat-card, .ticket-item-header, .ticket-nav-btn, .ticket-a-img, .ticket-a-imglink, .ticket-img-overlay-close, .ticket-ref-link, .connection-indicator, .dashboard-quick-btn, .menu-btn-overflow, .dashboard-bottom-btn, .pin-sheet-action, .pin-sheet-cancel');
         if (target && navigator.vibrate) {
             navigator.vibrate(15);
         }
@@ -7380,6 +8959,106 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         </div>
     </div>
     <div class="sidebar-content">
+        <!-- ===== Группа: КИП и А (0 видимых + 6 скрытых) ===== -->
+        <div class="sidebar-group" data-group="kipa">
+        <div class="sidebar-group-title">КИП и А</div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('converter'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            <span>Конвертер единиц</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('scale-signal'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M2 12h6l3-9 4 18 3-9h4"/></svg>
+            <span>Шкала-сигнал</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('error-select'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Расчёт погрешности</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('buoy-select'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M12 2v6"/><path d="M5 8h14l-1 12H6L5 8z"/></svg>
+            <span>Буйковый уровнемер</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('temp-sensors'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+            <span>Датчики температуры</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('orifice-select'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+            <span>Сужающее устройство</span>
+        </div>
+        <div class="sidebar-show-more" onclick="toggleSidebarGroup(this.parentElement)">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            <span>Показать все (6)</span>
+        </div>
+        </div>
+
+        <!-- ===== Группа: Электротехника (0 видимых + 1 скрытый) ===== -->
+        <div class="sidebar-group" data-group="electro">
+        <div class="sidebar-group-title">Электротехника</div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('circuit-breaker'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <span>Автоматический выключатель</span>
+        </div>
+        <div class="sidebar-show-more" onclick="toggleSidebarGroup(this.parentElement)">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            <span>Показать все (1)</span>
+        </div>
+        </div>
+
+        <!-- ===== Группа: Геометрия (0 видимых + 6 скрытых) ===== -->
+        <div class="sidebar-group" data-group="geometry">
+        <div class="sidebar-group-title">Геометрия</div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('geo-circle'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/></svg>
+            <span>Круг</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('geo-ring'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+            <span>Кольцо</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('geo-cylinder'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><ellipse cx="12" cy="5" rx="8" ry="2.5"/><path d="M4 5v14c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5V5"/></svg>
+            <span>Цилиндр вертикальный</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('geo-horiz'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><ellipse cx="5" cy="12" rx="2" ry="8"/><ellipse cx="19" cy="12" rx="2" ry="8"/><line x1="5" y1="4" x2="19" y2="4"/><line x1="5" y1="20" x2="19" y2="20"/></svg>
+            <span>Цилиндр горизонтальный</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('geo-sphere'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 010 18"/><path d="M12 3a15 15 0 000 18"/></svg>
+            <span>Сфера</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('geo-cone'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M12 2L3 20h18z"/><ellipse cx="12" cy="20" rx="9" ry="1.5"/></svg>
+            <span>Конус</span>
+        </div>
+        <div class="sidebar-show-more" onclick="toggleSidebarGroup(this.parentElement)">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            <span>Показать все (6)</span>
+        </div>
+        </div>
+
+        <!-- ===== Группа: Документация (0 видимых + 2 скрытых) ===== -->
+        <div class="sidebar-group" data-group="docs">
+        <div class="sidebar-group-title sidebar-group-title-docs">Документация</div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('exam-tickets'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(199,150,74,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+            <span style="color:rgba(199,150,74,0.9);">Экзаменационные билеты</span>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('library'); toggleSidebar();">
+            <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(199,150,74,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <span style="color:rgba(199,150,74,0.9);">Библиотека КИП и А</span>
+        </div>
+        <div class="sidebar-show-more" onclick="toggleSidebarGroup(this.parentElement)">
+            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            <span>Показать все (2)</span>
+        </div>
+        </div>
+
+        <!-- ===== Тонкий разделитель ===== -->
+        <div class="sidebar-divider"></div>
+
+        <!-- ===== Сервисные кнопки (внизу шторки) ===== -->
         <div class="sidebar-item" onclick="refreshAppData(); toggleSidebar();">
             <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:rgba(140,170,200,0.7);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             <span>Обновить</span>
