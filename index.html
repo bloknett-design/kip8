@@ -1157,8 +1157,8 @@
     }
     .page-inline-header-title {
         font-size: 18px; font-weight: 700; color: #e0e0e0; letter-spacing: -0.3px;
-        width: 100%; text-align: center;
-        padding: 0 40px; box-sizing: border-box;
+        width: 100%; text-align: left;
+        padding: 0 16px 0 40px; box-sizing: border-box;
         min-width: 0;
         text-shadow: 0 0 6px rgba(186, 85, 211, 0.45), 0 0 14px rgba(186, 85, 211, 0.25), 0 0 22px rgba(186, 85, 211, 0.12);
     }
@@ -6023,7 +6023,7 @@
 
         <!-- ======================== БИБЛИОТЕКА КИП И А (ВНУТРЕННЯЯ) ======================== -->
         <div id="page-library-internal" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title page-inline-header-title-with-sub">Библиотека КИП и А<span class="page-inline-header-subtitle">Ссылки на облачные папки с документацией на Яндекс Диске</span></div></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title page-inline-header-title-with-sub">Библиотека КИП и А<span class="page-inline-header-subtitle">Документы открываются на Яндекс Диске</span></div></div>
 
 
             <div class="menu-btn-row">
@@ -6067,13 +6067,8 @@
 
         <!-- ======================== БИБЛИОТЕКА — ЭЛЕКТРОБЕЗОПАСНОСТЬ ======================== -->
         <div id="page-library-electro" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Электробезопасность</div></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title page-inline-header-title-with-sub">Электробезопасность<span class="page-inline-header-subtitle">Документы открываются на Яндекс Диске</span></div></div>
 
-
-            <div class="content-header" style="padding: 14px 20px 10px;">
-                <h2 style="color: #e0e0e0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px;">Правила и инструкции</h2>
-                <p style="color: rgba(255,255,255,0.35); font-size: 12px; margin-top: 5px;">Документы открываются на Яндекс Диске</p>
-            </div>
 
             <div class="menu-btn-row">
                 <a href="https://disk.yandex.ru/i/069ikLnVi2KIeA" target="_blank" rel="noopener" class="menu-btn" style="text-decoration: none; color: inherit;">
@@ -11033,24 +11028,11 @@
             return;
         }
 
-        // 2) Частичное совпадение (одно содержит другое) — на случай,
-        //    когда в исходной ячейке записано «АН-603 551-114-1068-АТХ»,
-        //    а в projects.json — «551-114-1068-АТХ» (и наоборот).
-        //    Защита: длина искомой строки должна быть ≥ 6 символов,
-        //    чтобы не ловить ложные совпадения по коротким обрубкам.
-        if (r.length >= 6) {
-            const partial = items.find(d => {
-                const v = norm(d['№ проекта']);
-                if (!v || v.length < 4) return false;
-                return v.indexOf(r) !== -1 || r.indexOf(v) !== -1;
-            });
-            if (partial && partial['ID'] != null && partial['ID'] !== '') {
-                projectOpenDetail(partial['ID']);
-                return;
-            }
-        }
-
-        // 3) Не найдено — показать сообщение
+        // 2) Не найдено точное совпадение — показать сообщение.
+        //    Частичное совпадение отключено: разные проекты могут содержать
+        //    одинаковые подстроки (например, 551-114-363-ТХ и 551-114-363-ТХ-2 —
+        //    это РАЗНЫЕ проекты), поэтому соответствие определяется только
+        //    по полному совпадению номеров.
         alert('Проект с № «' + raw + '» не найден в базе проектов.');
     }
 
@@ -11161,9 +11143,9 @@
 
     // ===== Обратные ссылки: фильтр списка раздела КИП ИОС по «№ проекта» =====
     // Глобальное состояние фильтра. Когда не null — соответствующий
-    // *RenderSorted фильтрует записи по полю «№ проекта» (точное совпадение
-    // или подстрока, как в projectOpenByProjectNo). В шапке списка показывается
-    // бейдж с возможностью сброса.
+    // *RenderSorted фильтрует записи по полю «№ проекта» (только полное
+    // совпадение номеров). В шапке списка показывается бейдж с возможностью
+    // сброса.
     //
     // Структура:
     //   { projectNo: '551-115-008-АТХ-2', section: 'devices' }
@@ -11233,7 +11215,8 @@
     }
 
     // Проверить, проходит ли запись фильтр по «№ проекта».
-    // Используется в *RenderSorted.
+    // Используется в *RenderSorted. Соответствие — только по полному
+    // совпадению номеров (после нормализации регистра/пробелов/ё→е).
     function kipMatchesProjectFilter(item, section) {
         if (!kipProjectLinkFilter || kipProjectLinkFilter.section !== section) return true;
         const raw = kipProjectLinkFilter.projectNo;
@@ -11243,11 +11226,8 @@
         const r = norm(raw);
         const v = norm(item['№ проекта']);
         if (!v) return false;
-        // Точное совпадение
-        if (v === r) return true;
-        // Частичное совпадение (длина ≥ 6, защита от ложных срабатываний)
-        if (r.length >= 6 && (v.indexOf(r) !== -1 || r.indexOf(v) !== -1)) return true;
-        return false;
+        // Полное совпадение номеров
+        return v === r;
     }
 
     // Рендер бейджа активного фильтра в шапке списка раздела.
@@ -11351,30 +11331,17 @@
             return;
         }
 
-        // 2) Частичное совпадение (одно содержит другое) — на случай,
-        //    когда в одной ячейке записано «СБС-123», а в другой — «123».
-        //    Защита: длина искомой строки должна быть ≥ 3 символов.
-        if (r.length >= 3) {
-            const partial = items.find(d => {
-                const v = norm(d['№ СБС']);
-                if (!v || v.length < 2) return false;
-                return v.indexOf(r) !== -1 || r.indexOf(v) !== -1;
-            });
-            if (partial && partial['ID'] != null && partial['ID'] !== '') {
-                lockOpenDetail(partial['ID']);
-                return;
-            }
-        }
-
-        // 3) Не найдено — показать сообщение
+        // 2) Не найдено точное совпадение — показать сообщение.
+        //    Частичное совпадение отключено: разные СБС могут содержать
+        //    одинаковые подстроки (например, «123» и «1234» — разные СБС),
+        //    поэтому соответствие определяется только по полному совпадению.
         alert('Блокировка с № СБС «' + raw + '» не найдена в базе блокировок.');
     }
 
     // ===== Обратные ссылки: фильтр списка раздела КИП ИОС по «№ СБС» =====
     // Глобальное состояние фильтра. Когда не null — соответствующий
-    // *RenderSorted фильтрует записи по полю «№ СБС» (точное совпадение
-    // или подстрока, как в lockOpenBySbsNo). В шапке списка показывается
-    // бейдж с возможностью сброса.
+    // *RenderSorted фильтрует записи по полю «№ СБС» (только полное совпадение
+    // номеров). В шапке списка показывается бейдж с возможностью сброса.
     //
     // Структура:
     //   { sbsNo: 'СБС-123', section: 'devices' }
@@ -11433,7 +11400,8 @@
         return !!(kipSbsLinkFilter && kipSbsLinkFilter.section === section);
     }
 
-    // Проверить, проходит ли запись СБС-фильтр.
+    // Проверить, проходит ли запись СБС-фильтр. Соответствие — только
+    // по полному совпадению номеров (после нормализации).
     function kipMatchesSbsFilter(item, section) {
         if (!kipSbsLinkFilter || kipSbsLinkFilter.section !== section) return true;
         const raw = kipSbsLinkFilter.sbsNo;
@@ -11443,9 +11411,8 @@
         const r = norm(raw);
         const v = norm(item['№ СБС']);
         if (!v) return false;
-        if (v === r) return true;
-        if (r.length >= 3 && (v.indexOf(r) !== -1 || r.indexOf(v) !== -1)) return true;
-        return false;
+        // Полное совпадение номеров
+        return v === r;
     }
 
     // Рендер бейджа активного СБС-фильтра в шапке списка раздела.
@@ -11504,7 +11471,8 @@
     ];
 
     // Подсчитать количество связанных записей для данного «№ СБС».
-    // Использует ту же логику совпадения, что и kipMatchesSbsFilter.
+    // Использует ту же логику совпадения, что и kipMatchesSbsFilter
+    // (только полное совпадение номеров).
     function kipCountRelatedBySbs(section, items, sbsNo) {
         if (!items || !items.length) return 0;
         const norm = (s) => String(s == null ? '' : s)
@@ -11515,8 +11483,8 @@
         for (const it of items) {
             const v = norm(it['№ СБС']);
             if (!v) continue;
-            if (v === r) { count++; continue; }
-            if (r.length >= 3 && (v.indexOf(r) !== -1 || r.indexOf(v) !== -1)) count++;
+            // Полное совпадение номеров
+            if (v === r) count++;
         }
         return count;
     }
@@ -11666,29 +11634,18 @@
             return;
         }
 
-        // 2) Частичное совпадение (одно содержит другое) — на случай,
-        //    когда в одной ячейке записано «11405(1)», а в другой — «11405».
-        //    Защита: длина искомой строки должна быть ≥ 3 символов.
-        if (r.length >= 3) {
-            const partial = items.find(d => {
-                const v = norm(d[fieldKey]);
-                if (!v || v.length < 2) return false;
-                return v.indexOf(r) !== -1 || r.indexOf(v) !== -1;
-            });
-            if (partial && partial['ID'] != null && partial['ID'] !== '') {
-                regulatorOpenDetail(partial['ID']);
-                return;
-            }
-        }
-
-        // 3) Не найдено — показать сообщение
+        // 2) Не найдено точное совпадение — показать сообщение.
+        //    Частичное совпадение отключено: разные САР могут содержать
+        //    одинаковые подстроки (например, «11405» и «11405(1)» — разные САР),
+        //    поэтому соответствие определяется только по полному совпадению.
         alert('Регулятор с № САР «' + raw + '» не найден в базе регуляторов.');
     }
 
     // ===== Обратные ссылки: фильтр списка раздела КИП ИОС по «№ САР» / «№ САРиРУ» =====
     // Глобальное состояние фильтра. Когда не null — соответствующий
     // *RenderSorted фильтрует записи по полю «№ САР» (devices) или «№ САРиРУ»
-    // (valves). В шапке списка показывается бейдж с возможностью сброса.
+    // (valves) — только по полному совпадению номеров. В шапке списка
+    // показывается бейдж с возможностью сброса.
     //
     // Структура:
     //   { sarNo: '11405', section: 'devices' }
@@ -11748,6 +11705,7 @@
     // Проверить, проходит ли запись САР-фильтр.
     // Для devices — сравнение по полю «№ САР»;
     // для valves — по полю «№ САРиРУ».
+    // Соответствие — только по полному совпадению номеров (после нормализации).
     function kipMatchesSarFilter(item, section) {
         if (!kipSarLinkFilter || kipSarLinkFilter.section !== section) return true;
         const raw = kipSarLinkFilter.sarNo;
@@ -11757,9 +11715,8 @@
         const r = norm(raw);
         const v = norm(item[kipSarFieldKey(section)]);
         if (!v) return false;
-        if (v === r) return true;
-        if (r.length >= 3 && (v.indexOf(r) !== -1 || r.indexOf(v) !== -1)) return true;
-        return false;
+        // Полное совпадение номеров
+        return v === r;
     }
 
     // Рендер бейджа активного САР-фильтра в шапке списка раздела.
@@ -11815,7 +11772,8 @@
     ];
 
     // Подсчитать количество связанных записей для данного «№ САР».
-    // Использует ту же логику совпадения, что и kipMatchesSarFilter.
+    // Использует ту же логику совпадения, что и kipMatchesSarFilter
+    // (только полное совпадение номеров).
     function kipCountRelatedBySar(section, items, sarNo) {
         if (!items || !items.length) return 0;
         const norm = (s) => String(s == null ? '' : s)
@@ -11827,8 +11785,8 @@
         for (const it of items) {
             const v = norm(it[fieldKey]);
             if (!v) continue;
-            if (v === r) { count++; continue; }
-            if (r.length >= 3 && (v.indexOf(r) !== -1 || r.indexOf(v) !== -1)) count++;
+            // Полное совпадение номеров
+            if (v === r) count++;
         }
         return count;
     }
@@ -11997,7 +11955,8 @@
     }
 
     // Подсчитать количество связанных записей для данного «№ проекта».
-    // Использует ту же логику совпадения, что и kipMatchesProjectFilter.
+    // Использует ту же логику совпадения, что и kipMatchesProjectFilter
+    // (только полное совпадение номеров).
     function kipCountRelated(section, items, projectNo) {
         if (!items || !items.length) return 0;
         const norm = (s) => String(s == null ? '' : s)
@@ -12008,8 +11967,8 @@
         for (const it of items) {
             const v = norm(it['№ проекта']);
             if (!v) continue;
-            if (v === r) { count++; continue; }
-            if (r.length >= 6 && (v.indexOf(r) !== -1 || r.indexOf(v) !== -1)) count++;
+            // Полное совпадение номеров
+            if (v === r) count++;
         }
         return count;
     }
