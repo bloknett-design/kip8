@@ -7,7 +7,7 @@
 // свежие версии файлов из ASSETS.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v13';
+const CACHE_VERSION = 'kipia-v14';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).
@@ -16,7 +16,7 @@ const CACHE_NAME = CACHE_VERSION;
 // заново скачивать все 26 картинок после каждого релиза.
 // Инкрементируйте IMAGE_CACHE_VERSION только если нужно принудительно сбросить
 // кэш картинок (например, если в Google Drive заменили файлы с тем же ID).
-const IMAGE_CACHE_VERSION = 'kipia-images-v1';
+const IMAGE_CACHE_VERSION = 'kipia-images-v2';
 const IMAGE_CACHE_NAME = IMAGE_CACHE_VERSION;
 
 // Файлы для пред-кэширования при установке SW.
@@ -30,11 +30,17 @@ const ASSETS = [
   './images/icon-192-maskable.png',
   './images/icon-512-maskable.png',
   './images/icon.png',
+  './images/Launch.png',
   './images/1000\u0412.png',
   './images/4\u0440.png',
   './images/5\u0440.png',
   './images/6\u0440.png',
-  './data/exam-tickets.json'
+  './data/exam-tickets.json',
+  './data/phonebook.json',
+  './data/devices.json',
+  './data/valves.json',
+  './data/projects.json',
+  './data/cables.json'
 ];
 
 // App Shell — главный HTML-файл, который обслуживает все навигационные
@@ -225,7 +231,51 @@ self.addEventListener('fetch', event => {
       return;
     }
 
-    // Прочие внешние ресурсы (шрифты Google, CDN) — network-first
+    // ===== Картинки с Яндекс Диска (downloader.disk.yandex.ru) =====
+    // Используются в разделе «План корпуса 114» — 6 планов помещений.
+    // URL картинок содержит временный токен (живёт ~1 час), поэтому
+    // использовать URL как ключ кэша напрямую нельзя — при следующем
+    // запросе к API будет получен новый URL, и кэш не найдётся.
+    //
+    // Решение: ключом кэша служит pathname (без query-параметров).
+    // pathname стабилен (содержит только путь к файлу на сервере Я.Диска),
+    // query содержит временный токен — его отбрасываем.
+    //
+    // ВАЖНО: referrerPolicy='no-referrer' обязателен. Яндекс.Диск отдаёт 403
+    // на картинки с Referer от сторонних доменов (GitHub Pages и т.п.) —
+    // это защита от хотлинкинга. Без no-referrer картинки молча не грузятся.
+    //
+    // Стратегия: STALE-WHILE-REVALIDATE через IMAGE_CACHE_NAME
+    // (переживает обновления CACHE_VERSION — пользователю не нужно
+    // заново скачивать все 6 планов после каждого релиза).
+    const isYandexDiskImage = url.hostname === 'downloader.disk.yandex.ru';
+
+    if (isYandexDiskImage) {
+      // Ключ кэша: URL БЕЗ query (отбрасываем временный токен).
+      const cacheKey = new Request(url.pathname, { method: 'GET' });
+      event.respondWith(
+        caches.open(IMAGE_CACHE_NAME).then(cache => {
+          return cache.match(cacheKey).then(cached => {
+            // Фоновое обновление в сети (не блокирует ответ).
+            // referrerPolicy:'no-referrer' — без него Яндекс.Диск отдаёт 403
+            // для запросов с Referer от сторонних доменов.
+            const fetchPromise = fetch(request, { referrerPolicy: 'no-referrer' }).then(response => {
+              if (response.ok || response.type === 'opaque') {
+                // Кэшируем по нормализованному ключу (без query)
+                cache.put(cacheKey, response.clone());
+              }
+              return response;
+            }).catch(() => null);
+            // Если есть кэш — отдаём сразу; сеть обновит кэш для следующего раза.
+            // Если кэша нет — ждём сеть.
+            return cached || fetchPromise;
+          });
+        })
+      );
+      return;
+    }
+
+    // Прочие внешние ресурсы (шрифты Google, CDN, cloud-api.yandex.net) — network-first
     event.respondWith(
       fetch(request)
         .then(response => {
@@ -243,8 +293,43 @@ self.addEventListener('fetch', event => {
   }
 
   // ===== 3. Локальные файлы (CSS-in-HTML, JS-in-HTML, JSON, images) =====
+  // Для data/*.json (phonebook.json, devices.json, exam-tickets.json) —
+  // ВСЕГДА идём в сеть (cache-busting ?v=timestamp уже добавлен клиентом).
+  // Это гарантирует, что при обновлении данных через GitHub Actions
+  // пользователь сразу увидит свежие данные (а не старый кэш SW).
+  // Для остальных локальных файлов — обычный network-first с кэшированием.
   const cacheKey = makeCacheKey(request);
+  const isDataJson = isLocal && url.pathname.startsWith('/data/') && url.pathname.endsWith('.json');
 
+  if (isDataJson) {
+    // Стратегия: NETWORK-FIRST с принудительным обновлением кэша
+    // При любом запросе к data/*.json — всегда идём в сеть, обновляем кэш.
+    // Если сети нет — отдаём последний закэшированный вариант.
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response.ok) {
+            // Обновляем кэш по нормализованному ключу (без ?v=...)
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(cacheKey, clone));
+          }
+          return response;
+        })
+        .catch(() => {
+          // Нет сети — отдаём из кэша
+          return caches.match(cacheKey).then(cached => {
+            return cached || new Response('{"error":"offline"}', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: { 'Content-Type': 'application/json; charset=utf-8' }
+            });
+          });
+        })
+    );
+    return;
+  }
+
+  // Остальные локальные файлы — обычный network-first
   event.respondWith(
     fetch(request)
       .then(response => {
