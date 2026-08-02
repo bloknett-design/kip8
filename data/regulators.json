@@ -1,6 +1,6 @@
 {
   "title": "Регуляторы по производствам",
-  "source": "Yandex Disk (public): https://disk.yandex.ru/i/B8-c9XnMZlgTkw",
+  "source": "Google Sheets: https://docs.google.com/spreadsheets/d/1eUUwwulUvKUGWTgQ__XP-y7z1aEkt5Wy/edit",
   "sheet": "Регуляторы_app",
   "total_regulators": 268,
   "headers": [
@@ -20,7 +20,7 @@
   "regulators": [
     {
       "№ п/п": "1",
-      "Параметр": "Давление воды на всасе насоса поз. Н/2 ТЕСТ",
+      "Параметр": "Давление воды на всасе насоса поз. Н/2",
       "№ САРиРУ": "211",
       "Уставка": "По заданию (1…6 кгс/см2)",
       "Кп": "-0.7",

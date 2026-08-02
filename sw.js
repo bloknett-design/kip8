@@ -1,13 +1,16 @@
 // ============================================================
-// Service Worker для КИПиА — стратегия network-first + App Shell
+// Service Worker для КИПиА — ОСНОВНОЙ РЕПОЗИТОРИЙ kip8
 // ============================================================
+// ВНИМАНИЕ: это основная версия SW для репозитория kip8.
+// Имена кэшей БЕЗ суффикса '-test' (это основной репозиторий).
+//
 // КАК ОБНОВИТЬ САЙТ: увеличьте CACHE_VERSION ниже.
-//   'kipia-v3' → 'kipia-v4' → 'kipia-v5' и т.д.
+//   'kipia-v1' → 'kipia-v2' → 'kipia-v3' и т.д.
 // При смене версии SW удалит ВСЕ старые кэши и закэширует
 // свежие версии файлов из ASSETS.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v15';
+const CACHE_VERSION = 'kipia-v16';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).
@@ -151,6 +154,17 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
 
+  // ===== Bypass для Apps Script (система доступа КИПиА) =====
+  // Запросы к script.google.com (Apps Script Web App) и
+  // script.googleusercontent.com (куда Apps Script редиректит POST-ответы)
+  // НИКОГДА не кэшируем и не перехватываем — всегда идём напрямую в сеть.
+  // Это гарантирует, что OTP/heartbeat/logout всегда доходят до сервера.
+  const bypassUrl = new URL(request.url);
+  if (bypassUrl.hostname === 'script.google.com' ||
+      bypassUrl.hostname === 'script.googleusercontent.com') {
+    return; // не вызываем event.respondWith — браузер сам обработает запрос
+  }
+
   // Только GET-запросы кэшируем
   if (request.method !== 'GET') return;
 
@@ -231,51 +245,8 @@ self.addEventListener('fetch', event => {
       return;
     }
 
-    // ===== Картинки с Яндекс Диска (downloader.disk.yandex.ru) =====
-    // Используются в разделе «План корпуса 114» — 6 планов помещений.
-    // URL картинок содержит временный токен (живёт ~1 час), поэтому
-    // использовать URL как ключ кэша напрямую нельзя — при следующем
-    // запросе к API будет получен новый URL, и кэш не найдётся.
-    //
-    // Решение: ключом кэша служит pathname (без query-параметров).
-    // pathname стабилен (содержит только путь к файлу на сервере Я.Диска),
-    // query содержит временный токен — его отбрасываем.
-    //
-    // ВАЖНО: referrerPolicy='no-referrer' обязателен. Яндекс.Диск отдаёт 403
-    // на картинки с Referer от сторонних доменов (GitHub Pages и т.п.) —
-    // это защита от хотлинкинга. Без no-referrer картинки молча не грузятся.
-    //
-    // Стратегия: STALE-WHILE-REVALIDATE через IMAGE_CACHE_NAME
-    // (переживает обновления CACHE_VERSION — пользователю не нужно
-    // заново скачивать все 6 планов после каждого релиза).
-    const isYandexDiskImage = url.hostname === 'downloader.disk.yandex.ru';
-
-    if (isYandexDiskImage) {
-      // Ключ кэша: URL БЕЗ query (отбрасываем временный токен).
-      const cacheKey = new Request(url.pathname, { method: 'GET' });
-      event.respondWith(
-        caches.open(IMAGE_CACHE_NAME).then(cache => {
-          return cache.match(cacheKey).then(cached => {
-            // Фоновое обновление в сети (не блокирует ответ).
-            // referrerPolicy:'no-referrer' — без него Яндекс.Диск отдаёт 403
-            // для запросов с Referer от сторонних доменов.
-            const fetchPromise = fetch(request, { referrerPolicy: 'no-referrer' }).then(response => {
-              if (response.ok || response.type === 'opaque') {
-                // Кэшируем по нормализованному ключу (без query)
-                cache.put(cacheKey, response.clone());
-              }
-              return response;
-            }).catch(() => null);
-            // Если есть кэш — отдаём сразу; сеть обновит кэш для следующего раза.
-            // Если кэша нет — ждём сеть.
-            return cached || fetchPromise;
-          });
-        })
-      );
-      return;
-    }
-
-    // Прочие внешние ресурсы (шрифты Google, CDN, cloud-api.yandex.net) — network-first
+    // ===== Прочие внешние ресурсы (шрифты Google, CDN) =====
+    // network-first: пытаемся загрузить из сети, при ошибке отдаём из кэша.
     event.respondWith(
       fetch(request)
         .then(response => {

@@ -1,4 +1,4 @@
-name: Update Exam Tickets (PROD)
+name: Update Devices (PROD)
 
 # ВНИМАНИЕ: это основной репозиторий kip8.
 # Автоматический cron ОТКЛЮЧЁН, чтобы не дублировать запросы к Google Sheets
@@ -7,26 +7,22 @@ name: Update Exam Tickets (PROD)
 #
 # КАК НАСТРОИТЬ:
 # По умолчанию используется Google Sheets:
-#   https://docs.google.com/spreadsheets/d/1D8ElnUF3_ucNCpl0kF3PcVGltF08uoJK/edit
-#   файл: «Экзаменационные билеты_app.xlsx» (импортирован в Google Sheets)
-#   листы: «4 разряд», «5 разряд», «6 разряд», «До 1000 В»
-# Можно переопределить через переменные окружения в шаге "Sync":
-#   EXAM_TICKETS_SPREADSHEET_ID, EXAM_TICKETS_GID (опц.)
+#   https://docs.google.com/spreadsheets/d/1eUUwwulUvKUGWTgQ__XP-y7z1aEkt5Wy/edit
+#   лист: Приборы_app
+#   (файл «Перечень КИП ИОС рабочий.xlsx», импортированный в Google Sheets)
+# Можно переопределить через переменные окружения в шаге "Download and parse":
+#   DEVICES_SPREADSHEET_ID, DEVICES_SHEET_NAME, DEVICES_GID (опц.)
 #
 # Секреты НЕ требуются — таблица доступна «у кого есть ссылка»,
 # Google отдаёт XLSX через export?format=xlsx без OAuth.
-#
-# История источников: OneDrive (legacy) → Google Sheets (текущий).
 
 on:
-  # Ручной запуск — всегда доступен
   workflow_dispatch:
-  # Автоматический запуск — ОТКЛЮЧЁН для тестового репо
   # schedule:
   #   - cron: '0 6 * * *'
 
 jobs:
-  convert:
+  sync:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -41,43 +37,38 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install openpyxl requests
+        run: pip install openpyxl requests Pillow
 
-      - name: Sync from Google Sheets and convert to JSON
-        run: python scripts/convert-exam-tickets.py
+      - name: Download from Google Sheets and convert to JSON
+        run: python scripts/sync-devices.py
 
       - name: Check for changes
         id: check_changes
         run: |
-          git diff --exit-code data/exam-tickets.json || echo "changed=true" >> $GITHUB_OUTPUT
+          git diff --exit-code data/devices.json || echo "changed=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push if changed
         if: steps.check_changes.outputs.changed == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/exam-tickets.json
-          git commit -m "auto: update exam tickets data from Google Sheets (test repo)"
+          git add data/devices.json
+          git commit -m "auto: update devices data from Google Sheets (test repo)"
           git push
 
       - name: Summary
         if: always()
         run: |
-          echo "## Exam Tickets Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Devices Sync Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check_changes.outputs.changed }}" == "true" ]; then
             echo "✅ Данные обновлены и закоммичены" >> $GITHUB_STEP_SUMMARY
           else
             echo "ℹ️ Изменений нет" >> $GITHUB_STEP_SUMMARY
           fi
-          if [ -f data/exam-tickets.json ]; then
-            TOTAL=$(python3 -c "
-          import json
-          d = json.load(open('data/exam-tickets.json'))
-          n = sum(v.get('total', 0) for v in d.values() if isinstance(v, dict))
-          print(n)
-          ")
-            echo "**Всего строк (суммарно):** $TOTAL" >> $GITHUB_STEP_SUMMARY
+          if [ -f data/devices.json ]; then
+            COUNT=$(python3 -c "import json; d=json.load(open('data/devices.json')); print(d.get('total_devices', 'N/A'))")
+            echo "**Приборов:** $COUNT" >> $GITHUB_STEP_SUMMARY
             echo "**Источник:** Google Sheets" >> $GITHUB_STEP_SUMMARY
-            echo "**Листы:** 4 разряд, 5 разряд, 6 разряд, До 1000 В" >> $GITHUB_STEP_SUMMARY
+            echo "**Лист:** Приборы_app" >> $GITHUB_STEP_SUMMARY
           fi
