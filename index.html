@@ -2438,13 +2438,13 @@
     }
 
     /* ========== Экзаменационные билеты ========== */
-    .ticket-cat-card { position: relative; border-radius: 14px; margin-bottom: 10px; cursor: pointer; transition: transform .15s; overflow: hidden; min-height: 120px; }
+    .ticket-cat-card { position: relative; border-radius: 14px; margin-bottom: 10px; cursor: pointer; transition: transform .15s; overflow: hidden; min-height: 140px; }
     .ticket-cat-card:active { transform: scale(0.97); }
     .ticket-cat-card img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-    .ticket-cat-info { position: relative; z-index: 1; padding: 28px 12px 12px 12px; display: flex; flex-direction: column; justify-content: flex-end; min-height: 130px; }
-    .ticket-cat-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; background: rgba(255,255,255,0.20); padding: 6px 14px; border-radius: 8px; display: inline-block; align-self: flex-start; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .ticket-cat-info { position: absolute; bottom: 0; left: 0; right: 0; z-index: 1; padding: 24px 12px 10px 12px; display: flex; flex-direction: column; justify-content: flex-end; background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 60%, transparent 100%); }
+    .ticket-cat-title { font-size: 20px; font-weight: 700; color: #ffffff; margin-bottom: 0; background: rgba(255,255,255,0.18); padding: 6px 14px; border-radius: 8px; display: inline-block; align-self: flex-start; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
 
-    [data-theme="light"] .ticket-cat-title { color: #1a1a1a; background: rgba(255,255,255,0.20); }
+    [data-theme="light"] .ticket-cat-title { color: #ffffff; background: rgba(255,255,255,0.22); }
 
     .ticket-list { padding: 0 16px; }
     .ticket-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 8px; }
@@ -2541,6 +2541,230 @@
     .ticket-empty { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.3); font-size: 14px; }
     [data-theme="light"] .ticket-empty { color: rgba(0,0,0,0.3); }
     .ticket-loading { text-align: center; padding: 40px 20px; color: rgba(255,255,255,0.4); font-size: 14px; }
+
+    /* ========== Split-view layout (мастер-деталь) для билетов ========== */
+    /* На широких экранах: слева список билетов, справа карточка выбранного.
+       На узких (<600px): список на весь экран, карточка открывается поверх. */
+    .ticket-split-view {
+        display: flex;
+        height: calc(100vh - 56px);
+        height: calc(100dvh - 56px);
+        overflow: hidden;
+    }
+    .page-content.scrolled .ticket-split-view {
+        height: calc(100vh - 44px);
+        height: calc(100dvh - 44px);
+    }
+    /* Левая панель — список билетов */
+    .ticket-split-left {
+        flex: 0 0 320px;
+        max-width: 40vw;
+        min-width: 200px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        border-right: 1px solid var(--card-border);
+        background: rgba(25, 32, 45, 0.95);
+        padding: 0;
+    }
+    [data-theme="light"] .ticket-split-left {
+        background: rgba(255, 252, 245, 0.98);
+    }
+    /* Правая панель — карточка билета */
+    .ticket-split-right {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        background: var(--bg-tertiary);
+    }
+    [data-theme="light"] .ticket-split-right {
+        background: #F0EEE6;
+    }
+    /* Placeholder в правой панели когда билет не выбран */
+    .ticket-detail-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: rgba(255,255,255,0.2);
+        gap: 12px;
+        font-size: 15px;
+        pointer-events: none;
+    }
+    [data-theme="light"] .ticket-detail-placeholder {
+        color: rgba(0,0,0,0.2);
+    }
+    /* Элемент списка в левой панели (стиль как dev-card — зебра, без рамки) */
+    .ticket-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .ticket-list-item:last-child { border-bottom: none; }
+    .ticket-list-item:active { background: rgba(199, 150, 74, 0.08); }
+    .ticket-list-item.selected {
+        background: rgba(74, 143, 199, 0.12);
+        border-left: 3px solid var(--accent-blue);
+        padding-left: 11px;
+    }
+    /* Зебра для элементов списка */
+    .ticket-list-item:nth-child(odd) {
+        background: rgba(40, 50, 65, 0.96);
+    }
+    .ticket-list-item:nth-child(even) {
+        background: rgba(55, 68, 85, 0.96);
+    }
+    .ticket-list-item.selected:nth-child(odd),
+    .ticket-list-item.selected:nth-child(even) {
+        background: rgba(74, 143, 199, 0.15);
+    }
+    [data-theme="light"] .ticket-list-item:nth-child(odd) {
+        background: rgba(220, 213, 200, 0.94);
+    }
+    [data-theme="light"] .ticket-list-item:nth-child(even) {
+        background: rgba(252, 248, 240, 0.97);
+    }
+    [data-theme="light"] .ticket-list-item.selected:nth-child(odd),
+    [data-theme="light"] .ticket-list-item.selected:nth-child(even) {
+        background: rgba(37, 99, 235, 0.08);
+    }
+    [data-theme="light"] .ticket-list-item {
+        border-bottom-color: rgba(20, 20, 19, 0.08);
+    }
+    .ticket-list-item-num {
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--accent-blue);
+    }
+    .ticket-list-item-count {
+        font-size: 13px;
+        color: rgba(255,255,255,0.35);
+    }
+    [data-theme="light"] .ticket-list-item-count { color: rgba(0,0,0,0.35); }
+    .ticket-list-item-chevron {
+        width: 18px; height: 18px;
+        stroke: rgba(255,255,255,0.2);
+        flex-shrink: 0;
+    }
+    [data-theme="light"] .ticket-list-item-chevron { stroke: rgba(0,0,0,0.2); }
+    /* Детальная карточка билета в правой панели */
+    .ticket-detail-card {
+        padding: 16px 18px 24px;
+        background: rgba(28, 34, 46, 0.96);
+        min-height: 100%;
+    }
+    [data-theme="light"] .ticket-detail-card {
+        background: rgba(255, 252, 245, 0.96);
+    }
+    .ticket-detail-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0 14px;
+        border-bottom: 1px solid var(--card-border);
+        margin-bottom: 14px;
+    }
+    .ticket-detail-num {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--accent-blue);
+    }
+    .ticket-detail-count {
+        font-size: 13px;
+        color: rgba(255,255,255,0.35);
+    }
+    [data-theme="light"] .ticket-detail-count { color: rgba(0,0,0,0.35); }
+    /* Навигация внутри карточки билета (пред/след) */
+    .ticket-detail-nav {
+        display: flex;
+        align-items: stretch;
+        border-top: 1px solid var(--card-border);
+        margin-top: 16px;
+        background: var(--card-bg);
+    }
+    .ticket-detail-nav-btn {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        padding: 14px 16px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s, transform 0.1s;
+    }
+    .ticket-detail-nav-btn:active { background: var(--active-bg); transform: scale(0.97); }
+    .ticket-detail-nav-prev { justify-content: flex-start; gap: 10px; border-right: 1px solid var(--card-border); }
+    .ticket-detail-nav-next { justify-content: flex-end; gap: 10px; text-align: right; }
+
+    /* На узких экранах (<600px): split-view становится столбцом —
+       правая панель скрывается, клик по билету открывает карточку
+       в полноэкранном overlay (как раньше) */
+    @media (max-width: 599px) {
+        .ticket-split-view {
+            flex-direction: column;
+            height: auto;
+        }
+        .ticket-split-left {
+            flex: 1 1 auto;
+            max-width: none;
+            min-width: 0;
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid var(--card-border);
+            overflow-y: visible;
+            max-height: none;
+            padding: 0 16px;
+        }
+        .ticket-split-right {
+            display: none;
+        }
+        .ticket-split-right.mobile-open {
+            display: block;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: var(--bg-tertiary);
+        }
+        [data-theme="light"] .ticket-split-right.mobile-open {
+            background: #F0EEE6;
+        }
+        /* На мобильных — заголовок overlay для закрытия */
+        .ticket-detail-close-bar {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        .ticket-detail-close-chevron {
+            width: 22px; height: 22px;
+            stroke: var(--accent-blue);
+            margin-right: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .ticket-detail-close-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-blue);
+        }
+    }
+    /* На десктопе — скрыть мобильный close-bar */
+    @media (min-width: 600px) {
+        .ticket-detail-close-bar { display: none; }
+    }
 
     [data-theme="light"] .ticket-cat-card { border-color: rgba(34,139,34,0.25); }
     [data-theme="light"] .ticket-item { border-color: rgba(20,20,19,0.08); }
@@ -7316,28 +7540,44 @@
         <div id="page-tickets-1000v" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Билеты до 1000 В</div></div>
 
-            <div id="tickets-container-tickets-1000v" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
+            <div class="ticket-split-view">
+                <div class="ticket-split-left" id="tickets-list-tickets-1000v"></div>
+                <div class="ticket-split-right" id="tickets-detail-tickets-1000v"><div class="ticket-detail-placeholder"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg><div>Выберите билет</div></div></div>
+            </div>
+            <div id="tickets-container-tickets-1000v" class="ticket-list" style="display:none"><div class="ticket-loading">Загрузка…</div></div>
         </div>
 
         <!-- Билеты на 4 разряд -->
         <div id="page-tickets-4" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Билеты на 4 разряд</div></div>
 
-            <div id="tickets-container-tickets-4" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
+            <div class="ticket-split-view">
+                <div class="ticket-split-left" id="tickets-list-tickets-4"></div>
+                <div class="ticket-split-right" id="tickets-detail-tickets-4"><div class="ticket-detail-placeholder"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg><div>Выберите билет</div></div></div>
+            </div>
+            <div id="tickets-container-tickets-4" class="ticket-list" style="display:none"><div class="ticket-loading">Загрузка…</div></div>
         </div>
 
         <!-- Билеты на 5 разряд -->
         <div id="page-tickets-5" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Билеты на 5 разряд</div></div>
 
-            <div id="tickets-container-tickets-5" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
+            <div class="ticket-split-view">
+                <div class="ticket-split-left" id="tickets-list-tickets-5"></div>
+                <div class="ticket-split-right" id="tickets-detail-tickets-5"><div class="ticket-detail-placeholder"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg><div>Выберите билет</div></div></div>
+            </div>
+            <div id="tickets-container-tickets-5" class="ticket-list" style="display:none"><div class="ticket-loading">Загрузка…</div></div>
         </div>
 
         <!-- Билеты на 6 разряд -->
         <div id="page-tickets-6" class="page-content">
             <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Билеты на 6 разряд</div></div>
 
-            <div id="tickets-container-tickets-6" class="ticket-list"><div class="ticket-loading">Загрузка…</div></div>
+            <div class="ticket-split-view">
+                <div class="ticket-split-left" id="tickets-list-tickets-6"></div>
+                <div class="ticket-split-right" id="tickets-detail-tickets-6"><div class="ticket-detail-placeholder"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg><div>Выберите билет</div></div></div>
+            </div>
+            <div id="tickets-container-tickets-6" class="ticket-list" style="display:none"><div class="ticket-loading">Загрузка…</div></div>
         </div>
 
         <!-- ======================== РАСЧЁТ ПОГРЕШНОСТИ ======================== -->
@@ -13638,6 +13878,10 @@
         }
     }
 
+    // Хранилище сгруппированных данных для текущей категории (для split-view)
+    let _ticketGroupsCache = {};  // { catId: { groups, ticketKeys } }
+    let _ticketSelectedIndex = {}; // { catId: selectedIndex }
+
     function renderTickets(catId, filter) {
         const container = document.getElementById('tickets-container-' + catId);
         if (!container || !_ticketsData) return;
@@ -13647,20 +13891,55 @@
         // Группировка по номеру билета
         const groups = {};
         for (const row of cat.rows) {
-            // getField() читает новое имя (ticket_number) с fallback на старые русские.
             const key = getField(row, 'ticket_number', '\u2116 \u0431\u0438\u043b\u0435\u0442\u0430') || 'Билет';
             if (!groups[key]) groups[key] = [];
             groups[key].push(row);
         }
 
         const lowerFilter = (filter || '').toLowerCase();
-        let html = '';
-        const ticketKeys = Object.keys(groups); // Массив ключей для навигации
+        const ticketKeys = Object.keys(groups);
 
+        // Кэшируем для split-view
+        _ticketGroupsCache[catId] = { groups, ticketKeys, filter: lowerFilter };
+
+        // Рендерим левую панель (список билетов)
+        const leftPanel = document.getElementById('tickets-list-' + catId);
+        if (leftPanel) {
+            let listHtml = '';
+            for (let ti = 0; ti < ticketKeys.length; ti++) {
+                const ticketNum = ticketKeys[ti];
+                const questions = groups[ticketNum];
+                let filtered = questions;
+                if (lowerFilter) {
+                    filtered = questions.filter(q =>
+                        getField(q, 'question', '\u0412\u043e\u043f\u0440\u043e\u0441').toLowerCase().includes(lowerFilter) ||
+                        getField(q, 'answer', '\u041e\u0442\u0432\u0435\u0442').toLowerCase().includes(lowerFilter) ||
+                        getField(q, 'question_number', '\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430').toLowerCase().includes(lowerFilter)
+                    );
+                    if (filtered.length === 0) continue;
+                }
+                const selectedCls = (_ticketSelectedIndex[catId] === ti) ? ' selected' : '';
+                listHtml += '<div class="ticket-list-item' + selectedCls + '" data-ticket-index="' + ti + '" onclick="selectTicketItem(\'' + catId + '\',' + ti + ')">';
+                listHtml += '<span class="ticket-list-item-num">' + escHtml(ticketNum) + '</span>';
+                listHtml += '<span style="display:flex;align-items:center;gap:8px;"><span class="ticket-list-item-count">' + filtered.length + ' вопр.</span>';
+                listHtml += '<svg class="ticket-list-item-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>';
+                listHtml += '</div>';
+            }
+            leftPanel.innerHTML = listHtml || '<div class="ticket-empty" style="padding:20px 14px">Ничего не найдено</div>';
+        }
+
+        // Если есть выбранный билет — рендерим его в правой панели
+        const selIdx = _ticketSelectedIndex[catId];
+        if (selIdx !== undefined && selIdx !== null) {
+            renderTicketDetail(catId, selIdx);
+        }
+
+        // Также рендерим в скрытый контейнер для обратной совместимости
+        // (на случай если что-то ещё ссылается на tickets-container-...)
+        let html = '';
         for (let ti = 0; ti < ticketKeys.length; ti++) {
             const ticketNum = ticketKeys[ti];
             const questions = groups[ticketNum];
-            // Фильтрация
             let filtered = questions;
             if (lowerFilter) {
                 filtered = questions.filter(q =>
@@ -13670,7 +13949,6 @@
                 );
                 if (filtered.length === 0) continue;
             }
-
             html += '<div class="ticket-item" data-ticket-index="' + ti + '">';
             html += '<div class="ticket-item-header" onclick="toggleTicketItem(this.parentElement)">';
             html += '<span class="ticket-item-num">' + ticketNum + '</span>';
@@ -13678,137 +13956,200 @@
             html += '<svg class="ticket-item-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></span>';
             html += '</div>';
             html += '<div class="ticket-item-body">';
-
-            for (const q of filtered) {
-                html += '<div class="ticket-q">';
-                html += '<div class="ticket-q-num">' + escHtml(getField(q, 'question_number', '\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430')) + '</div>';
-                html += '<div class="ticket-q-text">' + escHtml(getField(q, 'question', '\u0412\u043e\u043f\u0440\u043e\u0441')) + '</div>';
-                const answer = getField(q, 'answer', '\u041e\u0442\u0432\u0435\u0442');
-                // ЕДИНЫЙ ПРИНЦИП: картинка вставляется только если в
-                // столбце Image Excel-таблицы указан рабочий URL (http/https).
-                // В Excel-таблице должны быть ссылки Google Drive share
-                // (с доступом "Anyone with the link") или прямые HTTPS-ссылки
-                // на PNG/JPG/WebP. Любые другие значения (локальные пути,
-                // относительные пути) игнорируются — картинка не вставляется.
-                //
-                // ВАЖНО: картинка рендерится НЕЗАВИСИМО от наличия текста ответа.
-                // В инженерных билетах нормально, когда ответом является только
-                // схема/рисунок без текста (например, "Действие эл. тока на
-                // организм человека" — ответом служит схема).
-                //
-                // Логика отображения:
-                //   - gdriveShareToDirect() конвертирует Google Drive share-ссылку
-                //     в прямой URL превью (drive.google.com/thumbnail?id=...) и
-                //     полного размера (lh3.googleusercontent.com/d/...).
-                //   - <img> загружает превью. data-full-src используется лайтбоксом
-                //     (openTicketImage) для загрузки полного размера по клику.
-                //   - onerror → ticketImgFail(): если превью не загрузилось,
-                //     показывается fallback-карточка "Открыть изображение"
-                //     со ссылкой на оригинальный URL в новой вкладке.
-                const imgSrc = getField(q, 'image_url', 'Image').trim();
-                const hasImage = isWorkingUrl(imgSrc);
-                const hasAnswer = !!answer;
-                // Лейбл «Ответ» показывается всегда — даже если нет ни текста,
-                // ни картинки (в этом случае под лейблом будет заглушка).
-                html += '<div class="ticket-a-label">Ответ</div>';
-                if (hasImage) {
-                    // Контейнер превью: изначально показывает <img>,
-                    // при ошибке — fallback-карточку.
-                    // Уникальный id для управления таймаутом.
-                    const imgId = 'timg_' + ti + '_' + (getField(q, 'id', 'ID') || Math.random().toString(36).slice(2,8));
-                    // Определяем источник картинки:
-                    //   1) Google Drive share-ссылка → gdriveShareToDirect() → thumb/full
-                    //   2) Прямой HTTPS-URL → используется как есть
-                    // Для Google Drive fallback-ссылка ведёт на share-страницу
-                    // (открывается превью в браузере).
-                    const gdrive = gdriveShareToDirect(imgSrc);
-                    let thumbSrc, fullSrc;
-                    if (gdrive) {
-                        thumbSrc = gdrive.thumb;
-                        fullSrc  = gdrive.full;
-                    } else {
-                        thumbSrc = imgSrc;
-                        fullSrc  = imgSrc;
-                    }
-                    html += '<div class="ticket-a-img-wrap" id="' + imgId + '_wrap" data-img-src="' + escHtml(fullSrc) + '">';
-                    // Превью <img>. data-full-src используется лайтбоксом для загрузки полного размера.
-                    // onerror скроет его и покажет fallback-карточку.
-                    html += '<img class="ticket-a-img" id="' + imgId + '" src="' + escHtml(thumbSrc) + '" data-full-src="' + escHtml(fullSrc) + '" alt="Схема" loading="lazy" referrerpolicy="no-referrer" onclick="openTicketImage(this)" onerror="ticketImgFail(\'' + imgId + '\')" onload="ticketImgOk(\'' + imgId + '\')">';
-                    // Fallback-карточка: видна только если <img> не загрузился.
-                    // href ведёт на оригинальный imgSrc (share-страница для Google Drive).
-                    html += '<a class="ticket-a-imglink" href="' + escHtml(imgSrc) + '" target="_blank" rel="noopener">';
-                    html += '<svg class="ticket-a-imglink-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
-                    html += '<span class="ticket-a-imglink-text">Открыть изображение</span>';
-                    html += '<svg class="ticket-a-imglink-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
-                    html += '</a>';
-                    html += '</div>';
-                }
-                // Текст ответа выводится после картинки (если есть).
-                // Если нет ни текста, ни картинки — выводим заглушку.
-                if (hasAnswer) {
-                    html += '<div class="ticket-a-text">' + escHtml(answer) + '</div>';
-                } else if (!hasImage) {
-                    // Нет ни текста, ни картинки — заглушка под лейблом «Ответ»
-                    html += '<div class="ticket-a-text" style="color:rgba(255,255,255,0.35);font-style:italic;">Ответ временно отсутствует</div>';
-                }
-                const ref = getField(q, 'literature_name', '\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b');
-                const fileUrl = getField(q, 'file_url', '\u0424\u0430\u0439\u043b').trim();
-                if (ref) {
-                    if (isWorkingUrl(fileUrl)) {
-                        // Прямая ссылка на файл PDF (Google Drive) — открывается в новой вкладке.
-                        html += '<div class="ticket-ref"><a class="ticket-ref-link" href="' + escHtml(fileUrl) + '" target="_blank" rel="noopener">' + escHtml(ref) + '</a></div>';
-                    } else {
-                        // Файл недоступен — просто показываем название литературы текстом.
-                        html += '<div class="ticket-ref"><span class="ticket-ref-link">' + escHtml(ref) + '</span></div>';
-                    }
-                }
-                html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 16" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><line x1="0" y1="8" x2="400" y2="8" stroke="currentColor" stroke-width="0.5" opacity="0.45"/><g stroke="currentColor" stroke-width="0.8" fill="none"><rect x="7.11" y="5.5" width="8" height="5" rx="1"/><rect x="29.33" y="5.5" width="8" height="5" rx="1"/><rect x="51.56" y="5.5" width="8" height="5" rx="1"/><rect x="73.78" y="5.5" width="8" height="5" rx="1"/><rect x="96" y="5.5" width="8" height="5" rx="1"/><rect x="118.22" y="5.5" width="8" height="5" rx="1"/><rect x="140.44" y="5.5" width="8" height="5" rx="1"/><rect x="162.67" y="5.5" width="8" height="5" rx="1"/><rect x="184.89" y="5.5" width="8" height="5" rx="1"/><rect x="207.11" y="5.5" width="8" height="5" rx="1"/><rect x="229.33" y="5.5" width="8" height="5" rx="1"/><rect x="251.56" y="5.5" width="8" height="5" rx="1"/><rect x="273.78" y="5.5" width="8" height="5" rx="1"/><rect x="296" y="5.5" width="8" height="5" rx="1"/><rect x="318.22" y="5.5" width="8" height="5" rx="1"/><rect x="340.44" y="5.5" width="8" height="5" rx="1"/><rect x="362.67" y="5.5" width="8" height="5" rx="1"/><rect x="384.89" y="5.5" width="8" height="5" rx="1"/></g></svg></div>';
-                html += '</div>';
-            }
-
-            html += '</div>'; // конец ticket-item-body
-
-            // Навигация между билетами — снаружи тела, на уровне ticket-item
+            html += _renderTicketQuestionsHtml(ti, filtered);
+            html += '</div>';
+            // Навигация
             const hasPrev = ti > 0;
             const hasNext = ti < ticketKeys.length - 1;
             if (hasPrev || hasNext) {
                 html += '<div class="ticket-nav-bar">';
                 if (hasPrev) {
-                    const prevTitle = ticketKeys[ti - 1];
                     html += '<div class="ticket-nav-btn ticket-nav-prev" onclick="goToTicket(' + (ti - 1) + ')">';
                     html += '<svg class="ticket-nav-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>';
-                    html += '<div><div class="ticket-next-label">Предыдущий</div><div class="ticket-next-title">' + escHtml(prevTitle) + '</div></div>';
+                    html += '<div><div class="ticket-next-label">Предыдущий</div><div class="ticket-next-title">' + escHtml(ticketKeys[ti - 1]) + '</div></div>';
                     html += '</div>';
                 }
                 if (hasNext) {
-                    const nextTitle = ticketKeys[ti + 1];
                     html += '<div class="ticket-nav-btn ticket-nav-next" onclick="goToTicket(' + (ti + 1) + ')">';
-                    html += '<div><div class="ticket-next-label">Следующий</div><div class="ticket-next-title">' + escHtml(nextTitle) + '</div></div>';
+                    html += '<div><div class="ticket-next-label">Следующий</div><div class="ticket-next-title">' + escHtml(ticketKeys[ti + 1]) + '</div></div>';
                     html += '<svg class="ticket-nav-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
                     html += '</div>';
                 }
                 html += '</div>';
             }
+            html += '</div>';
+        }
+        container.innerHTML = html || '<div class="ticket-empty">Ничего не найдено</div>';
+    }
 
-            html += '</div>'; // конец ticket-item
+    // Генерация HTML вопросов билета (переиспользуется для split-view и legacy)
+    function _renderTicketQuestionsHtml(ti, filtered) {
+        let html = '';
+        for (const q of filtered) {
+            html += '<div class="ticket-q">';
+            html += '<div class="ticket-q-num">' + escHtml(getField(q, 'question_number', '\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430')) + '</div>';
+            html += '<div class="ticket-q-text">' + escHtml(getField(q, 'question', '\u0412\u043e\u043f\u0440\u043e\u0441')) + '</div>';
+            const answer = getField(q, 'answer', '\u041e\u0442\u0432\u0435\u0442');
+            const imgSrc = getField(q, 'image_url', 'Image').trim();
+            const hasImage = isWorkingUrl(imgSrc);
+            const hasAnswer = !!answer;
+            html += '<div class="ticket-a-label">Ответ</div>';
+            if (hasImage) {
+                const imgId = 'timg_' + ti + '_' + (getField(q, 'id', 'ID') || Math.random().toString(36).slice(2,8));
+                const gdrive = gdriveShareToDirect(imgSrc);
+                let thumbSrc, fullSrc;
+                if (gdrive) { thumbSrc = gdrive.thumb; fullSrc = gdrive.full; }
+                else { thumbSrc = imgSrc; fullSrc = imgSrc; }
+                html += '<div class="ticket-a-img-wrap" id="' + imgId + '_wrap" data-img-src="' + escHtml(fullSrc) + '">';
+                html += '<img class="ticket-a-img" id="' + imgId + '" src="' + escHtml(thumbSrc) + '" data-full-src="' + escHtml(fullSrc) + '" alt="Схема" loading="lazy" referrerpolicy="no-referrer" onclick="openTicketImage(this)" onerror="ticketImgFail(\'' + imgId + '\')" onload="ticketImgOk(\'' + imgId + '\')">';
+                html += '<a class="ticket-a-imglink" href="' + escHtml(imgSrc) + '" target="_blank" rel="noopener">';
+                html += '<svg class="ticket-a-imglink-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+                html += '<span class="ticket-a-imglink-text">Открыть изображение</span>';
+                html += '<svg class="ticket-a-imglink-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+                html += '</a>';
+                html += '</div>';
+            }
+            if (hasAnswer) {
+                html += '<div class="ticket-a-text">' + escHtml(answer) + '</div>';
+            } else if (!hasImage) {
+                html += '<div class="ticket-a-text" style="color:rgba(255,255,255,0.35);font-style:italic;">Ответ временно отсутствует</div>';
+            }
+            const ref = getField(q, 'literature_name', '\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435 \u043b\u0438\u0442\u0435\u0440\u0430\u0442\u0443\u0440\u044b');
+            const fileUrl = getField(q, 'file_url', '\u0424\u0430\u0439\u043b').trim();
+            if (ref) {
+                if (isWorkingUrl(fileUrl)) {
+                    html += '<div class="ticket-ref"><a class="ticket-ref-link" href="' + escHtml(fileUrl) + '" target="_blank" rel="noopener">' + escHtml(ref) + '</a></div>';
+                } else {
+                    html += '<div class="ticket-ref"><span class="ticket-ref-link">' + escHtml(ref) + '</span></div>';
+                }
+            }
+            html += '<div class="ticket-q-divider"><svg viewBox="0 0 400 16" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet"><line x1="0" y1="8" x2="400" y2="8" stroke="currentColor" stroke-width="0.5" opacity="0.45"/><g stroke="currentColor" stroke-width="0.8" fill="none"><rect x="7.11" y="5.5" width="8" height="5" rx="1"/><rect x="29.33" y="5.5" width="8" height="5" rx="1"/><rect x="51.56" y="5.5" width="8" height="5" rx="1"/><rect x="73.78" y="5.5" width="8" height="5" rx="1"/><rect x="96" y="5.5" width="8" height="5" rx="1"/><rect x="118.22" y="5.5" width="8" height="5" rx="1"/><rect x="140.44" y="5.5" width="8" height="5" rx="1"/><rect x="162.67" y="5.5" width="8" height="5" rx="1"/><rect x="184.89" y="5.5" width="8" height="5" rx="1"/><rect x="207.11" y="5.5" width="8" height="5" rx="1"/><rect x="229.33" y="5.5" width="8" height="5" rx="1"/><rect x="251.56" y="5.5" width="8" height="5" rx="1"/><rect x="273.78" y="5.5" width="8" height="5" rx="1"/><rect x="296" y="5.5" width="8" height="5" rx="1"/><rect x="318.22" y="5.5" width="8" height="5" rx="1"/><rect x="340.44" y="5.5" width="8" height="5" rx="1"/><rect x="362.67" y="5.5" width="8" height="5" rx="1"/><rect x="384.89" y="5.5" width="8" height="5" rx="1"/></g></svg></div>';
+            html += '</div>';
+        }
+        return html;
+    }
+
+    // Выбор билета в левой панели — рендер карточки в правой панели
+    function selectTicketItem(catId, ti) {
+        const cache = _ticketGroupsCache[catId];
+        if (!cache) return;
+
+        // Обновить выделение в левом списке
+        _ticketSelectedIndex[catId] = ti;
+        const leftPanel = document.getElementById('tickets-list-' + catId);
+        if (leftPanel) {
+            leftPanel.querySelectorAll('.ticket-list-item').forEach(function(el) {
+                const idx = parseInt(el.getAttribute('data-ticket-index'));
+                el.classList.toggle('selected', idx === ti);
+            });
         }
 
-        container.innerHTML = html || '<div class="ticket-empty">Ничего не найдено</div>';
+        // Рендерим карточку в правой панели
+        renderTicketDetail(catId, ti);
+    }
 
-        // Запустить таймауты для всех превью картинок в этом контейнере.
-        // Если за 8 секунд <img> не загрузился (висящий запрос к OneDrive share URL
-        // или подобному) — показываем fallback-карточку.
-        if (html) {
-            const imgs = container.querySelectorAll('.ticket-a-img');
-            imgs.forEach(function(img) {
-                // Если картинка уже загрузилась или уже упала с ошибкой — ничего не делаем
-                if (img.complete && img.naturalWidth > 0) return;
-                if (img.closest('.ticket-a-img-wrap').classList.contains('img-failed')) return;
-                setTimeout(function() {
-                    if (!img.complete || img.naturalWidth === 0) {
-                        ticketImgFail(img.id);
-                    }
-                }, 8000);
+    // Рендер детальной карточки билета в правой панели
+    function renderTicketDetail(catId, ti) {
+        const cache = _ticketGroupsCache[catId];
+        if (!cache) return;
+        const rightPanel = document.getElementById('tickets-detail-' + catId);
+        if (!rightPanel) return;
+
+        const ticketKeys = cache.ticketKeys;
+        const groups = cache.groups;
+        if (ti < 0 || ti >= ticketKeys.length) return;
+
+        const ticketNum = ticketKeys[ti];
+        const questions = groups[ticketNum];
+        const lowerFilter = cache.filter || '';
+        let filtered = questions;
+        if (lowerFilter) {
+            filtered = questions.filter(q =>
+                getField(q, 'question', '\u0412\u043e\u043f\u0440\u043e\u0441').toLowerCase().includes(lowerFilter) ||
+                getField(q, 'answer', '\u041e\u0442\u0432\u0435\u0442').toLowerCase().includes(lowerFilter) ||
+                getField(q, 'question_number', '\u2116 \u0432\u043e\u043f\u0440\u043e\u0441\u0430').toLowerCase().includes(lowerFilter)
+            );
+        }
+
+        const isMobile = window.innerWidth < 600;
+        let html = '<div class="ticket-detail-card">';
+
+        // На мобильных — шапка с кнопкой закрытия
+        if (isMobile) {
+            html += '<div class="ticket-detail-close-bar" onclick="closeTicketDetail(\'' + catId + '\')">';
+            html += '<svg class="ticket-detail-close-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>';
+            html += '<span class="ticket-detail-close-title">' + escHtml(ticketNum) + '</span>';
+            html += '</div>';
+        }
+
+        // Заголовок билета
+        html += '<div class="ticket-detail-header">';
+        html += '<span class="ticket-detail-num">' + escHtml(ticketNum) + '</span>';
+        html += '<span class="ticket-detail-count">' + filtered.length + ' вопр.</span>';
+        html += '</div>';
+
+        // Вопросы и ответы
+        html += _renderTicketQuestionsHtml(ti, filtered);
+
+        // Навигация пред/след
+        const hasPrev = ti > 0;
+        const hasNext = ti < ticketKeys.length - 1;
+        if (hasPrev || hasNext) {
+            html += '<div class="ticket-detail-nav">';
+            if (hasPrev) {
+                html += '<div class="ticket-detail-nav-btn ticket-detail-nav-prev" onclick="selectTicketItem(\'' + catId + '\',' + (ti - 1) + ')">';
+                html += '<svg class="ticket-nav-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>';
+                html += '<div><div class="ticket-next-label">Предыдущий</div><div class="ticket-next-title">' + escHtml(ticketKeys[ti - 1]) + '</div></div>';
+                html += '</div>';
+            }
+            if (hasNext) {
+                html += '<div class="ticket-detail-nav-btn ticket-detail-nav-next" onclick="selectTicketItem(\'' + catId + '\',' + (ti + 1) + ')">';
+                html += '<div><div class="ticket-next-label">Следующий</div><div class="ticket-next-title">' + escHtml(ticketKeys[ti + 1]) + '</div></div>';
+                html += '<svg class="ticket-nav-chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>';
+                html += '</div>';
+            }
+            html += '</div>';
+        }
+
+        html += '</div>'; // .ticket-detail-card
+        rightPanel.innerHTML = html;
+
+        // На мобильных — показать правую панель как overlay
+        if (isMobile) {
+            rightPanel.classList.add('mobile-open');
+            document.body.classList.add('ticket-open');
+        }
+
+        // Таймауты для картинок
+        const imgs = rightPanel.querySelectorAll('.ticket-a-img');
+        imgs.forEach(function(img) {
+            if (img.complete && img.naturalWidth > 0) return;
+            if (img.closest('.ticket-a-img-wrap') && img.closest('.ticket-a-img-wrap').classList.contains('img-failed')) return;
+            setTimeout(function() {
+                if (!img.complete || img.naturalWidth === 0) {
+                    ticketImgFail(img.id);
+                }
+            }, 8000);
+        });
+
+        // Прокрутить правую панель наверх
+        rightPanel.scrollTop = 0;
+    }
+
+    // Закрытие мобильного overlay билета
+    function closeTicketDetail(catId) {
+        const rightPanel = document.getElementById('tickets-detail-' + catId);
+        if (rightPanel) {
+            rightPanel.classList.remove('mobile-open');
+        }
+        document.body.classList.remove('ticket-open');
+        document.body.style.top = '';
+        // Сбросить выделение
+        _ticketSelectedIndex[catId] = undefined;
+        const leftPanel = document.getElementById('tickets-list-' + catId);
+        if (leftPanel) {
+            leftPanel.querySelectorAll('.ticket-list-item.selected').forEach(function(el) {
+                el.classList.remove('selected');
             });
         }
     }
@@ -14133,11 +14474,22 @@
             document.body.classList.remove('ticket-open');
             document.body.style.top = '';
         }
+        // Сбросить состояние split-view
+        _ticketSelectedIndex[catId] = undefined;
+        const rightPanel = document.getElementById('tickets-detail-' + catId);
+        if (rightPanel) {
+            rightPanel.classList.remove('mobile-open');
+            // Восстановить placeholder
+            rightPanel.innerHTML = '<div class="ticket-detail-placeholder"><svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="10" x2="9" y2="20"/></svg><div>Выберите билет</div></div>';
+        }
+        const leftPanel = document.getElementById('tickets-list-' + catId);
+        if (leftPanel) leftPanel.innerHTML = '<div class="ticket-loading">Загрузка…</div>';
         container.innerHTML = '<div class="ticket-loading">Загрузка…</div>';
         const data = await loadTicketsData();
         if (data) {
             renderTickets(catId, '');
         } else {
+            if (leftPanel) leftPanel.innerHTML = '<div class="ticket-empty">Не удалось загрузить данные</div>';
             container.innerHTML = '<div class="ticket-empty">Не удалось загрузить данные</div>';
         }
     }
