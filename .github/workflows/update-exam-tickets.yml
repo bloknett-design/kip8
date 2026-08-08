@@ -1,9 +1,8 @@
 name: Update Exam Tickets (PROD)
 
-# ВНИМАНИЕ: это основной репозиторий kip8.
-# Автоматический cron ОТКЛЮЧЁН, чтобы не дублировать запросы к Google Sheets
-# с основным репозиторием kip8. Запуск только вручную через workflow_dispatch.
-# При необходимости можно временно включить schedule, раскомментировав блок ниже.
+# Автоматический cron: каждый день в 04:10 UTC (11:10 Нск).
+# Также доступен ручной запуск через workflow_dispatch.
+# kip8 (PROD) работает первым; kip8test (TEST) — на 2 ч позже.
 #
 # КАК НАСТРОИТЬ:
 # По умолчанию используется Google Sheets:
@@ -21,9 +20,9 @@ name: Update Exam Tickets (PROD)
 on:
   # Ручной запуск — всегда доступен
   workflow_dispatch:
-  # Автоматический запуск — ОТКЛЮЧЁН для тестового репо
-  # schedule:
-  #   - cron: '0 6 * * *'
+  # Автоматический запуск — каждый день в 04:10 UTC (11:10 Нск)
+  schedule:
+    - cron: '10 4 * * *'
 
 jobs:
   convert:
@@ -57,7 +56,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/exam-tickets.json
-          git commit -m "auto: update exam tickets data from Google Sheets (test repo)"
+          git commit -m "auto: update exam tickets data from Google Sheets"
           git push
 
       - name: Summary

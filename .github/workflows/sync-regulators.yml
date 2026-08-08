@@ -1,9 +1,8 @@
 name: Update Regulators (PROD)
 
-# ВНИМАНИЕ: это основной репозиторий kip8.
-# Автоматический cron ОТКЛЮЧЁН, чтобы не дублировать запросы к Google Sheets
-# с основным репозиторием kip8. Запуск только вручную через workflow_dispatch.
-# При необходимости можно временно включить schedule, раскомментировав блок ниже.
+# Автоматический cron: каждый день в 01:30 UTC (08:30 Нск).
+# Также доступен ручной запуск через workflow_dispatch.
+# kip8 (PROD) работает первым; kip8test (TEST) — на 2 ч позже.
 #
 # КАК НАСТРОИТЬ:
 # По умолчанию используется Google Sheets:
@@ -18,8 +17,8 @@ name: Update Regulators (PROD)
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: '0 3 * * *'
+  schedule:
+    - cron: '30 1 * * *'
 
 jobs:
   sync:
@@ -53,7 +52,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/regulators.json
-          git commit -m "auto: update regulators data from Google Sheets (test repo)"
+          git commit -m "auto: update regulators data from Google Sheets"
           git push
 
       - name: Summary
