@@ -10,7 +10,7 @@
 // свежие версии файлов из ASSETS.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v17';
+const CACHE_VERSION = 'kipia-v18';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).
@@ -19,7 +19,7 @@ const CACHE_NAME = CACHE_VERSION;
 // заново скачивать все 26 картинок после каждого релиза.
 // Инкрементируйте IMAGE_CACHE_VERSION только если нужно принудительно сбросить
 // кэш картинок (например, если в Google Drive заменили файлы с тем же ID).
-const IMAGE_CACHE_VERSION = 'kipia-images-v2';
+const IMAGE_CACHE_VERSION = 'kipia-images-v3';
 const IMAGE_CACHE_NAME = IMAGE_CACHE_VERSION;
 
 // Файлы для пред-кэширования при установке SW.
