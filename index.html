@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
@@ -92,11 +92,8 @@
     @keyframes floatLine { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-6px); } }
     @keyframes pulseDot { 0%, 100% { opacity: 0.12; r: 2; } 50% { opacity: 0.3; r: 2.5; } }
     
-    .global-overlay {
-        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background: radial-gradient(ellipse at center, transparent 40%, rgba(23, 33, 43, 0.85) 95%);
-        z-index: 1; pointer-events: none;
-    }
+    /* global-overlay (виньетирование) удалён — затемнял низ экрана на мобильных */
+    /* .global-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse at center, transparent 40%, rgba(23, 33, 43, 0.85) 95%); z-index: 1; pointer-events: none; } */
     
     .page-content { 
         display: none; position: relative; z-index: 2;
@@ -324,6 +321,7 @@
     #page-library-electro .menu-btn-row { grid-auto-rows: 1fr; }
     #page-library-internal .menu-btn,
     #page-library-electro .menu-btn { min-height: 80px; align-items: center; }
+    #page-docs-ios .menu-btn { min-height: 80px; align-items: center; }
     /* Секретные кнопки (Сапёр + Телефонный справочник) — две в ряд */
     .menu-btn-row-secret-pair {
         grid-template-columns: 1fr 1fr !important;
@@ -675,6 +673,22 @@
     }
     /* Показываем нижний бар только когда активна главная страница */
     body:has(#page-dashboard.active) .dashboard-bottom-bar { display: grid; }
+    /* Кнопка ⋮ (действия) внутри нижнего бара дашборда */
+    .dashboard-bottom-overflow {
+        position: absolute;
+        top: 6px; right: 6px;
+        width: 24px; height: 24px;
+        display: flex; align-items: center; justify-content: center;
+        border: none; background: rgba(255,255,255,0.08);
+        color: rgba(140,170,200,0.5); border-radius: 6px;
+        cursor: pointer; padding: 0;
+        transition: background 0.15s;
+    }
+    .dashboard-bottom-overflow:hover { background: rgba(199,150,74,0.15); }
+    .dashboard-bottom-overflow:active { transform: scale(0.88); }
+    [data-theme="light"] .dashboard-bottom-overflow { background: rgba(0,0,0,0.05); color: rgba(42,93,143,0.4); }
+    /* На мобильном скрываем overflow-кнопку (три точки) — pin/unpin доступен через долгий тап */
+    @media (max-width: 768px) { .dashboard-bottom-overflow { display: none; } }
     /* На дашборде добавляем нижний отступ, чтобы контент не перекрывался баром */
     body:has(#page-dashboard.active) #contentArea { padding-bottom: 88px; }
 
@@ -781,12 +795,12 @@
         border-top-right-radius: 18px;
         padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px));
         transform: translateY(100%);
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 -8px 30px rgba(0,0,0,0.4);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: none;
         max-width: 520px;
         margin: 0 auto;
     }
-    .pin-sheet.active { transform: translateY(0); }
+    .pin-sheet.active { transform: translateY(0); box-shadow: 0 -8px 30px rgba(0,0,0,0.4); }
     .pin-sheet-handle {
         width: 36px; height: 4px;
         background: rgba(255,255,255,0.2);
@@ -1583,6 +1597,7 @@
     }
     .admin-search {
         flex: 1;
+        min-width: 0;
         padding: 10px 14px;
         background: rgba(30, 35, 50, 0.6);
         border: 1px solid rgba(255,255,255,0.12);
@@ -1606,6 +1621,8 @@
         outline: none;
         cursor: pointer;
         max-width: 50%;
+        min-width: 0;
+        flex: 0 1 auto;
     }
     .admin-select option { background: #1a1f2e; color: #fff; }
     .admin-refresh-btn {
@@ -1680,6 +1697,7 @@
         align-items: center;
         gap: 10px;
         flex-wrap: wrap;
+        min-width: 0;
     }
     .admin-item-email {
         font-size: 14px;
@@ -1695,6 +1713,8 @@
         color: rgba(255,255,255,0.5);
         margin-top: 6px;
         line-height: 1.5;
+        word-break: break-word;
+        overflow-wrap: break-word;
     }
     [data-theme="light"] .admin-item-meta { color: rgba(20,20,19,0.55); }
     .admin-item-actions {
@@ -1702,6 +1722,7 @@
         gap: 6px;
         margin-top: 10px;
         flex-wrap: wrap;
+        min-width: 0;
     }
 
     /* Бейджи статуса/роли */
@@ -1759,6 +1780,8 @@
         font-family: inherit;
         cursor: pointer;
         outline: none;
+        max-width: 100%;
+        min-width: 0;
     }
     .admin-role-select option { background: #1a1f2e; color: #fff; }
     [data-theme="light"] .admin-role-select {
@@ -1799,6 +1822,7 @@
         border-radius: 12px;
         padding: 14px 16px;
         text-align: center;
+        min-width: 0;
     }
     .admin-stat-card.full-width { grid-column: 1 / -1; }
     .admin-stat-value {
@@ -1813,6 +1837,7 @@
         margin-top: 4px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        overflow-wrap: break-word;
     }
     .admin-stat-breakdown {
         margin-top: 8px;
@@ -1839,11 +1864,33 @@
     }
     [data-theme="light"] .admin-empty { color: rgba(20,20,19,0.45); }
 
+    @media (max-width: 480px) {
+        .admin-toolbar { gap: 6px; padding: 6px 8px 8px; }
+        .admin-search { min-width: 50px; padding: 8px 10px; font-size: 13px; }
+        .admin-select { max-width: 45%; padding: 8px 10px; font-size: 12px; }
+        .admin-refresh-btn { padding: 8px 12px; font-size: 13px; }
+        .admin-add-btn { padding: 8px 10px; font-size: 12px; }
+        .admin-role-select { max-width: 100%; font-size: 11px; padding: 5px 8px; }
+        .admin-action-btn { font-size: 11px; padding: 5px 8px; }
+        .admin-item { padding: 10px 12px; }
+        .admin-item-email { font-size: 13px; }
+        .admin-badge { font-size: 10px; padding: 2px 6px; }
+    }
+
     @media (max-width: 400px) {
         .admin-grid { padding: 8px 6px; }
         .admin-card { padding: 12px 14px; }
         .admin-card-label { font-size: 14px; }
         .admin-stats-container { grid-template-columns: 1fr 1fr; padding: 8px 6px; }
+        .admin-toolbar { gap: 4px; padding: 4px 6px 6px; }
+        .admin-search { min-width: 36px; padding: 7px 8px; font-size: 12px; }
+        .admin-select { max-width: 42%; padding: 7px 8px; font-size: 11px; }
+        .admin-refresh-btn { padding: 7px 10px; font-size: 12px; }
+        .admin-add-btn { padding: 7px 8px; font-size: 11px; }
+        .admin-item { padding: 8px 10px; }
+        .admin-item-actions { gap: 4px; }
+        .admin-role-select { font-size: 10px; padding: 4px 6px; }
+        .admin-action-btn { font-size: 10px; padding: 4px 6px; }
     }
 
     @media (max-width: 400px) {
@@ -2961,8 +3008,532 @@
         display: none;
     }
     .cj-edit-error.show { display: block; }
+
+    /* ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ ======================== */
+    .flow-list { padding: 0; }
+    .flow-empty { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+    .flow-empty-icon { font-size: 40px; margin-bottom: 10px; }
+    .flow-empty-text { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .flow-empty-hint { font-size: 12px; }
+    .flow-sheet-link {
+        display: block; text-align: center; padding: 10px 16px;
+        margin: 8px 14px 8px; border-radius: 8px;
+        background: rgba(74,143,199,0.1); border: 1px solid rgba(74,143,199,0.25);
+        color: #4a8fc7; font-size: 13px; font-weight: 600;
+        text-decoration: none;
+    }
+    .flow-sheet-link:hover { background: rgba(74,143,199,0.18); }
+    /* Карточка расходомера — без рамки, с разделителем снизу, зебра (как приборы/блокировки/регуляторы) */
+    .flow-card {
+        position: relative;
+        margin: 0;
+        border: none;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        border-radius: 0;
+        background: transparent;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+    .flow-card:last-child { border-bottom: none; }
+    /* Зебра: тёмная тема — тёплые тона в палитру расходомеров (#c87048) */
+    .flow-card:nth-child(odd)  { background: rgba(35, 30, 28, 0.96); }
+    .flow-card:nth-child(even) { background: rgba(48, 42, 38, 0.96); }
+    [data-theme="light"] .flow-card:nth-child(odd)  { background: rgba(248, 242, 238, 0.96); }
+    [data-theme="light"] .flow-card:nth-child(even) { background: rgba(252, 248, 244, 0.97); }
+    [data-theme="light"] .flow-card { border-bottom-color: rgba(20,20,19,0.08); }
+    .flow-card:active { background: rgba(200,112,72,0.12); }
+    [data-theme="light"] .flow-card:active { background: rgba(200,112,72,0.08); }
+    .flow-card-header {
+        display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;
+    }
+    .flow-card-hoz { font-size: 17px; font-weight: 700; color: #c87048; }
+    .flow-card-period { font-size: 11px; color: var(--text-secondary); background: rgba(200,112,72,0.12); padding: 1px 6px; border-radius: 4px; flex-shrink: 0; margin-left: 8px; }
+    .flow-card-param { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .flow-card-summary { display: flex; gap: 16px; padding-top: 6px; border-top: 1px solid var(--border-color); }
+    .flow-summary-item { display: flex; flex-direction: column; }
+    .flow-summary-label { font-size: 11px; color: var(--text-secondary); }
+    .flow-summary-val { font-size: 16px; font-weight: 700; color: #5ab870; }
+    .flow-summary-days { font-size: 12px; font-weight: 400; color: var(--text-secondary); margin-left: 8px; }
+    .flow-card-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+    .flow-card-date { font-size: 11px; color: var(--text-secondary); flex-shrink: 0; margin-left: 8px; }
+    .flow-card-location { font-size: 12px; color: #c87048; margin-bottom: 2px; }
+    .flow-card-serial { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+    .flow-card-readings {
+        display: flex; align-items: center; gap: 6px;
+        padding: 6px 0 4px; border-top: 1px solid var(--border-color);
+    }
+    .flow-reading { display: flex; flex-direction: column; align-items: center; }
+    .flow-reading-label { font-size: 9px; color: var(--text-secondary); }
+    .flow-reading-val { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .flow-reading-arrow { color: var(--text-secondary); font-size: 14px; }
+    .flow-card-consumption { display: flex; align-items: center; gap: 6px; }
+    .flow-consumption-label { font-size: 11px; color: var(--text-secondary); }
+    .flow-consumption-val { font-size: 13px; font-weight: 700; color: #5ab870; }
+    .flow-card-note { font-size: 11px; color: var(--text-secondary); margin-top: 4px; font-style: italic; }
+    .flow-add-page-body { padding: 12px 14px 24px; }
+    /* Детальная карточка расходомера — плоские строки с зеброй (как блокировки/регуляторы) */
+    .flow-detail-body { padding: 0; }
+    .flow-detail-bottom-bar {
+        display: flex; align-items: stretch;
+        border-top: 1px solid var(--card-border);
+        margin-top: 8px;
+    }
+    .flow-input-btn {
+        flex: 1;
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        padding: 13px 16px;
+        border: none; background: transparent;
+        font-size: 15px; font-weight: 600; color: #6aa6e0;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s;
+    }
+    .flow-input-btn:active { background: rgba(106,166,224,0.1); }
+    [data-theme="light"] .flow-input-btn { color: #1a5a8a; }
+    .flow-input-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* === Расходомеры: нижний бар «Ввести показания» — прижат к низу экрана на мобильном === */
+    @media (max-width: 1023px) {
+        #page-flowmeter-detail .flow-detail-bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 90;
+            margin-top: 0;
+            border-top: 1px solid var(--card-border);
+            background: var(--bottom-nav-bg, rgba(23, 33, 43, 0.95));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        #page-flowmeter-detail .flow-input-btn {
+            padding: 15px 16px;
+        }
+        #page-flowmeter-detail .flow-detail-body {
+            padding-bottom: 60px;
+        }
+        [data-theme="light"] #page-flowmeter-detail .flow-detail-bottom-bar {
+            background: var(--bottom-nav-bg, rgba(240, 238, 230, 0.96));
+        }
+    }
+
+    .flow-detail-header { margin-bottom: 0; background: #372e2a; padding: 8px 0; }
+    [data-theme="light"] .flow-detail-header { background: #f5f0eb; }
+    .flow-detail-hoz { font-size: 17px; font-weight: 700; color: #c87048; margin-bottom: 2px; }
+    .flow-detail-param { font-size: 17px; font-weight: 700; color: #c87048; padding: 2px 0 2px 16px; }
+    .flow-detail-period { font-size: 13px; font-weight: 600; color: var(--text-secondary); padding: 0 0 2px 16px; }
+    /* Заголовок группы полей — строка-разделитель */
+    .flow-detail-section {
+        padding: 0;
+        margin: 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+    }
+    .flow-detail-section-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: rgba(200, 180, 170, 0.55);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 10px 0 4px 16px;
+        margin-bottom: 0;
+    }
+    [data-theme="light"] .flow-detail-section-title {
+        color: rgba(20, 20, 19, 0.45);
+    }
+    /* Строка «метка → значение» — колонка, на всю ширину, с разделителем снизу */
+    .flow-detail-row {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 0 8px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        gap: 2px;
+        font-size: 16px;
+        line-height: 1.4;
+    }
+    .flow-detail-row:last-child { border-bottom: none; }
+    [data-theme="light"] .flow-detail-row { border-bottom-color: rgba(20, 20, 19, 0.06); }
+    /* Зебра строк данных — непрозрачный фон */
+    .flow-detail-row:nth-child(odd)  { background: #372e2a; }
+    .flow-detail-row:nth-child(even) { background: #463e38; }
+    [data-theme="light"] .flow-detail-row:nth-child(odd)  { background: #f5f0eb; }
+    [data-theme="light"] .flow-detail-row:nth-child(even) { background: #ebe5de; }
+    .flow-detail-label {
+        font-size: 12px;
+        color: rgba(200, 180, 170, 0.45);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 2px;
+    }
+    [data-theme="light"] .flow-detail-label { color: rgba(20, 20, 19, 0.45); }
+    .flow-detail-value {
+        font-size: 16px;
+        color: #e0d8d0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        line-height: 1.4;
+    }
+    .flow-detail-date {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--text-secondary);
+    }
+    /* Sheet ввода новых показаний расходомера */
+    .flow-input-sheet {
+        position: fixed; left: 0; right: 0; bottom: 0;
+        z-index: 201;
+        background: var(--bg-primary, #1a1f26);
+        border-top-left-radius: 18px; border-top-right-radius: 18px;
+        padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: none;
+        max-width: 520px; margin: 0 auto;
+    }
+    .flow-input-sheet.active { transform: translateY(0); box-shadow: 0 -8px 30px rgba(0,0,0,0.4); }
+    .flow-input-sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 4px auto 14px; }
+    [data-theme="light"] .flow-input-sheet-handle { background: rgba(20,20,19,0.2); }
+    .flow-input-sheet-title { font-size: 17px; font-weight: 700; color: var(--text-primary); text-align: center; margin-bottom: 16px; }
+    .flow-input-field {
+        width: 100%; padding: 12px 14px;
+        border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+        background: rgba(255,255,255,0.05);
+        color: var(--text-primary); font-size: 17px; font-family: 'Inter', sans-serif;
+        box-sizing: border-box; outline: none;
+        transition: border-color 0.15s;
+    }
+    .flow-input-field:focus { border-color: #6aa6e0; }
+    [data-theme="light"] .flow-input-field { border-color: rgba(0,0,0,0.15); background: rgba(0,0,0,0.03); }
+    /* Дополнительные поля (температура, дата) в sheet ввода */
+    .flow-input-row {
+        display: flex; gap: 10px; margin-top: 10px;
+    }
+    .flow-input-group {
+        flex: 1; display: flex; flex-direction: column; gap: 4px;
+    }
+    .flow-input-label {
+        font-size: 12px; font-weight: 600; color: var(--text-secondary);
+        letter-spacing: 0.2px; text-transform: uppercase;
+    }
+    .flow-input-field-small {
+        width: 100%; padding: 10px 12px;
+        border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+        background: rgba(255,255,255,0.05);
+        color: var(--text-primary); font-size: 15px; font-family: 'Inter', sans-serif;
+        box-sizing: border-box; outline: none;
+        transition: border-color 0.15s;
+    }
+    .flow-input-field-small:focus { border-color: #6aa6e0; }
+    [data-theme="light"] .flow-input-field-small { border-color: rgba(0,0,0,0.15); background: rgba(0,0,0,0.03); }
+    /* Нативный date-input: стилизация иконки календаря */
+    .flow-input-field-small::-webkit-calendar-picker-indicator {
+        filter: invert(0.7);
+        cursor: pointer;
+    }
+    [data-theme="light"] .flow-input-field-small::-webkit-calendar-picker-indicator {
+        filter: none;
+    }
+    .flow-input-submit {
+        display: flex; align-items: center; justify-content: center;
+        width: 100%; padding: 14px; margin-top: 14px;
+        border: none; border-radius: 12px;
+        background: linear-gradient(135deg, #c87048, #d4854f);
+        color: #fff; font-size: 15px; font-weight: 600;
+        font-family: 'Inter', sans-serif; cursor: pointer;
+        box-shadow: 0 3px 12px rgba(200,112,72,0.25);
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.2s;
+    }
+    .flow-input-submit:active { transform: scale(0.97); opacity: 0.9; }
+    .flow-input-cancel {
+        display: block; width: 100%; padding: 12px; margin-top: 8px;
+        border: none; background: transparent;
+        font-size: 15px; color: var(--text-secondary);
+        font-family: 'Inter', sans-serif; cursor: pointer;
+        text-align: center;
+    }
+    [data-theme="light"] .flow-detail-value { color: #1a1a1a; }
+    .flow-detail-curr { color: #6aa6e0; }
+    [data-theme="light"] .flow-detail-curr { color: #1a5a8a; }
+    /* Подсветка строки «Расход» — фон и лейбл как у обычной строки, зелёным только значение */
+    .flow-detail-highlight .flow-detail-value { color: #5ab870; font-weight: 700; }
+    /* [data-theme="light"] .flow-card — убрано: зебра задана выше */
+    [data-theme="light"] .flow-sheet-link { background: rgba(74,143,199,0.06); border-color: rgba(74,143,199,0.15); }
+    /* [data-theme="light"] .flow-card:active — убрано: задано выше */
     .cj-field-input option, .cj-field-textarea option { background: #1a1f2e; color: #fff; }
     [data-theme="light"] .cj-field-input option, [data-theme="light"] .cj-field-textarea option { background: #fff; color: #1a1a1a; }
+
+    /* ========== Расходомеры: архив хронологии показаний ========== */
+    .flow-archive-loading {
+        padding: 20px 16px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        text-align: center;
+    }
+    .flow-archive-section {
+        margin-top: 12px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .flow-archive-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: rgba(200, 180, 170, 0.55);
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        padding: 12px 0 6px 16px;
+    }
+    .flow-archive-empty {
+        padding: 12px 16px;
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    /* --- График расхода — вертикальные бары (даты X, расход Y) --- */
+    .flow-archive-chart {
+        padding: 16px 16px 12px;
+    }
+    .flow-archive-chart-title {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+    }
+    .flow-archive-chart-body {
+        display: flex;
+        gap: 0;
+        height: 150px;
+    }
+    /* Область графика — CSS Grid: 3 строки (tip / bar / xlabel), колонки по числу баров */
+    .flow-archive-chart-area {
+        flex: 1;
+        position: relative;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        grid-auto-flow: column;
+        grid-auto-columns: 1fr;
+        gap: 0;
+        min-width: 0;
+    }
+    /* Вертикальный бар-колонка — display:contents чтобы дети участвовали в grid */
+    .flow-archive-vbar-col {
+        display: contents;
+    }
+    /* Зона значения над баром — grid-строка auto */
+    .flow-archive-vbar-tip-zone {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 2px 0;
+        overflow: hidden;
+    }
+    /* Зона самого бара — grid-строка 1fr, одинаковая высота во всех колонках */
+    .flow-archive-vbar-bar-zone {
+        min-height: 0;
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+    }
+    .flow-archive-vbar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(0deg, #c87048, #d4854f);
+        border-radius: 2px 2px 0 0;
+        transition: height 0.4s ease;
+    }
+    /* Зебра: чётные бары темнее */
+    .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar {
+        background: linear-gradient(0deg, #a85a38, #b86e42);
+    }
+    /* Значение расхода над баром — вертикально под углом */
+    .flow-archive-vbar-tip {
+        font-size: 7px;
+        font-weight: 600;
+        color: #c87048;
+        white-space: nowrap;
+        pointer-events: none;
+        writing-mode: vertical-lr;
+        line-height: 1;
+    }
+    .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar-tip {
+        color: #a85a38;
+    }
+    /* Зона даты под баром — grid-строка auto */
+    .flow-archive-vbar-xlabel-zone {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 2px 0;
+        overflow: hidden;
+    }
+    /* Дата под баром — вертикально под углом */
+    .flow-archive-vbar-xlabel {
+        font-size: 7px;
+        color: var(--text-secondary);
+        white-space: nowrap;
+        line-height: 1;
+        writing-mode: vertical-lr;
+    }
+
+    /* --- Таблица хронологии --- */
+    .flow-archive-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 0 8px;
+        /* touch-action задаётся классом .pinch-zoom-target */
+    }
+    .flow-archive-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--archive-table-fs, 13px);
+        table-layout: auto;
+    }
+    .flow-archive-table thead th {
+        font-size: calc(var(--archive-table-fs, 13px) * 0.77);
+        font-weight: 700;
+        color: rgba(200, 180, 170, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 8px 4px 6px 8px;
+        text-align: left;
+        position: sticky;
+        top: 0;
+        background: var(--bg-primary, #1a1f26);
+        z-index: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .flow-archive-table thead th:last-child {
+        padding-right: 8px;
+    }
+    .flow-archive-table tbody tr {
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .flow-archive-table tbody tr:last-child {
+        border-bottom: none;
+    }
+    /* Зебра строк архива */
+    .flow-archive-table tbody tr:nth-child(odd)  { background: #372e2a; }
+    .flow-archive-table tbody tr:nth-child(even) { background: #463e38; }
+    .flow-archive-table td {
+        padding: 7px 4px 7px 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .flow-archive-table td:last-child {
+        padding-right: 8px;
+    }
+    .flow-archive-date {
+        color: var(--text-secondary);
+        font-size: 12px;
+    }
+    .flow-archive-val {
+        color: #e0d8d0;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+    .flow-archive-cons {
+        color: #5ab870;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+    .flow-archive-temp {
+        color: var(--text-secondary);
+        font-size: 12px;
+    }
+    .flow-archive-mod {
+        color: var(--text-secondary);
+        font-size: 11px;
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* --- Светлая тема: архив --- */
+    [data-theme="light"] .flow-archive-section {
+        border-top-color: rgba(20,20,19,0.06);
+    }
+    [data-theme="light"] .flow-archive-title {
+        color: rgba(20, 20, 19, 0.45);
+    }
+    [data-theme="light"] .flow-archive-vbar {
+        background: linear-gradient(0deg, #c87048, #b85e38);
+    }
+    [data-theme="light"] .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar {
+        background: linear-gradient(0deg, #a85a38, #984e30);
+    }
+    [data-theme="light"] .flow-archive-vbar-tip {
+        color: #b85e38;
+    }
+    [data-theme="light"] .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar-tip {
+        color: #984e30;
+    }
+    [data-theme="light"] .flow-archive-vbar-col:nth-child(odd) .flow-archive-vbar-tip-zone,
+    [data-theme="light"] .flow-archive-vbar-col:nth-child(odd) .flow-archive-vbar-bar-zone,
+    [data-theme="light"] .flow-archive-vbar-col:nth-child(odd) .flow-archive-vbar-xlabel-zone { background: #f5f0eb; }
+    [data-theme="light"] .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar-tip-zone,
+    [data-theme="light"] .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar-bar-zone,
+    [data-theme="light"] .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar-xlabel-zone { background: #ebe5de; }
+    [data-theme="light"] .flow-archive-table thead th {
+        color: rgba(20, 20, 19, 0.4);
+        background: var(--bg-primary, #f5f2ed);
+    }
+    [data-theme="light"] .flow-archive-table tbody tr {
+        border-bottom-color: rgba(20,20,19,0.04);
+    }
+    [data-theme="light"] .flow-archive-table tbody tr:nth-child(odd)  { background: #f5f0eb; }
+    [data-theme="light"] .flow-archive-table tbody tr:nth-child(even) { background: #ebe5de; }
+    [data-theme="light"] .flow-archive-val { color: #1a1a1a; }
+    [data-theme="light"] .flow-archive-cons { color: #2a8a4a; }
+
+    /* --- Мобильный: зебра-фон на графике и таблице --- */
+    .flow-archive-vbar-col:nth-child(odd) .flow-archive-vbar-tip-zone,
+    .flow-archive-vbar-col:nth-child(odd) .flow-archive-vbar-bar-zone,
+    .flow-archive-vbar-col:nth-child(odd) .flow-archive-vbar-xlabel-zone { background: #372e2a; }
+    .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar-tip-zone,
+    .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar-bar-zone,
+    .flow-archive-vbar-col:nth-child(even) .flow-archive-vbar-xlabel-zone { background: #463e38; }
+
+    /* --- Десктоп: архив в правой панели --- */
+    @media (min-width: 1024px) {
+        .flow-archive-chart-body {
+            height: 170px;
+        }
+        .flow-archive-vbar-xlabel {
+            font-size: 8px;
+        }
+        .flow-archive-vbar-tip {
+            font-size: 8px;
+        }
+        .flow-archive-table {
+            font-size: var(--archive-table-fs, 12px);
+        }
+        .flow-archive-chart {
+            padding: 6px 12px 2px;
+        }
+        .flow-archive-title {
+            padding-left: 12px;
+        }
+        .flow-archive-table thead th {
+            padding-left: 12px;
+        }
+        .flow-archive-table td {
+            padding-left: 12px;
+        }
+        .flow-archive-table thead th:last-child {
+            padding-right: 12px;
+        }
+        .flow-archive-table td:last-child {
+            padding-right: 12px;
+        }
+    }
 
     /* ========== Кабельный журнал — страница добавления записи ==========
        Открывается как обычная page-content из cable-journal-edit по кнопке '+'.
@@ -3403,13 +3974,8 @@
             linear-gradient(90deg, rgba(20, 20, 19, 0.06) 1px, transparent 1px);
         background-size: 20px 20px, 20px 20px;
     }
-    [data-theme="light"] .global-overlay {
-        background: radial-gradient(ellipse at center, transparent 40%, rgba(240, 238, 230, 0.85) 95%);
-    }
-    /* Десктоп: убираем затуманивание по краям */
-    @media (min-width: 1024px) {
-        .global-overlay { display: none; }
-    }
+    /* [data-theme="light"] .global-overlay { background: radial-gradient(ellipse at center, transparent 40%, rgba(240, 238, 230, 0.85) 95%); } */
+    /* global-overlay удалён — виньетирование затемняло низ экрана */
 
     /* ============================================================
        Временные переопределения инлайн-стилей для светлой темы
@@ -3770,6 +4336,14 @@
         position: relative;
         z-index: 2;
     }
+    /* Документация ИОС — блок без фона, без лишних отступов (как Библиотека КИП и А) */
+    #page-docs-ios .kip-ios-block {
+        background: transparent;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        margin: 4px 4px 0;
+        padding: 0;
+    }
     .kip-ios-block-update {
         display: flex;
         align-items: baseline;
@@ -3822,6 +4396,310 @@
        Block→row1 обеспечивается margin-bottom:6px самого .kip-ios-block. */
     #page-kip-ios > .menu-btn-row + .menu-btn-row {
         margin-top: 6px;
+    }
+
+    /* ======================== ГРАФИКИ КИП ИОС ======================== */
+    .charts-tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--card-bg);
+        position: sticky;
+        top: 56px;
+        z-index: 5;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .charts-tab {
+        flex: 1;
+        min-width: 0;
+        padding: 10px 6px;
+        border: none;
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        white-space: nowrap;
+        position: relative;
+        transition: color 0.2s;
+    }
+    .charts-tab::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 2px;
+        background: transparent;
+        border-radius: 1px;
+        transition: background 0.2s;
+    }
+    .charts-tab-active {
+        color: #3aa288;
+        font-weight: 600;
+    }
+    .charts-tab-active::after {
+        background: #3aa288;
+    }
+    .charts-content {
+        padding: 12px 14px 24px;
+    }
+    .charts-loading {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+    /* Карточка графика */
+    .chart-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        margin-bottom: 14px;
+        overflow: hidden;
+    }
+    .chart-card-title {
+        padding: 10px 14px 6px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .chart-card-body {
+        padding: 6px 14px 12px;
+    }
+    /* Горизонтальная столбчатая диаграмма (CSS-бары) */
+    .chart-bar-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+    }
+    .chart-bar-label {
+        flex: 0 0 auto;
+        max-width: 45%;
+        font-size: 11px;
+        color: var(--text-secondary);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-right: 8px;
+    }
+    .chart-bar-track {
+        flex: 1;
+        height: 16px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 3px;
+        overflow: hidden;
+        position: relative;
+    }
+    .chart-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.4s ease;
+        min-width: 2px;
+    }
+    .chart-bar-value {
+        flex: 0 0 auto;
+        width: 36px;
+        text-align: right;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-primary);
+        padding-left: 6px;
+    }
+    /* Сводная карточка со статистикой */
+    .chart-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+    .chart-stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        padding: 10px 12px;
+        text-align: center;
+    }
+    .chart-stat-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #3aa288;
+        line-height: 1.2;
+    }
+    .chart-stat-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
+    /* Светлая тема */
+    [data-theme="light"] .charts-tab-active { color: #2e8a72; }
+    [data-theme="light"] .charts-tab-active::after { background: #2e8a72; }
+    [data-theme="light"] .chart-bar-track { background: rgba(0,0,0,0.06); }
+    [data-theme="light"] .chart-stat-card { background: #fafaf8; border-color: rgba(0,0,0,0.08); }
+    [data-theme="light"] .chart-stat-value { color: #2e8a72; }
+    [data-theme="light"] .chart-card { background: #fafaf8; border-color: rgba(0,0,0,0.08); }
+
+    /* ======================== ГРАФИК ППР — вертикальная гистограмма ======================== */
+    .ppr-chart-card {
+        margin-bottom: 16px;
+    }
+    .ppr-chart-header {
+        padding: 12px 14px 8px;
+    }
+    .ppr-chart-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    .ppr-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .ppr-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .ppr-legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+    .ppr-legend-code {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    .ppr-legend-name {
+        font-size: 11px;
+        color: var(--text-secondary);
+    }
+    .ppr-chart-body {
+        padding: 4px 14px 12px;
+    }
+    .ppr-chart-area {
+        display: flex;
+        position: relative;
+    }
+    .ppr-y-axis {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-right: 6px;
+        flex-shrink: 0;
+        width: 30px;
+    }
+    .ppr-y-label {
+        font-size: 9px;
+        color: var(--text-secondary);
+        text-align: right;
+        line-height: 1;
+    }
+    .ppr-chart-grid {
+        flex: 1;
+        display: flex;
+        position: relative;
+        height: 180px;
+        border-left: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+    }
+    .ppr-grid-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--border-color);
+        opacity: 0.5;
+    }
+    .ppr-month-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        position: relative;
+        min-width: 0;
+    }
+    .ppr-bars-row {
+        display: flex;
+        gap: 2px;
+        width: 100%;
+        justify-content: center;
+        align-items: flex-end;
+        flex: 1;
+        padding: 0 1px;
+    }
+    .ppr-bar-cell {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        max-width: 14px;
+    }
+    .ppr-bar {
+        width: 100%;
+        border-radius: 2px 2px 0 0;
+        position: relative;
+        min-height: 2px;
+        transition: height 0.3s ease;
+    }
+    .ppr-bar-val {
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 8px;
+        font-weight: 600;
+        color: var(--text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+    }
+    .ppr-month-label {
+        font-size: 9px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        padding-top: 4px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+    /* Строка итогов под графиком ППР */
+    .ppr-totals-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 0 0;
+        border-top: 1px solid var(--border-color);
+        margin-top: 6px;
+        flex-wrap: wrap;
+    }
+    .ppr-totals-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-primary);
+        flex-shrink: 0;
+    }
+    .ppr-totals-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .ppr-totals-value {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+    [data-theme="light"] .ppr-totals-row {
+        border-top-color: rgba(0,0,0,0.1);
+    }
+    /* Светлая тема для ППР */
+    [data-theme="light"] .ppr-chart-grid {
+        border-left-color: rgba(0,0,0,0.12);
+        border-bottom-color: rgba(0,0,0,0.12);
+    }
+    [data-theme="light"] .ppr-grid-line {
+        background: rgba(0,0,0,0.08);
     }
 
     .pb-section {
@@ -4543,6 +5421,7 @@
 
     /* Карточка проекта в списке */
     .project-card {
+        position: relative;
         border-bottom: 1px solid rgba(255,255,255,0.05);
         background: var(--card-bg, rgba(50, 45, 38, 0.96));
     }
@@ -4609,6 +5488,7 @@
        (.project-detail-row), чтобы разделители строк и текст занимали всю ширину,
        но при этом текст не упирался в края экрана. */
     .project-detail-card {
+        position: relative;
         margin: 0;
         background: transparent;
     }
@@ -5238,10 +6118,11 @@
         transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         touch-action: pan-y;
     }
-    /* Lock/Valve/Regulator карточки внутри fav-cell обёртки */
+    /* Lock/Valve/Regulator/Project карточки внутри fav-cell обёртки */
     .dev-card-fav-cell > .lock-card,
     .dev-card-fav-cell > .valve-card,
-    .dev-card-fav-cell > .regulator-card {
+    .dev-card-fav-cell > .regulator-card,
+    .dev-card-fav-cell > .project-card {
         position: relative;
         z-index: 1;
         background: transparent !important;
@@ -5253,7 +6134,8 @@
     }
     .dev-card-fav-cell > .lock-card.swipe-active,
     .dev-card-fav-cell > .valve-card.swipe-active,
-    .dev-card-fav-cell > .regulator-card.swipe-active {
+    .dev-card-fav-cell > .regulator-card.swipe-active,
+    .dev-card-fav-cell > .project-card.swipe-active {
         transition: none;
     }
     .dev-card-fav-cell > .dev-card.swipe-removing {
@@ -5262,7 +6144,8 @@
     }
     .dev-card-fav-cell > .lock-card.swipe-removing,
     .dev-card-fav-cell > .valve-card.swipe-removing,
-    .dev-card-fav-cell > .regulator-card.swipe-removing {
+    .dev-card-fav-cell > .regulator-card.swipe-removing,
+    .dev-card-fav-cell > .project-card.swipe-removing {
         transition: transform 0.25s ease-out, opacity 0.25s ease-out;
         opacity: 0;
     }
@@ -5904,12 +6787,60 @@
     /* На карточках без картинки (lock/valve/regulator) — чуть правее и выше */
     .lock-card > .dev-card-fav-indicator,
     .valve-card > .dev-card-fav-indicator,
-    .regulator-card > .dev-card-fav-indicator {
+    .regulator-card > .dev-card-fav-indicator,
+    .project-card > .dev-card-fav-indicator {
         top: 6px; right: 6px;
     }
     [data-theme="light"] .dev-card-fav-indicator {
         color: #388e3c;
     }
+    /* Значок заметки на карточке в списке (рядом с закладкой) */
+    .dev-card-fav-note-icon {
+        position: absolute;
+        top: 20px; right: 3px;
+        width: 18px; height: 18px;
+        display: flex; align-items: center; justify-content: center;
+        border: none; background: none;
+        color: #c7964a;
+        border-radius: 0;
+        pointer-events: none;
+        z-index: 2;
+    }
+    .lock-card > .dev-card-fav-note-icon,
+    .valve-card > .dev-card-fav-note-icon,
+    .regulator-card > .dev-card-fav-note-icon,
+    .project-card > .dev-card-fav-note-icon {
+        top: 22px; right: 6px;
+    }
+    [data-theme="light"] .dev-card-fav-note-icon {
+        color: #b8860b;
+    }
+    /* Кликабельная кнопка избранного на карточке проекта (только десктоп) */
+    .project-card-fav-btn {
+        display: none; /* скрыта на мобильных */
+        position: absolute;
+        top: 8px; right: 8px;
+        width: 28px; height: 28px;
+        align-items: center; justify-content: center;
+        border: none; background: rgba(255,255,255,0.06);
+        color: rgba(140,170,200,0.45);
+        border-radius: 6px; cursor: pointer;
+        transition: color 0.15s, background 0.15s, transform 0.1s;
+        -webkit-tap-highlight-color: transparent;
+        z-index: 3;
+    }
+    .project-card-fav-btn:hover { background: rgba(199,150,74,0.12); }
+    .project-card-fav-btn:active { transform: scale(0.88); }
+    .project-card-fav-btn.active {
+        color: #c7964a;
+        background: rgba(199,150,74,0.1);
+    }
+    @media (min-width: 1024px) {
+        .project-card-fav-btn { display: flex; }
+    }
+    [data-theme="light"] .project-card-fav-btn { background: rgba(0,0,0,0.04); color: rgba(42,93,143,0.4); }
+    [data-theme="light"] .project-card-fav-btn:hover { background: rgba(184,134,11,0.08); }
+    [data-theme="light"] .project-card-fav-btn.active { color: #b8860b; background: rgba(184,134,11,0.08); }
 
     /* === Панель инструментов на странице избранного === */
     .dev-fav-toolbar {
@@ -6786,13 +7717,18 @@
     }
     [data-theme="light"] .sidebar-user-email { color: rgba(20,20,19,0.75); }
     [data-theme="light"] .sidebar-user-role { color: rgba(74,143,199,0.95); }
-    [data-theme="light"] .no-access-screen { color: rgba(20,20,19,0.5); }
-    [data-theme="light"] .no-access-screen h3 { color: rgba(20,20,19,0.85); }
-    [data-theme="light"] .no-access-screen p b { color: #4a8fc7; }
+    /* Light theme: no-access screen — те же цвета что и в тёмной теме,
+       т.к. фон #0d1117 (инлайн) остаётся тёмным в обеих темах */
+    [data-theme="light"] .no-access-screen { color: rgba(255,255,255,0.55); }
+    [data-theme="light"] .no-access-screen svg { stroke: rgba(255,107,107,0.6); }
+    [data-theme="light"] .no-access-screen h3 { color: rgba(255,255,255,0.85); }
+    [data-theme="light"] .no-access-screen p b { color: #6aa6e0; }
     [data-theme="light"] .no-access-screen button {
-        background: rgba(74,143,199,0.1);
-        color: #4a8fc7;
+        background: rgba(74,143,199,0.18);
+        border-color: rgba(74,143,199,0.4);
+        color: #6aa6e0;
     }
+    [data-theme="light"] .no-access-screen button:active { background: rgba(74,143,199,0.3); }
 
     /* ============================================================
        ДЕСКТОПНЫЙ ЛЕЙАУТ (min-width: 1024px)
@@ -7142,7 +8078,8 @@
         body:has(#detailPanel.active) .lock-card,
         body:has(#detailPanel.active) .valve-card,
         body:has(#detailPanel.active) .regulator-card,
-        body:has(#detailPanel.active) .project-card {
+        body:has(#detailPanel.active) .project-card,
+        body:has(#detailPanel.active) .flow-card {
             padding: 8px 10px;
         }
         /* Detail-подсветка карточки — более заметная */
@@ -7151,11 +8088,16 @@
         .valve-card.detail-highlight,
         .regulator-card.detail-highlight,
         .project-card.detail-highlight,
-        .ticket-list-item.detail-highlight {
+        .ticket-list-item.detail-highlight,
+        .flow-card.detail-highlight {
             background: rgba(74, 143, 199, 0.08) !important;
             border-color: var(--accent-blue, #4a8fc7) !important;
             box-shadow: 0 0 0 2px rgba(74, 143, 199, 0.25) !important;
         }
+        /* Расходомеры: список без отступов (зебра на всю ширину) */
+        body:has(#detailPanel.active) .flow-list { padding: 0; }
+        /* Расходомеры: детальная карточка в правой панели */
+        #detailPanelBody .flow-detail-body { padding: 0; }
         /* --- Билеты: мастер-деталь (десктоп) --- */
         /* Компактный список билетов в левой панели */
         .ticket-master-list { padding: 0; }
@@ -7281,6 +8223,7 @@
         #page-calc-electro .menu-btn-row,
         #page-calc-geometry .menu-btn-row,
         #page-kip-ios .kip-ios-block .menu-btn-row,
+        #page-docs-ios .kip-ios-block .menu-btn-row,
         #page-library-internal .menu-btn-row,
         #page-library-electro .menu-btn-row {
             grid-template-columns: repeat(3, 1fr);
@@ -7290,6 +8233,7 @@
         #page-calc-electro .menu-btn,
         #page-calc-geometry .menu-btn,
         #page-kip-ios .kip-ios-block .menu-btn,
+        #page-docs-ios .kip-ios-block .menu-btn,
         #page-library-internal .menu-btn,
         #page-library-electro .menu-btn {
             max-width: none;
@@ -7305,6 +8249,7 @@
         #page-calc-electro .menu-btn-text,
         #page-calc-geometry .menu-btn-text,
         #page-kip-ios .kip-ios-block .menu-btn-text,
+        #page-docs-ios .kip-ios-block .menu-btn-text,
         #page-library-internal .menu-btn-text,
         #page-library-electro .menu-btn-text {
             text-align: center;
@@ -7317,6 +8262,7 @@
         #page-calc-electro .menu-btn-arrow,
         #page-calc-geometry .menu-btn-arrow,
         #page-kip-ios .kip-ios-block .menu-btn-arrow,
+        #page-docs-ios .kip-ios-block .menu-btn-arrow,
         #page-library-internal .menu-btn-arrow,
         #page-library-electro .menu-btn-arrow {
             display: none;
@@ -7413,6 +8359,7 @@
         #page-calc-electro .menu-btn-overflow,
         #page-calc-geometry .menu-btn-overflow,
         #page-kip-ios .menu-btn-overflow,
+        #page-docs-ios .menu-btn-overflow,
         #page-library-internal .menu-btn-overflow,
         #page-library-electro .menu-btn-overflow {
             position: absolute;
@@ -7430,6 +8377,16 @@
             margin: 12px 16px 6px;
             padding: 14px 14px 8px;
             border-radius: 14px;
+        }
+        /* На десктопе блок Документация ИОС — без фона и лишних отступов */
+        /* Отступ 4px от бара с хлебными крошками до кнопки «Расходомеры хозрасчётные» */
+        #page-docs-ios .kip-ios-block {
+            margin: 4px 0 0;
+            padding: 0;
+            border-radius: 0;
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
 
         /* --- Нижний бар дашборда: скрыт на десктопе --- */
@@ -7871,6 +8828,22 @@
         }
     }
 
+    /* ====== План корпуса 114: поворот картинок отм.00/06/12/18 влево (горизонтально) на десктопе ====== */
+    @media (min-width: 1024px) {
+        #plan114ImgContainer.plan114-rotated {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 0;
+            text-align: left;
+        }
+        #plan114ImgContainer.plan114-rotated #plan114Img {
+            transform: rotate(-90deg);
+            transform-origin: top left;
+            max-width: none;
+        }
+    }
+
 </style>
 <!-- base target removed: not needed for SPA, causes issues with in-page navigation -->
 </head>
@@ -7953,7 +8926,7 @@
     </svg>
 </div>
 
-<div class="global-overlay"></div>
+<!-- global-overlay removed: was causing dark band at bottom on mobile -->
 
 <div id="mainApp">
     <header class="app-header">
@@ -8061,7 +9034,7 @@
                 <svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
             <div class="desktop-top-bar-brand" onclick="navigateTo('dashboard')">
-                <img src="images/logo_black.png" alt="КИПиА" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+                <img id="headerLogoDesktop" src="images/logo.png" alt="КИПиА" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
                 <span class="desktop-top-bar-title">КИПиА</span>
             </div>
             <span class="desktop-top-bar-divider"></span>
@@ -8120,9 +9093,9 @@
             <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Инженерные калькуляторы</div></div>
 
             <div class="menu-btn-row">
-                <div class="menu-btn" onclick="navigateTo('calc-kipa')"><div class="menu-btn-text"><div class="menu-btn-label">КИП и А</div><div class="menu-btn-sublabel">Конвертеры, погрешности, датчики, диафрагмы</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('calc-electro')"><div class="menu-btn-text"><div class="menu-btn-label">Электротехника</div><div class="menu-btn-sublabel">Автоматический выключатель</div></div><i class="menu-btn-arrow">›</i></div>
-                <div class="menu-btn" onclick="navigateTo('calc-geometry')"><div class="menu-btn-text"><div class="menu-btn-label">Геометрия</div><div class="menu-btn-sublabel">Площади, объёмы, сечения</div></div><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('calc-kipa')"><div class="menu-btn-text"><div class="menu-btn-label">КИП и А</div><div class="menu-btn-sublabel">Конвертеры, погрешности, датчики, диафрагмы</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('calc-kipa')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('calc-electro')"><div class="menu-btn-text"><div class="menu-btn-label">Электротехника</div><div class="menu-btn-sublabel">Автоматический выключатель</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('calc-electro')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('calc-geometry')"><div class="menu-btn-text"><div class="menu-btn-label">Геометрия</div><div class="menu-btn-sublabel">Площади, объёмы, сечения</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('calc-geometry')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
             </div>
         </div>
 
@@ -8134,7 +9107,40 @@
                 <div class="menu-btn" onclick="navigateTo('exam-tickets')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Экзаменационные билеты</div><div class="menu-btn-sublabel">4, 5, 6 разряд, до 1000 В</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('exam-tickets')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(199,150,74,0.4);">›</i></div>
                 <div class="menu-btn" onclick="navigateTo('library')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Библиотека КИП и А</div><div class="menu-btn-sublabel">Документация, схемы, инструкции</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('library')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(199,150,74,0.4);">›</i></div>
                 <div class="menu-btn" onclick="navigateTo('kip-ios')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">КИП ИОС</div><div class="menu-btn-sublabel">Перечень приборов, документация</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('kip-ios')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(199,150,74,0.4);">›</i></div>
+                <div class="menu-btn" onclick="navigateTo('docs-ios')" style="border-color:rgba(200,112,72,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c87048;">Документация ИОС</div><div class="menu-btn-sublabel">Документация и оперативные данные</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('docs-ios')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(200,112,72,0.4);">›</i></div>
             </div>
+        </div>
+
+        <!-- ======================== Документация ИОС ======================== -->
+        <div id="page-docs-ios" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Документация ИОС</div></div>
+
+            <div class="kip-ios-block">
+                <div class="menu-btn-row">
+                    <div id="flowmeterMenuBtn" class="menu-btn" onclick="navigateTo('flowmeter-data')" style="cursor: pointer;"><div class="menu-btn-text"><div class="menu-btn-label">Расходомеры хозрасчётные</div><div class="menu-btn-sublabel">Накопительные расходы и показания</div></div><svg class="menu-btn-arrow" viewBox="0 0 24 24" style="width: 18px; height: 18px; stroke: rgba(255,255,255,0.12); fill: none; stroke-width: 2; stroke-linecap: round;"><polyline points="9 18 15 12 9 6"/></svg></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ — список записей ======================== -->
+        <div id="page-flowmeter-data" class="page-content">
+            <div class="page-inline-header">
+                <div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div>
+                <div class="page-inline-header-title">Расходомеры хозрасчётные</div>
+            </div>
+            <div id="flowList" class="flow-list">
+                <div class="admin-empty" id="flowEmpty">Загрузка…</div>
+            </div>
+        </div>
+
+        <!-- ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ — детальная карточка ======================== -->
+        <div id="page-flowmeter-detail" class="page-content">
+            <div class="page-inline-header">
+                <div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div>
+                <div class="page-inline-header-title" id="flowDetailTitle">Расходомер</div>
+            </div>
+            <div id="flowDetailBody" class="flow-detail-body"></div>
+            <div class="flow-detail-bottom-bar" id="flowDetailBottomBar"></div>
         </div>
 
         <!-- ======================== КИП ИОС (родительское меню) ======================== -->
@@ -8150,26 +9156,27 @@
                     <div class="dev-swipe-cell" id="devSwipeCell">
                         <div class="dev-swipe-bg dev-swipe-bg-left"><span>По наименованию</span></div>
                         <div class="dev-swipe-bg dev-swipe-bg-right"><span>По типу</span></div>
-                        <div class="menu-btn" id="devicesEntryBtn"><div class="menu-btn-text"><div class="menu-btn-label">Приборы</div><div class="menu-btn-sublabel">1312 приборов КИП ИОС</div></div><i class="menu-btn-arrow">›</i></div>
+                        <div class="menu-btn" id="devicesEntryBtn"><div class="menu-btn-text"><div class="menu-btn-label">Приборы</div><div class="menu-btn-sublabel">1312 приборов КИП ИОС</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('devices')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow">›</i></div>
                     </div>
-                    <div class="menu-btn" id="lockoutsEntryBtn" style="border-color:rgba(184,90,122,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#b85a7a;">Блокировки</div><div class="menu-btn-sublabel">По производствам</div></div><i class="menu-btn-arrow" style="color:rgba(184,90,122,0.4);">›</i></div>
+                    <div class="menu-btn" id="lockoutsEntryBtn" style="border-color:rgba(184,90,122,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#b85a7a;">Блокировки</div><div class="menu-btn-sublabel">По производствам</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('lockouts')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(184,90,122,0.4);">›</i></div>
                     <div class="dev-swipe-cell valve-swipe-cell" id="valveSwipeCell">
                         <div class="dev-swipe-bg dev-swipe-bg-left valve-swipe-bg"><span>По DN</span></div>
                         <div class="dev-swipe-bg dev-swipe-bg-right valve-swipe-bg"><span>По типу</span></div>
-                        <div class="menu-btn" id="valvesEntryBtn" style="border-color:rgba(74,138,140,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#4a8a8c;">Клапана</div><div class="menu-btn-sublabel">По производствам</div></div><i class="menu-btn-arrow" style="color:rgba(74,138,140,0.4);">›</i></div>
+                        <div class="menu-btn" id="valvesEntryBtn" style="border-color:rgba(74,138,140,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#4a8a8c;">Клапана</div><div class="menu-btn-sublabel">По производствам</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('valves')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(74,138,140,0.4);">›</i></div>
                     </div>
-                    <div class="menu-btn" id="regulatorsEntryBtn" style="border-color:rgba(126,90,184,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#7e5ab8;">Регуляторы</div><div class="menu-btn-sublabel">По производствам</div></div><i class="menu-btn-arrow" style="color:rgba(126,90,184,0.4);">›</i></div>
+                    <div class="menu-btn" id="regulatorsEntryBtn" style="border-color:rgba(126,90,184,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#7e5ab8;">Регуляторы</div><div class="menu-btn-sublabel">По производствам</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('regulators')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(126,90,184,0.4);">›</i></div>
+                    <div class="menu-btn" id="chartsEntryBtn" style="border-color:rgba(58,162,136,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#3aa288;">Графики</div><div class="menu-btn-sublabel">Статистика КИП ИОС</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('charts')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(58,162,136,0.4);">›</i></div>
                 </div>
             </div>
 
             <div class="menu-btn-row">
-                <div class="menu-btn" id="projectsEntryBtn" style="border-color:rgba(176,128,72,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#b08048;">Проекты</div><div class="menu-btn-sublabel">По отделениям</div></div><i class="menu-btn-arrow" style="color:rgba(176,128,72,0.4);">›</i></div>
+                <div class="menu-btn" id="projectsEntryBtn" style="border-color:rgba(176,128,72,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#b08048;">Проекты</div><div class="menu-btn-sublabel">По отделениям</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('projects')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(176,128,72,0.4);">›</i></div>
             </div>
             <div class="menu-btn-row">
-                <div class="menu-btn" id="cablesEntryBtn" style="border-color:rgba(120,144,100,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#8aa070;">Кабельный журнал</div><div class="menu-btn-sublabel">Журнал КИП пр-ва ИОС</div></div><i class="menu-btn-arrow" style="color:rgba(120,144,100,0.4);">›</i></div>
+                <div class="menu-btn" id="cablesEntryBtn" style="border-color:rgba(120,144,100,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#8aa070;">Кабельный журнал</div><div class="menu-btn-sublabel">Журнал КИП пр-ва ИОС</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('cables')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(120,144,100,0.4);">›</i></div>
             </div>
             <div class="menu-btn-row">
-                <div class="menu-btn" id="plan114EntryBtn" style="border-color:rgba(120,140,170,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#7896b0;">План корпуса 114</div><div class="menu-btn-sublabel">6 планов помещений</div></div><i class="menu-btn-arrow" style="color:rgba(120,140,170,0.4);">›</i></div>
+                <div class="menu-btn" id="plan114EntryBtn" style="border-color:rgba(120,140,170,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#7896b0;">План корпуса 114</div><div class="menu-btn-sublabel">6 планов помещений</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('plan-114')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(120,140,170,0.4);">›</i></div>
             </div>
         </div>
 
@@ -8293,7 +9300,7 @@
 
         <!-- ======================== КАРТОЧКА ПРОЕКТА ======================== -->
         <div id="page-project-detail" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title" id="projectDetailTitle">Проект</div></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title" id="projectDetailTitle">Проект</div><button type="button" id="projectFavBtn" class="dev-fav-header-btn" onclick="KipFav.toggleFromDetailByType('proj')" aria-label="Избранное" title="Добавить/убрать из избранного"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button></div>
             <div id="projectDetailContent"></div>
         </div>
 
@@ -8378,7 +9385,7 @@
 
             <div id="plan114ImgContainer" style="padding: 12px; text-align: center;">
                 <div id="plan114Loading" style="padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5); font-size: 13px;">Загрузка плана…</div>
-                <img id="plan114Img" alt="" referrerpolicy="no-referrer" style="display:none; max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.35); background: rgba(255,255,255,0.03);" />
+                <img id="plan114Img" alt="" referrerpolicy="no-referrer" data-plan-id="" style="display:none; max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 16px rgba(0,0,0,0.35); background: rgba(255,255,255,0.03);" />
             </div>
 
             <a id="plan114OrigLink" href="#" target="_blank" rel="noopener" style="display:none; margin: 8px 16px 24px; padding: 12px 16px; text-align: center; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; color: #e8e8e8; text-decoration: none; font-size: 14px; font-weight: 600;">Открыть оригинал на Google Drive</a>
@@ -8386,6 +9393,21 @@
             <div id="plan114Error" style="display:none; padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5); font-size: 13px;">Не удалось загрузить план.<br>Проверьте подключение к интернету и попробуйте снова.</div>
         </div>
 
+        <!-- ======================== ГРАФИКИ КИП ИОС ======================== -->
+        <div id="page-charts" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Графики КИП ИОС</div></div>
+            <!-- Вкладки -->
+            <div class="charts-tabs">
+                <button class="charts-tab charts-tab-active" data-chart-tab="devices" onclick="KipCharts.switchTab('devices')">Приборы</button>
+                <button class="charts-tab" data-chart-tab="lockouts" onclick="KipCharts.switchTab('lockouts')">Блокировки</button>
+                <button class="charts-tab" data-chart-tab="valves" onclick="KipCharts.switchTab('valves')">Клапана</button>
+                <button class="charts-tab" data-chart-tab="regulators" onclick="KipCharts.switchTab('regulators')">Регуляторы</button>
+            </div>
+            <!-- Содержимое вкладки -->
+            <div id="chartsContent" class="charts-content">
+                <div class="charts-loading">Загрузка…</div>
+            </div>
+        </div>
 
 <!-- ======================== ИНЖЕНЕРНЫЕ КАЛЬКУЛЯТОРЫ — КИП и А ======================== -->
         <div id="page-calc-kipa" class="page-content">
@@ -8558,6 +9580,8 @@
                     <option value="CABLE_JOURNAL_UPDATE">Каб. журнал: изменение</option>
                     <option value="CABLE_JOURNAL_DELETE">Каб. журнал: удаление</option>
                     <option value="CABLE_JOURNAL_ACCESS_DENIED">Каб. журнал: отказ в доступе</option>
+                    <option value="FLOWMETER_UPDATE_READING">Расходомеры: ввод показаний</option>
+                    <option value="FLOWMETER_ACCESS_DENIED">Расходомеры: отказ в доступе</option>
                 </select>
                 <button type="button" class="admin-refresh-btn" onclick="KipAdmin.loadLogs()">↻</button>
             </div>
@@ -10409,7 +11433,7 @@
                                 <div class="wn-anim-bookmark"></div>
                             </div>
                             <div class="wn-instruction-text">
-                                <b>Значок закладки</b> — нажмите значок ☆ в заголовке карточки (мобильный) или в правом верхнем углу (десктоп), чтобы добавить запись в избранное. Значок становится золотым. Повторное нажатие убирает из избранного.
+                                <b>Значок закладки</b> — нажмите значок <svg viewBox="0 0 24 32" width="13" height="17" style="vertical-align: middle; fill: rgba(199,150,74,0.85);"><path d="M2 0h20v32l-10-7-10 7z"/></svg> в заголовке карточки (мобильный) или в правом верхнем углу (десктоп), чтобы добавить запись в избранное. Значок становится золотым. Повторное нажатие убирает из избранного.
                             </div>
                         </div>
                         <div class="wn-instruction-item">
@@ -10478,10 +11502,12 @@
     <button type="button" class="dashboard-bottom-btn" onclick="navigateTo('calculators')">
         <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="16" y2="14"/><line x1="8" y1="18" x2="12" y2="18"/></svg>
         <span>Инженерные калькуляторы</span>
+        <button type="button" class="dashboard-bottom-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('calculators')"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
     </button>
     <button type="button" class="dashboard-bottom-btn dashboard-bottom-btn-docs" onclick="navigateTo('docs')">
         <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         <span>Документация</span>
+        <button type="button" class="dashboard-bottom-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('docs')"><svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button>
     </button>
 </div>
 
@@ -10495,6 +11521,26 @@
     <div id="pinSheetExtraActions" class="pin-sheet-extra-actions" style="display:none;"></div>
     <button type="button" id="pinSheetAction" class="pin-sheet-action" onclick="executePinToggle()">Добавить на главную</button>
     <button type="button" class="pin-sheet-cancel" onclick="closePinSheet()">Отмена</button>
+</div>
+
+<!-- ===== Bottom sheet для ввода новых показаний расходомера ===== -->
+<div id="flowInputOverlay" class="pin-sheet-overlay" onclick="FlowmeterData.closeInput()"></div>
+<div id="flowInputSheet" class="flow-input-sheet">
+    <div class="flow-input-sheet-handle"></div>
+    <div class="flow-input-sheet-title" id="flowInputTitle">Ввести показания</div>
+    <input type="text" inputmode="decimal" id="flowInputField" class="flow-input-field" placeholder="Текущие показания" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter')FlowmeterData.submitInput()">
+    <div class="flow-input-row">
+        <div class="flow-input-group">
+            <label class="flow-input-label" for="flowInputTemp">Температура, °C</label>
+            <input type="text" inputmode="decimal" id="flowInputTemp" class="flow-input-field-small" placeholder="— (необязательно)" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter')FlowmeterData.submitInput()">
+        </div>
+        <div class="flow-input-group">
+            <label class="flow-input-label" for="flowInputDate">Дата снятия</label>
+            <input type="date" id="flowInputDate" class="flow-input-field-small">
+        </div>
+    </div>
+    <button type="button" class="flow-input-submit" onclick="FlowmeterData.submitInput()">Сохранить</button>
+    <button type="button" class="flow-input-cancel" onclick="FlowmeterData.closeInput()">Отмена</button>
 </div>
 
 <script>
@@ -14669,6 +15715,8 @@
                 if (status) html += '<div class="project-card-status ' + statusCls + '">' + projectMark(status, query) + '</div>';
                 html += '</div>';
                 html += '</div>';
+                html += KipFav._cardFavBtnHtml(itemId, 'proj');
+                html += KipFav._cardFavToggleHtml(itemId, 'proj');
                 html += '</div>';
                 html += '</div>';
             }
@@ -14677,6 +15725,8 @@
         }
         html += '</div>';
         list.innerHTML = html;
+        // Добавить кликабельность значка избранного на карточках проектов
+        if (typeof KipFav !== 'undefined') KipFav.wrapKipCardsForFavSwipe('.project-card', 'proj', 'data-project-id');
     }
 
     function projectsToggleGroup(titleEl) {
@@ -14784,6 +15834,8 @@
                 if (status) html += '<div class="project-card-status ' + statusCls + '">' + projectEsc(status) + '</div>';
                 html += '</div>';
                 html += '</div>';
+                html += KipFav._cardFavBtnHtml(itemId, 'proj');
+                html += KipFav._cardFavToggleHtml(itemId, 'proj');
                 html += '</div>';
                 html += '</div>';
             }
@@ -14792,6 +15844,8 @@
         }
         html += '</div>';
         list.innerHTML = html;
+        // Добавить кликабельность значка избранного на карточках проектов
+        if (typeof KipFav !== 'undefined') KipFav.wrapKipCardsForFavSwipe('.project-card', 'proj', 'data-project-id');
     }
 
     function projectsScrollToGroup(el) {
@@ -15921,6 +16975,8 @@
         const projectFileUrl = getProjectFileUrl(item);
 
         let html = '<div class="project-detail-card">';
+        // Значок избранного в правом верхнем углу (виден только на десктопе)
+        html += '<button type="button" class="dev-detail-fav-btn" onclick="KipFav.toggleFromDetailByType(\'proj\')" aria-label="Избранное" title="Добавить/убрать из избранного"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>';
         html += '<div class="project-detail-rows">';
         for (const f of PROJECT_FIELDS) {
             if (f.hiddenInCard) continue;
@@ -15963,6 +17019,8 @@
         if (projectNo && !kipIsEmptyProjectNo(projectNo)) {
             kipLoadAndUpdateRelated(String(projectNo));
         }
+        // Обновить значок избранного в заголовке
+        if (typeof KipFav !== 'undefined') KipFav.updateHeaderIcon();
     }
 
     // ===== Кнопка Проекты на странице КИП И ОС =====
@@ -16129,8 +17187,24 @@
         const imgEl = document.getElementById('plan114Img');
         const errorEl = document.getElementById('plan114Error');
         if (loadingEl) loadingEl.style.display = '';
-        if (imgEl) { imgEl.style.display = 'none'; imgEl.removeAttribute('src'); }
+        if (imgEl) {
+            imgEl.style.display = 'none';
+            imgEl.removeAttribute('src');
+            imgEl.style.transform = '';
+            imgEl.style.transformOrigin = '';
+            imgEl.style.width = '';
+            imgEl.style.height = '';
+            imgEl.style.maxWidth = '100%';
+        }
         if (errorEl) errorEl.style.display = 'none';
+        // Сбросить стили поворота контейнера
+        const containerEl = document.getElementById('plan114ImgContainer');
+        if (containerEl) {
+            containerEl.classList.remove('plan114-rotated');
+            containerEl.style.height = '';
+            const spacer = containerEl.querySelector('.plan114-rotate-spacer');
+            if (spacer) spacer.remove();
+        }
 
         try {
             // Прямой URL картинки Google Drive.
@@ -16153,10 +17227,71 @@
             if (imgEl) {
                 imgEl.src = imgUrl;
                 imgEl.alt = item.title;
+                imgEl.setAttribute('data-plan-id', item.id);
                 imgEl.style.display = '';
             }
             if (loadingEl) loadingEl.style.display = 'none';
             if (origLink) origLink.style.display = ''; // показать кнопку «Открыть оригинал»
+
+            // На десктопе: для планов отм-00/06/12/18 повернуть картинку влево
+            // и сделать контейнер горизонтально прокручиваемым.
+            const rotatedPlans = ['otm-00', 'otm-06', 'otm-12', 'otm-18'];
+            const containerEl = document.getElementById('plan114ImgContainer');
+            if (rotatedPlans.indexOf(item.id) !== -1 && containerEl && window.matchMedia('(min-width: 1024px)').matches) {
+                // Дождаться, когда imgEl узнает свои naturalWidth/naturalHeight
+                requestAnimationFrame(function() {
+                    const nw = imgEl.naturalWidth || 1;
+                    const nh = imgEl.naturalHeight || 1;
+                    // Доступная высота: вычитаем desktopTopBar (56px),
+                    // page-inline-header (56px) и запас на скроллбар (~12px).
+                    const availH = window.innerHeight - 56 - 56 - 12;
+                    // Масштаб: вписать по высоте (после поворота высота = nw)
+                    const scale = availH / nw;
+                    const renderedH = Math.round(nw * scale);  // высота после поворота
+                    const renderedW = Math.round(nh * scale);  // ширина после поворота
+                    // Установить размеры img до поворота:
+                    //   width = renderedH (после rotate станет высотой)
+                    //   height = renderedW (после rotate станет шириной, но layout не меняется)
+                    imgEl.style.width = renderedH + 'px';
+                    imgEl.style.height = renderedW + 'px';
+                    imgEl.style.maxWidth = 'none';
+                    // transform-origin: top left → после rotate(-90deg)
+                    // картинка визуально уходит вверх от верхней левой точки.
+                    // translateX(-renderedH) в доповоротной системе → после rotate(-90deg)
+                    // даёт сдвиг вниз на renderedH в экранных координатах,
+                    // выравнивая верхний край картинки с верхом контейнера.
+                    imgEl.style.transform = 'rotate(-90deg) translateX(' + (-renderedH) + 'px)';
+                    imgEl.style.transformOrigin = 'top left';
+                    // Контейнер: прокрутка по горизонтали, высота = renderedH
+                    // Явно убрать padding (inline-стиль padding:12px перебивает CSS-правило).
+                    containerEl.classList.add('plan114-rotated');
+                    containerEl.style.padding = '0';
+                    containerEl.style.height = renderedH + 'px';
+                    containerEl.style.minWidth = '0';
+                    // Чтобы контейнер знал реальную ширину прокручиваемого контента,
+                    // создаём невидимый spacer шириной renderedW
+                    let spacer = containerEl.querySelector('.plan114-rotate-spacer');
+                    if (!spacer) {
+                        spacer = document.createElement('div');
+                        spacer.className = 'plan114-rotate-spacer';
+                        spacer.style.cssText = 'display:block;height:0;pointer-events:none;';
+                        containerEl.appendChild(spacer);
+                    }
+                    spacer.style.width = renderedW + 'px';
+                });
+            } else if (containerEl) {
+                // Не отм-план или мобильный — сбросить стили поворота
+                containerEl.classList.remove('plan114-rotated');
+                containerEl.style.padding = '12px';
+                containerEl.style.height = '';
+                imgEl.style.transform = '';
+                imgEl.style.transformOrigin = '';
+                imgEl.style.width = '';
+                imgEl.style.height = '';
+                imgEl.style.maxWidth = '100%';
+                const spacer = containerEl.querySelector('.plan114-rotate-spacer');
+                if (spacer) spacer.remove();
+            }
         } catch (err) {
             // Офлайн или ошибка загрузки — показать ошибку
             if (loadingEl) loadingEl.style.display = 'none';
@@ -16180,6 +17315,7 @@
     let pageHistory = [];
     let isNavigating = false;
 
+    // В основном репозитории kip8 блок изоляции localStorage ОТСУТСТВУЕТ — ключи без префикса.
     /* ========== Экзаменационные билеты ========== */
     let _ticketsData = null;
     // Уникальный параметр для cache-busting на одну сессию.
@@ -16880,7 +18016,8 @@
     /** Страницы, которые на десктопе открывают detail-panel вместо перехода */
     const DESKTOP_DETAIL_PAGES = new Set([
         'device-detail', 'lockout-detail', 'valve-detail',
-        'regulator-detail', 'project-detail', 'cable-journal-view'
+        'regulator-detail', 'project-detail', 'cable-journal-view',
+        'flowmeter-detail'
     ]);
 
     /** Страницы-списки (master), при клике в которых открывается detail */
@@ -16893,7 +18030,8 @@
         'regulators-prod', 'regulator-group',
         'projects-prod', 'project-group',
         'cable-journal-edit',
-        'tickets-1000v', 'tickets-4', 'tickets-5', 'tickets-6'
+        'tickets-1000v', 'tickets-4', 'tickets-5', 'tickets-6',
+        'flowmeter-data'
     ]);
 
     /** Открывает detail-panel с содержимым */
@@ -16908,7 +18046,7 @@
         const bcBar = document.getElementById('detailBreadcrumbBar');
         if (bcBar) bcBar.classList.add('active');
         // Подсветка активной карточки в списке
-        document.querySelectorAll('.dev-card.detail-highlight, .lock-card.detail-highlight, .valve-card.detail-highlight, .regulator-card.detail-highlight, .project-card.detail-highlight, .ticket-list-item.detail-highlight').forEach(el => el.classList.remove('detail-highlight'));
+        document.querySelectorAll('.dev-card.detail-highlight, .lock-card.detail-highlight, .valve-card.detail-highlight, .regulator-card.detail-highlight, .project-card.detail-highlight, .ticket-list-item.detail-highlight, .flow-card.detail-highlight').forEach(el => el.classList.remove('detail-highlight'));
     }
 
     /** Закрывает detail-panel */
@@ -16929,7 +18067,7 @@
             const bcContent = document.getElementById('detailBreadcrumbContent');
             if (bcContent) bcContent.innerHTML = '';
         }
-        document.querySelectorAll('.dev-card.detail-highlight, .lock-card.detail-highlight, .valve-card.detail-highlight, .regulator-card.detail-highlight, .project-card.detail-highlight, .ticket-list-item.detail-highlight').forEach(el => el.classList.remove('detail-highlight'));
+        document.querySelectorAll('.dev-card.detail-highlight, .lock-card.detail-highlight, .valve-card.detail-highlight, .regulator-card.detail-highlight, .project-card.detail-highlight, .ticket-list-item.detail-highlight, .flow-card.detail-highlight').forEach(el => el.classList.remove('detail-highlight'));
         _ticketSelectedIndex = -1;
         // Восстанавливаем breadcrumbs без виртуальной detail-страницы
         updateDesktopBreadcrumb();
@@ -17143,7 +18281,10 @@
         if (page === 'kip-ios') { setTimeout(() => { if (typeof projectsInitEntryButton === 'function') projectsInitEntryButton(); }, 30); }
         if (page === 'kip-ios') { setTimeout(() => { if (typeof cablesInitEntryButton === 'function') cablesInitEntryButton(); }, 30); }
         if (page === 'kip-ios') { setTimeout(() => { if (typeof plan114InitEntryButton === 'function') plan114InitEntryButton(); }, 30); }
+        if (page === 'kip-ios') { setTimeout(() => { if (typeof KipCharts !== 'undefined') KipCharts.initEntryButton(); }, 30); }
+        if (page === 'flowmeter-data') { setTimeout(() => { if (typeof FlowmeterData !== 'undefined') FlowmeterData.init(); }, 30); }
         if (page === 'plan-114') { setTimeout(() => { if (typeof plan114RenderList === 'function') plan114RenderList(); }, 30); }
+        if (page === 'charts') { setTimeout(() => { if (typeof KipCharts !== 'undefined') KipCharts.onPageOpen(); }, 30); }
         if (TICKET_IDS.includes(page)) { setTimeout(() => initTicketsPage(page), 30); }
         if (page === 'exam-tickets') { setTimeout(() => loadTicketsData(), 30); }
         // ============================================================
@@ -17202,6 +18343,7 @@
             else if (page === 'regulator-detail') { setTimeout(() => regulatorRenderDetailInPanel(), 30); }
             else if (page === 'project-detail') { setTimeout(() => projectRenderDetailInPanel(), 30); }
             else if (page === 'cable-journal-view') { setTimeout(() => cableRenderDetailInPanel(), 30); }
+            else if (page === 'flowmeter-detail') { setTimeout(() => flowmeterRenderDetailInPanel(), 30); }
             else {
                 // Для неизвестных detail-страниц — просто открываем пустую панель
                 const panel = document.getElementById('detailPanel');
@@ -17225,7 +18367,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
         if (page === 'buoy-calc') { updateBuoyCalcTitle(); setCalibMethodOnForm(); }
         // Обернуть карточки подразделов для swipe-to-add на страницах меню подразделов
-        if (page === 'calc-kipa' || page === 'calc-electro' || page === 'calc-geometry' || page === 'docs' || page === 'kip-ios') {
+        if (page === 'calculators' || page === 'calc-kipa' || page === 'calc-electro' || page === 'calc-geometry' || page === 'docs' || page === 'kip-ios' || page === 'docs-ios' || page === 'flowmeter-data') {
             wrapSubsectionItems('page-' + page);
         }
         updateBottomNavActive(page);
@@ -17419,6 +18561,9 @@
         'library-internal': 'docs',
         'library-electro':  'library-internal',
         'kip-ios':          'docs',
+        'docs-ios':         'docs',
+        'flowmeter-data':   'docs-ios',
+        'flowmeter-detail': 'flowmeter-data',
         // Экзаменационные билеты
         'tickets-1000v':    'exam-tickets',
         'tickets-4':        'exam-tickets',
@@ -17451,6 +18596,7 @@
         'cable-journal-view':   'cable-journal-edit',
         'plan-114':         'kip-ios',
         'plan-114-view':    'plan-114',
+        'charts':           'kip-ios',
         // Админ-панель
         'admin-users':      'admin',
         'admin-sessions':   'admin',
@@ -17467,6 +18613,9 @@
         'calc-electro':     'Электротехника',
         'calc-geometry':    'Геометрия',
         'kip-ios':          'КИП ИОС',
+        'docs-ios':         'Документация ИОС',
+        'flowmeter-data':   'Расходомеры хозрасчётные',
+        'flowmeter-detail': 'Расходомер',
         'exam-tickets':     'Экзаменационные билеты',
         'tickets-1000v':    'Билеты до 1000 В',
         'tickets-4':        'Билеты на 4 разряд',
@@ -17501,6 +18650,7 @@
         'cable-journal-view':   'Запись',
         'plan-114':         'План корпуса 114',
         'plan-114-view':    'План',
+        'charts':           'Графики КИП ИОС',
         'converter':        'Конвертер единиц',
         'conv-pressure':    'Давление',
         'conv-flow':        'Расход',
@@ -17519,6 +18669,7 @@
         'geo-sphere':       'Сфера',
         'geo-cone':         'Конус',
         'orifice-select':   'Сужающее устройство',
+        'whats-new':        'Что нового',
         'orifice-quick':    'Быстрый расчёт диафрагмы',
         'orifice-dp':       'Перепад давления Δp',
         'orifice-flow':     'Расход среды Q',
@@ -17634,6 +18785,13 @@
     // key — уникальный идентификатор (совпадает с target страницы навигации).
     // category: 'calculators' (синий) | 'docs' (золотистый) — для стилизации.
     const SUBSECTIONS = {
+        // ===== Главные разделы =====
+        'calculators':   { label: 'Инженерные калькуляторы', sublabel: 'Конвертеры, погрешности, геометрия',             target: 'calculators',    category: 'calculators' },
+        'docs':          { label: 'Документация',            sublabel: 'Билеты, библиотека, КИП ИОС',                    target: 'docs',           category: 'docs' },
+        // ===== Калькуляторы — разделы (страница page-calculators) =====
+        'calc-kipa':     { label: 'КИП и А',                  sublabel: 'Конвертеры, погрешности, датчики, диафрагмы',   target: 'calc-kipa',      category: 'calculators' },
+        'calc-electro':  { label: 'Электротехника',           sublabel: 'Автоматический выключатель',                     target: 'calc-electro',   category: 'calculators' },
+        'calc-geometry': { label: 'Геометрия',                sublabel: 'Площади, объёмы, сечения',                       target: 'calc-geometry',  category: 'calculators' },
         // ===== КИП и А — подразделы (страница page-calc-kipa) =====
         'converter':      { label: 'Конвертер единиц',          sublabel: 'Давление, расход, температура и др.',           target: 'converter',      category: 'calculators' },
         'scale-signal':   { label: 'Шкала-сигнал',              sublabel: 'Расчёт диапазонов шкалы и сигнала',             target: 'scale-signal',   category: 'calculators' },
@@ -17650,15 +18808,23 @@
         'geo-horiz':     { label: 'Цилиндр горизонтальный',  sublabel: 'Объём жидкости при частичном заполнении',       target: 'geo-horiz',     category: 'calculators' },
         'geo-sphere':    { label: 'Сфера',                   sublabel: 'Объём, площадь поверхности',                    target: 'geo-sphere',    category: 'calculators' },
         'geo-cone':      { label: 'Конус',                   sublabel: 'Объём, образующая, площадь',                    target: 'geo-cone',      category: 'calculators' },
-        // ===== Документация — конечные страницы (страница page-docs) =====
+        // ===== Документация — разделы (страница page-docs) =====
         'exam-tickets':  { label: 'Экзаменационные билеты',  sublabel: '4, 5, 6 разряд, до 1000 В',                      target: 'exam-tickets',  category: 'docs' },
         'library':       { label: 'Библиотека КИП и А',      sublabel: 'Документация, схемы, инструкции',                target: 'library',       category: 'docs' },
         'kip-ios':       { label: 'КИП ИОС',                  sublabel: 'Перечень приборов, документация',               target: 'kip-ios',       category: 'docs' },
+        'docs-ios':      { label: 'Документация ИОС',         sublabel: 'Документация и оперативные данные',              target: 'docs-ios',      category: 'docs' },
+        // ===== Документация ИОС — подразделы (страница page-docs-ios) =====
+        'flowmeter-data': { label: 'Расходомеры хозрасчётные', sublabel: 'Накопительные расходы и показания',             target: 'flowmeter-data',category: 'docs' },
         // ===== КИП ИОС — подразделы (страница page-kip-ios) =====
         'devices':       { label: 'Приборы',                  sublabel: 'Перечень КИП ИОС — 1312 приборов',              target: 'devices',       category: 'docs' },
+        'lockouts':      { label: 'Блокировки',               sublabel: 'По производствам',                               target: 'lockouts-prod', category: 'docs' },
+        'valves':        { label: 'Клапана',                  sublabel: 'По производствам',                               target: 'valves-prod',   category: 'docs' },
+        'regulators':    { label: 'Регуляторы',               sublabel: 'По производствам',                               target: 'regulators-prod',category: 'docs' },
         'projects':      { label: 'Проекты',                  sublabel: 'Перечень проектов КИП пр-ва ИОС',               target: 'projects',      category: 'docs' },
         'cables':        { label: 'Кабельный журнал',        sublabel: 'Кабельный журнал КИП пр-ва ИОС',                 target: 'cable-journal-edit', category: 'docs' },
-        'plan-114':      { label: 'План корпуса 114',        sublabel: '6 планов помещений',                             target: 'plan-114',      category: 'docs' }
+        'plan-114':      { label: 'План корпуса 114',        sublabel: '6 планов помещений',                             target: 'plan-114',      category: 'docs' },
+        'charts':        { label: 'Графики',                  sublabel: 'Статистика КИП ИОС',                             target: 'charts',        category: 'docs' },
+        'favorites':     { label: 'Избранное',                sublabel: 'Закладки и заметки',                             target: 'device-favorites', category: 'docs' }
     };
     const PINNED_STORAGE_KEY = 'pinnedSubsections';
     let currentPinKey = null; // ключ подраздела, для которого открыт sheet
@@ -17713,8 +18879,7 @@
             container.innerHTML =
                 '<div class="pinned-empty-hint">' +
                 'Закрепите часто используемые разделы — они появятся здесь. ' +
-                'Откройте «Инженерные калькуляторы» или «Документацию», ' +
-                'нажмите <svg class="pin-empty-icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg> на нужном пункте и выберите <b>«Добавить на главную»</b>, ' +
+                'Нажмите <svg class="pin-empty-icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg> на любом разделе или подразделе и выберите <b>«Добавить на главную»</b>, ' +
                 'или сделайте свайп влево/вправо по пункту — появится зелёная подложка <b>«Добавить»</b>.' +
                 '</div>';
             // Даже если нет закреплённых, добавляем кнопку «Избранное» если есть избранное
@@ -19513,6 +20678,8 @@
         const projectGroupCtx = window._projectGroupCtx || {};
         const projectGroupName = projectGroupCtx.group || '';
         setDetailBreadcrumb('project-detail', title, projectGroupName, 'project-group');
+        // Обновить значок избранного в десктоп-панели
+        if (typeof KipFav !== 'undefined') KipFav.updateHeaderIcon();
     }
 
     function cableRenderDetailInPanel() {
@@ -19567,9 +20734,7 @@
         if (footerEl) {
             if (KipCableJournal._canEdit) {
                 footerEl.innerHTML =
-                    '<button type="button" class="detail-footer-btn detail-footer-btn-edit" onclick="KipCableJournal.openEdit()">Править</button>' +
-                    '<div class="detail-footer-divider"></div>' +
-                    '<button type="button" class="detail-footer-btn detail-footer-btn-delete" onclick="KipCableJournal.confirmDelete()">Удалить</button>';
+                    '<button type="button" class="detail-footer-btn detail-footer-btn-edit" onclick="KipCableJournal.openEdit()">Править</button>';
             } else {
                 footerEl.innerHTML = '';
             }
@@ -21991,7 +23156,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
     // Theme toggle functionality
     function toggleTheme() {
-        let currentTheme = localStorage.getItem('app-theme') || 'dark';
+        let currentTheme = localStorage.getItem('app-theme') || 'light';
         let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('app-theme', newTheme);
@@ -22003,7 +23168,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
     function updateThemeLabel() {
         let label = document.getElementById('themeLabel');
         if (label) {
-            let currentTheme = localStorage.getItem('app-theme') || 'dark';
+            let currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
             label.textContent = currentTheme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
         }
     }
@@ -22018,14 +23183,20 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
     function updateLogoImage() {
         var isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        var logoSrc = isLight ? 'images/logo.png' : 'images/logo_black.png';
         var logo = document.getElementById('headerLogo');
-        if (logo) logo.src = isLight ? 'images/logo.png' : 'images/logo_black.png';
+        if (logo) logo.src = logoSrc;
+        var logoDesktop = document.getElementById('headerLogoDesktop');
+        if (logoDesktop) logoDesktop.src = logoSrc;
     }
 
     // Apply saved theme on load
     (function() {
-        let savedTheme = localStorage.getItem('app-theme') || 'dark';
+        let savedTheme = localStorage.getItem('app-theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+        // Перезапись UI (label, logos, buoy) выполняется в последнем
+        // <script> блоке, когда все DOM-элементы уже существуют.
+        // Здесь вызываем для элементов, которые уже разобраны к этому моменту.
         updateThemeLabel();
         updateBuoyImages();
         updateLogoImage();
@@ -22038,6 +23209,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
             if (typeof updateThemeLabel === 'function') updateThemeLabel();
+            if (typeof updateLogoImage === 'function') updateLogoImage();
         }
         // Listen for system theme changes
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
@@ -22516,6 +23688,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         //   _CALC_PAGES       — инженерные калькуляторы.
         //   _LIBRARY_PAGES    — библиотека: «Экзаменационные билеты» + «Библиотека КИП и А».
         //   _KIP_IOS_PAGES    — раздел КИП ИОС (включая кабельный журнал для просмотра).
+        //   _FLOWMETER_PAGES  — расходомеры хозрасчётные (просмотр).
+        //   _CHARTS_PAGES     — графики КИП ИОС (только Админ).
         //   _SECRET_PAGES     — секретные кнопки (сапёр + телефонный справочник).
         //   _WHATS_NEW_PAGES  — раздел «Что нового».
         //
@@ -22524,17 +23698,23 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // в «Карта ролей.xlsx» и управляется серверным флагом canEdit
         // (см. раздел «Кабельный журнал — canEdit» ниже).
         //
-        // Карта ролей (из Excel):
-        //   Запрет         — нет доступа (только dashboard).
-        //   Общий доступ   — только калькуляторы. НЕ требует входа — гостевой режим.
-        //   КИП8           — калькуляторы + библиотека + секретные кнопки + Что нового.
-        //   КИП8 pro       — то же, что КИП8.
-        //   КИП ИОС        — калькуляторы + библиотека + КИП ИОС + секретные + Что нового.
-        //   КИП ИОС pro    — то же + canEdit (право записи в кабельный журнал).
-        //   ИТР8           — то же, что КИП ИОС.
-        //   ИТР8 pro       — то же, что КИП ИОС.
-        //   ИТР ИОС        — то же + canEdit (право записи в кабельный журнал).
-        //   Админ          — полный доступ ['*'] + админ-панель.
+        // Право ВВОДА ПОКАЗАНИЙ в расходомеры хозрасчётные
+        // определяется ОТДЕЛЬНО столбцом «Ввод показаний в расходомеры хозрасчётные»
+        // в «Карта ролей.xlsx» и управляется клиентским флагом _canInputReadings
+        // (роли: КИП ИОС дежурный, Админ).
+        //
+        // Карта ролей (из Excel, актуальная 2026-08-15):
+        //   Запрет           — нет доступа (только dashboard).
+        //   Общий доступ     — только калькуляторы. НЕ требует входа — гостевой режим.
+        //   КИП8             — калькуляторы + библиотека + секретные кнопки + Что нового.
+        //   КИП8 pro         — то же, что КИП8.
+        //   КИП ИОС          — калькуляторы + библиотека + КИП ИОС + секретные + Что нового.
+        //   КИП ИОС pro      — то же + canEdit (право записи в кабельный журнал).
+        //   КИП ИОС дежурный — КИП ИОС + расходомеры (просмотр) + canInputReadings.
+        //   ИТР8             — КИП ИОС + расходомеры (просмотр).
+        //   ИТР8 pro         — то же, что ИТР8.
+        //   ИТР ИОС          — ИТР8 + canEdit (право записи в кабельный журнал).
+        //   Админ            — полный доступ ['*'] + админ-панель.
         // ============================================================
         _BASE_PAGES: ['dashboard'],
         _CALC_PAGES: ['calculators', 'calc-kipa', 'calc-electro', 'calc-geometry',
@@ -22552,6 +23732,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         _LIBRARY_PAGES: ['docs', 'library', 'library-internal', 'library-electro',
                          'exam-tickets', 'tickets-4', 'tickets-5', 'tickets-6', 'tickets-1000v'],
         _KIP_IOS_PAGES: ['kip-ios',
+                         'docs-ios',
                          'devices-prod', 'devices-type', 'devices-name', 'device-detail', 'dev-group',
                          'device-favorites',
                          'lockouts-prod', 'lockout-detail', 'lock-group',
@@ -22562,6 +23743,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                          'cable-journal-add',
                          'cable-journal-view',
                          'plan-114', 'plan-114-view'],
+        // Расходомеры хозрасчётные — отдельная группа доступа
+        // (просмотр: ИТР8+, КИП ИОС дежурный; НЕ входит в базовый КИП ИОС)
+        _FLOWMETER_PAGES: ['flowmeter-data', 'flowmeter-detail'],
+        // Графики КИП ИОС — отдельная группа доступа (только Админ)
+        _CHARTS_PAGES: ['charts'],
         _SECRET_PAGES: ['minesweeper', 'phonebook'],
         _WHATS_NEW_PAGES: ['whats-new'],
 
@@ -22579,10 +23765,15 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             const SECRET = this._SECRET_PAGES;
             const WHATS_NEW = this._WHATS_NEW_PAGES;
 
-            // Уровни доступа (по карте ролей из Excel):
+            // Уровни доступа (по карте ролей из Excel, актуальная 2026-08-15):
+            const FLOWMETER = this._FLOWMETER_PAGES;
+            const CHARTS = this._CHARTS_PAGES;
+
             const LVL_OBSHCHIJ = [].concat(BASE, CALC);
             const LVL_KIP8 = [].concat(BASE, CALC, LIB, SECRET, WHATS_NEW);
             const LVL_KIP_IOS = [].concat(BASE, CALC, LIB, KIP_IOS, SECRET, WHATS_NEW);
+            // ИТР8+ и КИП ИОС дежурный: КИП ИОС + расходомеры (просмотр)
+            const LVL_KIP_IOS_WITH_FLOW = [].concat(BASE, CALC, LIB, KIP_IOS, FLOWMETER, SECRET, WHATS_NEW);
 
             this.ROLE_ACCESS = {
                 'Запрет': BASE,                   // только главная
@@ -22591,9 +23782,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 'КИП8 pro': LVL_KIP8,
                 'КИП ИОС': LVL_KIP_IOS,
                 'КИП ИОС pro': LVL_KIP_IOS,       // + canEdit (право записи в каб. журнал)
-                'ИТР8': LVL_KIP_IOS,
-                'ИТР8 pro': LVL_KIP_IOS,
-                'ИТР ИОС': LVL_KIP_IOS,           // + canEdit (право записи в каб. журнал)
+                'КИП ИОС дежурный': LVL_KIP_IOS_WITH_FLOW,  // + canInputReadings (расходомеры)
+                'ИТР8': LVL_KIP_IOS_WITH_FLOW,
+                'ИТР8 pro': LVL_KIP_IOS_WITH_FLOW,
+                'ИТР ИОС': LVL_KIP_IOS_WITH_FLOW, // + canEdit (право записи в каб. журнал)
                 'Админ': ['*']
             };
         },
@@ -23170,6 +24362,40 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 btn.style.display = allowedForPage ? '' : 'none';
             });
 
+            // ============================================================
+            // Кнопка «Расходомеры хозрасчётные» в Документации ИОС:
+            // скрыть для пользователей без доступа к flowmeter-data,
+            // а также скрыть родительский .kip-ios-block, если внутри
+            // не осталось видимых кнопок.
+            // ============================================================
+            const flowmeterBtn = document.getElementById('flowmeterMenuBtn');
+            if (flowmeterBtn) {
+                const hasFlowAccess = isAll || allowed.indexOf('flowmeter-data') !== -1;
+                flowmeterBtn.style.display = hasFlowAccess ? '' : 'none';
+                // Скрыть родительский .kip-ios-block целиком, если все .menu-btn скрыты
+                const kipBlock = flowmeterBtn.closest('.kip-ios-block');
+                if (kipBlock) {
+                    const visibleBtns = kipBlock.querySelectorAll('.menu-btn');
+                    let anyVisible = false;
+                    visibleBtns.forEach(function(b) {
+                        if (b.style.display !== 'none') anyVisible = true;
+                    });
+                    kipBlock.style.display = anyVisible ? '' : 'none';
+                }
+            }
+
+            // ============================================================
+            // Кнопка «Графики» в КИП ИОС (chartsEntryBtn):
+            // onclick назначается через JS (btn.onclick), поэтому
+            // общий цикл .menu-btn по getAttribute('onclick') её не ловит.
+            // Скрыть для пользователей без доступа к charts.
+            // ============================================================
+            const chartsBtn = document.getElementById('chartsEntryBtn');
+            if (chartsBtn) {
+                const hasChartsAccess = isAll || allowed.indexOf('charts') !== -1;
+                chartsBtn.style.display = hasChartsAccess ? '' : 'none';
+            }
+
             // Скрыть кнопки "Сапёр" и "Телефонный справочник" на главной,
             // если нет доступа.
             const minesweeperBtn = document.getElementById('minesweeperBtn');
@@ -23342,6 +24568,14 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // Просмотр кабельного журнала — всем ролям с доступом к КИП ИОС.
             // Право записи определяется сервером (canEdit в cableJournal.getColumns).
             // ============================================================
+
+            // ============================================================
+            // Обновить право ввода показаний в расходомеры хозрасчётные.
+            // Роли с правом: КИП ИОС дежурный, Админ.
+            // ============================================================
+            if (typeof FlowmeterData !== 'undefined') {
+                FlowmeterData._canInputReadings = FlowmeterData._computeCanInputReadings();
+            }
         },
 
         // ============================================================
@@ -23783,6 +25017,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 const regId = window._regulatorDetailId;
                 regBtn.classList.toggle('active', regId ? this.hasItem(this._favKey('reg', regId)) : false);
             }
+            const projBtn = document.getElementById('projectFavBtn');
+            if (projBtn) {
+                const projId = window._projectDetailId;
+                projBtn.classList.toggle('active', projId ? this.hasItem(this._favKey('proj', projId)) : false);
+            }
             // Десктоп: значок в detailPanel хедере
             const dpBtn = document.getElementById('detailPanelFavBtn');
             if (dpBtn) {
@@ -23793,7 +25032,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 const isLockDetail = !!window._lockDetailId;
                 const isValveDetail = !!window._valveDetailId;
                 const isRegDetail = !!window._regulatorDetailId;
-                const showFav = isDevDetail || isLockDetail || isValveDetail || isRegDetail;
+                const isProjDetail = !!window._projectDetailId;
+                const showFav = isDevDetail || isLockDetail || isValveDetail || isRegDetail || isProjDetail;
                 dpBtn.style.display = showFav ? '' : 'none';
                 // Определяем активность: для приборов — по devId, для lock/valve/reg — по составному ключу
                 let isActive = false;
@@ -23801,18 +25041,26 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 else if (isLockDetail) isActive = this.hasItem(this._favKey('lock', window._lockDetailId));
                 else if (isValveDetail) isActive = this.hasItem(this._favKey('valve', window._valveDetailId));
                 else if (isRegDetail) isActive = this.hasItem(this._favKey('reg', window._regulatorDetailId));
+                else if (isProjDetail) isActive = this.hasItem(this._favKey('proj', window._projectDetailId));
                 dpBtn.classList.toggle('active', isActive);
                 // Сохраняем текущий тип для toggleFromDetailByType
                 if (isLockDetail) dpBtn.setAttribute('data-fav-type', 'lock');
                 else if (isValveDetail) dpBtn.setAttribute('data-fav-type', 'valve');
                 else if (isRegDetail) dpBtn.setAttribute('data-fav-type', 'reg');
+                else if (isProjDetail) dpBtn.setAttribute('data-fav-type', 'proj');
                 else dpBtn.removeAttribute('data-fav-type');
             }
-            // Десктоп: значок внутри карточки прибора (.dev-detail-fav-btn)
+            // Десктоп: значок внутри карточки (.dev-detail-fav-btn)
             const cardBtn = document.querySelector('.dev-detail-fav-btn');
             if (cardBtn) {
-                const devId = window._devDetailId;
-                cardBtn.classList.toggle('active', devId ? this.has(devId) : false);
+                // Определяем активность по текущему открытому типу
+                let isActive = false;
+                if (window._devDetailId) isActive = this.has(window._devDetailId);
+                else if (window._lockDetailId) isActive = this.hasItem(this._favKey('lock', window._lockDetailId));
+                else if (window._valveDetailId) isActive = this.hasItem(this._favKey('valve', window._valveDetailId));
+                else if (window._regulatorDetailId) isActive = this.hasItem(this._favKey('reg', window._regulatorDetailId));
+                else if (window._projectDetailId) isActive = this.hasItem(this._favKey('proj', window._projectDetailId));
+                cardBtn.classList.toggle('active', isActive);
             }
         },
 
@@ -23842,15 +25090,16 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
         },
 
-        /** Клик по значку: toggle избранного для блокировки/клапана/регулятора.
-         *  type: 'lock' | 'valve' | 'reg'
-         *  Определяет ID по window._lockDetailId / _valveDetailId / _regulatorDetailId,
+        /** Клик по значку: toggle избранного для блокировки/клапана/регулятора/проекта.
+         *  type: 'lock' | 'valve' | 'reg' | 'proj'
+         *  Определяет ID по window._lockDetailId / _valveDetailId / _regulatorDetailId / _projectDetailId,
          *  строит составной ключ через _favKey(), toggle, обновляет UI. */
         toggleFromDetailByType: function(type) {
             var id;
             if (type === 'lock') id = window._lockDetailId;
             else if (type === 'valve') id = window._valveDetailId;
             else if (type === 'reg') id = window._regulatorDetailId;
+            else if (type === 'proj') id = window._projectDetailId;
             if (!id) return;
             if (navigator.vibrate) navigator.vibrate(10);
             const favKey = this._favKey(type, id);
@@ -23968,6 +25217,14 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         .catch(function(e) { console.warn('[KipFav] regulators load failed:', e); })
                 );
             }
+            if (types.has('proj') && typeof projectLoaded !== 'undefined' && !projectLoaded) {
+                loads.push(
+                    fetch('data/projects.json?v=' + Date.now(), { cache: 'no-store' })
+                        .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+                        .then(function(d) { projectData = d; projectLoaded = true; })
+                        .catch(function(e) { console.warn('[KipFav] projects load failed:', e); })
+                );
+            }
             if (loads.length > 0) await Promise.all(loads);
         },
 
@@ -24010,7 +25267,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 dev:  { label: 'П', color: '#6aa6e0', name: 'Прибор' },
                 lock: { label: 'Б', color: '#b85a7a', name: 'Блокировка' },
                 valve:{ label: 'К', color: '#4a8a8c', name: 'Клапан' },
-                reg:  { label: 'Р', color: '#7e5ab8', name: 'Регулятор' }
+                reg:  { label: 'Р', color: '#7e5ab8', name: 'Регулятор' },
+                proj: { label: 'Пр', color: '#c7964a', name: 'Проект' }
             };
 
             const self = this;
@@ -24065,6 +25323,15 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                             itemName = item['Параметр'] || itemId;
                             itemSub1 = item['Устроиство регулятора или ручного управления'] || '';
                             itemSub2 = item['Производство'] || '';
+                        }
+                    }
+                } else if (type === 'proj') {
+                    if (typeof projectData !== 'undefined' && projectData && projectData.projects) {
+                        const item = projectData.projects.find(function(d) { return String(d['ID'] || '') === String(itemId); });
+                        if (item) {
+                            itemName = item['Наименование проекта'] || itemId;
+                            itemSub1 = item['№ проекта'] || '';
+                            itemSub2 = item['Статус проекта'] || '';
                         }
                     }
                 }
@@ -24147,6 +25414,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     if (typeof regulatorRenderDetailInPanel === 'function') regulatorRenderDetailInPanel();
                 } else {
                     navigateTo('regulator-detail');
+                }
+            } else if (type === 'proj') {
+                window._projectDetailId = itemId;
+                if (isDesktop()) {
+                    if (typeof projectRenderDetailInPanel === 'function') projectRenderDetailInPanel();
+                } else {
+                    navigateTo('project-detail');
                 }
             }
         },
@@ -24499,7 +25773,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     if (e.button !== undefined && e.button !== 0) return;
                     if (e.target.closest('.dev-card-fav-indicator')) return;
                     // Найти карточку внутри ячейки (любой тип)
-                    var card = cell.querySelector('.dev-card, .lock-card, .valve-card, .regulator-card');
+                    var card = cell.querySelector('.dev-card, .lock-card, .valve-card, .regulator-card, .project-card');
                     if (!card) return;
                     var rect = card.getBoundingClientRect();
                     self._devFavSwipeState = {
@@ -24600,8 +25874,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                                 existing.remove();
                             }
                         }
-                        // Для lock/valve/regulator — значок прямо в карточке
-                        var existingIndicator = savedCard.querySelector(':scope > .dev-card-fav-indicator');
+                        // Для lock/valve/regulator/project — значок в карточке (прямой дочерний или внутри header)
+                        var existingIndicator = savedCard.querySelector(':scope > .dev-card-fav-indicator') || savedCard.querySelector('.project-card-header > .dev-card-fav-indicator');
                         if (wasAdded && !existingIndicator) {
                             var span2 = document.createElement('span');
                             span2.className = 'dev-card-fav-indicator';
@@ -24668,6 +25942,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var liveRegIds = (typeof regulatorData !== 'undefined' && regulatorData && regulatorData.regulators)
                 ? new Set(regulatorData.regulators.map(function(d) { return String(d['ID'] || ''); }))
                 : null;
+            var liveProjIds = (typeof projectData !== 'undefined' && projectData && projectData.projects)
+                ? new Set(projectData.projects.map(function(d) { return String(d['ID'] || ''); }))
+                : null;
             for (var favKey in this._data) {
                 if (!this._data.hasOwnProperty(favKey)) continue;
                 var parsed = this._parseKey(favKey);
@@ -24677,6 +25954,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 else if (parsed.type === 'lock') live = liveLockIds;
                 else if (parsed.type === 'valve') live = liveValveIds;
                 else if (parsed.type === 'reg') live = liveRegIds;
+                else if (parsed.type === 'proj') live = liveProjIds;
                 else knownType = false;
                 // Удаляем только если данные загружены (live !== null) и ID не найден,
                 // либо если тип неизвестен (knownType = false).
@@ -24732,9 +26010,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             const wasAdded = this.toggle(favKey);
             // Обновить значок на карточке напрямую (без полного ререндера)
             if (ev && ev.target) {
-                var cardEl = ev.target.closest('.dev-card, .lock-card, .valve-card, .reg-card');
+                var cardEl = ev.target.closest('.dev-card, .lock-card, .valve-card, .regulator-card, .project-card');
                 if (cardEl) {
-                    var wrap = cardEl.querySelector('.dev-card-image-wrap') || cardEl;
+                    // Найти контейнер для индикатора — для project-card он внутри .project-card-header
+                    var wrap = cardEl.querySelector('.dev-card-image-wrap') || cardEl.querySelector('.project-card-header') || cardEl;
                     var existing = wrap.querySelector('.dev-card-fav-indicator');
                     if (wasAdded && !existing) {
                         var span = document.createElement('span');
@@ -24742,24 +26021,21 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         span.setAttribute('aria-label', 'В избранном');
                         span.setAttribute('title', 'В избранном');
                         span.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>';
-                        if (wrap === cardEl) {
-                            // Нет image-wrap — вставить в начало карточки
-                            cardEl.insertBefore(span, cardEl.firstChild);
-                        } else {
-                            var img = wrap.querySelector('.dev-card-image');
-                            if (img && img.nextSibling) {
-                                wrap.insertBefore(span, img.nextSibling);
-                            } else {
-                                wrap.appendChild(span);
-                            }
-                        }
+                        wrap.appendChild(span);
                     } else if (!wasAdded && existing) {
                         existing.remove();
+                        // Также убрать значок заметки
+                        var noteIcon = wrap.querySelector('.dev-card-fav-note-icon');
+                        if (noteIcon) noteIcon.remove();
                     }
+                    // Обновить десктопную кнопку-закладку на карточке
+                    var favBtn = cardEl.querySelector('.project-card-fav-btn');
+                    if (favBtn) favBtn.classList.toggle('active', wasAdded);
                 }
             }
-            // Также обновить значок в хедере если это тот же прибор
+            // Также обновить значок в хедере и дашборд
             this.updateHeaderIcon();
+            this.updateDashboardButton();
             if (wasAdded) {
                 showToast('Добавлено в избранное', 'Открыть', function() { navigateTo('device-favorites'); });
             } else {
@@ -24767,18 +26043,37 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
         },
 
-        /** Сгенерировать HTML значка избранного для карточки в списке.
+        /** Сгенерировать HTML значков избранного и заметки для карточки в списке.
          *  @param {string} itemId — ID элемента
-         *  @param {string} [type='dev'] — тип: 'dev'|'lock'|'valve'|'reg' */
-        /** HTML информационного значка избранного (поверх картинки).
-         *  Некликабельный: показывается только если элемент в избранном.
+         *  @param {string} [type='dev'] — тип: 'dev'|'lock'|'valve'|'reg'|'proj' */
+        /** HTML информационных значков (поверх карточки).
+         *  Закладка — показывается только если элемент в избранном.
+         *  Значок заметки — показывается рядом с закладкой, если есть заметка.
          *  Если не в избранном — возвращается пустая строка. */
         _cardFavBtnHtml: function(itemId, type) {
             var favKey = this._favKey(type || 'dev', itemId);
             var isActive = this.hasItem(favKey);
             if (!isActive) return '';
-            return '<span class="dev-card-fav-indicator" aria-label="В избранном" title="В избранном">' +
+            var html = '<span class="dev-card-fav-indicator" aria-label="В избранном" title="В избранном">' +
                    '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>';
+            // Значок заметки (карандаш) — если есть заметка к этому элементу
+            if (typeof KipFavNotes !== 'undefined' && KipFavNotes.get(favKey)) {
+                html += '<span class="dev-card-fav-note-icon" aria-label="Есть заметка" title="Есть заметка">' +
+                        '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>';
+            }
+            return html;
+        },
+
+        /** Кликабельная кнопка избранного на карточке (только десктоп).
+         *  Показывается всегда — позволяет добавить/убрать из избранного.
+         *  На мобильных скрыта через CSS media query. */
+        _cardFavToggleHtml: function(itemId, type) {
+            var favKey = this._favKey(type || 'dev', itemId);
+            var isActive = this.hasItem(favKey);
+            var cls = 'project-card-fav-btn' + (isActive ? ' active' : '');
+            var safeKey = favKey.replace(/'/g, "\\'");
+            return '<button type="button" class="' + cls + '" onclick="KipFav.toggleFromCard(\'' + safeKey + '\', event)" aria-label="Избранное" title="Добавить/убрать из избранного">' +
+                   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>';
         }
     };
 
@@ -25314,9 +26609,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             if (bottomBar) {
                 if (this._canEdit) {
                     bottomBar.innerHTML =
-                        '<button type="button" class="cj-view-bottom-bar-btn cj-view-bottom-bar-btn-edit" onclick="KipCableJournal.openEdit()">Править</button>' +
-                        '<div class="cj-view-bottom-bar-divider"></div>' +
-                        '<button type="button" class="cj-view-bottom-bar-btn cj-view-bottom-bar-btn-delete" onclick="KipCableJournal.confirmDelete()">Удалить</button>';
+                        '<button type="button" class="cj-view-bottom-bar-btn cj-view-bottom-bar-btn-edit" onclick="KipCableJournal.openEdit()">Править</button>';
                 } else {
                     bottomBar.innerHTML = '';
                 }
@@ -25528,7 +26821,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     addBar.innerHTML =
                         '<button type="button" id="cjAddSubmitBtn" class="cj-add-bottom-bar-btn cj-add-bottom-bar-btn-save" onclick="KipCableJournal.submitEdit()">Сохранить</button>' +
                         '<div class="cj-add-bottom-bar-divider"></div>' +
-                        '<button type="button" class="cj-add-bottom-bar-btn cj-add-bottom-bar-btn-cancel" onclick="KipCableJournal.cancelEdit()">Отмена</button>';
+                        '<button type="button" class="cj-add-bottom-bar-btn cj-add-bottom-bar-btn-cancel" onclick="KipCableJournal.cancelEdit()">Отмена</button>' +
+                        '<div class="cj-add-bottom-bar-divider"></div>' +
+                        '<button type="button" class="cj-add-bottom-bar-btn cj-view-bottom-bar-btn-delete" onclick="KipCableJournal.confirmDelete()">Удалить</button>';
                 } else {
                     addBar.innerHTML =
                         '<button type="button" id="cjAddSubmitBtn" class="cj-add-bottom-bar-btn cj-add-bottom-bar-btn-save" onclick="KipCableJournal.submitAdd()">Добавить запись</button>' +
@@ -25708,7 +27003,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 footerEl.innerHTML =
                     '<button type="button" id="cjEditSubmitBtn" class="detail-footer-btn detail-footer-btn-edit" onclick="KipCableJournal.submitEdit()">Сохранить</button>' +
                     '<div class="detail-footer-divider"></div>' +
-                    '<button type="button" class="detail-footer-btn" style="color:var(--text-secondary,rgba(255,255,255,0.65));" onclick="KipCableJournal.cancelEdit()">Отмена</button>';
+                    '<button type="button" class="detail-footer-btn" style="color:var(--text-secondary,rgba(255,255,255,0.65));" onclick="KipCableJournal.cancelEdit()">Отмена</button>' +
+                    '<div class="detail-footer-divider"></div>' +
+                    '<button type="button" class="detail-footer-btn detail-footer-btn-delete" onclick="KipCableJournal.confirmDelete()">Удалить</button>';
             }
         },
 
@@ -26024,6 +27321,1147 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             try {
                 return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
             } catch (e) { return s; }
+        }
+    };
+
+    // ============================================================
+    // ============================================================
+    // FlowmeterData — Расходомеры хозрасчётные: накопительные расходы
+    // Источник: Google Таблица
+    // ============================================================
+    var FlowmeterData = {
+        _GOOGLE_SHEET_URL: 'https://docs.google.com/spreadsheets/d/1enZSq7K8pwJVzaAI_tbXZtvATqARTxH0lSU4c-wc1eY/edit?usp=sharing',
+
+        // Роли с правом ввода показаний в расходомеры хозрасчётные
+        // (по столбцу «Ввод показаний в расходомеры хозрасчётные» из «Карта ролей.xlsx»)
+        _INPUT_READINGS_ROLES: ['КИП ИОС дежурный', 'Админ'],
+        _canInputReadings: false,
+
+        // Ключи localStorage для кэша данных
+        _cacheKey: 'kip8_flow_cache_v1',
+
+        // Флаг: данные загружены с сервера (true) или это fallback
+        _loaded: false,
+
+        // 12 позиций хозрасчётных расходомеров
+        // Заполняются из data/flowmeters.json (_loadFallback),
+        // localStorage (_restoreCache) или сервера (load).
+        // Пустой массив до первой загрузки — рендер покажет заглушку.
+        _METERS: [],
+
+        // ============================================================
+        // API вызовы (по паттерну KipCableJournal)
+        // ============================================================
+        _api: function(action, payload) {
+            var token = KipAuth.getToken();
+            if (!token) return Promise.reject(new Error('Нет токена — войдите в аккаунт'));
+            return KipAuth.api(action, Object.assign({ token: token }, payload || {}));
+        },
+
+        // ============================================================
+        // Инициализация: fallback JSON → кэш localStorage → свежие данные API
+        // ============================================================
+        // Если пользователь авторизован — НЕ рендерим промежуточные данные
+        // (fallback/кэш), чтобы не показывать устаревшие показания.
+        // Ждём ответ API и рендерим сразу свежие данные.
+        // Если не авторизован — рендерим fallback/кэш (прогрессивный рендер).
+        // ============================================================
+        init: function() {
+            var self = this;
+            var token = KipAuth.getToken();
+            var silent = !!token; // авторизован → не рендерить промежуточные данные
+
+            // 1. Показать «Загрузка…» (_METERS пустой)
+            this.renderList();
+
+            // 2. Тихо заполнить _METERS из localStorage и data/flowmeters.json.
+            //    Если silent=true — populate без renderList().
+            this._restoreCache(silent);
+            this._loadFallback(silent);
+
+            // 3. Загрузить свежие данные с сервера.
+            //    load() всегда рендерит по завершении (успех или ошибка).
+            this.load();
+        },
+
+        // ============================================================
+        // Загрузить data/flowmeters.json как начальный fallback
+        // (по паттерну cables.json для кабельного журнала)
+        // silent=true — заполнить _METERS без рендера (для авторизованных)
+        // ============================================================
+        _loadFallback: function(silent) {
+            var self = this;
+            try {
+                var bust = '?v=' + Date.now();
+                fetch('data/flowmeters.json' + bust, { cache: 'no-store' })
+                    .then(function(resp) {
+                        if (!resp.ok) return null;
+                        return resp.json();
+                    })
+                    .then(function(data) {
+                        if (data && Array.isArray(data.meters) && data.meters.length > 0) {
+                            // Не перезаписывать данные, уже загруженные с сервера
+                            if (!self._loaded) {
+                                self._METERS = data.meters;
+                            }
+                            if (!silent) self.renderList();
+                        }
+                    })
+                    .catch(function() { /* ignore — fallback не критичен */ });
+            } catch (e) { /* ignore */ }
+        },
+
+        // ============================================================
+        // Восстановить кэш из localStorage (мгновенный рендер)
+        // silent=true — заполнить _METERS без рендера (для авторизованных)
+        // ============================================================
+        _restoreCache: function(silent) {
+            try {
+                var json = localStorage.getItem(this._cacheKey);
+                if (json) {
+                    var cached = JSON.parse(json);
+                    if (cached && Array.isArray(cached.meters)) {
+                        if (!this._loaded) {
+                            this._METERS = cached.meters;
+                            this._loaded = true;
+                        }
+                        if (!silent) this.renderList();
+                    }
+                }
+            } catch (e) { /* ignore parse errors */ }
+        },
+
+        // ============================================================
+        // Сохранить данные в localStorage
+        // ============================================================
+        _persistData: function(meters) {
+            try {
+                localStorage.setItem(this._cacheKey, JSON.stringify({ meters: meters, ts: Date.now() }));
+            } catch (e) { /* quota or disabled */ }
+        },
+
+        // Форматирование числа с разделителями
+        _fmtNum: function(n) {
+            if (n === 0) return '0,00';
+            var parts = n.toFixed(2).split('.');
+            var intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+            return intPart + ',' + parts[1];
+        },
+
+        // Форматирование даты M/D/YYYY → ДД.ММ.ГГГГ
+        _fmtDate: function(dateStr) {
+            try {
+                var p = dateStr.split('/');
+                var d = (+p[1] < 10 ? '0' : '') + +p[1];
+                var m = (+p[0] < 10 ? '0' : '') + +p[0];
+                return d + '.' + m + '.' + p[2];
+            } catch (e) { return dateStr; }
+        },
+
+        // Разница полных дней между двумя датами (формат M/D/YYYY)
+        _daysBetween: function(dateStr1, dateStr2) {
+            try {
+                var p1 = dateStr1.split('/');
+                var p2 = dateStr2.split('/');
+                var d1 = new Date(+p1[2], +p1[0] - 1, +p1[1]);
+                var d2 = new Date(+p2[2], +p2[0] - 1, +p2[1]);
+                var diff = Math.round((d2 - d1) / 86400000);
+                return (diff >= 0) ? diff : 0;
+            } catch (e) { return 0; }
+        },
+
+        // ============================================================
+        // Загрузить данные из Google Sheets через Apps Script
+        // Если нет токена (гостевой режим) — рендерим fallback/кэш
+        // Всегда рендерит по завершении (успех или ошибка),
+        // чтобы не оставлять «Загрузка…» навсегда.
+        // ============================================================
+        load: function() {
+            var self = this;
+
+            // Если пользователь не авторизован — не трогаем сервер,
+            // рендерим fallback/кэш (если они ещё не отрендерены)
+            var token = KipAuth.getToken();
+            if (!token) {
+                this.renderList();
+                return;
+            }
+
+            this._api('flowmeter.list', {}).then(function(data) {
+                if (data && Array.isArray(data.meters)) {
+                    self._METERS = data.meters;
+                    self._loaded = true;
+                    self._persistData(self._METERS);
+                }
+                self.renderList();
+                // Если детальный вид сейчас видим — перерендерить его.
+                // Проверяем, что страница/панель реально открыты,
+                // иначе при возврате к списку load() снова откроет деталь.
+                if (window._flowDetailId) {
+                    var detailPage = document.getElementById('page-flowmeter-detail');
+                    var detailPanel = document.getElementById('detailPanel');
+                    var isDetailVisible = (detailPage && detailPage.classList.contains('active')) ||
+                                          (detailPanel && detailPanel.classList.contains('active'));
+                    if (isDetailVisible) {
+                        self.openDetail(window._flowDetailId);
+                    }
+                }
+            }).catch(function(err) {
+                // При ошибке — рендерим fallback/кэш,
+                // чтобы не оставлять «Загрузка…» навсегда.
+                console.error('FlowmeterData.load:', err);
+                self.renderList();
+            });
+        },
+
+        // Рендер списка карточек
+        renderList: function() {
+            var container = document.getElementById('flowList');
+            if (!container) return;
+
+            var html = '';
+
+            for (var i = 0; i < this._METERS.length; i++) {
+                var m = this._METERS[i];
+                var consumption = m.curr - m.prev;
+                var consStr = this._fmtNum(Math.abs(consumption));
+                var tempStr = (m.temp !== null && m.temp !== undefined) ? m.temp.toFixed(1).replace('.', ',') + ' °C' : '—';
+                var days = this._daysBetween(m.datePrev, m.dateCurr);
+                var daysStr = (days > 0) ? days + ' дн.' : '';
+
+                html += '<div class="flow-card" data-flow-id="' + m.id + '" onclick="FlowmeterData.openDetail(' + m.id + ')">';
+                html += '<div class="flow-card-header">';
+                html += '<div class="flow-card-hoz">' + this._esc(m.hoz) + '</div>';
+                html += '<div class="flow-card-period">' + this._esc(m.period) + '</div>';
+                html += '</div>';
+                html += '<div class="flow-card-param">' + this._esc(m.param) + '</div>';
+                html += '<div class="flow-card-summary">';
+                html += '<span class="flow-summary-item"><span class="flow-summary-label">Последние показания</span><span class="flow-summary-val">' + this._fmtNum(m.curr) + ' ' + this._esc(m.unit) + ',<span class="flow-detail-date"> от ' + this._fmtDate(m.dateCurr) + ' г.</span></span></span>';
+                if (m.temp !== null && m.temp !== undefined) { html += '<span class="flow-summary-item"><span class="flow-summary-label">T среды</span><span class="flow-summary-val">' + tempStr + '</span></span>'; }
+                html += '</div>';
+                html += '</div>';
+            }
+            container.innerHTML = html;
+        },
+
+        // Построить HTML детальной карточки
+        _buildDetailHtml: function(m) {
+            var consumption = m.curr - m.prev;
+            var consStr = this._fmtNum(Math.abs(consumption));
+            var tempStr = (m.temp !== null && m.temp !== undefined) ? m.temp.toFixed(1).replace('.', ',') + ' °C' : '—';
+
+            var html = '';
+            // Заголовок карточки — param + period внутри одного div с зеброй
+            html += '<div class="flow-detail-header"><div class="flow-detail-param">' + this._esc(m.param) + '</div><div class="flow-detail-period">' + this._esc(m.period) + '</div></div>';
+
+            // Предыдущие показания
+            html += '<div class="flow-detail-row"><span class="flow-detail-label">Предыдущие показания</span><span class="flow-detail-value">' + this._fmtNum(m.prev) + ' ' + this._esc(m.unit) + ',<span class="flow-detail-date"> от ' + this._fmtDate(m.datePrev) + ' г.</span></span></div>';
+            // Последние показания
+            html += '<div class="flow-detail-row"><span class="flow-detail-label">Последние показания</span><span class="flow-detail-value flow-detail-curr">' + this._fmtNum(m.curr) + ' ' + this._esc(m.unit) + ',<span class="flow-detail-date"> от ' + this._fmtDate(m.dateCurr) + ' г.</span></span></div>';
+            // Расход
+            html += '<div class="flow-detail-row flow-detail-highlight"><span class="flow-detail-label">Расход</span><span class="flow-detail-value">' + consStr + ' ' + this._esc(m.unit) + ',<span class="flow-detail-date"> за ' + this._daysBetween(m.datePrev, m.dateCurr) + ' дн.</span></span></div>';
+
+            // Температура среды (только если есть)
+            if (m.temp !== null && m.temp !== undefined) {
+                html += '<div class="flow-detail-row"><span class="flow-detail-label">Температура среды</span><span class="flow-detail-value">' + tempStr + '</span></div>';
+            }
+
+            // Внёс изменения
+            if (m.modName || m.modRole) {
+                var modParts = [];
+                if (m.modRole) modParts.push(this._esc(m.modRole));
+                if (m.modName) modParts.push(this._esc(m.modName));
+                html += '<div class="flow-detail-row"><span class="flow-detail-label" style="color:#7a8fa6;">Внёс изменения</span><span class="flow-detail-value" style="color:#5b7a96;">' + modParts.join(', ') + '</span></div>';
+            }
+
+            // Placeholder для архива (загрузится асинхронно)
+            html += '<div id="flowArchiveContainer" class="flow-archive-loading">Загрузка архива…</div>';
+
+            return html;
+        },
+
+        // Открыть детальную карточку
+        openDetail: function(id) {
+            var m = null;
+            for (var i = 0; i < this._METERS.length; i++) {
+                if (this._METERS[i].id === id) { m = this._METERS[i]; break; }
+            }
+            if (!m) return;
+
+            window._flowDetailId = id;
+
+            // На десктопе — рендерим в правую панель
+            if (isDesktop()) {
+                flowmeterRenderDetailInPanel();
+                return;
+            }
+
+            // На мобильном — полная страница
+            var titleEl = document.getElementById('flowDetailTitle');
+            if (titleEl) titleEl.textContent = m.hoz;
+
+            var html = this._buildDetailHtml(m);
+            var body = document.getElementById('flowDetailBody');
+            if (body) body.innerHTML = html;
+
+            // Нижний бар с кнопкой «Ввести показания»
+            var bar = document.getElementById('flowDetailBottomBar');
+            if (bar) bar.innerHTML = this._renderBottomBar(m);
+
+            // Загрузить архив асинхронно
+            this.loadArchive(id, function(records) {
+                var container = document.getElementById('flowArchiveContainer');
+                if (container) {
+                    container.className = '';
+                    container.innerHTML = FlowmeterData._buildArchiveHtml(records, m);
+                }
+            });
+
+            navigateTo('flowmeter-detail');
+        },
+
+        // HTML-экранирование
+        _esc: function(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        },
+
+        // Вычислить право ввода показаний по текущей роли
+        _computeCanInputReadings: function() {
+            var role = null;
+            try {
+                if (typeof KipAuth !== 'undefined' && KipAuth._cachedRole) {
+                    role = KipAuth._cachedRole;
+                }
+            } catch (e) { /* ignore */ }
+            if (!role) return false;
+            // Админ всегда имеет доступ
+            if (role === 'Админ') return true;
+            return this._INPUT_READINGS_ROLES.indexOf(role) !== -1;
+        },
+
+        // Рендер нижнего бара с кнопкой «Ввести показания»
+        // Кнопка видна только ролям с _canInputReadings
+        _renderBottomBar: function(m) {
+            if (!this._canInputReadings) return '';
+            var btnSvg = '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+            return '<button type="button" class="flow-input-btn" onclick="FlowmeterData.openInput()">' + btnSvg + ' Ввести показания</button>';
+        },
+
+        // Открыть sheet ввода новых показаний
+        openInput: function() {
+            var id = window._flowDetailId;
+            var m = null;
+            for (var i = 0; i < this._METERS.length; i++) {
+                if (this._METERS[i].id === id) { m = this._METERS[i]; break; }
+            }
+            if (!m) return;
+
+            var titleEl = document.getElementById('flowInputTitle');
+            if (titleEl) titleEl.textContent = m.hoz + ' — ввести показания';
+
+            var field = document.getElementById('flowInputField');
+            if (field) { field.value = ''; field.placeholder = 'Текущие показания, ' + m.unit; }
+
+            // Температура — предзаполнить текущим значением
+            var tempField = document.getElementById('flowInputTemp');
+            if (tempField) {
+                if (m.temp !== null && m.temp !== undefined) {
+                    tempField.value = m.temp.toFixed(1).replace('.', ',');
+                } else {
+                    tempField.value = '';
+                }
+                tempField.placeholder = '— (необязательно)';
+            }
+
+            // Дата — предзаполнить сегодняшней датой (YYYY-MM-DD для type="date")
+            var dateField = document.getElementById('flowInputDate');
+            if (dateField) {
+                var now = new Date();
+                var yyyy = now.getFullYear();
+                var mm = (now.getMonth() + 1 < 10 ? '0' : '') + (now.getMonth() + 1);
+                var dd = (now.getDate() < 10 ? '0' : '') + now.getDate();
+                dateField.value = yyyy + '-' + mm + '-' + dd;
+            }
+
+            document.getElementById('flowInputOverlay').classList.add('active');
+            document.getElementById('flowInputSheet').classList.add('active');
+
+            setTimeout(function() { if (field) field.focus(); }, 350);
+        },
+
+        // Закрыть sheet ввода
+        closeInput: function() {
+            // Убрать фокус с полей — закрывает клавиатуру на мобильных
+            var field = document.getElementById('flowInputField');
+            var tempField = document.getElementById('flowInputTemp');
+            var dateField = document.getElementById('flowInputDate');
+            if (field) field.blur();
+            if (tempField) tempField.blur();
+            if (dateField) dateField.blur();
+
+            document.getElementById('flowInputOverlay').classList.remove('active');
+            document.getElementById('flowInputSheet').classList.remove('active');
+        },
+
+        // Сохранить введённые показания
+        submitInput: function() {
+            var field = document.getElementById('flowInputField');
+            if (!field) return;
+
+            var val = field.value.replace(/\s/g, '').replace(',', '.');
+            var num = parseFloat(val);
+            if (isNaN(num)) {
+                field.style.borderColor = '#e55';
+                setTimeout(function() { field.style.borderColor = ''; }, 1500);
+                return;
+            }
+
+            // Температура (необязательное поле)
+            var tempField = document.getElementById('flowInputTemp');
+            var tempVal = null;
+            if (tempField && tempField.value.trim() !== '') {
+                var tempRaw = tempField.value.replace(/\s/g, '').replace(',', '.');
+                var tempNum = parseFloat(tempRaw);
+                if (!isNaN(tempNum)) {
+                    tempVal = tempNum;
+                }
+            }
+
+            // Дата (YYYY-MM-DD → M/D/YYYY внутренний формат)
+            var dateField = document.getElementById('flowInputDate');
+            var dateStr = null;
+            if (dateField && dateField.value) {
+                // dateField.value = "YYYY-MM-DD"
+                var dp = dateField.value.split('-');
+                if (dp.length === 3) {
+                    dateStr = (+dp[1]) + '/' + (+dp[2]) + '/' + (+dp[0]);
+                }
+            }
+            // Если дата не указана — используем сегодня
+            if (!dateStr) {
+                var now = new Date();
+                dateStr = (now.getMonth() + 1) + '/' + now.getDate() + '/' + now.getFullYear();
+            }
+
+            var id = window._flowDetailId;
+            var self = this;
+
+            // Оптимистичное обновление UI: сразу обновляем в памяти
+            var meter = null;
+            for (var i = 0; i < this._METERS.length; i++) {
+                if (this._METERS[i].id === id) {
+                    meter = this._METERS[i];
+                    meter.prev = meter.curr;
+                    meter.curr = num;
+                    meter.datePrev = meter.dateCurr;
+                    meter.dateCurr = dateStr;
+                    if (tempVal !== null) {
+                        meter.temp = tempVal;
+                    }
+                    // Обновляем подпись — текущий пользователь
+                    try {
+                        var curUser = KipAuth._cachedUser || {};
+                        meter.modName = curUser.name || curUser.email || '';
+                        meter.modRole = curUser.role || '';
+                    } catch (e) { /* ignore */ }
+                    break;
+                }
+            }
+
+            this.closeInput();
+
+            // Перерендерить список и текущую карточку
+            this.renderList();
+            this.openDetail(id);
+
+            // Отправить обновление на сервер (в Google Sheets через Apps Script)
+            if (meter) {
+                this._api('flowmeter.updateReading', {
+                    id: id,
+                    prev: meter.prev,
+                    curr: meter.curr,
+                    datePrev: meter.datePrev,
+                    dateCurr: meter.dateCurr,
+                    temp: meter.temp
+                }).then(function(res) {
+                    if (typeof KipToast !== 'undefined' && KipToast.show) {
+                        KipToast.show('Показания сохранены');
+                    }
+                    // Перезагрузить данные с сервера, чтобы убедиться в синхронизации
+                    setTimeout(function() { self.load(); }, 200);
+                }).catch(function(err) {
+                    console.error('flowmeter.updateReading:', err);
+                    if (typeof KipToast !== 'undefined' && KipToast.show) {
+                        KipToast.show('Ошибка сохранения: ' + (err.message || 'сеть'));
+                    }
+                });
+            }
+        },
+
+        // ============================================================
+        // АРХИВ ПОКАЗАНИЙ
+        // ============================================================
+
+        // Кэш архива в localStorage: key = 'kip8_flow_archive_v1_{meterId}'
+        _archiveCacheKey: function(meterId) {
+            return 'kip8_flow_archive_v1_' + meterId;
+        },
+
+        // Восстановить архив из localStorage
+        _restoreArchiveCache: function(meterId) {
+            try {
+                var json = localStorage.getItem(this._archiveCacheKey(meterId));
+                if (json) {
+                    var cached = JSON.parse(json);
+                    if (cached && Array.isArray(cached.records)) {
+                        return cached.records;
+                    }
+                }
+            } catch (e) { /* ignore */ }
+            return null;
+        },
+
+        // Сохранить архив в localStorage
+        _persistArchive: function(meterId, records) {
+            try {
+                localStorage.setItem(this._archiveCacheKey(meterId),
+                    JSON.stringify({ records: records, ts: Date.now() }));
+            } catch (e) { /* quota or disabled */ }
+        },
+
+        // Загрузить архив с сервера
+        loadArchive: function(meterId, callback) {
+            var self = this;
+            var token = KipAuth.getToken();
+
+            // Если нет токена — попробовать кэш
+            if (!token) {
+                var cached = this._restoreArchiveCache(meterId);
+                if (callback) callback(cached || []);
+                return;
+            }
+
+            this._api('flowmeter.archive', { id: meterId, limit: 200 }).then(function(data) {
+                if (data && Array.isArray(data.records)) {
+                    self._persistArchive(meterId, data.records);
+                    if (callback) callback(data.records);
+                } else {
+                    if (callback) callback([]);
+                }
+            }).catch(function(err) {
+                console.error('FlowmeterData.loadArchive:', err);
+                // Fallback: вернуть кэш
+                var cached = self._restoreArchiveCache(meterId);
+                if (callback) callback(cached || []);
+            });
+        },
+
+        // Рендер секции хронологии (таблица + график)
+        _buildArchiveHtml: function(records, meter) {
+            if (!records || records.length === 0) {
+                return '<div class="flow-archive-section">' +
+                       '<div class="flow-archive-title">Хронология показаний</div>' +
+                       '<div class="flow-archive-empty">Записей ещё нет</div>' +
+                       '</div>';
+            }
+
+            // Фильтрация по количеству записей: последние 31 (и моб, и десктоп)
+            var recLimit = 31;
+            var displayRecords = records.length > recLimit ? records.slice(0, recLimit) : records;
+
+            var html = '';
+            html += '<div class="flow-archive-section">';
+            html += '<div class="flow-archive-title">Хронология показаний</div>';
+
+            // График расхода (вертикальные бары: даты по X, расход по Y)
+            html += this._buildArchiveChart(displayRecords, meter);
+
+            // Таблица
+            html += '<div class="flow-archive-table-wrap pinch-zoom-target">';
+            html += '<table class="flow-archive-table">';
+            html += '<thead><tr>';
+            html += '<th>Дата</th>';
+            html += '<th>Показания</th>';
+            html += '<th>Расход</th>';
+            if (displayRecords[0] && displayRecords[0].temp !== null && displayRecords[0].temp !== undefined) {
+                html += '<th>T</th>';
+            }
+            html += '<th>Внёс</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+
+            for (var i = 0; i < displayRecords.length; i++) {
+                var r = displayRecords[i];
+                var consAbs = Math.abs(r.consumption || 0);
+                html += '<tr>';
+                html += '<td class="flow-archive-date">' + this._fmtDate(r.dateCurr) + '</td>';
+                html += '<td class="flow-archive-val">' + this._fmtNum(r.curr) + '</td>';
+                html += '<td class="flow-archive-cons">' + this._fmtNum(consAbs) + '</td>';
+                // Температура — показываем колонку только если хоть в одной записи есть
+                if (displayRecords[0] && displayRecords[0].temp !== null && displayRecords[0].temp !== undefined) {
+                    var tStr = (r.temp !== null && r.temp !== undefined) ? r.temp.toFixed(1).replace('.', ',') : '—';
+                    html += '<td class="flow-archive-temp">' + tStr + '</td>';
+                }
+                var modStr = r.modName || r.modRole || '';
+                html += '<td class="flow-archive-mod">' + this._esc(modStr) + '</td>';
+                html += '</tr>';
+            }
+
+            html += '</tbody></table>';
+            html += '</div>'; // .flow-archive-table-wrap
+            html += '</div>'; // .flow-archive-section
+
+            return html;
+        },
+
+        // График расхода — вертикальные бары (даты по X, расход по Y), зебра, без Y-оси
+        _buildArchiveChart: function(records, meter) {
+            if (records.length < 2) return '';
+
+            var unit = meter ? meter.unit : (records[0].unit || '');
+            var maxCons = 0;
+            for (var i = 0; i < records.length; i++) {
+                var c = Math.abs(records[i].consumption || 0);
+                if (c > maxCons) maxCons = c;
+            }
+            if (maxCons === 0) return '';
+
+            // Записи от старых к новым (по X слева направо)
+            var chartRecords = records.slice(0, 31).reverse();
+
+            var html = '';
+            html += '<div class="flow-archive-chart">';
+            html += '<div class="flow-archive-chart-title">Расход, ' + this._esc(unit) + '</div>';
+            html += '<div class="flow-archive-chart-body">';
+
+            // Область графика (без Y-оси, без сетки)
+            html += '<div class="flow-archive-chart-area">';
+
+            // Бары вплотную, зебра через CSS :nth-child(even)
+            for (var j = 0; j < chartRecords.length; j++) {
+                var r = chartRecords[j];
+                var cons = Math.abs(r.consumption || 0);
+                var barPct = Math.max(1, (cons / maxCons) * 100);
+                html += '<div class="flow-archive-vbar-col">';
+                html += '<div class="flow-archive-vbar-tip-zone"><span class="flow-archive-vbar-tip">' + this._fmtNum(cons) + '</span></div>';
+                html += '<div class="flow-archive-vbar-bar-zone"><div class="flow-archive-vbar" style="height:' + barPct.toFixed(1) + '%"></div></div>';
+                html += '<div class="flow-archive-vbar-xlabel-zone"><span class="flow-archive-vbar-xlabel">' + this._fmtDateShort(r.dateCurr) + '</span></div>';
+                html += '</div>';
+            }
+
+            html += '</div>'; // .flow-archive-chart-area
+            html += '</div>'; // .flow-archive-chart-body
+            html += '</div>'; // .flow-archive-chart
+            return html;
+        },
+
+        // Сокращённая дата: M/D/YYYY → ДД.ММ
+        _fmtDateShort: function(dateStr) {
+            try {
+                var p = dateStr.split('/');
+                var d = (+p[1] < 10 ? '0' : '') + +p[1];
+                var m = (+p[0] < 10 ? '0' : '') + +p[0];
+                return d + '.' + m;
+            } catch (e) { return dateStr; }
+        }
+    };
+
+    // Pinch-to-zoom для таблицы архива — используется универсальная система
+    // (класс pinch-zoom-target назначается при генерации HTML в _buildArchiveHtml)
+
+    // flowmeterRenderDetailInPanel — рендер детальной карточки расходомера
+    // в правую панель (#detailPanel) на десктопе
+    function flowmeterRenderDetailInPanel() {
+        var flowId = window._flowDetailId;
+        if (!flowId) return;
+        var m = null;
+        for (var i = 0; i < FlowmeterData._METERS.length; i++) {
+            if (FlowmeterData._METERS[i].id === flowId) { m = FlowmeterData._METERS[i]; break; }
+        }
+        if (!m) return;
+
+        var bodyEl = document.getElementById('detailPanelBody');
+        if (!bodyEl) return;
+
+        // Рендерим HTML в панель
+        bodyEl.innerHTML = FlowmeterData._buildDetailHtml(m);
+
+        // Кнопка ввода показаний — в нижний бар detail-panel-footer
+        var footerEl = document.getElementById('detailPanelFooter');
+        if (footerEl) footerEl.innerHTML = FlowmeterData._renderBottomBar(m);
+
+        // Загрузить архив асинхронно
+        FlowmeterData.loadArchive(flowId, function(records) {
+            var container = document.getElementById('flowArchiveContainer');
+            if (container) {
+                container.className = '';
+                container.innerHTML = FlowmeterData._buildArchiveHtml(records, m);
+            }
+        });
+
+        // Открываем панель
+        var panel = document.getElementById('detailPanel');
+        if (panel) panel.classList.add('active');
+
+        // Показываем полноэкранную строку breadcrumbs
+        var bcBar = document.getElementById('detailBreadcrumbBar');
+        if (bcBar) bcBar.classList.add('active');
+
+        // Подсветка активной карточки в списке слева
+        document.querySelectorAll('.flow-card.detail-highlight').forEach(function(el) { el.classList.remove('detail-highlight'); });
+        var activeCard = document.querySelector('.flow-card[data-flow-id="' + flowId + '"]');
+        if (activeCard) {
+            activeCard.classList.add('detail-highlight');
+            activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Breadcrumbs в заголовке detail-панели
+        setDetailBreadcrumb('flowmeter-detail', m.hoz, null, null);
+
+        // Обновляем заголовок панели
+        var titleEl = document.getElementById('detailPanelTitle');
+        if (titleEl) titleEl.textContent = m.hoz;
+    }
+
+    // KipCharts — Графики и статистика КИП ИОС
+    // ============================================================
+    const KipCharts = {
+
+        _currentTab: 'devices',   // активная вкладка
+        _cache: {},               // кэш загруженных данных {devices: [...], lockouts: [...], ...}
+
+        // Месяцы года (римские)
+        _MONTHS_ROMAN: ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'],
+
+        // Данные ППР на текущий год (2026) — Приборы
+        // 3 серии: Калибровка (K), Поверка (П), Тех.обслуж. (ТО)
+        // Источник: «Перечень КИП ИОС рабочий.xlsx» → лист «Диаграмма приборов»
+        // Формулы: COUNTIF(Приборы[<месяц>], <код вида обслуживания>)
+        _PPR_DEVICES: {
+            title: 'Количество приборов по графику ППР по месяцам на 2026 год',
+            series: [
+                { name: 'Калибровка', code: 'К', color: '#4a90d9', values: [13, 33, 30, 45, 24, 28, 33, 34, 48, 16, 34, 35] },
+                { name: 'Поверка', code: 'П', color: '#e07040', values: [12, 12, 4, 15, 0, 4, 6, 10, 4, 6, 1, 12] },
+                { name: 'Тех. обслуж.', code: 'ТО', color: '#5ab870', values: [353, 354, 500, 320, 374, 496, 333, 353, 481, 358, 362, 485] }
+            ]
+        },
+
+        // Данные ППР на текущий год (2026) — Блокировки (Схемы)
+        // 2 серии: Кан.ремонт (Кр), Тех.обслуж. (ТО)
+        _PPR_LOCKOUTS: {
+            title: 'График ППР — Схемы на 2026 год',
+            series: [
+                { name: 'Кан. ремонт', code: 'Кр', color: '#4a90d9', values: [58, 49, 26, 31, 13, 38, 33, 34, 74, 23, 49, 98] },
+                { name: 'Тех. обслуж.', code: 'ТО', color: '#5ab870', values: [87, 96, 210, 114, 132, 198, 112, 111, 162, 122, 96, 138] }
+            ]
+        },
+
+        // Конфигурация разделов
+        _SECTIONS: {
+            devices: {
+                jsonFile: 'data/devices.json',
+                arrayKey: 'devices',
+                groupField: 'Наименование',
+                prodField: 'Место установки',
+                typeField: 'Тип',
+                label: 'Приборы',
+                color: '#4a8fc7',
+                colorLight: 'rgba(74,143,199,0.35)'
+            },
+            lockouts: {
+                jsonFile: 'data/lockouts.json',
+                arrayKey: 'lockouts',
+                groupField: 'Параметр',
+                prodField: 'Производство',
+                label: 'Блокировки',
+                color: '#b85a7a',
+                colorLight: 'rgba(184,90,122,0.35)'
+            },
+            valves: {
+                jsonFile: 'data/valves.json',
+                arrayKey: 'valves',
+                groupField: 'Тип, пропускная характеристика',
+                prodField: 'Производство',
+                label: 'Клапана',
+                color: '#4a8a8c',
+                colorLight: 'rgba(74,138,140,0.35)'
+            },
+            regulators: {
+                jsonFile: 'data/regulators.json',
+                arrayKey: 'regulators',
+                groupField: 'Параметр',
+                prodField: 'Производство',
+                label: 'Регуляторы',
+                color: '#7e5ab8',
+                colorLight: 'rgba(126,90,184,0.35)'
+            }
+        },
+
+        // Переключение вкладки
+        switchTab: function(tab) {
+            if (!this._SECTIONS[tab]) return;
+            this._currentTab = tab;
+            // Обновить UI вкладок
+            var tabs = document.querySelectorAll('.charts-tab');
+            for (var i = 0; i < tabs.length; i++) {
+                var t = tabs[i];
+                if (t.getAttribute('data-chart-tab') === tab) {
+                    t.classList.add('charts-tab-active');
+                } else {
+                    t.classList.remove('charts-tab-active');
+                }
+            }
+            this._renderTab(tab);
+        },
+
+        // Загрузка данных раздела
+        _loadData: function(section, callback) {
+            if (this._cache[section]) {
+                callback(this._cache[section]);
+                return;
+            }
+            var sec = this._SECTIONS[section];
+            var ts = Date.now();
+            fetch(sec.jsonFile + '?v=' + ts, {cache: 'no-store'})
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var items = data[sec.arrayKey] || [];
+                    KipCharts._cache[section] = items;
+                    callback(items);
+                })
+                .catch(function() {
+                    // Fallback — показать пустой массив
+                    KipCharts._cache[section] = [];
+                    callback([]);
+                });
+        },
+
+        // Рендер вкладки
+        _renderTab: function(tab) {
+            var container = document.getElementById('chartsContent');
+            if (!container) return;
+
+            // Для вкладки Приборы — диаграмма ППР не зависит от JSON-данных
+            if (tab === 'devices') {
+                this._renderContent(tab, []);
+                return;
+            }
+
+            container.innerHTML = '<div class="charts-loading">Загрузка…</div>';
+            this._loadData(tab, function(items) {
+                KipCharts._renderContent(tab, items);
+            });
+        },
+
+        // Основной рендер контента
+        _renderContent: function(tab, items) {
+            var container = document.getElementById('chartsContent');
+            if (!container) return;
+
+            var sec = this._SECTIONS[tab];
+            var html = '';
+
+            // Для вкладки Приборы — только диаграмма ППР (как в Excel)
+            if (tab === 'devices') {
+                html += this._renderPPRChart(this._PPR_DEVICES);
+                container.innerHTML = html;
+                return;
+            }
+
+            // 0. График ППР (если есть для данного раздела)
+            if (tab === 'lockouts') {
+                html += this._renderPPRChart(this._PPR_LOCKOUTS);
+            }
+
+            // 1. Сводная статистика
+            var totalItems = items.length;
+            var groupField = sec.groupField;
+            var prodField = sec.prodField;
+
+            // Группировка по groupField
+            var groups = {};
+            var prods = {};
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var gVal = (item[groupField] || '').toString().trim();
+                if (gVal) groups[gVal] = (groups[gVal] || 0) + 1;
+                var pVal = (item[prodField] || '').toString().trim();
+                if (pVal) prods[pVal] = (prods[pVal] || 0) + 1;
+            }
+            var groupCount = Object.keys(groups).length;
+            var prodCount = Object.keys(prods).length;
+
+            // Для приборов — ещё по типу
+            var typeCount = 0;
+            if (sec.typeField) {
+                var types = {};
+                for (var i = 0; i < items.length; i++) {
+                    var tVal = (items[i][sec.typeField] || '').toString().trim();
+                    if (tVal) types[tVal] = (types[tVal] || 0) + 1;
+                }
+                typeCount = Object.keys(types).length;
+            }
+
+            // Сводная сетка
+            html += '<div class="chart-stats-grid">';
+            html += '<div class="chart-stat-card"><div class="chart-stat-value">' + totalItems + '</div><div class="chart-stat-label">Всего ' + sec.label.toLowerCase() + '</div></div>';
+            html += '<div class="chart-stat-card"><div class="chart-stat-value">' + prodCount + '</div><div class="chart-stat-label">Производств</div></div>';
+            html += '<div class="chart-stat-card"><div class="chart-stat-value">' + groupCount + '</div><div class="chart-stat-label">Уникальных ' + this._groupLabel(tab) + '</div></div>';
+            if (sec.typeField) {
+                html += '<div class="chart-stat-card"><div class="chart-stat-value">' + typeCount + '</div><div class="chart-stat-label">Уникальных типов</div></div>';
+            } else {
+                html += '<div class="chart-stat-card"><div class="chart-stat-value">' + this._avgPerProd(items, prodField) + '</div><div class="chart-stat-label">Среднее на пр-во</div></div>';
+            }
+            html += '</div>';
+
+            // 2. График: Топ-10 по groupField
+            var sortedGroups = Object.keys(groups).map(function(k) { return {name: k, count: groups[k]}; });
+            sortedGroups.sort(function(a, b) { return b.count - a.count; });
+            html += this._renderBarChart(
+                'Топ-10 по ' + this._groupLabel(tab),
+                sortedGroups.slice(0, 10),
+                sec.color
+            );
+
+            // 3. График: Топ-10 производств
+            var sortedProds = Object.keys(prods).map(function(k) { return {name: k, count: prods[k]}; });
+            sortedProds.sort(function(a, b) { return b.count - a.count; });
+            html += this._renderBarChart(
+                'Топ-10 производств',
+                sortedProds.slice(0, 10),
+                sec.color
+            );
+
+            // 4. Для приборов — ещё и по типу
+            if (sec.typeField) {
+                var types = {};
+                for (var i = 0; i < items.length; i++) {
+                    var tVal = (items[i][sec.typeField] || '').toString().trim();
+                    if (tVal) types[tVal] = (types[tVal] || 0) + 1;
+                }
+                var sortedTypes = Object.keys(types).map(function(k) { return {name: k, count: types[k]}; });
+                sortedTypes.sort(function(a, b) { return b.count - a.count; });
+                html += this._renderBarChart(
+                    'Топ-10 типов приборов',
+                    sortedTypes.slice(0, 10),
+                    sec.color
+                );
+            }
+
+            container.innerHTML = html;
+        },
+
+        // ============================================================
+        // Рендер графика ППР — группированная вертикальная гистограмма
+        // (как в Excel: clustered column chart с легендой и итогами)
+        // ============================================================
+        _renderPPRChart: function(pprData) {
+            var series = pprData.series;
+            var numSeries = series.length;
+            var numMonths = 12;
+
+            // Найти максимальное значение для масштаба оси Y
+            var maxVal = 0;
+            for (var s = 0; s < numSeries; s++) {
+                for (var m = 0; m < numMonths; m++) {
+                    if (series[s].values[m] > maxVal) maxVal = series[s].values[m];
+                }
+            }
+            if (maxVal === 0) maxVal = 1;
+
+            // Округлить maxVal вверх до красивого числа
+            var niceMax = this._niceMax(maxVal);
+
+            // Ось Y: 5 делений
+            var ySteps = 5;
+            var yStepVal = niceMax / ySteps;
+
+            var html = '<div class="chart-card ppr-chart-card">';
+            html += '<div class="ppr-chart-header">';
+            html += '<div class="ppr-chart-title">' + this._escHtml(pprData.title) + '</div>';
+            // Легенда
+            html += '<div class="ppr-legend">';
+            for (var s = 0; s < numSeries; s++) {
+                html += '<div class="ppr-legend-item">';
+                html += '<span class="ppr-legend-dot" style="background:' + series[s].color + ';"></span>';
+                html += '<span class="ppr-legend-code">' + this._escHtml(series[s].code) + '</span>';
+                html += '<span class="ppr-legend-name">' + this._escHtml(series[s].name) + '</span>';
+                html += '</div>';
+            }
+            html += '</div>';
+            html += '</div>';
+
+            // Тело графика
+            html += '<div class="ppr-chart-body">';
+
+            // Оси + область графика
+            html += '<div class="ppr-chart-area">';
+
+            // Ось Y (метки слева)
+            html += '<div class="ppr-y-axis">';
+            for (var i = ySteps; i >= 0; i--) {
+                var yVal = Math.round(yStepVal * i);
+                html += '<div class="ppr-y-label">' + yVal + '</div>';
+            }
+            html += '</div>';
+
+            // Сетка + столбцы
+            html += '<div class="ppr-chart-grid">';
+
+            // Горизонтальные линии сетки
+            for (var i = 0; i <= ySteps; i++) {
+                var bottomPct = (i / ySteps) * 100;
+                html += '<div class="ppr-grid-line" style="bottom:' + bottomPct + '%;"></div>';
+            }
+
+            // Группы столбцов по месяцам
+            for (var m = 0; m < numMonths; m++) {
+                html += '<div class="ppr-month-group">';
+
+                // Столбцы серий
+                html += '<div class="ppr-bars-row">';
+                for (var s = 0; s < numSeries; s++) {
+                    var val = series[s].values[m];
+                    var heightPct = (val / niceMax) * 100;
+                    html += '<div class="ppr-bar-cell">';
+                    if (val > 0) {
+                        html += '<div class="ppr-bar" style="height:' + heightPct + '%;background:' + series[s].color + ';" title="' + this._escHtml(series[s].name) + ': ' + val + '">';
+                        // Значение над столбцом (показываем если достаточно высокий)
+                        if (heightPct > 8) {
+                            html += '<span class="ppr-bar-val">' + val + '</span>';
+                        }
+                        html += '</div>';
+                    }
+                    html += '</div>';
+                }
+                html += '</div>';
+
+                // Метка месяца
+                html += '<div class="ppr-month-label">' + this._MONTHS_ROMAN[m] + '</div>';
+                html += '</div>';
+            }
+
+            html += '</div>'; // .ppr-chart-grid
+            html += '</div>'; // .ppr-chart-area
+
+            // Строка итогов (сумма по каждой серии)
+            html += '<div class="ppr-totals-row">';
+            html += '<div class="ppr-totals-label">Итого:</div>';
+            for (var s = 0; s < numSeries; s++) {
+                var total = 0;
+                for (var m = 0; m < numMonths; m++) total += series[s].values[m];
+                html += '<div class="ppr-totals-item">';
+                html += '<span class="ppr-legend-dot" style="background:' + series[s].color + ';"></span>';
+                html += '<span class="ppr-legend-code">' + this._escHtml(series[s].code) + '</span>';
+                html += '<span class="ppr-totals-value">' + total + '</span>';
+                html += '</div>';
+            }
+            html += '</div>';
+
+            html += '</div>'; // .ppr-chart-body
+            html += '</div>'; // .chart-card
+
+            return html;
+        },
+
+        // Красивое округление максимума для оси Y
+        _niceMax: function(val) {
+            if (val <= 0) return 10;
+            var mag = Math.pow(10, Math.floor(Math.log10(val)));
+            var norm = val / mag;
+            var nice;
+            if (norm <= 1) nice = 1;
+            else if (norm <= 2) nice = 2;
+            else if (norm <= 5) nice = 5;
+            else nice = 10;
+            return nice * mag;
+        },
+
+        // Название группировки для заголовка
+        _groupLabel: function(tab) {
+            switch (tab) {
+                case 'devices': return 'наименований';
+                case 'lockouts': return 'параметров';
+                case 'valves': return 'типов клапанов';
+                case 'regulators': return 'параметров';
+                default: return 'групп';
+            }
+        },
+
+        // Среднее количество на производство
+        _avgPerProd: function(items, prodField) {
+            var prods = {};
+            for (var i = 0; i < items.length; i++) {
+                var p = (items[i][prodField] || '').toString().trim();
+                if (p) prods[p] = (prods[p] || 0) + 1;
+            }
+            var keys = Object.keys(prods);
+            if (keys.length === 0) return '0';
+            var sum = 0;
+            for (var i = 0; i < keys.length; i++) sum += prods[keys[i]];
+            return (sum / keys.length).toFixed(1);
+        },
+
+        // Рендер горизонтальной столбчатой диаграммы
+        _renderBarChart: function(title, data, color) {
+            if (!data || data.length === 0) return '';
+            var maxVal = data[0].count;
+            if (maxVal === 0) maxVal = 1;
+
+            var html = '<div class="chart-card">';
+            html += '<div class="chart-card-title">' + this._escHtml(title) + '</div>';
+            html += '<div class="chart-card-body">';
+
+            for (var i = 0; i < data.length; i++) {
+                var d = data[i];
+                var pct = Math.round((d.count / maxVal) * 100);
+                html += '<div class="chart-bar-row">';
+                html += '<div class="chart-bar-label" title="' + this._escHtml(d.name) + '">' + this._escHtml(d.name) + '</div>';
+                html += '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div></div>';
+                html += '<div class="chart-bar-value">' + d.count + '</div>';
+                html += '</div>';
+            }
+
+            html += '</div></div>';
+            return html;
+        },
+
+        // HTML-экранирование
+        _escHtml: function(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        },
+
+        // Инициализация кнопки входа (вызывается при загрузке КИП ИОС)
+        initEntryButton: function() {
+            var btn = document.getElementById('chartsEntryBtn');
+            if (!btn) return;
+            btn.onclick = function() { navigateTo('charts'); };
+        },
+
+        // Обновление подзаголовка кнопки
+        updateEntrySublabel: function() {
+            var btn = document.getElementById('chartsEntryBtn');
+            if (!btn) return;
+            var sub = btn.querySelector('.menu-btn-sublabel');
+            if (!sub) return;
+            // Показать общее количество записей во всех 4 разделах
+            var total = 0;
+            var sections = ['devices', 'lockouts', 'valves', 'regulators'];
+            for (var i = 0; i < sections.length; i++) {
+                if (this._cache[sections[i]]) {
+                    total += this._cache[sections[i]].length;
+                }
+            }
+            if (total > 0) {
+                sub.textContent = total + ' записей КИП ИОС';
+            }
+        },
+
+        // Открытие страницы (вызывается из navigateTo)
+        onPageOpen: function() {
+            this.switchTab(this._currentTab);
         }
     };
 
@@ -26616,7 +29054,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div id="sidebar" class="sidebar">
     <div class="sidebar-header">
-        <img id="headerLogo" src="images/logo_black.png" alt="КИПиА" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;">
+        <img id="headerLogo" src="images/logo.png" alt="КИПиА" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;">
         <div class="sidebar-title">Меню</div>
         <div class="header-btn" onclick="toggleSidebar()" style="width:32px;height:32px;border-radius:8px;background:transparent;border:none;">
             <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:rgba(74,143,199,0.9);fill:none;stroke-width:2;stroke-linecap:round;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -26767,6 +29205,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         </div>
         <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('plan-114'); toggleSidebar();">
             <span style="color:rgba(120,140,170,0.9);">План корпуса 114</span>
+        </div>
+        </div>
+
+        <!-- ===== Группа: Документация ИОС =====
+             data-requires="kip-ios" — группа видна только ролям с доступом к КИП ИОС. -->
+        <div class="sidebar-group" data-group="docs-ios" data-requires="kip-ios">
+        <div class="sidebar-group-title sidebar-group-title-docs" onclick="toggleSidebarGroup(this.parentElement)">
+            <span class="sidebar-group-title-text">Документация ИОС</span>
+            <span class="sidebar-group-title-count">1</span>
+            <svg class="sidebar-group-title-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="sidebar-item sidebar-item-extra" onclick="navigateTo('flowmeter-data'); toggleSidebar();">
+            <span style="color:rgba(200,112,72,0.9);">Расходомеры хозрасчётные</span>
         </div>
         </div>
 
@@ -27169,6 +29620,13 @@ function whatsNewUpdateBtnState() {
 
 // При загрузке страницы — обновить состояние кнопки
 whatsNewUpdateBtnState();
+
+// Применить тему к UI-элементам, которые ещё не существовали
+// в DOM на момент первого вызова updateThemeLabel/updateLogoImage
+// (скрипт темы выполняется до парсинга #themeLabel и #headerLogo).
+if (typeof updateThemeLabel === 'function') updateThemeLabel();
+if (typeof updateBuoyImages === 'function') updateBuoyImages();
+if (typeof updateLogoImage === 'function') updateLogoImage();
 </script>
 
 <!-- Cable Journal: модалка редактирования удалена (Task 57).
