@@ -1,0 +1,22 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.bloknett_design.twa",
+      "sha256_cert_fingerprints": [
+        "95:6D:A9:AC:30:F6:BA:7A:33:FD:F3:B6:C0:C2:DA:59:72:81:76:22:D9:9F:A1:C0:CB:35:61:C3:A4:45:35:27"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ru.bloknett.kip8test",
+      "sha256_cert_fingerprints": [
+        "EA:2F:E3:F6:82:E9:40:CE:21:21:76:97:BF:70:C9:BC:0F:CB:AC:D2:8A:1C:9F:90:4D:E9:ED:E0:21:62:17:18"
+      ]
+    }
+  }
+]
