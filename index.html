@@ -2719,36 +2719,9 @@
        (.cj-icon-btn-inline) + раскрывающееся поле (.cj-header-search).
        По умолчанию поле скрыто (hidden + CSS), при .search-open — показывается
        поверх заголовка как overlay слева от кнопок. */
-    .cj-header-search {
-        right: 48px;  /* + кнопка 8..40 (32px+border), search-кнопка 40..72? нет — кнопки рядом */
-        display: none;
-    }
-    .cj-header-search.search-open {
-        display: block;
-        position: absolute;
-        top: 50%;
-        right: 88px;  /* левее кнопки-иконки (48..80) с gap 8px */
-        transform: translateY(-50%);
-        z-index: 4;
-        width: 180px;
-        max-width: calc(100vw - 120px);
-        padding: 6px 10px;
-        border: 1px solid rgba(106,141,181,0.55);
-        border-radius: 8px;
-        background: #1a2233;
-        color: #e0e6f0;
-        font-size: 13px;
-        font-family: 'Inter', sans-serif;
-        outline: none;
-        transition: none;
-    }
-    [data-theme="light"] .cj-header-search.search-open {
-        background: #eef2f8;
-        border-color: rgba(74,108,148,0.55);
-        color: #1a2233;
-    }
-    .cj-header-search.search-open::placeholder { color: rgba(255,255,255,0.4); }
-    [data-theme="light"] .cj-header-search.search-open::placeholder { color: rgba(20,20,19,0.4); }
+/* Task 152: cj-поиск переведён на единый стиль .dev-search-toggle-btn +
+       .dev-header-search.search-open (правила выше, Task 149) — собственные
+       cj-header-search-правила удалены. */
     /* Заголовок страницы — увеличенный правый padding, чтобы текст не
        залезал под + кнопку и search-кнопку. */
     .page-inline-header:has(.cj-icon-btn-inline) .page-inline-header-title {
@@ -2766,10 +2739,7 @@
         }
     }
     /* Когда поиск раскрыт — title прячем, чтобы не было наложения. */
-    .page-inline-header:has(.cj-header-search.search-open) .page-inline-header-title {
-        opacity: 0;
-        pointer-events: none;
-    }
+/* Task 152: cj-поиск использует общие правила Task 149 */
 
     /* Кнопка-иконка поиска в шапке — компактная квадратная 32×32,
        как кнопка '+'. Расположена левее '+' кнопки. */
@@ -4677,309 +4647,6 @@
         margin-top: 6px;
     }
 
-    /* ======================== ГРАФИКИ КИП ИОС ======================== */
-    .charts-tabs {
-        display: flex;
-        gap: 0;
-        border-bottom: 1px solid var(--border-color);
-        background: var(--card-bg);
-        position: sticky;
-        top: 56px;
-        z-index: 5;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    .charts-tab {
-        flex: 1;
-        min-width: 0;
-        padding: 10px 6px;
-        border: none;
-        background: transparent;
-        color: var(--text-secondary);
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        white-space: nowrap;
-        position: relative;
-        transition: color 0.2s;
-    }
-    .charts-tab::after {
-        content: '';
-        position: absolute;
-        left: 0; right: 0; bottom: 0;
-        height: 2px;
-        background: transparent;
-        border-radius: 1px;
-        transition: background 0.2s;
-    }
-    .charts-tab-active {
-        color: #3aa288;
-        font-weight: 600;
-    }
-    .charts-tab-active::after {
-        background: #3aa288;
-    }
-    .charts-content {
-        padding: 12px 14px 24px;
-    }
-    .charts-loading {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--text-secondary);
-        font-size: 13px;
-    }
-    /* Карточка графика */
-    .chart-card {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 10px;
-        margin-bottom: 14px;
-        overflow: hidden;
-    }
-    .chart-card-title {
-        padding: 10px 14px 6px;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text-primary);
-    }
-    .chart-card-body {
-        padding: 6px 14px 12px;
-    }
-    /* Горизонтальная столбчатая диаграмма (CSS-бары) */
-    .chart-bar-row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 6px;
-    }
-    .chart-bar-label {
-        flex: 0 0 auto;
-        max-width: 45%;
-        font-size: 11px;
-        color: var(--text-secondary);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        padding-right: 8px;
-    }
-    .chart-bar-track {
-        flex: 1;
-        height: 16px;
-        background: rgba(255,255,255,0.06);
-        border-radius: 3px;
-        overflow: hidden;
-        position: relative;
-    }
-    .chart-bar-fill {
-        height: 100%;
-        border-radius: 3px;
-        transition: width 0.4s ease;
-        min-width: 2px;
-    }
-    .chart-bar-value {
-        flex: 0 0 auto;
-        width: 36px;
-        text-align: right;
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--text-primary);
-        padding-left: 6px;
-    }
-    /* Сводная карточка со статистикой */
-    .chart-stats-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-bottom: 14px;
-    }
-    .chart-stat-card {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 8px;
-        padding: 10px 12px;
-        text-align: center;
-    }
-    .chart-stat-value {
-        font-size: 22px;
-        font-weight: 700;
-        color: #3aa288;
-        line-height: 1.2;
-    }
-    .chart-stat-label {
-        font-size: 11px;
-        color: var(--text-secondary);
-        margin-top: 2px;
-    }
-    /* Светлая тема */
-    [data-theme="light"] .charts-tab-active { color: #2e8a72; }
-    [data-theme="light"] .charts-tab-active::after { background: #2e8a72; }
-    [data-theme="light"] .chart-bar-track { background: rgba(0,0,0,0.06); }
-    [data-theme="light"] .chart-stat-card { background: #fafaf8; border-color: rgba(0,0,0,0.08); }
-    [data-theme="light"] .chart-stat-value { color: #2e8a72; }
-    [data-theme="light"] .chart-card { background: #fafaf8; border-color: rgba(0,0,0,0.08); }
-
-    /* ======================== ГРАФИК ППР — вертикальная гистограмма ======================== */
-    .ppr-chart-card {
-        margin-bottom: 16px;
-    }
-    .ppr-chart-header {
-        padding: 12px 14px 8px;
-    }
-    .ppr-chart-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 8px;
-    }
-    .ppr-legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .ppr-legend-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    .ppr-legend-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 2px;
-        flex-shrink: 0;
-    }
-    .ppr-legend-code {
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-    .ppr-legend-name {
-        font-size: 11px;
-        color: var(--text-secondary);
-    }
-    .ppr-chart-body {
-        padding: 4px 14px 12px;
-    }
-    .ppr-chart-area {
-        display: flex;
-        position: relative;
-    }
-    .ppr-y-axis {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        padding-right: 6px;
-        flex-shrink: 0;
-        width: 30px;
-    }
-    .ppr-y-label {
-        font-size: 9px;
-        color: var(--text-secondary);
-        text-align: right;
-        line-height: 1;
-    }
-    .ppr-chart-grid {
-        flex: 1;
-        display: flex;
-        position: relative;
-        height: 180px;
-        border-left: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
-    }
-    .ppr-grid-line {
-        position: absolute;
-        left: 0;
-        right: 0;
-        height: 1px;
-        background: var(--border-color);
-        opacity: 0.5;
-    }
-    .ppr-month-group {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: center;
-        position: relative;
-        min-width: 0;
-    }
-    .ppr-bars-row {
-        display: flex;
-        gap: 2px;
-        width: 100%;
-        justify-content: center;
-        align-items: flex-end;
-        flex: 1;
-        padding: 0 1px;
-    }
-    .ppr-bar-cell {
-        flex: 1;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        max-width: 14px;
-    }
-    .ppr-bar {
-        width: 100%;
-        border-radius: 2px 2px 0 0;
-        position: relative;
-        min-height: 2px;
-        transition: height 0.3s ease;
-    }
-    .ppr-bar-val {
-        position: absolute;
-        top: -14px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 8px;
-        font-weight: 600;
-        color: var(--text-primary);
-        white-space: nowrap;
-        pointer-events: none;
-    }
-    .ppr-month-label {
-        font-size: 9px;
-        font-weight: 500;
-        color: var(--text-secondary);
-        padding-top: 4px;
-        text-align: center;
-        flex-shrink: 0;
-    }
-    /* Строка итогов под графиком ППР */
-    .ppr-totals-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 8px 0 0;
-        border-top: 1px solid var(--border-color);
-        margin-top: 6px;
-        flex-wrap: wrap;
-    }
-    .ppr-totals-label {
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--text-primary);
-        flex-shrink: 0;
-    }
-    .ppr-totals-item {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    .ppr-totals-value {
-        font-size: 12px;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-    [data-theme="light"] .ppr-totals-row {
-        border-top-color: rgba(0,0,0,0.1);
-    }
-    /* Светлая тема для ППР */
-    [data-theme="light"] .ppr-chart-grid {
-        border-left-color: rgba(0,0,0,0.12);
-        border-bottom-color: rgba(0,0,0,0.12);
-    }
-    [data-theme="light"] .ppr-grid-line {
-        background: rgba(0,0,0,0.08);
-    }
 
     .pb-section {
         margin: 6px 8px 8px;
@@ -6351,6 +6018,134 @@
 
     /* ===== Приборы (КИП ИОС) ===== */
     /* Поле поиска в верхнем баре, справа от названия */
+    /* ============================================================
+       Task 149: ЕДИНЫЙ стиль поиска (по образцу Кабельного журнала):
+       иконка-кнопка справа в шапке; по клику поле разворачивается
+       влево. Применяется ко всем страницам с .dev-header-search.
+       ============================================================ */
+    /* Иконка-кнопка поиска (видна всегда, когда поле скрыто) */
+    .dev-search-toggle-btn {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+        z-index: 6; /* выше input (z-index:4) */
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        color: rgba(180,200,220,0.8);
+        cursor: pointer;
+        -webkit-user-select: none; user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .dev-search-toggle-btn:hover { border-color: rgba(74,143,199,0.5); color: #6aa6e0; }
+    .dev-search-toggle-btn.active {
+        border-color: rgba(106,141,181,0.55);
+        color: #6aa6e0;
+        background: rgba(74,143,199,0.10);
+    }
+    .dev-search-toggle-btn:active { transform: translateY(-50%) scale(0.94); }
+    [data-theme="light"] .dev-search-toggle-btn {
+        border-color: rgba(20,20,19,0.15);
+        color: rgba(60,70,80,0.9);
+    }
+    [data-theme="light"] .dev-search-toggle-btn.active {
+        border-color: rgba(58,110,165,0.55);
+        color: #3a6ea5;
+        background: rgba(74,143,199,0.08);
+    }
+    .dev-search-toggle-btn svg { pointer-events: none; }
+
+    /* Task 156: счётчик результатов поиска над списком */
+    .kip-search-counter {
+        padding: 8px 14px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: #8ab4e0;
+        background: rgba(74,143,199,0.08);
+        border-left: 3px solid rgba(74,143,199,0.55);
+        margin: 8px 8px 4px;
+        border-radius: 6px;
+    }
+    [data-theme="light"] .kip-search-counter {
+        color: #3a6ea5;
+        background: rgba(74,143,199,0.07);
+    }
+
+    /* Task 149: на «Приборах по производствам» кнопка «Таблица» (Task 148)
+       занимает right: 8..84px — иконка поиска сдвигается левее неё */
+    #page-devices-prod .page-inline-header:has(.dev-table-toggle-btn) .dev-search-toggle-btn {
+        right: 92px;
+    }
+    /* Task 153: Кабельный журнал — кнопка «+» (cj-add-btn-inline) занимает
+       right: 8..40; иконка поиска сдвигается левее неё. Если «+» скрыта
+       (роль без права записи) — :has() не сработает, иконка остаётся
+       на right: 8px. Скрытая кнопка не матчится через :not([style*="none"]). */
+    #page-cable-journal-edit .page-inline-header .dev-search-toggle-btn {
+        right: 48px;
+    }
+    #page-cable-journal-edit .page-inline-header:not(:has(.cj-add-btn-inline:not([style*="display:none"]))) .dev-search-toggle-btn {
+        right: 8px; /* «+» скрыта — иконка поиска прижимается к краю */
+    }
+
+    /* Поле поиска: скрыто по умолчанию; разворачивается от правого края
+       влево — до текста заголовка/крошек (Task 149). Task 152: Кабельный
+       журнал тоже использует эти правила (собственные удалены). */
+    .dev-header-search {
+        display: none;
+    }
+    .dev-header-search.search-open {
+        display: block;
+        position: absolute;
+        top: 50%;
+        right: 48px; /* левее иконки-кнопки (8..40) с gap 8px */
+        transform: translateY(-50%);
+        z-index: 4;
+        width: 180px;               /* начальная ширина */
+        max-width: calc(100vw - 120px);
+        padding: 6px 10px;
+        border: 1px solid rgba(106,141,181,0.55);
+        border-radius: 8px;
+        background: #1a2233;
+        color: #e0e6f0;
+        font-size: 13px;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+        animation: devSearchExpand 0.18s ease-out;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0b4c8' stroke-width='2'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
+        background-repeat: no-repeat;
+        background-position: 8px center;
+        background-size: 13px;
+        padding-left: 30px;
+    }
+    /* Анимация только по прозрачности: ширина задаётся инлайн-стилем
+       fitToTitle (Task 152) — keyframes не должны её перекрывать */
+    @keyframes devSearchExpand {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    [data-theme="light"] .dev-header-search.search-open {
+        background-color: #fbf6ea;
+        border-color: rgba(58,110,165,0.5);
+        color: #1a1a1a;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7a8d' stroke-width='2'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
+    }
+    .dev-header-search.search-open:focus {
+        border-color: rgba(74,143,199,0.75);
+        width: 220px;
+    }
+    .dev-header-search.search-open::placeholder { color: rgba(255,255,255,0.4); }
+    [data-theme="light"] .dev-header-search.search-open::placeholder { color: rgba(20,20,19,0.4); }
+
+    /* Старые правила разворота при фокусе (широкое поле) больше не нужны */
     .dev-header-search {
         position: absolute;
         top: 50%; right: 8px;
@@ -9565,7 +9360,6 @@
                         <div class="menu-btn" id="valvesEntryBtn" style="border-color:rgba(74,138,140,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#4a8a8c;">Клапана</div><div class="menu-btn-sublabel">По производствам</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('valves')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(74,138,140,0.4);">›</i></div>
                     </div>
                     <div class="menu-btn" id="regulatorsEntryBtn" style="border-color:rgba(126,90,184,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#7e5ab8;">Регуляторы</div><div class="menu-btn-sublabel">По производствам</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('regulators')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(126,90,184,0.4);">›</i></div>
-                    <div class="menu-btn" id="chartsEntryBtn" style="border-color:rgba(58,162,136,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#3aa288;">Графики</div><div class="menu-btn-sublabel">Статистика КИП ИОС</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('charts')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(58,162,136,0.4);">›</i></div>
                 </div>
             </div>
 
@@ -9582,21 +9376,21 @@
 
         <!-- ======================== ПРИБОРЫ — ПО ТИПУ ======================== -->
         <div id="page-devices-type" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Приборы по типу</div><input type="search" id="devTypeSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="devRenderSorted('type')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Приборы по типу</div><input type="search" id="devTypeSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="devRenderSorted('type')" hidden><button type="button" id="devTypeSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="devTypeSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div class="pb-info" id="devTypeInfo">Загрузка…</div>
             <div id="devTypeList"></div>
         </div>
 
         <!-- ======================== ПРИБОРЫ — ПО НАИМЕНОВАНИЮ ======================== -->
         <div id="page-devices-name" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Приборы по наименованию</div><input type="search" id="devNameSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="devRenderSorted('name')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Приборы по наименованию</div><input type="search" id="devNameSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="devRenderSorted('name')" hidden><button type="button" id="devNameSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="devNameSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div class="pb-info" id="devNameInfo">Загрузка…</div>
             <div id="devNameList"></div>
         </div>
 
         <!-- ======================== ПРИБОРЫ — ПО ПРОИЗВОДСТВАМ ======================== -->
         <div id="page-devices-prod" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Приборы по производствам</div><input type="search" id="devProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="devRenderSorted('prod')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Приборы по производствам</div><input type="search" id="devProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="devRenderSorted('prod')" hidden><button type="button" id="devProdSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="devProdSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div class="pb-info" id="devProdInfo">Загрузка…</div>
             <div id="devProdList"></div>
         </div>
@@ -9616,7 +9410,7 @@
 
         <!-- ======================== БЛОКИРОВКИ ======================== -->
         <div id="page-lockouts-prod" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Блокировки по производствам</div><input type="search" id="lockProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="lockRenderSorted('prod')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Блокировки по производствам</div><input type="search" id="lockProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="lockRenderSorted('prod')" hidden><button type="button" id="lockProdSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="lockProdSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div id="lockProdInfo" class="pb-info-bar" style="padding:6px 14px;font-size:11px;color:var(--text-secondary);border-bottom:1px solid var(--border-color);">Загрузка…</div>
             <div id="lockProdList"></div>
         </div>
@@ -9629,21 +9423,21 @@
 
         <!-- ======================== КЛАПАНЫ — ПО ТИПУ (свайп справа налево) ======================== -->
         <div id="page-valves-type" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Клапана по типу</div><input type="search" id="valveTypeSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="valveRenderSorted('type')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Клапана по типу</div><input type="search" id="valveTypeSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="valveRenderSorted('type')" hidden><button type="button" id="valveTypeSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="valveTypeSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div class="pb-info" id="valveTypeInfo">Загрузка…</div>
             <div id="valveTypeList"></div>
         </div>
 
         <!-- ======================== КЛАПАНЫ — ПО DN (свайп слева направо) ======================== -->
         <div id="page-valves-name" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Клапана по DN</div><input type="search" id="valveNameSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="valveRenderSorted('name')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Клапана по DN</div><input type="search" id="valveNameSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="valveRenderSorted('name')" hidden><button type="button" id="valveNameSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="valveNameSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div class="pb-info" id="valveNameInfo">Загрузка…</div>
             <div id="valveNameList"></div>
         </div>
 
         <!-- ======================== КЛАПАНЫ — ПО ПРОИЗВОДСТВАМ (тап) ======================== -->
         <div id="page-valves-prod" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Клапана по производствам</div><input type="search" id="valveProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="valveRenderSorted('prod')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Клапана по производствам</div><input type="search" id="valveProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="valveRenderSorted('prod')" hidden><button type="button" id="valveProdSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="valveProdSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div id="valveProdInfo" class="pb-info-bar" style="padding:6px 14px;font-size:11px;color:var(--text-secondary);border-bottom:1px solid var(--border-color);">Загрузка…</div>
             <div id="valveProdList"></div>
         </div>
@@ -9656,7 +9450,7 @@
 
         <!-- ======================== РЕГУЛЯТОРЫ — ПО ПРОИЗВОДСТВАМ ======================== -->
         <div id="page-regulators-prod" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Регуляторы по производствам</div><input type="search" id="regulatorProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="regulatorRenderSorted('prod')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Регуляторы по производствам</div><input type="search" id="regulatorProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="regulatorRenderSorted('prod')" hidden><button type="button" id="regulatorProdSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="regulatorProdSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div id="regulatorProdInfo" class="pb-info-bar" style="padding:6px 14px;font-size:11px;color:var(--text-secondary);border-bottom:1px solid var(--border-color);">Загрузка…</div>
             <div id="regulatorProdList"></div>
         </div>
@@ -9693,7 +9487,7 @@
 
         <!-- ======================== ПРОЕКТЫ — ПО ОТДЕЛЕНИЯМ ======================== -->
         <div id="page-projects-prod" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Проекты по отделениям</div><input type="search" id="projectProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="projectsRenderSorted('prod')"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Проекты по отделениям</div><input type="search" id="projectProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="projectsRenderSorted('prod')" hidden><button type="button" id="projectProdSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="projectProdSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div id="projectProdInfo" class="pb-info-bar" style="padding:6px 14px;font-size:11px;color:var(--text-secondary);border-bottom:1px solid var(--border-color);">Загрузка…</div>
             <div id="projectProdList"></div>
         </div>
@@ -9717,8 +9511,12 @@
             <div class="page-inline-header">
                 <div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div>
                 <div class="page-inline-header-title">Кабельный журнал</div>
-                <input type="search" id="cjSearchInput" class="dev-header-search cj-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="KipCableJournal.handleSearchInput()" hidden>
-                <button type="button" id="cjSearchToggleBtn" class="cj-icon-btn-inline" aria-label="Поиск" onclick="KipCableJournal.toggleSearch()">
+                <!-- Task 152: единый стиль поиска (как на всех страницах):
+                     иконка-кнопка + разворот поля поверх крошек (fitToTitle).
+                     Клиентская фильтрация движком kipSearchFilter (Task 151),
+                     серверный поиск больше не используется. -->
+                <input type="search" id="cjSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="KipCableJournal.handleSearchInput()" hidden>
+                <button type="button" id="cjSearchToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="cjSearchInput">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </button>
                 <button type="button" class="cj-add-btn-inline" id="cjAddBtn" onclick="KipCableJournal.openAdd()" style="display:none;" aria-label="Добавить запись">+</button>
@@ -9794,20 +9592,6 @@
         </div>
 
         <!-- ======================== ГРАФИКИ КИП ИОС ======================== -->
-        <div id="page-charts" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Графики КИП ИОС</div></div>
-            <!-- Вкладки -->
-            <div class="charts-tabs">
-                <button class="charts-tab charts-tab-active" data-chart-tab="devices" onclick="KipCharts.switchTab('devices')">Приборы</button>
-                <button class="charts-tab" data-chart-tab="lockouts" onclick="KipCharts.switchTab('lockouts')">Блокировки</button>
-                <button class="charts-tab" data-chart-tab="valves" onclick="KipCharts.switchTab('valves')">Клапана</button>
-                <button class="charts-tab" data-chart-tab="regulators" onclick="KipCharts.switchTab('regulators')">Регуляторы</button>
-            </div>
-            <!-- Содержимое вкладки -->
-            <div id="chartsContent" class="charts-content">
-                <div class="charts-loading">Загрузка…</div>
-            </div>
-        </div>
 
 <!-- ======================== ИНЖЕНЕРНЫЕ КАЛЬКУЛЯТОРЫ — КИП и А ======================== -->
         <div id="page-calc-kipa" class="page-content">
@@ -9999,7 +9783,7 @@
 
         <!-- ======================== ПРИБОРЫ (КИП ИОС) ======================== -->
         <div id="page-devices" class="page-content">
-            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Приборы</div><input type="search" id="devSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="devRender()"></div>
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Приборы</div><input type="search" id="devSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="devRender()" hidden><button type="button" id="devSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="devSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
 
             <div class="pb-info" id="devInfo">Загрузка…</div>
             <div id="devList"></div>
@@ -12084,6 +11868,224 @@
         })();
     }
 
+
+    // ============================================================
+    // Task 147: ГРАФИКИ — модуль только десктопа. Код графиков
+    // полностью вынесен в charts-desktop.js (мобильная PWA не
+    // содержит ни байта логики графиков). В Electron — динамическая
+    // загрузка модуля: он инъектирует CSS, страницу page-charts,
+    // кнопку на КИП ИОС и сам модуль KipCharts, затем повторно
+    // применяет фильтрацию ролей.
+    // ============================================================
+    if (IS_ELECTRON) {
+        // Task 147: графики; Task 148: таблица приборов — модули только десктопа.
+        // Мобильная PWA не содержит и не загружает эти файлы.
+        ['charts-desktop.js', 'devices-table-desktop.js'].forEach(function (src) {
+            var s = document.createElement('script');
+            s.src = src;
+            s.onerror = function () { console.warn('[desktop] ' + src + ' не загрузился'); };
+            document.head.appendChild(s);
+        });
+    }
+
+    // ============================================================
+    // Task 149: ЕДИНЫЙ ПОИСК В ШАПКЕ (по образцу Кабельного журнала)
+    // ============================================================
+    // Иконка-кнопка справа от заголовка/крошек; по клику поле
+    // разворачивается горизонтально влево. Ширина поля вычисляется
+    // так, чтобы оно доходило до ТЕКСТА хлебных крошек (заголовка
+    // страницы) с небольшим отступом — крошки не скрываются.
+    // Повторный клик по иконке (или Esc/blur с пустым полем) —
+    // сворачивает поле; текст запроса при закрытии сбрасывается.
+    // ============================================================
+    (function () {
+        'use strict';
+
+        var GAP_FROM_TITLE = 12;   // отступ поля от текста крошек, px
+        var GAP_BTN_TO_INPUT = 8;  // зазор поле-кнопки, px
+
+        // Пересчитать ширину и left открытого поля: от правого края
+        // (самая левая кнопка шапки + зазор) влево до края текста
+        // заголовка/крошек. Task 152: работает и для Кабельного журнала.
+        function fitToTitle(input) {
+            var header = input.closest('.page-inline-header');
+            if (!header) return;
+            var title = header.querySelector('.page-inline-header-title');
+            if (!title) return;
+
+            // Все координаты — в системе шапки (position: absolute
+            // относительно .page-inline-header): left = X_вьюпорта - X_шапки
+            var headerRect = header.getBoundingClientRect();
+
+            // Правый край поля = самая ЛЕВАЯ кнопка шапки минус зазор.
+            // Учитываем все кнопки-иконки: поиск, «Таблица» (Task 148),
+            // cj-кнопки — поле не должно наезжать ни на одну.
+            var buttons = header.querySelectorAll('.dev-search-toggle-btn, .dev-table-toggle-btn, .cj-icon-btn-inline, .cj-add-btn-inline');
+            var inputRight = headerRect.width; // fallback — правый край шапки
+            buttons.forEach(function (b) {
+                if (b === input) return;
+                var br = b.getBoundingClientRect();
+                if (br.width === 0) return; // скрытая (display:none)
+                var bLeft = br.left - headerRect.left;
+                if (bLeft < inputRight) inputRight = bLeft;
+            });
+            inputRight -= GAP_BTN_TO_INPUT;
+
+            // Левая граница = конец ВИДИМОГО текста крошек/заголовка + отступ.
+            // Крошки — <span>-ы в заголовке; берём последний span.
+            // Обычный заголовок — текстовый узел: Range для точной ширины.
+            // Task 153: на мобильном заголовок обрезается (overflow) —
+            // берём min(конец текста, правый край контейнера заголовка
+            // минус padding), чтобы поле не «съедало» весь заголовок:
+            // текст остаётся видимым до начала поля.
+            var textRight = 0;
+            var spans = title.querySelectorAll('span');
+            if (spans.length) {
+                var last = spans[spans.length - 1];
+                var tr = last.getBoundingClientRect();
+                textRight = tr.right - headerRect.left;   // координата в системе шапки
+            } else {
+                try {
+                    var range = document.createRange();
+                    range.selectNodeContents(title);
+                    var rects = range.getClientRects();
+                    if (rects.length) textRight = rects[rects.length - 1].right - headerRect.left;
+                } catch (e) {}
+                // Видимая (не обрезанная) часть: clientWidth минус правый padding
+                var titleRect = title.getBoundingClientRect();
+                var titleLeft = titleRect.left - headerRect.left;
+                var visibleRight = titleLeft + title.clientWidth;
+                var csTitle = getComputedStyle(title);
+                var padRight = parseFloat(csTitle.paddingRight) || 0;
+                var visibleTextRight = visibleRight - padRight;
+                if (visibleTextRight < textRight) textRight = visibleTextRight;
+            }
+            if (!textRight) textRight = Math.min(headerRect.width * 0.5, 260);
+
+            // Ширина: от левого края (крошки + отступ) до правого края поля
+            var left = textRight + GAP_FROM_TITLE;
+            var width = inputRight - left;
+            // Минимальная комфортная ширина поля
+            var MIN_W = 150;
+            if (width < MIN_W) {
+                // Крошки/заголовок длинные — поле фиксированной ширины
+                // от правого края; заголовок на мобильном обрезается
+                // (ellipsis) — это уже текущее поведение шапки
+                width = Math.min(220, Math.max(MIN_W, inputRight - 44));
+                left = Math.max(44, inputRight - width);
+            }
+            input.style.left = left + 'px';
+            input.style.right = 'auto';
+            input.style.width = width + 'px';
+            input.style.maxWidth = 'none';
+            input.style.minWidth = '0';
+        }
+
+        // Открыть поле
+        function openSearch(input, btn) {
+            input.removeAttribute('hidden');
+            // force reflow для анимации
+            void input.offsetWidth;
+            input.classList.add('search-open');
+            btn.classList.add('active');
+            fitToTitle(input);
+            setTimeout(function () { try { input.focus(); } catch (e) {} }, 30);
+        }
+
+        // Закрыть поле (сброс запроса)
+        function closeSearch(input, btn) {
+            input.classList.remove('search-open');
+            input.setAttribute('hidden', '');
+            btn.classList.remove('active');
+            if (input.value) {
+                input.value = '';
+                // Вызвать исходный oninput для сброса фильтра
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+
+        // Делегированный клик по кнопкам-иконкам
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest ? e.target.closest('.dev-search-toggle-btn') : null;
+            if (!btn) return;
+            var inputId = btn.getAttribute('data-search-input');
+            var input = document.getElementById(inputId);
+            if (!input) return;
+            if (input.classList.contains('search-open')) {
+                closeSearch(input, btn);
+            } else {
+                openSearch(input, btn);
+            }
+        });
+
+        // Esc — закрыть поиск на активном поле
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            var input = document.activeElement;
+            if (input && input.classList && input.classList.contains('dev-header-search') && input.classList.contains('search-open')) {
+                var btn = document.getElementById(input.id + 'ToggleBtn');
+                if (btn) closeSearch(input, btn);
+            }
+        });
+
+        // При вводе — пересчитать ширину (крошки могли смениться,
+        // например при фильтрации меняется подпись)
+        document.addEventListener('input', function (e) {
+            var input = e.target;
+            if (input && input.classList && input.classList.contains('dev-header-search')
+                && input.classList.contains('search-open')) {
+                fitToTitle(input);
+            }
+        }, true);
+
+        // Ресайз окна — подогнать открытое поле
+        window.addEventListener('resize', function () {
+            document.querySelectorAll('.dev-header-search.search-open').forEach(fitToTitle);
+        });
+
+
+        // Task 156: счётчик результатов поиска — строка «Найдено: N из M»
+        // над списком при активном поиске. Вызывается из рендеров списков
+        // после отрисовки; без поискового запроса — удаляет счётчик.
+        window.kipRenderSearchCounter = function (listEl, found, total, query) {
+            if (!listEl) return;
+            var old = null;
+            for (var i = 0; i < listEl.children.length; i++) {
+                if (listEl.children[i].classList && listEl.children[i].classList.contains('kip-search-counter')) {
+                    old = listEl.children[i];
+                    break;
+                }
+            }
+            if (old) old.remove();
+            if (!query) return; // без поиска счётчик не показываем
+            var div = document.createElement('div');
+            div.className = 'kip-search-counter';
+            div.textContent = 'Найдено: ' + found + ' из ' + total;
+            listEl.insertBefore(div, listEl.firstChild);
+        };
+
+        // Task 154: свернуть все раскрытые поиски (вызывается при
+        // смене страницы). Запрос сбрасывается с перерендером списка,
+        // чтобы вернувшийся пользователь видел полный список.
+        window.kipCollapseSearch = function () {
+            document.querySelectorAll('.dev-header-search.search-open').forEach(function (input) {
+                var btn = document.getElementById((input.getAttribute('data-toggle-btn') || input.id) + 'ToggleBtn');
+                if (!btn) {
+                    // fallback: кнопка по data-search-input
+                    btn = document.querySelector('.dev-search-toggle-btn[data-search-input="' + input.id + '"]');
+                }
+                if (input.classList.contains('cj-header-search')) return; // cj теперь тоже общий, но на всякий случай
+                input.classList.remove('search-open');
+                input.setAttribute('hidden', '');
+                if (btn) btn.classList.remove('active');
+                if (input.value) {
+                    input.value = '';
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            });
+        };
+    })();
+
     // ======================== ИГРА САПЁР ========================
     let msCols = 9, msRows = 9, msMines = 10;
     let msBoard = [], msRevealed = [], msFlagged = [], msGameOver = false, msFirstClick = true;
@@ -13023,6 +13025,242 @@
         return (s || '').toString().toLowerCase().replace(/\s+/g, ' ').trim();
     }
 
+    // ============================================================
+    // Task 151: ГИБКИЙ ПОИСК (для всех списков: приборы, блокировки,
+    // клапана, регуляторы, проекты)
+    // Этап 1: по словам (AND) + нормализация + транслитерация
+    //         (латиница <-> кириллица: «metran» находит «Метран»)
+    // Этап 2: нечёткий fallback (Дамерау-Левенштейн, только если
+    //         точных совпадений нет): 1 опечатка для слов >= 5 симв.,
+    //         2 — для слов >= 9; расстояние считается слово-к-слову.
+    // ============================================================
+
+    // Транслитерация кириллица -> латиница (для сопоставления раскладок)
+    var _TRANSLIT_RU2EN = {
+        'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e',
+        'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'i', 'к': 'k', 'л': 'l', 'м': 'm',
+        'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+        'ф': 'f', 'х': 'h', 'ц': 'c', 'ч': 'ch', 'ш': 'sh', 'щ': 'sch',
+        'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu', 'я': 'ya'
+    };
+    var _TRANSLIT_EN2RU = {
+        'a': 'а', 'b': 'б', 'c': 'ц', 'd': 'д', 'e': 'е', 'f': 'ф', 'g': 'г',
+        'h': 'х', 'i': 'и', 'j': 'й', 'k': 'к', 'l': 'л', 'm': 'м', 'n': 'н',
+        'o': 'о', 'p': 'п', 'q': 'к', 'r': 'р', 's': 'с', 't': 'т', 'u': 'у',
+        'v': 'в', 'w': 'в', 'x': 'х', 'y': 'ы', 'z': 'з'
+    };
+
+    // Разбить строку запроса/поля на нормализованные слова:
+    // нижний регистр, ё->е, НЕ-буквенно-цифровые — разделители.
+    function kipSearchWords(s) {
+        var t = (s == null ? '' : String(s)).toLowerCase().replace(/ё/g, 'е');
+        var raw = t.split(/[^a-zа-я0-9]+/);
+        var words = [];
+        for (var i = 0; i < raw.length; i++) {
+            var w = raw[i];
+            if (!w) continue;
+            words.push(w);
+        }
+        return words;
+    }
+
+    // Транслитерация слова (в обе стороны: пробуем ru->en и en->ru,
+    // запрос сопоставляется с полем по ОБЕИМ формам)
+    function kipTranslit(s, map) {
+        var out = '';
+        for (var i = 0; i < s.length; i++) {
+            var ch = s[i];
+            out += (map[ch] !== undefined) ? map[ch] : ch;
+        }
+        return out;
+    }
+
+    // Дамерау-Левенштейн (расстояние с перестановками соседних символов)
+    function kipEditDistance(a, b) {
+        var la = a.length, lb = b.length;
+        if (la === 0) return lb;
+        if (lb === 0) return la;
+        var INF = la + lb;
+        var da = {}; // последняя позиция символа в a
+        var d = [];
+        for (var i = 0; i <= la + 1; i++) {
+            d.push(new Array(lb + 2).fill(0));
+        }
+        d[0][0] = INF;
+        for (var i = 0; i <= la; i++) {
+            d[i + 1][0] = INF;
+            d[i + 1][1] = i;
+        }
+        for (var j = 0; j <= lb; j++) {
+            d[0][j + 1] = INF;
+            d[1][j + 1] = j;
+        }
+        for (var i = 1; i <= la; i++) {
+            var db = 0;
+            for (var j = 1; j <= lb; j++) {
+                var k1 = da[b[j - 1]] || 0;
+                var k2 = db;
+                var cost = (a[i - 1] === b[j - 1]) ? 0 : 1;
+                if (cost === 0) db = j;
+                d[i + 1][j + 1] = Math.min(
+                    d[i][j] + cost,                        // замена
+                    d[i + 1][j] + 1,                       // вставка
+                    d[i][j + 1] + 1,                       // удаление
+                    d[k1][k2] + (i - k1 - 1) + 1 + (j - k2 - 1) // перестановка
+                );
+            }
+            da[a[i - 1]] = i;
+        }
+        return d[la + 1][lb + 1];
+    }
+
+    // Порог нечёткости по длине слова (Этап 2)
+    function kipFuzzyThreshold(word) {
+        var len = word.length;
+        if (len >= 9) return 2;
+        if (len >= 5) return 1;
+        return 0; // короткие слова — только точное совпадение
+    }
+
+    // Совпадает ли слово запроса со словом поля (с учётом транслита и нечёткости)
+    function kipWordMatches(qw, fw, allowFuzzy) {
+        // Прямое сравнение
+        if (qw === fw) return true;
+        // Подстрока (слово поля начинается со слова запроса или содержит его)
+        if (fw.indexOf(qw) !== -1) return true;
+        // Транслитерация: qw (лат) vs fw (кир) и наоборот
+        var qwAsRu = kipTranslit(qw, _TRANSLIT_EN2RU);
+        var qwAsEn = kipTranslit(qw, _TRANSLIT_RU2EN);
+        if (qwAsRu === fw || qwAsEn === fw) return true;
+        if (fw.indexOf(qwAsRu) !== -1 || fw.indexOf(qwAsEn) !== -1) return true;
+        // Нечёткость (Этап 2): только для достаточно длинных слов
+        if (allowFuzzy) {
+            var t = kipFuzzyThreshold(qw);
+            if (t > 0 && fw.length >= 4) {
+                if (kipEditDistance(qw, fw) <= t) return true;
+                if (kipEditDistance(qwAsRu, fw) <= t) return true;
+                if (kipEditDistance(qwAsEn, fw) <= t) return true;
+            }
+        }
+        return false;
+    }
+
+    // Сопоставление всех слов запроса со словами haystack-строки.
+    // Этап 1: точное (вкл. транслит); Этап 2 — если allowFuzzy.
+    // Логика AND: каждое слово запроса должно найтись в haystack.
+    function kipMatchAll(query, haystack, allowFuzzy) {
+        var qWords = kipSearchWords(query);
+        if (qWords.length === 0) return true;
+        var hWords = kipSearchWords(haystack);
+        for (var qi = 0; qi < qWords.length; qi++) {
+            var qw = qWords[qi];
+            var found = false;
+            for (var hi = 0; hi < hWords.length && !found; hi++) {
+                if (kipWordMatches(qw, hWords[hi], allowFuzzy)) found = true;
+            }
+            if (!found) return false;
+        }
+        return true;
+    }
+
+    // Главная функция поиска для списков: точный этап по всем записям,
+    // затем (если ничего не нашлось и запрос не пуст) — нечёткий этап.
+    // fieldGetter возвращает строку для поиска по записи.
+    // Оптимизация: нормализованные слова записи кэшируются на самой
+    // записи (item._kipSearchWords) — нормализация выполняется один
+    // раз на запись, а не при каждом нажатии клавиши и в обоих этапах.
+    var _kipSearchCache = new WeakMap();
+    function kipHaystackWords(item, fieldGetter) {
+        var cached = _kipSearchCache.get(item);
+        if (cached !== undefined) return cached;
+        var words = kipSearchWords(fieldGetter(item));
+        // Предвычислить транслит-формы слов поля (для сопоставления
+        // латинского запроса с кириллическим полем без повторных
+        // транслитераций на каждое сравнение)
+        var forms = [];
+        for (var i = 0; i < words.length; i++) {
+            var w = words[i];
+            forms.push({ w: w, ru: kipTranslit(w, _TRANSLIT_EN2RU), en: kipTranslit(w, _TRANSLIT_RU2EN) });
+        }
+        // Task 155: склеенная форма записи (все слова без разделителей) —
+        // для устойчивости к разным форматам разделителей: «8м/1»
+        // найдёт и «8 м/1», и «8м-1», и «8м 1» и т.п.
+        var glued = words.join('');
+        var result = { forms: forms, glued: glued };
+        _kipSearchCache.set(item, result);
+        return result;
+    }
+
+    // Сопоставление слов запроса с предвычисленными формами слов записи.
+    // Task 155: сначала «склеенная» проверка — весь запрос без разделителей
+    // содержится в склеенной форме записи. Покрывает случаи, когда разделители
+    // в данных и запросе различаются («8м/1» vs «8 м/1» vs «8м-1»), а также
+    // слитые запросы («8м1»). Минимум 3 символа — от ложных срабатываний.
+    function kipMatchForms(qWords, data, allowFuzzy) {
+        var gluedQ = qWords.join('');
+        if (gluedQ.length >= 3 && data.glued && data.glued.indexOf(gluedQ) !== -1) {
+            return true;
+        }
+        var forms = data.forms;
+        for (var qi = 0; qi < qWords.length; qi++) {
+            var qw = qWords[qi];
+            var qwRu = kipTranslit(qw, _TRANSLIT_EN2RU);
+            var qwEn = kipTranslit(qw, _TRANSLIT_RU2EN);
+            var found = false;
+            // Task 155: однобуквенные/однозначные слова запроса («8», «м»)
+            // сопоставляем ТОЛЬКО точным равенством со словом поля —
+            // подстрока даёт шум («8» матчится в «8мм», «18», «80»...).
+            // Составные запросы («8 м/1») покрывает glued-форма выше.
+            var shortWord = qw.length <= 1;
+            for (var hi = 0; hi < forms.length && !found; hi++) {
+                var f = forms[hi];
+                if (f.w === qw) { found = true; break; }
+                if (!shortWord && f.w.indexOf(qw) !== -1) { found = true; break; }
+                if (f.w === qwRu) { found = true; break; }
+                if (!shortWord && f.w.indexOf(qwRu) !== -1) { found = true; break; }
+                if (f.w === qwEn) { found = true; break; }
+                if (!shortWord && f.w.indexOf(qwEn) !== -1) { found = true; break; }
+                if (allowFuzzy) {
+                    var t = kipFuzzyThreshold(qw);
+                    if (t > 0 && f.w.length >= 4) {
+                        if (kipEditDistance(qw, f.w) <= t ||
+                            kipEditDistance(qwRu, f.w) <= t ||
+                            kipEditDistance(qwEn, f.w) <= t) { found = true; break; }
+                    }
+                }
+            }
+            if (!found) return false;
+        }
+        return true;
+    }
+
+    function kipSearchFilter(items, query, fieldGetter) {
+        var q = (query || '').toString().trim();
+        if (!q) return items;
+        var qWords = kipSearchWords(q);
+        if (qWords.length === 0) return items;
+        // Этап 1: точный (слова + нормализация + транслит)
+        var exact = [];
+        var fuzzyPool = [];
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var forms = kipHaystackWords(item, fieldGetter);
+            if (kipMatchForms(qWords, forms, false)) {
+                exact.push(item);
+            } else {
+                fuzzyPool.push(item); // кандидаты для этапа 2 (формы уже кэшированы)
+            }
+        }
+        if (exact.length > 0) return exact;
+        // Этап 2: нечёткий (опечатки) — только когда точных нет
+        var fuzzy = [];
+        for (var j = 0; j < fuzzyPool.length; j++) {
+            var forms2 = kipHaystackWords(fuzzyPool[j], fieldGetter);
+            if (kipMatchForms(qWords, forms2, true)) fuzzy.push(fuzzyPool[j]);
+        }
+        return fuzzy;
+    }
+
     // Экранирование HTML
     function devEsc(s) {
         return (s || '').toString()
@@ -13197,9 +13435,11 @@
             filtered = filtered.filter(d => String(d['В гр. ППР'] || '').trim().toLowerCase() !== 'нет');
         }
         if (query) {
-            filtered = filtered.filter(d =>
-                DEV_FIELDS.some(f => devNorm(d[f.key] || '').includes(query))
-            );
+            // Task 151: гибкий поиск (слова AND + транслит + нечёткий fallback)
+           var __searchTotal = filtered.length;
+             filtered = kipSearchFilter(filtered, query, function (d) {
+                return DEV_FIELDS.map(f => d[f.key] || '').join(' ');
+            });
         }
 
         // Инфо
@@ -13269,6 +13509,7 @@
             html += '</div>';
         }
         list.innerHTML = html;
+        kipRenderSearchCounter(list, filtered.length, __searchTotal, query);
         if (typeof KipFav !== 'undefined') KipFav.wrapDevCardsForFavSwipe();
     }
 
@@ -13397,7 +13638,6 @@
         // Обновить значок избранного в хедере
         if (typeof KipFav !== 'undefined') KipFav.updateHeaderIcon();
     }
-
 
 
     // === Фильтр по типу ===
@@ -13836,13 +14076,13 @@
 
         // Поиск
         if (query) {
-            filtered = filtered.filter(d =>
-                DEV_FIELDS.some(f => devNorm(d[f.key] || '').includes(query)) ||
-                devNorm(d['Тип'] || '').includes(query) ||
-                devNorm(d['№ прибора'] || '').includes(query) ||
-                devNorm(d['Место установки'] || '').includes(query) ||
-                devNorm(d['Наименование'] || '').includes(query)
-            );
+            // Task 151: гибкий поиск (слова AND + транслит + нечёткий fallback)
+           var __searchTotal = filtered.length;
+             filtered = kipSearchFilter(filtered, query, function (d) {
+                return DEV_FIELDS.map(f => d[f.key] || '').join(' ') + ' ' +
+                    (d['Тип'] || '') + ' ' + (d['№ прибора'] || '') + ' ' +
+                    (d['Место установки'] || '') + ' ' + (d['Наименование'] || '');
+            });
         }
 
         // Группировка. Для вкладки «по производству» группируем по полю
@@ -13889,6 +14129,7 @@
                 emptyHtml = '<div class="pb-empty">Ничего не найдено.<br>Попробуйте изменить запрос.</div>';
             }
             list.innerHTML = emptyHtml;
+            kipRenderSearchCounter(list, filtered.length, __searchTotal, query);
             kipBindFilterBadge(list, 'devices', devRenderSorted);
             kipBindSbsFilterBadge(list, 'devices', devRenderSorted);
             kipBindSarFilterBadge(list, 'devices', devRenderSorted);
@@ -14034,6 +14275,7 @@
 
 
         list.innerHTML = html;
+        kipRenderSearchCounter(list, filtered.length, __searchTotal, query);
         if (typeof KipFav !== 'undefined') KipFav.wrapDevCardsForFavSwipe();
         // Привязка обработчика к кнопке ✕ в бейдже фильтра
         kipBindFilterBadge(list, 'devices', devRenderSorted);
@@ -14363,7 +14605,11 @@
             return;
         }
 
-        const query = lockNorm((document.getElementById(id.search)?.value || '').trim());
+        // Task 155: RAW-запрос для kipSearchFilter — norm-функции удаляют
+        // разделители («8м/1»->«8м1» одним словом) и ломают токенизацию
+        // движка. normQuery — только для подсветки совпадений.
+        const rawQuery = (document.getElementById(id.search)?.value || '').trim();
+        const query = lockNorm(rawQuery);
         // Если пользователь вручную ввёл поисковый запрос — сбросить фильтр по проекту
         if (query && kipIsProjectLinkFilterActive('lockouts')) {
             kipClearProjectLinkFilter('lockouts');
@@ -14391,9 +14637,10 @@
         }
 
         if (query) {
-            filtered = filtered.filter(d =>
-                LOCK_FIELDS.some(f => lockNorm(d[f.key] || '').includes(query))
-            );
+           var __searchTotal = filtered.length;
+             filtered = kipSearchFilter(filtered, rawQuery, function (d) {
+                return LOCK_FIELDS.map(f => d[f.key] || '').join(' ');
+            });
         }
 
         const groups = {};
@@ -14423,6 +14670,7 @@
                 emptyHtml = '<div class="pb-empty">Ничего не найдено.<br>Попробуйте изменить запрос.</div>';
             }
             list.innerHTML = emptyHtml;
+            kipRenderSearchCounter(list, filtered.length, __searchTotal, rawQuery);
             kipBindFilterBadge(list, 'lockouts', lockRenderSorted);
             return;
         }
@@ -14472,6 +14720,7 @@
         }
         html += '</div>';
         list.innerHTML = html;
+        kipRenderSearchCounter(list, filtered.length, __searchTotal, rawQuery);
         // Привязка обработчика к кнопке ✕ в бейдже фильтра
         kipBindFilterBadge(list, 'lockouts', lockRenderSorted);
         // Свайп для добавления в избранное
@@ -14835,7 +15084,11 @@
             return;
         }
 
-        const query = valveNorm((document.getElementById(id.search)?.value || '').trim());
+        // Task 155: RAW-запрос для kipSearchFilter — norm-функции удаляют
+        // разделители («8м/1»->«8м1» одним словом) и ломают токенизацию
+        // движка. normQuery — только для подсветки совпадений.
+        const rawQuery = (document.getElementById(id.search)?.value || '').trim();
+        const query = valveNorm(rawQuery);
         // Если пользователь вручную ввёл поисковый запрос — сбросить фильтр по проекту
         if (query && kipIsProjectLinkFilterActive('valves')) {
             kipClearProjectLinkFilter('valves');
@@ -14899,9 +15152,10 @@
         }
 
         if (query) {
-            filtered = filtered.filter(d =>
-                VALVE_FIELDS.some(f => valveNorm(d[f.key] || '').includes(query))
-            );
+           var __searchTotal = filtered.length;
+             filtered = kipSearchFilter(filtered, rawQuery, function (d) {
+                return VALVE_FIELDS.map(f => d[f.key] || '').join(' ');
+            });
         }
 
         // Группировка по groupKey. Порядок групп по умолчанию — порядок первого
@@ -14947,6 +15201,7 @@
                 emptyHtml = '<div class="pb-empty">Ничего не найдено.<br>Попробуйте изменить запрос.</div>';
             }
             list.innerHTML = emptyHtml;
+            kipRenderSearchCounter(list, filtered.length, __searchTotal, rawQuery);
             kipBindFilterBadge(list, 'valves', valveRenderSorted);
             kipBindSbsFilterBadge(list, 'valves', valveRenderSorted);
             kipBindSarFilterBadge(list, 'valves', valveRenderSorted);
@@ -14984,7 +15239,11 @@
 
             for (const item of items) {
                 const itemId = String(item['ID'] ?? '');
-                const name = item['Марка'] || item['Назначение арматуры (параметр)'] || '(без названия)';
+                // Task 158: заголовок карточки — «Назначение арматуры (параметр)»
+                // (выделенным шрифтом); «Марка» и остальные данные — строками
+                // ниже, обычным шрифтом меньшего размера.
+                const name = item['Назначение арматуры (параметр)'] || item['Марка'] || '(без названия)';
+                const mark = item['Марка'] || '';
                 const type = item['Тип, пропускная характеристика'] || '';
                 const place = item['Место расположения'] || '';
 
@@ -14994,10 +15253,12 @@
                 html += '<div class="valve-card-header-inner">';
                 html += '<div class="valve-card-text">';
                 html += '<div class="valve-card-title">' + valveMark(name, query) + '</div>';
+                // Строки ниже: Марка (полужирно-приглушённо) + тип + место
                 let subtitle = '';
-                if (type) subtitle += type;
-                if (place) subtitle += (subtitle ? ' · ' : '') + place;
-                if (subtitle) html += '<div class="valve-card-subtitle">' + valveMark(subtitle, query) + '</div>';
+                if (mark) subtitle += valveMark(mark, query);
+                if (type) subtitle += (subtitle ? ' · ' : '') + valveMark(type, query);
+                if (place) subtitle += (subtitle ? ' · ' : '') + valveMark(place, query);
+                if (subtitle) html += '<div class="valve-card-subtitle">' + subtitle + '</div>';
                 html += '</div>';
                 html += '</div>';
                 html += '</div>';
@@ -15008,6 +15269,7 @@
         }
         html += '</div>';
         list.innerHTML = html;
+        kipRenderSearchCounter(list, filtered.length, __searchTotal, rawQuery);
         // Привязка обработчика к кнопке ✕ в бейдже фильтра
         kipBindFilterBadge(list, 'valves', valveRenderSorted);
         kipBindSbsFilterBadge(list, 'valves', valveRenderSorted);
@@ -15220,7 +15482,10 @@
             html += '<div class="pb-section-body">';
             for (const item of sgItems) {
                 const itemId = String(item['ID'] ?? '');
-                const name = item['Марка'] || item['Назначение арматуры (параметр)'] || '(без названия)';
+                // Task 158: заголовок — «Назначение арматуры (параметр)»;
+                // «Марка» — первой строкой подзаголовка
+                const name = item['Назначение арматуры (параметр)'] || item['Марка'] || '(без названия)';
+                const mark = item['Марка'] || '';
                 const type = item['Тип, пропускная характеристика'] || '';
                 const place = item['Место расположения'] || '';
                 const dn = item['DN (мм)'] || '';
@@ -15238,6 +15503,8 @@
                 //   • mode='name' / 'type' — «Тип запорной части» в заголовке подгруппы,
                 //     поэтому в подзаголовке показываем DN + «Тип, пропускная характеристика» + место
                 let subtitleParts = [];
+                // Task 158: Марка — первой строкой подзаголовка
+                if (mark) subtitleParts.push(valveEsc(mark));
                 if (mode === 'prod') {
                     if (shutOff) subtitleParts.push(shutOff);
                 } else {
@@ -15296,7 +15563,8 @@
         const titleEl = document.getElementById('valveDetailTitle');
         const content = document.getElementById('valveDetailContent');
         if (!titleEl || !content) return;
-        const name = item['Марка'] || item['Назначение арматуры (параметр)'] || '(без названия)';
+        // Task 158: заголовок детальной — назначение (как в карточках списка)
+        const name = item['Назначение арматуры (параметр)'] || item['Марка'] || '(без названия)';
         titleEl.textContent = name;
 
         let html = '<div class="valve-detail-card">';
@@ -15650,7 +15918,11 @@
             return;
         }
 
-        const query = regulatorNorm((document.getElementById(id.search)?.value || '').trim());
+        // Task 155: RAW-запрос для kipSearchFilter — norm-функции удаляют
+        // разделители («8м/1»->«8м1» одним словом) и ломают токенизацию
+        // движка. normQuery — только для подсветки совпадений.
+        const rawQuery = (document.getElementById(id.search)?.value || '').trim();
+        const query = regulatorNorm(rawQuery);
         // Если пользователь вручную ввёл поисковый запрос — сбросить фильтр по проекту
         if (query && kipIsProjectLinkFilterActive('regulators')) {
             kipClearProjectLinkFilter('regulators');
@@ -15680,9 +15952,10 @@
         }
 
         if (query) {
-            filtered = filtered.filter(d =>
-                REGULATOR_FIELDS.some(f => regulatorNorm(d[f.key] || '').includes(query))
-            );
+           var __searchTotal = filtered.length;
+             filtered = kipSearchFilter(filtered, rawQuery, function (d) {
+                return REGULATOR_FIELDS.map(f => d[f.key] || '').join(' ');
+            });
         }
 
         const groups = {};
@@ -15715,6 +15988,7 @@
                 emptyHtml = '<div class="pb-empty">Ничего не найдено.<br>Попробуйте изменить запрос.</div>';
             }
             list.innerHTML = emptyHtml;
+            kipRenderSearchCounter(list, filtered.length, __searchTotal, rawQuery);
             kipBindFilterBadge(list, 'regulators', regulatorRenderSorted);
             kipBindSbsFilterBadge(list, 'regulators', regulatorRenderSorted);
             // Свайп для добавления в избранное
@@ -15771,6 +16045,7 @@
         }
         html += '</div>';
         list.innerHTML = html;
+        kipRenderSearchCounter(list, filtered.length, __searchTotal, rawQuery);
         // Привязка обработчика к кнопке ✕ в бейдже фильтра
         kipBindFilterBadge(list, 'regulators', regulatorRenderSorted);
         kipBindSbsFilterBadge(list, 'regulators', regulatorRenderSorted);
@@ -16250,7 +16525,11 @@
             return;
         }
 
-        const query = projectNorm((document.getElementById(id.search)?.value || '').trim());
+        // Task 155: RAW-запрос для kipSearchFilter — norm-функции удаляют
+        // разделители («8м/1»->«8м1» одним словом) и ломают токенизацию
+        // движка. normQuery — только для подсветки совпадений.
+        const rawQuery = (document.getElementById(id.search)?.value || '').trim();
+        const query = projectNorm(rawQuery);
         let filtered = projectData.projects || [];
 
         // Сортировка: по «Отделению», внутри отделения — по «Дате утв.» (старые → новые).
@@ -16274,9 +16553,10 @@
         });
 
         if (query) {
-            filtered = filtered.filter(d =>
-                PROJECT_FIELDS.some(f => projectNorm(d[f.key] || '').includes(query))
-            );
+           var __searchTotal = filtered.length;
+             filtered = kipSearchFilter(filtered, rawQuery, function (d) {
+                return PROJECT_FIELDS.map(f => d[f.key] || '').join(' ');
+            });
         }
 
         // Группировка верхнего уровня — по «Отделению».
@@ -16363,6 +16643,7 @@
         }
         html += '</div>';
         list.innerHTML = html;
+        kipRenderSearchCounter(list, filtered.length, __searchTotal, rawQuery);
         // Добавить кликабельность значка избранного на карточках проектов
         if (typeof KipFav !== 'undefined') KipFav.wrapKipCardsForFavSwipe('.project-card', 'proj', 'data-project-id');
     }
@@ -19013,6 +19294,9 @@
             return;
         }
         document.querySelectorAll('.page-content').forEach(el => { el.classList.remove('active', 'visible'); });
+        // Task 154: свернуть раскрытый поиск при уходе со страницы
+        // (запрос сбрасывается — вернувшийся видит полный список)
+        if (typeof window.kipCollapseSearch === 'function') window.kipCollapseSearch();
         // Task 130: при навигации на обычную страницу закрыть detail-панель ВСЕГДА
         // (раньше только если isDesktop(), но в Electron isDesktop() возвращает false)
         closeDetailPanel();
@@ -24970,6 +25254,15 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         canAccess: function(page) {
             if (!this._cachedRole) return false;
             // ============================================================
+            // Task 146: «Графики» — раздел ТОЛЬКО десктопного приложения
+            // (Electron). В мобильной PWA и обычном браузере раздел скрыт
+            // и заблокирован даже у Админа (прямая навигация #charts —
+            // «Нет доступа»). В Electron UA содержит «Electron» (Task 131).
+            // ============================================================
+            if (page === 'charts' && !(typeof IS_ELECTRON !== 'undefined' && IS_ELECTRON)) {
+                return false;
+            }
+            // ============================================================
             // Защита admin-страниц: только роль "Админ".
             // Это двойная защита — даже если ROLE_ACCESS случайно
             // включит admin-страницу в список, доступ всё равно
@@ -25109,6 +25402,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     (page === 'cable-journal-edit' || page === 'projects-prod')) {
                     allowedForPage = false;
                 }
+                // Task 146: «Графики» — только десктоп (Electron): скрыть
+                // закреплённый ярлык и любые кнопки-входы в мобильной PWA/браузере.
+                if (allowedForPage && page === 'charts' &&
+                    !(typeof IS_ELECTRON !== 'undefined' && IS_ELECTRON)) {
+                    allowedForPage = false;
+                }
                 btn.style.display = allowedForPage ? '' : 'none';
             });
 
@@ -25142,7 +25441,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // ============================================================
             const chartsBtn = document.getElementById('chartsEntryBtn');
             if (chartsBtn) {
-                const hasChartsAccess = isAll || allowed.indexOf('charts') !== -1;
+                // Task 146: «Графики» — раздел ТОЛЬКО десктопного приложения
+                // (Electron). В мобильной PWA и браузере кнопка скрыта даже
+                // у Админа. IS_ELECTRON — детекция Electron по User-Agent
+                // (Task 131; в десктоп-приложении всегда true).
+                const isElectronApp = (typeof IS_ELECTRON !== 'undefined') && IS_ELECTRON;
+                const hasChartsAccess = isElectronApp && (isAll || allowed.indexOf('charts') !== -1);
                 chartsBtn.style.display = hasChartsAccess ? '' : 'none';
             }
 
@@ -26124,7 +26428,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     if (typeof valveData !== 'undefined' && valveData && valveData.valves) {
                         const item = valveData.valves.find(function(d) { return String(d['ID'] || '') === String(itemId); });
                         if (item) {
-                            itemName = item['Марка'] || item['Назначение арматуры (параметр)'] || itemId;
+                            // Task 158: имя — назначение (консистентно со списком)
+                            itemName = item['Назначение арматуры (параметр)'] || item['Марка'] || itemId;
                             itemSub1 = item['Тип, пропускная характеристика'] || '';
                             itemSub2 = item['Место расположения'] || '';
                         }
@@ -27121,25 +27426,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // Если уже есть кэш — рендерим его немедленно и тихо обновляем
         // в фоне (Task 58 — кэш в памяти приложения).
         // ============================================================
+        // Task 152: load всегда тянет ПОЛНЫЙ список (серверный search не
+        // используется — фильтрация клиентская, kipSearchFilter). После
+        // загрузки — применить текущий поисковый запрос, если поле открыто.
         load: function() {
             const self = this;
-            const search = (document.getElementById('cjSearchInput').value || '').trim();
-
-            // Если есть кэш и это не поисковый запрос — рендерим сразу.
             const hasCache = this._rows && this._rows.length > 0;
-            const isSearch = !!search;
-            if (!hasCache && !isSearch) {
+            if (!hasCache) {
                 document.getElementById('cjList').innerHTML =
                     '<div style="padding:32px;text-align:center;color:var(--text-secondary,rgba(255,255,255,0.5));font-size:13px;">Загрузка…</div>';
-            } else if (isSearch) {
-                // При поиске показываем loading (результаты могут отличаться от кэша)
-                document.getElementById('cjList').innerHTML =
-                    '<div style="padding:32px;text-align:center;color:var(--text-secondary,rgba(255,255,255,0.5));font-size:13px;">Поиск…</div>';
             }
 
             this._api('cableJournal.list', {
                 options: {
-                    search: search,
                     limit: 1000  // максимум на стороне сервера (см. CableJournal.gs)
                 }
             }).then(function(data) {
@@ -27147,12 +27446,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 self._total = data.total || 0;
                 self._canEdit = !!data.canEdit;
                 document.getElementById('cjAddBtn').style.display = self._canEdit ? '' : 'none';
-                // Сохраняем в кэш только полный список (без поискового фильтра),
-                // чтобы при следующем открытии пользователь видел все записи.
-                if (!isSearch) {
-                    self._persistData(self._rows, self._total);
-                }
-                self._render();
+                self._persistData(self._rows, self._total);
+                // Полный список — в _allRows; применить поиск, если активен
+                self._allRows = self._rows.slice();
+                const q = (document.getElementById('cjSearchInput').value || '').trim();
+                if (q) self._applyClientSearch();
+                else self._render();
             }).catch(function(err) {
                 // При ошибке — если кэш есть, оставляем его; иначе показываем ошибку.
                 if (!hasCache) {
@@ -27296,12 +27595,43 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // ============================================================
         // Поиск с debounce
         // ============================================================
+        // Task 152: поиск — КЛИЕНТСКИЙ, движком kipSearchFilter (Task 151):
+        // слова AND, нормализация, транслитерация, нечёткий fallback.
+        // Сервер запрашивается только при загрузке полного списка
+        // (load без search); фильтрация выполняется по this._rows
+        // без похода на сервер — мгновенно и работает офлайн.
         handleSearchInput: function() {
             const self = this;
             if (this._searchTimer) clearTimeout(this._searchTimer);
             this._searchTimer = setTimeout(function() {
-                self.load();
-            }, 350);
+                self._applyClientSearch();
+            }, 200);
+        },
+
+        // Клиентская фильтрация записей по полю поиска
+        _applyClientSearch: function() {
+            const q = (document.getElementById('cjSearchInput').value || '').trim();
+            // Полный список держим отдельно: _rows — то, что рендерится
+            // (может быть отфильтровано), _allRows — всё из кэша/сервера.
+            if (!this._allRows) this._allRows = (this._rows || []).slice();
+            if (!q) {
+                this._rows = this._allRows.slice();
+                this._total = this._allRows.length;
+            } else {
+                // Task 151: гибкий поиск по всем полям записи
+                this._rows = kipSearchFilter(this._allRows, q, function (row) {
+                    return [
+                        row.department, row.designation, row.start, row.end,
+                        row.mark, row.mark_actual, row.cores, row.cores_actual,
+                        row.length, row.length_actual, row.notes
+                    ].join(' ');
+                });
+                this._total = this._allRows.length;
+            }
+            this._render();
+            // Task 156: счётчик результатов (после _render, чтобы не перезаписался)
+            kipRenderSearchCounter(document.getElementById('cjList'),
+                this._rows.length, this._allRows.length, q);
         },
 
         // ============================================================
@@ -27309,27 +27639,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // Кнопка-иконка переключает видимость поля ввода.
         // При раскрытии — фокус на поле; при скрытии — очистка + reload.
         // ============================================================
+        // Task 152: переключение поиска теперь общим делегированным
+        // обработчиком (.dev-search-toggle-btn, data-search-input) —
+        // как на всех страницах. Функция оставлена для совместимости
+        // (вдруг где-то вызывается напрямую) и пробрасывает клик.
         toggleSearch: function() {
-            const input = document.getElementById('cjSearchInput');
             const btn = document.getElementById('cjSearchToggleBtn');
-            if (!input || !btn) return;
-            const isOpen = input.classList.contains('search-open');
-            if (isOpen) {
-                // Закрыть
-                input.classList.remove('search-open');
-                input.removeAttribute('open');
-                btn.classList.remove('active');
-                if (input.value) {
-                    input.value = '';
-                    this.load();
-                }
-            } else {
-                // Открыть
-                input.classList.add('search-open');
-                input.setAttribute('open', '');
-                btn.classList.add('active');
-                setTimeout(function() { try { input.focus(); } catch (e) {} }, 30);
-            }
+            if (btn) btn.click();
         },
 
         // ============================================================
@@ -29474,447 +29790,6 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         FlowmeterData._updateDetailFavBtn();
     }
 
-    // KipCharts — Графики и статистика КИП ИОС
-    // ============================================================
-    const KipCharts = {
-
-        _currentTab: 'devices',   // активная вкладка
-        _cache: {},               // кэш загруженных данных {devices: [...], lockouts: [...], ...}
-
-        // Месяцы года (римские)
-        _MONTHS_ROMAN: ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'],
-
-        // Данные ППР на текущий год (2026) — Приборы
-        // 3 серии: Калибровка (K), Поверка (П), Тех.обслуж. (ТО)
-        // Источник: «Перечень КИП ИОС рабочий.xlsx» → лист «Диаграмма приборов»
-        // Формулы: COUNTIF(Приборы[<месяц>], <код вида обслуживания>)
-        _PPR_DEVICES: {
-            title: 'Количество приборов по графику ППР по месяцам на 2026 год',
-            series: [
-                { name: 'Калибровка', code: 'К', color: '#4a90d9', values: [13, 33, 30, 45, 24, 28, 33, 34, 48, 16, 34, 35] },
-                { name: 'Поверка', code: 'П', color: '#e07040', values: [12, 12, 4, 15, 0, 4, 6, 10, 4, 6, 1, 12] },
-                { name: 'Тех. обслуж.', code: 'ТО', color: '#5ab870', values: [353, 354, 500, 320, 374, 496, 333, 353, 481, 358, 362, 485] }
-            ]
-        },
-
-        // Данные ППР на текущий год (2026) — Блокировки (Схемы)
-        // 2 серии: Кан.ремонт (Кр), Тех.обслуж. (ТО)
-        _PPR_LOCKOUTS: {
-            title: 'График ППР — Схемы на 2026 год',
-            series: [
-                { name: 'Кан. ремонт', code: 'Кр', color: '#4a90d9', values: [58, 49, 26, 31, 13, 38, 33, 34, 74, 23, 49, 98] },
-                { name: 'Тех. обслуж.', code: 'ТО', color: '#5ab870', values: [87, 96, 210, 114, 132, 198, 112, 111, 162, 122, 96, 138] }
-            ]
-        },
-
-        // Конфигурация разделов
-        _SECTIONS: {
-            devices: {
-                jsonFile: 'data/devices.json',
-                arrayKey: 'devices',
-                groupField: 'Наименование',
-                prodField: 'Место установки',
-                typeField: 'Тип',
-                label: 'Приборы',
-                color: '#4a8fc7',
-                colorLight: 'rgba(74,143,199,0.35)'
-            },
-            lockouts: {
-                jsonFile: 'data/lockouts.json',
-                arrayKey: 'lockouts',
-                groupField: 'Параметр',
-                prodField: 'Производство',
-                label: 'Блокировки',
-                color: '#b85a7a',
-                colorLight: 'rgba(184,90,122,0.35)'
-            },
-            valves: {
-                jsonFile: 'data/valves.json',
-                arrayKey: 'valves',
-                groupField: 'Тип, пропускная характеристика',
-                prodField: 'Производство',
-                label: 'Клапана',
-                color: '#4a8a8c',
-                colorLight: 'rgba(74,138,140,0.35)'
-            },
-            regulators: {
-                jsonFile: 'data/regulators.json',
-                arrayKey: 'regulators',
-                groupField: 'Параметр',
-                prodField: 'Производство',
-                label: 'Регуляторы',
-                color: '#7e5ab8',
-                colorLight: 'rgba(126,90,184,0.35)'
-            }
-        },
-
-        // Переключение вкладки
-        switchTab: function(tab) {
-            if (!this._SECTIONS[tab]) return;
-            this._currentTab = tab;
-            // Обновить UI вкладок
-            var tabs = document.querySelectorAll('.charts-tab');
-            for (var i = 0; i < tabs.length; i++) {
-                var t = tabs[i];
-                if (t.getAttribute('data-chart-tab') === tab) {
-                    t.classList.add('charts-tab-active');
-                } else {
-                    t.classList.remove('charts-tab-active');
-                }
-            }
-            this._renderTab(tab);
-        },
-
-        // Загрузка данных раздела
-        _loadData: function(section, callback) {
-            if (this._cache[section]) {
-                callback(this._cache[section]);
-                return;
-            }
-            var sec = this._SECTIONS[section];
-            var ts = Date.now();
-            fetch(sec.jsonFile + '?v=' + ts, {cache: 'no-store'})
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    var items = data[sec.arrayKey] || [];
-                    KipCharts._cache[section] = items;
-                    callback(items);
-                })
-                .catch(function() {
-                    // Fallback — показать пустой массив
-                    KipCharts._cache[section] = [];
-                    callback([]);
-                });
-        },
-
-        // Рендер вкладки
-        _renderTab: function(tab) {
-            var container = document.getElementById('chartsContent');
-            if (!container) return;
-
-            // Для вкладки Приборы — диаграмма ППР не зависит от JSON-данных
-            if (tab === 'devices') {
-                this._renderContent(tab, []);
-                return;
-            }
-
-            container.innerHTML = '<div class="charts-loading">Загрузка…</div>';
-            this._loadData(tab, function(items) {
-                KipCharts._renderContent(tab, items);
-            });
-        },
-
-        // Основной рендер контента
-        _renderContent: function(tab, items) {
-            var container = document.getElementById('chartsContent');
-            if (!container) return;
-
-            var sec = this._SECTIONS[tab];
-            var html = '';
-
-            // Для вкладки Приборы — только диаграмма ППР (как в Excel)
-            if (tab === 'devices') {
-                html += this._renderPPRChart(this._PPR_DEVICES);
-                container.innerHTML = html;
-                return;
-            }
-
-            // 0. График ППР (если есть для данного раздела)
-            if (tab === 'lockouts') {
-                html += this._renderPPRChart(this._PPR_LOCKOUTS);
-            }
-
-            // 1. Сводная статистика
-            var totalItems = items.length;
-            var groupField = sec.groupField;
-            var prodField = sec.prodField;
-
-            // Группировка по groupField
-            var groups = {};
-            var prods = {};
-            for (var i = 0; i < items.length; i++) {
-                var item = items[i];
-                var gVal = (item[groupField] || '').toString().trim();
-                if (gVal) groups[gVal] = (groups[gVal] || 0) + 1;
-                var pVal = (item[prodField] || '').toString().trim();
-                if (pVal) prods[pVal] = (prods[pVal] || 0) + 1;
-            }
-            var groupCount = Object.keys(groups).length;
-            var prodCount = Object.keys(prods).length;
-
-            // Для приборов — ещё по типу
-            var typeCount = 0;
-            if (sec.typeField) {
-                var types = {};
-                for (var i = 0; i < items.length; i++) {
-                    var tVal = (items[i][sec.typeField] || '').toString().trim();
-                    if (tVal) types[tVal] = (types[tVal] || 0) + 1;
-                }
-                typeCount = Object.keys(types).length;
-            }
-
-            // Сводная сетка
-            html += '<div class="chart-stats-grid">';
-            html += '<div class="chart-stat-card"><div class="chart-stat-value">' + totalItems + '</div><div class="chart-stat-label">Всего ' + sec.label.toLowerCase() + '</div></div>';
-            html += '<div class="chart-stat-card"><div class="chart-stat-value">' + prodCount + '</div><div class="chart-stat-label">Производств</div></div>';
-            html += '<div class="chart-stat-card"><div class="chart-stat-value">' + groupCount + '</div><div class="chart-stat-label">Уникальных ' + this._groupLabel(tab) + '</div></div>';
-            if (sec.typeField) {
-                html += '<div class="chart-stat-card"><div class="chart-stat-value">' + typeCount + '</div><div class="chart-stat-label">Уникальных типов</div></div>';
-            } else {
-                html += '<div class="chart-stat-card"><div class="chart-stat-value">' + this._avgPerProd(items, prodField) + '</div><div class="chart-stat-label">Среднее на пр-во</div></div>';
-            }
-            html += '</div>';
-
-            // 2. График: Топ-10 по groupField
-            var sortedGroups = Object.keys(groups).map(function(k) { return {name: k, count: groups[k]}; });
-            sortedGroups.sort(function(a, b) { return b.count - a.count; });
-            html += this._renderBarChart(
-                'Топ-10 по ' + this._groupLabel(tab),
-                sortedGroups.slice(0, 10),
-                sec.color
-            );
-
-            // 3. График: Топ-10 производств
-            var sortedProds = Object.keys(prods).map(function(k) { return {name: k, count: prods[k]}; });
-            sortedProds.sort(function(a, b) { return b.count - a.count; });
-            html += this._renderBarChart(
-                'Топ-10 производств',
-                sortedProds.slice(0, 10),
-                sec.color
-            );
-
-            // 4. Для приборов — ещё и по типу
-            if (sec.typeField) {
-                var types = {};
-                for (var i = 0; i < items.length; i++) {
-                    var tVal = (items[i][sec.typeField] || '').toString().trim();
-                    if (tVal) types[tVal] = (types[tVal] || 0) + 1;
-                }
-                var sortedTypes = Object.keys(types).map(function(k) { return {name: k, count: types[k]}; });
-                sortedTypes.sort(function(a, b) { return b.count - a.count; });
-                html += this._renderBarChart(
-                    'Топ-10 типов приборов',
-                    sortedTypes.slice(0, 10),
-                    sec.color
-                );
-            }
-
-            container.innerHTML = html;
-        },
-
-        // ============================================================
-        // Рендер графика ППР — группированная вертикальная гистограмма
-        // (как в Excel: clustered column chart с легендой и итогами)
-        // ============================================================
-        _renderPPRChart: function(pprData) {
-            var series = pprData.series;
-            var numSeries = series.length;
-            var numMonths = 12;
-
-            // Найти максимальное значение для масштаба оси Y
-            var maxVal = 0;
-            for (var s = 0; s < numSeries; s++) {
-                for (var m = 0; m < numMonths; m++) {
-                    if (series[s].values[m] > maxVal) maxVal = series[s].values[m];
-                }
-            }
-            if (maxVal === 0) maxVal = 1;
-
-            // Округлить maxVal вверх до красивого числа
-            var niceMax = this._niceMax(maxVal);
-
-            // Ось Y: 5 делений
-            var ySteps = 5;
-            var yStepVal = niceMax / ySteps;
-
-            var html = '<div class="chart-card ppr-chart-card">';
-            html += '<div class="ppr-chart-header">';
-            html += '<div class="ppr-chart-title">' + this._escHtml(pprData.title) + '</div>';
-            // Легенда
-            html += '<div class="ppr-legend">';
-            for (var s = 0; s < numSeries; s++) {
-                html += '<div class="ppr-legend-item">';
-                html += '<span class="ppr-legend-dot" style="background:' + series[s].color + ';"></span>';
-                html += '<span class="ppr-legend-code">' + this._escHtml(series[s].code) + '</span>';
-                html += '<span class="ppr-legend-name">' + this._escHtml(series[s].name) + '</span>';
-                html += '</div>';
-            }
-            html += '</div>';
-            html += '</div>';
-
-            // Тело графика
-            html += '<div class="ppr-chart-body">';
-
-            // Оси + область графика
-            html += '<div class="ppr-chart-area">';
-
-            // Ось Y (метки слева)
-            html += '<div class="ppr-y-axis">';
-            for (var i = ySteps; i >= 0; i--) {
-                var yVal = Math.round(yStepVal * i);
-                html += '<div class="ppr-y-label">' + yVal + '</div>';
-            }
-            html += '</div>';
-
-            // Сетка + столбцы
-            html += '<div class="ppr-chart-grid">';
-
-            // Горизонтальные линии сетки
-            for (var i = 0; i <= ySteps; i++) {
-                var bottomPct = (i / ySteps) * 100;
-                html += '<div class="ppr-grid-line" style="bottom:' + bottomPct + '%;"></div>';
-            }
-
-            // Группы столбцов по месяцам
-            for (var m = 0; m < numMonths; m++) {
-                html += '<div class="ppr-month-group">';
-
-                // Столбцы серий
-                html += '<div class="ppr-bars-row">';
-                for (var s = 0; s < numSeries; s++) {
-                    var val = series[s].values[m];
-                    var heightPct = (val / niceMax) * 100;
-                    html += '<div class="ppr-bar-cell">';
-                    if (val > 0) {
-                        html += '<div class="ppr-bar" style="height:' + heightPct + '%;background:' + series[s].color + ';" title="' + this._escHtml(series[s].name) + ': ' + val + '">';
-                        // Значение над столбцом (показываем если достаточно высокий)
-                        if (heightPct > 8) {
-                            html += '<span class="ppr-bar-val">' + val + '</span>';
-                        }
-                        html += '</div>';
-                    }
-                    html += '</div>';
-                }
-                html += '</div>';
-
-                // Метка месяца
-                html += '<div class="ppr-month-label">' + this._MONTHS_ROMAN[m] + '</div>';
-                html += '</div>';
-            }
-
-            html += '</div>'; // .ppr-chart-grid
-            html += '</div>'; // .ppr-chart-area
-
-            // Строка итогов (сумма по каждой серии)
-            html += '<div class="ppr-totals-row">';
-            html += '<div class="ppr-totals-label">Итого:</div>';
-            for (var s = 0; s < numSeries; s++) {
-                var total = 0;
-                for (var m = 0; m < numMonths; m++) total += series[s].values[m];
-                html += '<div class="ppr-totals-item">';
-                html += '<span class="ppr-legend-dot" style="background:' + series[s].color + ';"></span>';
-                html += '<span class="ppr-legend-code">' + this._escHtml(series[s].code) + '</span>';
-                html += '<span class="ppr-totals-value">' + total + '</span>';
-                html += '</div>';
-            }
-            html += '</div>';
-
-            html += '</div>'; // .ppr-chart-body
-            html += '</div>'; // .chart-card
-
-            return html;
-        },
-
-        // Красивое округление максимума для оси Y
-        _niceMax: function(val) {
-            if (val <= 0) return 10;
-            var mag = Math.pow(10, Math.floor(Math.log10(val)));
-            var norm = val / mag;
-            var nice;
-            if (norm <= 1) nice = 1;
-            else if (norm <= 2) nice = 2;
-            else if (norm <= 5) nice = 5;
-            else nice = 10;
-            return nice * mag;
-        },
-
-        // Название группировки для заголовка
-        _groupLabel: function(tab) {
-            switch (tab) {
-                case 'devices': return 'наименований';
-                case 'lockouts': return 'параметров';
-                case 'valves': return 'типов клапанов';
-                case 'regulators': return 'параметров';
-                default: return 'групп';
-            }
-        },
-
-        // Среднее количество на производство
-        _avgPerProd: function(items, prodField) {
-            var prods = {};
-            for (var i = 0; i < items.length; i++) {
-                var p = (items[i][prodField] || '').toString().trim();
-                if (p) prods[p] = (prods[p] || 0) + 1;
-            }
-            var keys = Object.keys(prods);
-            if (keys.length === 0) return '0';
-            var sum = 0;
-            for (var i = 0; i < keys.length; i++) sum += prods[keys[i]];
-            return (sum / keys.length).toFixed(1);
-        },
-
-        // Рендер горизонтальной столбчатой диаграммы
-        _renderBarChart: function(title, data, color) {
-            if (!data || data.length === 0) return '';
-            var maxVal = data[0].count;
-            if (maxVal === 0) maxVal = 1;
-
-            var html = '<div class="chart-card">';
-            html += '<div class="chart-card-title">' + this._escHtml(title) + '</div>';
-            html += '<div class="chart-card-body">';
-
-            for (var i = 0; i < data.length; i++) {
-                var d = data[i];
-                var pct = Math.round((d.count / maxVal) * 100);
-                html += '<div class="chart-bar-row">';
-                html += '<div class="chart-bar-label" title="' + this._escHtml(d.name) + '">' + this._escHtml(d.name) + '</div>';
-                html += '<div class="chart-bar-track"><div class="chart-bar-fill" style="width:' + pct + '%;background:' + color + ';"></div></div>';
-                html += '<div class="chart-bar-value">' + d.count + '</div>';
-                html += '</div>';
-            }
-
-            html += '</div></div>';
-            return html;
-        },
-
-        // HTML-экранирование
-        _escHtml: function(str) {
-            if (str === null || str === undefined) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        },
-
-        // Инициализация кнопки входа (вызывается при загрузке КИП ИОС)
-        initEntryButton: function() {
-            var btn = document.getElementById('chartsEntryBtn');
-            if (!btn) return;
-            btn.onclick = function() { navigateTo('charts'); };
-        },
-
-        // Обновление подзаголовка кнопки
-        updateEntrySublabel: function() {
-            var btn = document.getElementById('chartsEntryBtn');
-            if (!btn) return;
-            var sub = btn.querySelector('.menu-btn-sublabel');
-            if (!sub) return;
-            // Показать общее количество записей во всех 4 разделах
-            var total = 0;
-            var sections = ['devices', 'lockouts', 'valves', 'regulators'];
-            for (var i = 0; i < sections.length; i++) {
-                if (this._cache[sections[i]]) {
-                    total += this._cache[sections[i]].length;
-                }
-            }
-            if (total > 0) {
-                sub.textContent = total + ' записей КИП ИОС';
-            }
-        },
-
-        // Открытие страницы (вызывается из navigateTo)
-        onPageOpen: function() {
-            this.switchTab(this._currentTab);
-        }
-    };
-
     // ============================================================
     // KipAdmin — Админ-панель (старый код ниже)
     // ============================================================
@@ -29926,14 +29801,30 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         _logs: null,
 
         // Список ролей для <select> (тот же, что в Utils.gs Admin.updateRole).
-        ROLES: [
-            'Запрет', 'Общий доступ',
-            'КИП8', 'КИП8 pro',
-            'КИП ИОС', 'КИП ИОС pro',
-            'ИТР8', 'ИТР8 pro',
-            'ИТР ИОС',
-            'Админ'
-        ],
+        // Task 157: полный список ролей (12) — берётся из ROLE_ACCESS,
+        // чтобы админ-панель всегда соответствовала матрице доступа.
+        // Раньше список был захардкожен (10 ролей) — отсутствовали
+        // «ИТР ТОКЕМ» и «КИП ИОС дежурный», их нельзя было назначить.
+        ROLES: (function () {
+            var base = [
+                'Запрет', 'Общий доступ', 'ИТР ТОКЕМ',
+                'КИП8', 'КИП8 pro',
+                'КИП ИОС', 'КИП ИОС pro', 'КИП ИОС дежурный',
+                'ИТР8', 'ИТР8 pro',
+                'ИТР ИОС',
+                'Админ'
+            ];
+            // Синхронизация с ROLE_ACCESS: если там появится новая роль —
+            // она автоматически попадёт в список админ-панели
+            try {
+                var fromAccess = (typeof KipAuth !== 'undefined' && KipAuth.ROLE_ACCESS)
+                    ? Object.keys(KipAuth.ROLE_ACCESS) : [];
+                fromAccess.forEach(function (r) {
+                    if (base.indexOf(r) === -1) base.push(r);
+                });
+            } catch (e) {}
+            return base;
+        })(),
 
         // ============================================================
         // Универсальный вызов админ-эндпоинта.

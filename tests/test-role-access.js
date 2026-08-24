@@ -497,3 +497,390 @@ describe('Аудит ролей: перестроение сетки при фи
             'нет скрытия пустых .menu-btn-row');
     });
 });
+
+// ------------------------------------------------------------
+// Task 146: «Графики» — раздел только десктопного приложения (Electron)
+// ------------------------------------------------------------
+describe('Аудит ролей: «Графики» только в десктопе (Task 146)', function () {
+
+    test('canAccess блокирует charts вне Electron (даже у Админа)', function () {
+        // Статическая проверка: в canAccess есть условие IS_ELECTRON для charts
+        assertTrue(/canAccess[\s\S]{0,600}page === 'charts'[\s\S]{0,200}IS_ELECTRON[\s\S]{0,120}return false/.test(html),
+            'в canAccess нет блокировки charts для не-Electron окружений');
+    });
+
+    test('Кнопка «Графики» на КИП ИОС скрывается вне Electron', function () {
+        // chartsEntryBtn: условие isElectronApp в _applyRoleToUI
+        assertTrue(/chartsEntryBtn[\s\S]{0,400}isElectronApp[\s\S]{0,200}hasChartsAccess = isElectronApp/.test(html),
+            'нет проверки IS_ELECTRON для chartsEntryBtn');
+    });
+
+    test('Закреплённый ярлык «Графики» скрывается вне Electron (цикл .menu-btn)', function () {
+        // Цикл .menu-btn: charts + IS_ELECTRON
+        assertTrue(/page === 'charts'[\s\S]{0,200}IS_ELECTRON[\s\S]{0,100}allowedForPage = false/.test(html),
+            'нет скрытия ярлыка charts вне Electron в цикле .menu-btn');
+    });
+
+    test('Фильтр 9 (Графики) в матрице: только Админ — сохранено на уровне allowed', function () {
+        // charts остаётся в allowed только у Админа; видимость поверх — Electron
+        ROLES.forEach(function (role) {
+            assertEqual(hasPage(role, 'charts'), role === 'Админ',
+                '«Графики» в allowed: только Админ, роль «' + role + '»');
+        });
+    });
+});
+
+// ------------------------------------------------------------
+// Task 147/148: десктоп-модули (только Electron)
+// ------------------------------------------------------------
+describe('Десктоп-модули (Task 147/148)', function () {
+
+    test('Файлы десктоп-модулей существуют', function () {
+        assertTrue(fs.existsSync(path.resolve(__dirname, '..', 'charts-desktop.js')),
+            'charts-desktop.js отсутствует');
+        assertTrue(fs.existsSync(path.resolve(__dirname, '..', 'devices-table-desktop.js')),
+            'devices-table-desktop.js отсутствует');
+    });
+
+    test('Loader подключает модули только внутри IS_ELECTRON', function () {
+        // Блок if (IS_ELECTRON) ... forEach(['charts-desktop.js', 'devices-table-desktop.js'])
+        const re = /if \(IS_ELECTRON\) \{[\s\S]{0,400}'charts-desktop\.js', 'devices-table-desktop\.js'[\s\S]{0,300}forEach/;
+        assertTrue(re.test(html), 'loader десктоп-модулей не найден или вне IS_ELECTRON');
+    });
+
+    test('Код таблицы не содержится в index.html (только в модуле)', function () {
+        // CSS-ПРАВИЛА и логика таблицы не должны попасть в мобильный index.html.
+        // Упоминания селекторов в index.html допустимы: Task 149/150
+        // используют .dev-table-toggle-btn для позиционирования иконки
+        // поиска левее кнопки «Таблица» (это НЕ код таблицы).
+        assertEqual(/\.dev-table-wrap\s*\{/.test(html), false,
+            'CSS-правило .dev-table-wrap не должно быть в index.html');
+        assertEqual(/\.dev-table\s*\{/.test(html), false,
+            'CSS-правило .dev-table не должно быть в index.html');
+        assertEqual(/\.dev-table-td\s*\{|\.dev-table-th\s*\{/.test(html), false,
+            'CSS-правила ячеек таблицы не должны быть в index.html');
+        assertEqual(html.indexOf('buildTableHtml') === -1, true,
+            'функция buildTableHtml не должна быть в index.html');
+    });
+});
+
+// ------------------------------------------------------------
+// Task 151: гибкий поиск (слова AND + транслит + нечёткий fallback)
+// ------------------------------------------------------------
+describe('Гибкий поиск kipSearchFilter (Task 151)', function () {
+
+    // Извлечь поисковые функции из index.html через vm
+    const vm = require('vm');
+    const searchFns = (function () {
+        const startM = html.indexOf('Task 151: ГИБКИЙ ПОИСК');
+        const start = html.indexOf('var _TRANSLIT_RU2EN', startM);
+        const endM = html.indexOf('function devEsc', start);
+        const code = html.slice(start, endM);
+        const sandbox = {};
+        vm.runInNewContext(code + '\n;({kipSearchWords, kipTranslit, kipEditDistance, kipWordMatches, kipMatchAll, kipSearchFilter});', sandbox, 'search.vm');
+        // kipSearchFilter объявлена как function — достаём из контекста
+        return vm.runInNewContext(code + '\n;({kipSearchWords: kipSearchWords, kipEditDistance: kipEditDistance, kipMatchAll: kipMatchAll, kipSearchFilter: kipSearchFilter});', {}, 'search2.vm');
+    })();
+
+    // Тестовые записи (как приборы)
+    const items = [
+        { name: 'Счетчик воды турбинный', type: 'СТВУ-100' },
+        { name: 'Метран-150CD', type: 'преобразователь давления' },
+        { name: 'Регистратор безбумажный', type: 'Regigraf Ф1771-АД' },
+        { name: 'ЭМИС-ПУЛЬС 530', type: 'расходомер' },
+        { name: 'Датчик разности давления', type: 'Метран-100' }
+    ];
+    const getter = function (d) { return d.name + ' ' + d.type; };
+
+    test('Точный поиск работает как раньше (подстрока)', function () {
+        const r = searchFns.kipSearchFilter(items, 'метран', getter);
+        assertEqual(r.length >= 2, true, '«метран» должен найти Метран-150CD и Метран-100');
+    });
+
+    test('Этап 1: слова в любом порядке (AND-логика)', function () {
+        // «воды счетчик» должен найти «Счетчик воды турбинный»
+        const r = searchFns.kipSearchFilter(items, 'воды счетчик', getter);
+        assertEqual(r.length, 1, '«воды счетчик» → Счетчик воды турбинный');
+        assertEqual(r[0].name, 'Счетчик воды турбинный');
+    });
+
+    test('Этап 1: дефис/пробел нормализуются', function () {
+        const r = searchFns.kipSearchFilter(items, 'метран 150', getter);
+        assertEqual(r.length >= 1, true, '«метран 150» должен найти «Метран-150CD»');
+    });
+
+    test('Этап 1: транслитерация en→ru («metran» находит «Метран»)', function () {
+        const r = searchFns.kipSearchFilter(items, 'metran', getter);
+        assertEqual(r.length >= 2, true, '«metran» должен найти Метран-150CD и Метран-100');
+    });
+
+    test('Этап 1: транслитерация ru→en («региграф» находит «Regigraf»)', function () {
+        const r = searchFns.kipSearchFilter(items, 'региграф', getter);
+        assertEqual(r.length, 1, '«региграф» → Regigraf Ф1771-АД');
+    });
+
+    test('Этап 2: опечатка одной буквы (только если нет точных)', function () {
+        // «Регисратор» (пропущена «т») — точных нет, нечёткий найдёт
+        const r = searchFns.kipSearchFilter(items, 'Регисратор', getter);
+        assertEqual(r.length >= 1, true, '«Регисратор» → Регистратор безбумажный');
+    });
+
+    test('Этап 2: порог по длине — короткие слова не размываются', function () {
+        // «датик» (опечатка в «датчик», 5 букв — 1 опечатка допускается)
+        const r = searchFns.kipSearchFilter(items, 'датик', getter);
+        assertEqual(r.length >= 1, true, '«датик» → Датчик разности давления');
+        // «клапн» (4 буквы) — порог 0, не должен ничего найти
+        const r2 = searchFns.kipSearchFilter(items, 'клапн', getter);
+        assertEqual(r2.length, 0, '«клапн» (4 буквы) — без нечёткости');
+    });
+
+    test('AND: лишнее слово исключает запись (и в нечётком)', function () {
+        // «счетчик урановый» — слова «счетчик» есть, «урановый» нет нигде
+        const r = searchFns.kipSearchFilter(items, 'счетчик урановый', getter);
+        assertEqual(r.length, 0, '«счетчик урановый» не должен ничего найти');
+    });
+
+    test('Дамерау-Левенштейн: перестановка = 1 операция', function () {
+        assertEqual(searchFns.kipEditDistance('метран', 'метрана'), 1);
+        assertEqual(searchFns.kipEditDistance('abc', 'acb'), 1, 'перестановка соседних = 1');
+        assertEqual(searchFns.kipEditDistance('регисратор', 'регистратор'), 1);
+    });
+
+    test('Пустой запрос возвращает всё', function () {
+        const r = searchFns.kipSearchFilter(items, '', getter);
+        assertEqual(r.length, items.length);
+        const r2 = searchFns.kipSearchFilter(items, '   ', getter);
+        assertEqual(r2.length, items.length);
+    });
+});
+
+// ------------------------------------------------------------
+// Task 152: кабельный журнал — единый поиск + клиентская фильтрация
+// ------------------------------------------------------------
+describe('Кабельный журнал: единый поиск (Task 152)', function () {
+
+    test('cj-поле использует единый класс (без cj-header-search)', function () {
+        // Класс cj-header-search удалён из HTML — поле на общих правилах
+        const m = html.match(/id="cjSearchInput"[^>]*/);
+        assertTrue(!!m, 'cjSearchInput не найден');
+        assertEqual(m[0].indexOf('cj-header-search') === -1, true,
+            'cjSearchInput не должен иметь класс cj-header-search (единый стиль)');
+        assertEqual(m[0].indexOf('dev-header-search') !== -1, true,
+            'cjSearchInput должен иметь класс dev-header-search');
+    });
+
+    test('Кнопка поиска cj — единый класс dev-search-toggle-btn', function () {
+        const m = html.match(/id="cjSearchToggleBtn"[^>]*/);
+        assertTrue(!!m, 'cjSearchToggleBtn не найден');
+        assertEqual(m[0].indexOf('dev-search-toggle-btn') !== -1, true,
+            'кнопка должна использовать единый класс dev-search-toggle-btn');
+        assertEqual(m[0].indexOf('data-search-input="cjSearchInput"') !== -1, true,
+            'кнопка должна ссылаться на cjSearchInput через data-search-input');
+    });
+
+    test('Собственные cj-header-search CSS-правила удалены', function () {
+        assertEqual(/\.cj-header-search\s*\{/.test(html), false,
+            'CSS-правило .cj-header-search не должно существовать');
+    });
+
+    test('Клиентская фильтрация: kipSearchFilter подключён к cj', function () {
+        // _applyClientSearch использует kipSearchFilter
+        assertTrue(/_applyClientSearch[\s\S]{0,600}kipSearchFilter/.test(html),
+            '_applyClientSearch должен вызывать kipSearchFilter');
+        // load() больше не шлёт search на сервер: в опциях запроса только limit
+        const loadIdx = html.indexOf("_api('cableJournal.list'");
+        assertTrue(loadIdx !== -1, 'вызов cableJournal.list не найден');
+        // Блок опций после вызова (в пределах 300 символов)
+        const opts = html.slice(loadIdx, loadIdx + 300);
+        assertEqual(opts.indexOf('search:') === -1, true,
+            'load() не должен отправлять search на сервер (клиентская фильтрация)');
+        assertEqual(opts.indexOf('limit:') !== -1, true,
+            'load() должен запрашивать полный список (limit)');
+    });
+
+    test('Кэш полного списка: _allRows сохраняется при загрузке', function () {
+        assertTrue(/_allRows = self\._rows\.slice\(\)/.test(html),
+            'после load полный список должен копироваться в _allRows');
+    });
+});
+
+// ------------------------------------------------------------
+// Task 154: автосворачивание поиска при смене страницы
+// ------------------------------------------------------------
+describe('Автосворачивание поиска (Task 154)', function () {
+
+    test('Функция kipCollapseSearch определена', function () {
+        assertTrue(html.indexOf('window.kipCollapseSearch = function') !== -1,
+            'нет window.kipCollapseSearch в контроллере поиска');
+    });
+
+    test('navigateTo вызывает kipCollapseSearch при смене страницы', function () {
+        // Вызов сразу после деактивации страниц
+        assertTrue(/querySelectorAll\('\.page-content'\)\.forEach\(el => \{ el\.classList\.remove\('active', 'visible'\); \}\);[\s\S]{0,300}kipCollapseSearch[\s\S]{0,60}\(\)/.test(html),
+            'navigateTo должен вызывать kipCollapseSearch при деактивации страниц');
+    });
+
+    test('Сворачивание сбрасывает запрос (dispatch input)', function () {
+        assertTrue(/kipCollapseSearch[\s\S]{0,1100}input\.value = ''[\s\S]{0,120}dispatchEvent\(new Event\('input'/.test(html),
+            'при сворачивании запрос должен сбрасываться с перерендером');
+    });
+});
+
+// ------------------------------------------------------------
+// Task 155: запросы с разделителями (позиции «8м/1») + шум коротких слов
+// ------------------------------------------------------------
+describe('Поиск с разделителями и короткими словами (Task 155)', function () {
+
+    // Извлечь движок заново (включая glued-форму)
+    const vm2 = require('vm');
+    const engine = (function () {
+        const startM = html.indexOf('Task 151: ГИБКИЙ ПОИСК');
+        const start = html.indexOf('var _TRANSLIT_RU2EN', startM);
+        const endM = html.indexOf('function devEsc', start);
+        const code = html.slice(start, endM);
+        return vm2.runInNewContext(code + '\n;({kipSearchFilter: kipSearchFilter, kipMatchForms: kipMatchForms});', {}, 't155.vm');
+    })();
+
+    test('Запрос с разделителем «8м/1» находит запись «поз. 8м/1»', function () {
+        const items = [
+            { f: 'Состояние мешалок поз. 8м/1' },
+            { f: 'Давление в аппарате 40м/2' },
+            { f: 'Расход в поз. 8м/1-3' }
+        ];
+        const r = engine.kipSearchFilter(items, '8м/1', function (d) { return d.f; });
+        assertEqual(r.length, 2, 'должны найтись «поз. 8м/1» и «8м/1-3»');
+    });
+
+    test('Glued-форма: «8м1» (слитый запрос) находит «8м/1»', function () {
+        const items = [{ f: 'поз. 8м/1' }, { f: 'поз. 7м/2' }];
+        const r = engine.kipSearchFilter(items, '8м1', function (d) { return d.f; });
+        assertEqual(r.length, 1);
+    });
+
+    test('Разные разделители: «8 м/1» и «8м-1» находят «8м/1»', function () {
+        const items = [{ f: 'поз. 8м/1' }];
+        const a = engine.kipSearchFilter(items, '8 м/1', function (d) { return d.f; });
+        const b = engine.kipSearchFilter(items, '8м-1', function (d) { return d.f; });
+        assertEqual(a.length, 1, 'пробел-вариация');
+        assertEqual(b.length, 1, 'дефис-вариация');
+    });
+
+    test('Короткие слова не дают шума: «8» не матчит «8мм»/«18»', function () {
+        const items = [
+            { f: 'Труба 8мм' },        // «8» — часть слова «8мм», НЕ отдельное слово
+            { f: 'Клапан 18' },        // «8» — часть «18»
+            { f: 'Позиция 8 сама' }    // «8» — отдельное слово → находится
+        ];
+        const r = engine.kipSearchFilter(items, '8', function (d) { return d.f; });
+        assertEqual(r.length, 1, 'только запись с отдельным словом «8»');
+    });
+
+    test('Сырой запрос: списки передают rawQuery (не norm-слитый)', function () {
+        // lockRenderSorted и др.: kipSearchFilter(filtered, rawQuery, ...)
+        for (const f of ['LOCK_FIELDS', 'VALVE_FIELDS', 'REGULATOR_FIELDS', 'PROJECT_FIELDS']) {
+            const re = new RegExp('kipSearchFilter\\(filtered, rawQuery, function \\(d\\) \\{[\\s\\S]{0,120}' + f);
+            assertTrue(re.test(html), f + ' фильтр должен использовать rawQuery');
+        }
+    });
+});
+
+// ------------------------------------------------------------
+// Task 156: счётчик результатов поиска
+// ------------------------------------------------------------
+describe('Счётчик результатов поиска (Task 156)', function () {
+
+    test('Функция kipRenderSearchCounter определена', function () {
+        assertTrue(html.indexOf('window.kipRenderSearchCounter = function') !== -1,
+            'нет kipRenderSearchCounter');
+    });
+
+    test('Все 6 рендеров вызывают счётчик (__searchTotal + вызов)', function () {
+        ['devRender', 'devRenderSorted', 'lockRenderSorted', 'valveRenderSorted',
+         'regulatorRenderSorted', 'projectsRenderSorted'].forEach(function (fn) {
+            const m = html.match(new RegExp('function ' + fn + '\\('));
+            assertTrue(!!m, fn + ' не найдена');
+            // Сегмент функции: до следующей function на верхнем уровне
+            const start = m.index;
+            const end = html.indexOf('\n    function ', start + 10);
+            const seg = html.slice(start, end === -1 ? html.length : end);
+            assertEqual(seg.indexOf('__searchTotal') !== -1, true,
+                fn + ': нет __searchTotal');
+            assertEqual(seg.indexOf('kipRenderSearchCounter(list') !== -1, true,
+                fn + ': нет вызова kipRenderSearchCounter');
+        });
+    });
+
+    test('cj: счётчик после _render в _applyClientSearch', function () {
+        assertTrue(/_applyClientSearch[\s\S]{0,1600}this\._render\(\);[\s\S]{0,300}kipRenderSearchCounter/.test(html),
+            'cj: счётчик должен вызываться после _render');
+    });
+
+    test('CSS счётчика определён (обе темы)', function () {
+        assertEqual(/\.kip-search-counter\s*\{/.test(html), true, 'нет .kip-search-counter');
+        assertEqual(/\[data-theme="light"\] \.kip-search-counter\s*\{/.test(html), true, 'нет светлой темы');
+    });
+
+    test('Без запроса счётчик удаляется', function () {
+        assertTrue(/kipRenderSearchCounter[\s\S]{0,700}if \(!query\) return;/.test(html),
+            'helper должен удалять счётчик при пустом запросе');
+    });
+});
+
+// ------------------------------------------------------------
+// Task 157: полный список ролей в админ-панели
+// ------------------------------------------------------------
+describe('Админ-панель: полный список ролей (Task 157)', function () {
+
+    test('KipAdmin.ROLES содержит все 12 ролей матрицы', function () {
+        // Все роли из матрицы фильтров должны быть назначаемы
+        const all12 = ['Запрет', 'Общий доступ', 'ИТР ТОКЕМ', 'КИП8', 'КИП8 pro',
+                       'КИП ИОС', 'КИП ИОС pro', 'КИП ИОС дежурный',
+                       'ИТР8', 'ИТР8 pro', 'ИТР ИОС', 'Админ'];
+        // Извлечь массив ROLES из index.html
+        const m = html.match(/ROLES: \(function \(\) \{[\s\S]*?\}\)\(\),/);
+        assertTrue(!!m, 'ROLES-конструктор не найден');
+        all12.forEach(function (role) {
+            assertEqual(m[0].indexOf("'" + role + "'") !== -1, true,
+                'роль «' + role + '» должна быть в KipAdmin.ROLES');
+        });
+    });
+
+    test('Раньше отсутствующие роли теперь в списке (ИТР ТОКЕМ, КИП ИОС дежурный)', function () {
+        const m = html.match(/ROLES: \(function \(\) \{[\s\S]*?\}\)\(\),/);
+        assertTrue(m[0].indexOf("'ИТР ТОКЕМ'") !== -1, 'ИТР ТОКЕМ');
+        assertTrue(m[0].indexOf("'КИП ИОС дежурный'") !== -1, 'КИП ИОС дежурный');
+    });
+
+    test('Синхронизация с ROLE_ACCESS: новые роли подтягиваются автоматически', function () {
+        // В конструкторе есть подтягивание из KipAuth.ROLE_ACCESS
+        const m = html.match(/ROLES: \(function \(\) \{[\s\S]*?\}\)\(\),/);
+        assertTrue(m[0].indexOf('KipAuth.ROLE_ACCESS') !== -1,
+            'ROLES должен синхронизироваться с ROLE_ACCESS');
+    });
+});
+
+// ------------------------------------------------------------
+// Task 158: карточки клапанов — назначение в заголовке
+// ------------------------------------------------------------
+describe('Карточки клапанов: назначение в заголовке (Task 158)', function () {
+
+    test('valveRenderSorted: заголовок = Назначение арматуры (параметр)', function () {
+        // Порядок в fallback изменился: назначение первично, Марка — в подзаголовок
+        const m = html.match(/const name = item\['Назначение арматуры \(параметр\)'\] \|\| item\['Марка'\] \|\| '\(без названия\)';[\s\S]{0,1200}?valveMark\(mark, query\)/);
+        assertTrue(!!m, 'в valveRenderSorted назначение должно быть в заголовке, Марка — первой строкой подзаголовка');
+    });
+
+    test('valveRenderGroup: та же структура', function () {
+        const m = html.match(/Task 158: заголовок — «Назначение арматуры \(параметр\)»[\s\S]{0,400}const name = item\['Назначение арматуры \(параметр\)'\]/);
+        assertTrue(!!m, 'в valveRenderGroup назначение должно быть первичным');
+        // Марка — первой строкой подзаголовка
+        const m2 = html.match(/Task 158: Марка — первой строкой подзаголовка[\s\S]{0,120}if \(mark\) subtitleParts\.push/);
+        assertTrue(!!m2, 'Марка должна быть первой в подзаголовке группы');
+    });
+
+    test('Старый порядок (Марка первичной) удалён из рендеров', function () {
+        // Не должно остаться: name = item['Марка'] || item['Назначение арматуры...]
+        assertEqual(html.indexOf("item['Марка'] || item['Назначение арматуры (параметр)']") === -1, true,
+            'старый порядок (Марка в заголовке) не должен остаться');
+    });
+});

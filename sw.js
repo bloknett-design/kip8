@@ -10,7 +10,7 @@
 // свежие версии файлов из ASSETS.
 // ============================================================
 
-const CACHE_VERSION = 'kipia-v371';
+const CACHE_VERSION = 'kipia-v372';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).
@@ -27,6 +27,8 @@ const IMAGE_CACHE_NAME = IMAGE_CACHE_VERSION;
 const ASSETS = [
   './',
   './index.html',
+  './charts-desktop.js',      // Task 147: графики — модуль только десктопа (Electron)
+  './devices-table-desktop.js', // Task 148: таблица приборов — модуль только десктопа (Electron)
   './manifest.json',
   './images/icon-192.png',
   './images/icon-512.png',

@@ -17,7 +17,7 @@
 //   Строка 1 — заголовки столбцов
 //   Строки 2+ — данные (12 позиций, строки 2–13)
 //
-//   Столбцы (A–L):
+//   Столбцы (A–N):
 //     A: id         — номер позиции (1–12)
 //     B: hoz        — название (Хозрасчёт №1)
 //     C: param      — параметр (Расход пара в корпус 114)
@@ -27,9 +27,11 @@
 //     G: curr       — текущие показания (число)
 //     H: unit       — единица измерения (т, м³)
 //     I: temp       — температура среды (/число или пусто)
-//     J: period     — периодичность (Ежедневно/Еженедельно/Ежемесячно)
-//     K: modRole    — роль пользователя, внёсшего последние изменения
-//     L: modName    — имя пользователя, внёсшего последние изменения
+//     J: Gcal       — гигакалории пара (число или пусто; только для расходомеров пара, Task 100)
+//     K: period     — периодичность (Ежедневно/Еженедельно/Ежемесячно)
+//     L: modRole    — роль пользователя, внёсшего последние изменения
+//     M: modName    — имя пользователя, внёсшего последние изменения
+//     N: modTimestamp — timestamp последнего ввода (Task 108 — для редактирования в течение 1 часа)
 //
 //   Данные начинаются со строки 2 (строка 1 — заголовки).
 //   Строка 2 → id=1, строка 13 → id=12.
@@ -52,8 +54,10 @@ var Flowmeter = {
   DATA_START_ROW: 2,
 
   // Роли с правом чтения расходомеров
+  // Task 112: убран 'КИП ИОС pro' — по карте ролей фильтр 10 = нет
+  // Task 116: добавлен 'КИП8 pro' — по карте ролей фильтр 10 = да
   READ_ROLES: ['КИП ИОС дежурный', 'ИТР8', 'ИТР8 pro', 'ИТР ИОС',
-               'КИП ИОС pro', 'Админ'],
+               'КИП8 pro', 'Админ'],
 
   // Роли с правом ввода показаний (запись)
   INPUT_ROLES: ['КИП ИОС дежурный', 'Админ'],
@@ -129,9 +133,13 @@ var Flowmeter = {
       return { ok: true, data: { meters: [] } };
     }
 
-    // Читаем данные (строка DATA_START_ROW до lastRow, столбцы A–L)
-    var range = sheet.getRange(this.DATA_START_ROW, 1, lastRow - this.DATA_START_ROW + 1, 12);
+    // Читаем данные (строка DATA_START_ROW до lastRow, столбцы A–N = 14 столбцов)
+    var range = sheet.getRange(this.DATA_START_ROW, 1, lastRow - this.DATA_START_ROW + 1, 14);
     var values = range.getValues();
+
+    // Task 109: Строим кэш email → name из таблицы users (KIP8_Access)
+    // для отображения имени пользователя (а не email) в карточке.
+    var userNameCache = this._buildUserNameCache();
 
     var meters = [];
     for (var i = 0; i < values.length; i++) {
@@ -139,19 +147,29 @@ var Flowmeter = {
       // Пропускаем пустые строки
       if (!row[0] && !row[1]) continue;
 
+      var modEmail = String(row[12] || '');  // M — email (для _canEdit)
+      // Task 109: modDisplayName — имя пользователя из таблицы users (для отображения)
+      var modDisplayName = modEmail;
+      if (modEmail && userNameCache[modEmail]) {
+        modDisplayName = userNameCache[modEmail];
+      }
+
       var meter = {
-        id:       parseInt(row[0], 10) || (i + 1),
-        hoz:      String(row[1] || ''),
-        param:    String(row[2] || ''),
-        datePrev: this._sheetToClientDate(row[3]),
-        dateCurr: this._sheetToClientDate(row[4]),
-        prev:     parseFloat(row[5]) || 0,
-        curr:     parseFloat(row[6]) || 0,
-        unit:     String(row[7] || ''),
-        temp:     this._parseTemp(row[8]),
-        period:   String(row[9] || ''),
-        modRole:  String(row[10] || ''),
-        modName:  String(row[11] || '')
+        id:             parseInt(row[0], 10) || (i + 1),
+        hoz:            String(row[1] || ''),
+        param:          String(row[2] || ''),
+        datePrev:       this._sheetToClientDate(row[3]),
+        dateCurr:       this._sheetToClientDate(row[4]),
+        prev:           parseFloat(row[5]) || 0,
+        curr:           parseFloat(row[6]) || 0,
+        unit:           String(row[7] || ''),
+        temp:           this._parseTemp(row[8]),
+        gcal:           this._parseGcal(row[9]),   // J=10 — гигакалории пара (Task 100)
+        period:         String(row[10] || ''),
+        modRole:        String(row[11] || ''),
+        modName:        modEmail,                   // M — email (для _canEdit, Task 108)
+        modDisplayName: modDisplayName,             // Task 109 — имя для отображения
+        modTimestamp:   this._parseTimestamp(row[13])  // N=14 (Task 108)
       };
       meters.push(meter);
     }
@@ -162,12 +180,12 @@ var Flowmeter = {
   // ============================================================
   // flowmeter.updateReading — обновить показания одной позиции
   // ============================================================
-  // payload: { token, id, prev, curr, datePrev, dateCurr, temp }
+  // payload: { token, id, prev, curr, datePrev, dateCurr, temp, gcal }
   // Возвращает: { ok: true, data: { id: N } }
   //
   // Записывает в строку (id + 1):
   //   D → datePrev (Date), E → dateCurr (Date),
-  //   F → prev, G → curr, I → temp
+  //   F → prev, G → curr, I → temp, J → gcal (Task 100)
   updateReading: function(payload) {
     var auth = this._requireEdit(payload.token);
     if (auth.error) return auth.error;
@@ -196,6 +214,33 @@ var Flowmeter = {
     var prevVal = parseFloat(payload.prev) || 0;
     var currVal = parseFloat(payload.curr) || 0;
 
+    // Task 108: Если isEdit=true — проверяем, что прошёл менее 1 часа
+    // и что текущий пользователь — тот, кто вводил последние показания.
+    if (payload.isEdit) {
+      var existingModName = String(sheet.getRange(rowNum, 13).getValue() || '');  // M=13
+      var existingTs = sheet.getRange(rowNum, 14).getValue();  // N=14 — modTimestamp
+
+      // Проверка: тот же пользователь? Сравниваем по email (Task 108)
+      var currentUser = user.email || '';
+      if (existingModName !== currentUser) {
+        return { ok: false, error: 'not_your_input',
+                 message: 'Редактировать может только тот, кто вводил показания' };
+      }
+
+      // Проверка: прошёл менее 1 часа?
+      if (existingTs instanceof Date) {
+        var elapsedMin = (new Date() - existingTs) / 1000 / 60;
+        if (elapsedMin > 60) {
+          return { ok: false, error: 'edit_window_expired',
+                   message: 'Прошло более 1 часа — редактирование недоступно' };
+        }
+      } else {
+        // modTimestamp пустой — редактирование недоступно (старые данные без timestamp)
+        return { ok: false, error: 'edit_window_expired',
+                 message: 'Нет данных о времени ввода — редактирование недоступно' };
+      }
+    }
+
     // Обновляем ячейки:
     // D=4 (datePrev), E=5 (dateCurr), F=6 (prev), G=7 (curr), I=9 (temp)
     if (datePrevObj) {
@@ -218,9 +263,24 @@ var Flowmeter = {
       sheet.getRange(rowNum, 9).setValue('');
     }
 
-    // Кто внёс изменения: K=11 (modRole), L=12 (modName)
-    sheet.getRange(rowNum, 11).setValue(user.role || '');
-    sheet.getRange(rowNum, 12).setValue(user.name || user.email || '');
+    // Гигакалории пара (J=10, Task 100)
+    // Записываются только для расходомеров пара (клиент отправляет gcal только для них).
+    // Для остальных расходомеров поле gcal не отправляется — не трогаем ячейку J.
+    if (payload.gcal !== null && payload.gcal !== undefined && payload.gcal !== '') {
+      sheet.getRange(rowNum, 10).setValue(parseFloat(payload.gcal));
+    } else if (payload.gcal === '' || payload.gcal === null) {
+      // Явно послана пустая строка/null — очищаем ячейку
+      sheet.getRange(rowNum, 10).setValue('');
+    }
+    // Если payload.gcal === undefined — не трогаем ячейку (старое значение остаётся)
+
+    // Кто внёс изменения: L=12 (modRole), M=13 (modName)
+    // Task 108: пишем email (не user.name) — чтобы клиент мог сравнить с KipAuth._cachedEmail
+    sheet.getRange(rowNum, 12).setValue(user.role || '');
+    sheet.getRange(rowNum, 13).setValue(user.email || '');
+
+    // Task 108: Записываем timestamp текущего ввода в N=14 (modTimestamp)
+    sheet.getRange(rowNum, 14).setValue(new Date());
 
     // Аудит (по паттерну CableJournal → Utils.audit)
     try {
@@ -233,13 +293,13 @@ var Flowmeter = {
     try {
       var hozName = String(sheet.getRange(rowNum, 2).getValue() || '');
       var unitVal = String(sheet.getRange(rowNum, 8).getValue() || '');
-      var periodVal = String(sheet.getRange(rowNum, 10).getValue() || '');
+      var periodVal = String(sheet.getRange(rowNum, 11).getValue() || '');
       FlowmeterArchive.appendToArchive(
         id, hozName,
         prevVal, currVal,
         payload.datePrev, payload.dateCurr,
-        payload.temp, unitVal, periodVal,
-        user.role || '', user.name || user.email || ''
+        payload.temp, payload.gcal, unitVal, periodVal,
+        user.role || '', user.name || user.email || ''  // Task 109: имя (если есть) или email
       );
     } catch (archiveErr) {
       Logger.log('Archive write failed (non-critical): ' + archiveErr.message);
@@ -294,5 +354,54 @@ var Flowmeter = {
     if (val === '' || val === null || val === undefined) return null;
     var n = parseFloat(val);
     return isNaN(n) ? null : n;
+  },
+
+  // Парсинг гигакалорий пара (число или null) — Task 100
+  _parseGcal: function(val) {
+    if (val === '' || val === null || val === undefined) return null;
+    var n = parseFloat(val);
+    return isNaN(n) ? null : n;
+  },
+
+  // Парсинг timestamp последнего ввода (Date → ISO-строка, Task 108)
+  _parseTimestamp: function(val) {
+    if (val === '' || val === null || val === undefined) return null;
+    if (val instanceof Date) {
+      return val.toISOString();
+    }
+    var s = String(val).trim();
+    return s || null;
+  },
+
+  // ============================================================
+  // Task 109: Построить кэш { email → name } из листа users (KIP8_Access)
+  // Используется в list() для отображения имени пользователя (а не email)
+  // в детальной карточке расходомера.
+  //
+  // Использует Utils.getRows('users') — возвращает массив объектов
+  // с ключами из строки 4 заголовков листа users.
+  // Если в таблице есть столбец 'name' — используем его.
+  // Если нет — modDisplayName = email (fallback).
+  // ============================================================
+  _buildUserNameCache: function() {
+    var cache = {};
+    try {
+      if (typeof Utils !== 'undefined' && Utils.getRows) {
+        var users = Utils.getRows('users');
+        if (users && users.length) {
+          for (var i = 0; i < users.length; i++) {
+            var u = users[i];
+            var email = String(u.email || '').toLowerCase().trim();
+            var name = String(u.name || '').trim();
+            if (email && name) {
+              cache[email] = name;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Тихо игнорируем — modDisplayName = email (функциональность не ломается)
+    }
+    return cache;
   }
 };
