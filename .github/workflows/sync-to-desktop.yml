@@ -1,6 +1,7 @@
 name: Sync index.html to kip8-desktop
 
-# Автосинхронизация index.html из kip8 в kip8-desktop (боевая десктоп-сборка).
+# Автосинхронизация index.html + десктоп-модулей (charts-desktop.js,
+# devices-table-desktop.js) из kip8 в kip8-desktop (боевая десктоп-сборка).
 # При пуше в main, меняющем index.html, этот workflow:
 #   1. Скачивает свежий index.html из текущего репозитория
 #   2. Создаёт коммит в kip8-desktop/index.html с тем же содержимым
@@ -16,6 +17,8 @@ on:
     branches: [ main ]
     paths:
       - 'index.html'
+      - 'charts-desktop.js'
+      - 'devices-table-desktop.js'
   workflow_dispatch:
 
 permissions:
@@ -43,9 +46,13 @@ jobs:
         run: |
           git clone --depth 1 "https://x-access-token:${DESKTOP_SYNC_TOKEN}@github.com/bloknett-design/kip8-desktop.git" /tmp/kip8-desktop
 
-      - name: Скопировать index.html
+      - name: Скопировать index.html и десктоп-модули
         run: |
           cp index.html /tmp/kip8-desktop/index.html
+          # Task 147: модуль графиков (только десктоп) — нужен для офлайн-fallback app://
+          cp charts-desktop.js /tmp/kip8-desktop/charts-desktop.js
+          # Task 148: таблица приборов (только десктоп)
+          cp devices-table-desktop.js /tmp/kip8-desktop/devices-table-desktop.js
 
       - name: Проверить, есть ли изменения
         id: changes
@@ -69,7 +76,7 @@ jobs:
           cd /tmp/kip8-desktop
           git config user.email "bot@kip8.local"
           git config user.name "kip-bot"
-          git add index.html
+          git add index.html charts-desktop.js devices-table-desktop.js
           # Коммит-сообщение: показываем, что это автосинхронизация и из какого SHA
           git commit -m "auto: sync index.html from kip8@${SOURCE_SHA}
 
