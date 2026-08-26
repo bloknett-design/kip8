@@ -336,19 +336,12 @@
     #page-library-internal .menu-btn,
     #page-library-electro .menu-btn { min-height: 80px; align-items: center; }
     #page-docs-ios .menu-btn { min-height: 80px; align-items: center; }
-    /* Секретные кнопки (Сапёр + Телефонный справочник) — две в ряд */
-    .menu-btn-row-secret-pair {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 4px !important;
-    }
-    /* На узких экранах кнопки могут стать слишком маленькими — переключаем в 1 колонку */
-    @media (max-width: 360px) {
-        .menu-btn-row-secret-pair { grid-template-columns: 1fr !important; }
-    }
-    /* На телефонах горизонтальные кнопки должны переносить текст аккуратно */
+    /* Секретные кнопки (Сапёр + Телефонный справочник).
+       Task 189: специальные правила «две в ряд» убраны — на мобильном
+       ряд ведёт себя как обычный #page-dashboard .menu-btn-row
+       (одна колонка на всю ширину, gap 2px), кнопки совпадают
+       по расположению и габаритам с остальными кнопками главной. */
     .menu-btn-row-secret-pair .menu-btn { min-width: 0; }
-    .menu-btn-row-secret-pair .menu-btn-label { font-size: 13px; line-height: 1.2; }
-    .menu-btn-row-secret-pair .menu-btn-sublabel { font-size: 10px; }
 
     /* Контейнер для SVG-схем в разделах Геометрии — точно по шаблону: */
     /* светло-голубые линии, белые подписи, двусторонние стрелки, тёмный фон */
@@ -7043,6 +7036,32 @@
     #page-device-favorites .page-inline-header:has(.dev-search-toggle-btn) {
         padding-right: 48px;
     }
+    /* Task 188: в МОБИЛЬНОЙ версии кнопка поиска в «Избранном» не нужна —
+       список обычно короткий, поиск только загромождает шапку. Прячем
+       лупу и поле (в т.ч. открытое — на случай resize десктоп→мобильный),
+       отменяем сдвиг правого кластера из Task 164.
+       На десктопе (>= 1024px) поиск в «Избранном» сохранён без изменений. */
+    @media (max-width: 1023px) {
+        #page-device-favorites .page-inline-header .dev-search-toggle-btn {
+            display: none;
+        }
+        #page-device-favorites .page-inline-header .dev-header-search,
+        #page-device-favorites .page-inline-header .dev-header-search.search-open {
+            display: none;
+        }
+        #page-device-favorites .page-inline-header:has(.dev-search-toggle-btn) {
+            padding-right: 20px;   /* обычный отступ шапки без лупы */
+        }
+        /* Task 189: поле поиска скрыто (правила выше), но :has(.dev-header-search)
+           выше по файлу всё ещё матчится по скрытому элементу и оставляет у
+           заголовка padding-right: 130px (110px на <360px). Из-за него адаптивный
+           скрипт сжатия заголовков уменьшал «Избранное» до 12px, и элементы
+           шапки выглядели перекошенными. Возвращаем заголовку стандартный
+           правый отступ — шапка выровнена как на остальных страницах. */
+        #page-device-favorites .page-inline-header .page-inline-header-title {
+            padding-right: 16px;
+        }
+    }
     .dev-fav-clear-btn {
         font-size: 12px; padding: 5px 12px;
         border: 1px solid rgba(220,80,80,0.35); border-radius: 6px;
@@ -8250,11 +8269,16 @@
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7a8d' stroke-width='2'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
         }
         [data-theme="light"] #detailBarSearchInput.search-open::placeholder { color: rgba(20,20,19,0.4); }
-        /* Task 176: при открытом поиске крошки ОСТАЮТСЯ видимыми — поле
-           не перекрывает их, а встаёт справа; длинный путь обрезается
-           многоточием, короткий занимает столько, сколько нужно */
+        /* Task 180: при открытом поиске контент заполняет доступное место
+           (flex:1), чтобы поле поиска и правые кнопки (✕, ⇄, лупа) стояли
+           у ПРАВОГО края бара, а не смещались в середину. Текст крошек
+           обрезается многоточием, если не помещается; короткий путь
+           визуально остаётся слева (текст выровнен по левому краю элемента,
+           правая часть элемента пустая — невидима). До Task 180 было
+           flex:0 1 auto (Task 176) — поле вставало сразу после текста,
+           оставляя пустое место справа от кнопок. */
         #detailBreadcrumbBar.search-open #detailBreadcrumbContent {
-            flex: 0 1 auto;
+            flex: 1 1 0%;
             min-width: 120px;
             overflow: hidden;
             white-space: nowrap;
@@ -8304,33 +8328,55 @@
             background: transparent;
             touch-action: none;        /* перетаскивание не скроллит страницу */
             user-select: none;
+            /* Task 182/186: цвет трёх точек-подсказки на разделительной линии */
+            --dpr-dot: rgba(74, 143, 199, 0.65);
         }
         /* Подсветка зоны захвата при наведении и во время перетаскивания */
         .detail-panel-resizer:hover,
         .detail-panel-resizer.dragging {
             background: rgba(74, 143, 199, 0.28);
+            --dpr-dot: rgba(255, 255, 255, 0.95);
+        }
+        [data-theme="light"] .detail-panel-resizer {
+            --dpr-dot: rgba(74, 143, 199, 0.75);
         }
         [data-theme="light"] .detail-panel-resizer:hover,
         [data-theme="light"] .detail-panel-resizer.dragging {
             background: rgba(74, 143, 199, 0.16);
+            --dpr-dot: rgba(255, 255, 255, 0.95);
         }
-        /* Полоска-подсказка в центре разделителя */
+        /* Task 186/187: подсказка на разделителе — просто ТРИ ВЕРТИКАЛЬНЫЕ ТОЧКИ,
+           расположенные по центру НА САМОЙ разделительной линии. Без выступа:
+           pill-фон, рамка, box-shadow и mask-градиент из Task 182-185 убраны.
+           Центр ::after совпадает с центром resizer (= центр 2px линии):
+           translate(-50%, -50%) ставит колонку точек точно на линию —
+           и в обычной раскладке (детали справа), и в swap-режиме
+           (детали слева, разделитель на правой грани #detailPanel).
+           Task 187: точки немного КРУПНЕЕ (~3.8px вместо ~2.8px в диаметре)
+           и РЕЖЕ (шаг 10px вместо 7px) — колонка выше: 40px вместо 30px. */
         .detail-panel-resizer::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 2px;
-            height: 36px;
-            border-radius: 2px;
-            background: rgba(74, 143, 199, 0.4);
-            opacity: 0;
-            transition: opacity 0.15s;
+            transform: translate(-50%, -50%);  /* точки ЦЕНТРИРОВАНЫ на линии */
+            width: 6px;
+            height: 40px;
+            /* Три вертикальные точки: stacked top/center/bottom
+               (шаг 10px: центры на 13px, 23px, 33px от верха ::after) */
+            background-image:
+                radial-gradient(circle, var(--dpr-dot) 1.9px, transparent 2px),
+                radial-gradient(circle, var(--dpr-dot) 1.9px, transparent 2px),
+                radial-gradient(circle, var(--dpr-dot) 1.9px, transparent 2px);
+            background-position: center 10px, center center, center calc(100% - 10px);
+            background-size: 6px 6px, 6px 6px, 6px 6px;
+            background-repeat: no-repeat;
+            pointer-events: none;  /* чтобы не мешало pointer-capture на родителе */
         }
-        .detail-panel-resizer:hover::after,
-        .detail-panel-resizer.dragging::after { opacity: 1; }
-        /* Swap-режим: детальная панель слева → разделитель на её правой грани */
+        /* В состояниях :hover/.dragging точки подсвечиваются через --dpr-dot
+           — отдельное правило не требуется. */
+        /* Swap-режим: детальная панель слева → разделитель на её правой грани.
+           Геометрия ::after не меняется — точки остаются по центру линии */
         #contentArea.panels-swapped > #detailPanel .detail-panel-resizer {
             left: auto;
             right: -3px;
@@ -8518,11 +8564,8 @@
             gap: 6px;
         }
 
-        /* --- Секретные кнопки: в одну строку --- */
-        .menu-btn-row-secret-pair {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 8px;
-        }
+        /* --- Секретные кнопки: стили сетки Task 189 заданы ниже
+             (правило #page-dashboard .menu-btn-row-secret-pair) --- */
 
         /* --- Кнопки разделов: прямоугольные (квадраты), сетка слева направо, сверху вниз --- */
         #page-calculators .menu-btn-row,
@@ -8801,30 +8844,64 @@
             top: 10px;
             right: 10px;
         }
-        /* Секретные кнопки — тоже в сетке */
+        /* Task 189: секретные кнопки — та же сетка и те же габариты, что у
+           закреплённых плиток главной страницы (3 колонки, gap 20px,
+           padding 16px 20px, левое выравнивание, label 17px / sublabel 13px).
+           Раньше: repeat(auto-fill, minmax(150px, 1fr)) — узкие квадратные
+           плитки по 167px, не похожие на остальные кнопки главной. */
         #page-dashboard .menu-btn-row-secret-pair {
             display: grid !important;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-            gap: 10px !important;
-            padding: 4px 16px 8px !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 20px !important;
+            padding: 16px 20px !important;
         }
         #page-dashboard .menu-btn-row-secret-pair .menu-btn {
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
-            justify-content: center;
-            text-align: center;
-            min-height: 70px;
-            padding: 12px 10px;
+            justify-content: flex-start;
+            text-align: left;
+            min-height: auto;
+            padding: 20px 16px;
+            border-radius: 14px;
+            max-width: none;
+            background: var(--card-bg, rgba(255,255,255,0.06));
+            border: 1px solid var(--card-border, rgba(255,255,255,0.08)) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            position: relative;
+        }
+        #page-dashboard .menu-btn-row-secret-pair .menu-btn:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
         }
         #page-dashboard .menu-btn-row-secret-pair .menu-btn-text {
-            text-align: center;
-            flex: 0;
+            text-align: left;
+            flex: 1;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
+            min-width: 0;
+        }
+        #page-dashboard .menu-btn-row-secret-pair .menu-btn-label {
+            font-size: 17px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+        #page-dashboard .menu-btn-row-secret-pair .menu-btn-sublabel {
+            font-size: 13px;
+            color: var(--text-secondary, rgba(255,255,255,0.45));
+            line-height: 1.4;
         }
         #page-dashboard .menu-btn-row-secret-pair .menu-btn-arrow {
             display: none;
+        }
+        [data-theme="light"] #page-dashboard .menu-btn-row-secret-pair .menu-btn {
+            background: #FFFFFF;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        [data-theme="light"] #page-dashboard .menu-btn-row-secret-pair .menu-btn:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         }
 
         /* --- Контент страниц: ограничение ширины --- */
@@ -8949,10 +9026,8 @@
         #page-docs .menu-btn {
             max-width: none;
         }
-        .menu-btn-row-secret-pair {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 8px;
-        }
+        /* Task 189: отдельное правило для секретной пары на планшете удалено —
+           ряд наследует #page-dashboard .menu-btn-row (2 колонки, gap 8px) */
     }
 
     /* Подсветка активной карточки при открытом detail-panel (мобильная / базовая) */
@@ -9594,7 +9669,7 @@
 
     <!-- ===== Десктоп: полноэкранная строка breadcrumbs для detail-панели ===== -->
     <div id="detailBreadcrumbBar">
-        <div class="detail-breadcrumb-chevron" onclick="closeDetailPanel()" aria-label="Назад">
+        <div class="detail-breadcrumb-chevron" onclick="detailBarChevronClick(event)" aria-label="Назад / Главная">
             <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         </div>
         <div id="detailBreadcrumbContent"></div>
@@ -9633,9 +9708,11 @@
             <!-- Секретные кнопки «Сапёр» и «Телефонный справочник» — скрыты по умолчанию.
                  Открываются 2 тапами по заголовку приложения.
                  Объединены в один menu-btn-row, чтобы стояли рядом друг с другом.
-                 Раздел «Приборы» перенесён в Документацию (не секретный). -->
+                 Раздел «Приборы» перенесён в Документацию (не секретный).
+                 Task 189: подзаголовок «Сапёру» — та же двухстрочная структура
+                 (label + sublabel), что у остальных кнопок главной страницы. -->
             <div class="menu-btn-row menu-btn-row-secret-pair">
-                <div class="menu-btn menu-btn-secret" id="minesweeperBtn" onclick="navigateTo('minesweeper')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Сапёр</div></div></div>
+                <div class="menu-btn menu-btn-secret" id="minesweeperBtn" onclick="navigateTo('minesweeper')" style="border-color:rgba(199,150,74,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#c7964a;">Сапёр</div><div class="menu-btn-sublabel">Три уровня сложности</div></div></div>
                 <div class="menu-btn menu-btn-secret" id="phonebookBtn" onclick="navigateTo('phonebook')" style="border-color:rgba(74,143,199,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#6aa6e0;">Телефонный справочник</div><div class="menu-btn-sublabel">ООО ПО «ТОКЕМ»</div></div><i class="menu-btn-arrow" style="color:rgba(74,143,199,0.4);">›</i></div>
             </div>
         </div>
@@ -19777,6 +19854,28 @@
         _ticketSelectedIndex = -1;
         // Восстанавливаем breadcrumbs без виртуальной detail-страницы
         updateDesktopBreadcrumb();
+        // Task 181: если после закрытия detail-панели мы остаёмся на странице
+        // flowmeter-data (CSS body:has(#page-flowmeter-data.active) держит бар
+        // видимым) — восстановить захардкоженные крошки «Главная / Документация /
+        // Документация ИОС / Расходомеры хозрасчётные» и переключатель «Все / Избранные».
+        // Используем setTimeout(0) — если closeDetailPanel вызвана из navigateTo(),
+        // то к моменту вызова все .page-content уже потеряли .active, и проверка
+        // не сработает (страница всё равно сменится); если вызвана напрямую кликом
+        // по ✕ — активная страница сохранится, крошки восстановятся.
+        setTimeout(function () {
+            var _act = document.querySelector('.page-content.active');
+            if (_act && _act.id === 'page-flowmeter-data') {
+                var _bcBar2 = document.getElementById('detailBreadcrumbBar');
+                if (_bcBar2) _bcBar2.classList.add('active');
+                if (typeof setFlowmeterBreadcrumbContent === 'function') setFlowmeterBreadcrumbContent();
+                var _flowTabs2 = document.getElementById('flowDesktopTabs');
+                if (_flowTabs2) _flowTabs2.style.display = '';
+                if (typeof detailBarUpdateSearchBtn === 'function') detailBarUpdateSearchBtn();
+            }
+            // Task 181: обновить шеврон в строке крошек — после закрытия панели
+            // на flowmeter-data должен быть многострелочный, иначе — однострелочный.
+            if (typeof updateChevronArrows === 'function') updateChevronArrows();
+        }, 0);
     }
 
     // ============================================================
@@ -20266,20 +20365,14 @@
         // (раньше только если isDesktop(), но в Electron isDesktop() возвращает false)
         closeDetailPanel();
         // Task 130: если мы идём на flowmeter-data — заполнить крошки заново
-        // (closeDetailPanel() очищает #detailBreadcrumbContent.innerHTML)
+        // (closeDetailPanel() очищает #detailBreadcrumbContent.innerHTML).
+        // Task 181: HTML крошек вынесен в setFlowmeterBreadcrumbContent() —
+        // та же функция вызывается из closeDetailPanel() при возврате на
+        // страницу расходомеров после закрытия detail-панели.
         if (page === 'flowmeter-data') {
             var _bcBar = document.getElementById('detailBreadcrumbBar');
             if (_bcBar) _bcBar.classList.add('active');
-            var _bcContent = document.getElementById('detailBreadcrumbContent');
-            if (_bcContent) {
-                _bcContent.innerHTML = '<span class="breadcrumb-link" onclick="navigateTo(\'dashboard\')">Главная</span>' +
-                    '<span class="breadcrumb-sep">/</span>' +
-                    '<span class="breadcrumb-link" onclick="navigateTo(\'docs\')">Документация</span>' +
-                    '<span class="breadcrumb-sep">/</span>' +
-                    '<span class="breadcrumb-link" onclick="navigateTo(\'docs-ios\')">Документация ИОС</span>' +
-                    '<span class="breadcrumb-sep">/</span>' +
-                    '<span class="breadcrumb-current">Расходомеры хозрасчётные</span>';
-            }
+            if (typeof setFlowmeterBreadcrumbContent === 'function') setFlowmeterBreadcrumbContent();
             // Task 130: показать переключатель «Все / Избранные»
             var _flowTabs = document.getElementById('flowDesktopTabs');
             if (_flowTabs) _flowTabs.style.display = '';
@@ -20374,6 +20467,31 @@
         }
     }
 
+    // ============================================================
+    // Task 181: шеврон в строке крошек #detailBreadcrumbBar.
+    // На странице flowmeter-data без открытой detail-панели шеврон
+    // должен вести себя как page-inline-header-chevron — показывать
+    // несколько стрелок (по глубине навигации) и обрабатывать
+    // одиночный тап = назад / двойной = на главную через chevronTap().
+    // Если detail-панель открыта — старое поведение: один клик закрывает
+    // панель (closeDetailPanel).
+    // До Task 181 onclick был жёстко closeDetailPanel() — на flowmeter-data
+    // без панели клик ничего не делал (CSS :has(#page-flowmeter-data.active)
+    // сразу же пересоздавал бар), и пользователь не мог вернуться на главную.
+    // ============================================================
+    function detailBarChevronClick(event) {
+        if (event && event.stopPropagation) event.stopPropagation();
+        var panel = document.getElementById('detailPanel');
+        if (panel && panel.classList.contains('active')) {
+            // Detail-панель открыта — закрыть её (однострелочный шеврон)
+            closeDetailPanel();
+        } else {
+            // Без detail-панели (например, на flowmeter-data) — делегируем
+            // в chevronTap: 1 тап = goBack (popstate), 2 тапа = на главную.
+            chevronTap();
+        }
+    }
+
     // ===== Просмотр PDF из Google Drive (раздел «Библиотека») =====
     // Внутренний просмотрщик удалён (Task 67) — все PDF-карточки в разделах
     // «Библиотека КИП и А» / «Электробезопасность» теперь открываются прямыми
@@ -20395,12 +20513,27 @@
     // SVG-разметка та же, что использовалась в захардкоженных шевронах.
     // Стрелки очень компактные (14×14px) и плотно сгруппированы (margin-left:-8px),
     // чтобы визуально занимать минимум места в углу бара поверх заголовка.
+    // Task 181: вспомогательная функция — захардкоженные крошки для страницы
+    // расходомеров (используется из navigateTo('flowmeter-data') и из
+    // closeDetailPanel при возврате на эту страницу после закрытия панели).
+    // Вынесена в функцию, чтобы не дублировать HTML-строку в двух местах.
+    function setFlowmeterBreadcrumbContent() {
+        var bcContent = document.getElementById('detailBreadcrumbContent');
+        if (!bcContent) return;
+        bcContent.innerHTML = '<span class="breadcrumb-link" onclick="navigateTo(\'dashboard\')">Главная</span>' +
+            '<span class="breadcrumb-sep">/</span>' +
+            '<span class="breadcrumb-link" onclick="navigateTo(\'docs\')">Документация</span>' +
+            '<span class="breadcrumb-sep">/</span>' +
+            '<span class="breadcrumb-link" onclick="navigateTo(\'docs-ios\')">Документация ИОС</span>' +
+            '<span class="breadcrumb-sep">/</span>' +
+            '<span class="breadcrumb-current">Расходомеры хозрасчётные</span>';
+    }
+
     function updateChevronArrows() {
         try {
             const active = document.querySelector('.page-content.active');
             if (!active) return;
             const chevron = active.querySelector('.page-inline-header-chevron');
-            if (!chevron) return;
             const n = Math.min(Math.max(pageHistory.length, 0), 4);
             // Сгенерировать n SVG-стрелок. Первая — без margin, остальные с margin-left:-8px.
             let html = '';
@@ -20408,9 +20541,30 @@
                 const style = (i === 0) ? '' : ' style="margin-left:-8px;"';
                 html += '<svg viewBox="0 0 24 24"' + style + '><polyline points="15 18 9 12 15 6"/></svg>';
             }
-            // Если n === 0 (например, мы на главной, но там нет chevron — этот случай не наступит),
-            // оставляем пусто.
-            chevron.innerHTML = html;
+            // Одиночная стрелка для шеврона в строке крошек detailBreadcrumbBar
+            // (используется, когда detail-панель открыта или страница не flowmeter-data).
+            const singleArrow = '<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>';
+            // 1. Шеврон в заголовке активной страницы (если есть) — многострелочный.
+            // На flowmeter-data этот шеврон скрыт через CSS :has(), но innerHTML
+            // всё равно обновляется (на случай, если CSS-правило изменится).
+            if (chevron) chevron.innerHTML = html;
+            // Task 181: 2. Шеврон в строке крошек #detailBreadcrumbBar.
+            // На странице flowmeter-data без открытой detail-панели показываем
+            // многострелочный шеврон (как в заголовке страницы) — чтобы пользователь
+            // видел глубину навигации и мог вернуться одиночным/двойным тапом
+            // (поведение обеспечивается detailBarChevronClick → chevronTap).
+            // В остальных случаях (detail-панель открыта) — одиночная стрелка
+            // (поведение detailBarChevronClick → closeDetailPanel).
+            const bcChevron = document.querySelector('#detailBreadcrumbBar .detail-breadcrumb-chevron');
+            if (bcChevron) {
+                const detailPanel = document.getElementById('detailPanel');
+                const isDetailOpen = detailPanel && detailPanel.classList.contains('active');
+                if (active.id === 'page-flowmeter-data' && !isDetailOpen) {
+                    bcChevron.innerHTML = html;
+                } else {
+                    bcChevron.innerHTML = singleArrow;
+                }
+            }
         } catch (e) {
             // Тихо игнорируем — обновление шеврона не должно ломать навигацию.
         }
@@ -22464,6 +22618,12 @@
         if (bcBar) bcBar.classList.add('active');
         // Task 173: обновить кнопку поиска в строке крошек
         detailBarUpdateSearchBtn();
+        // Task 181: обновить шеврон в строке крошек — после открытия detail-панели
+        // он должен стать однострелочным (был многострелочным, если мы на flowmeter-data).
+        // Без этого вызова шеврон оставался бы многострелочным до следующей
+        // навигации, что вводило в заблуждение (визуально — глубина есть,
+        // фактически — клик закрывает панель, а не идёт назад по истории).
+        if (typeof updateChevronArrows === 'function') updateChevronArrows();
     }
 
     function devRenderDetailInPanel() {
