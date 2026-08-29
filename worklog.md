@@ -1,6 +1,81 @@
 # Журнал работы ИИ-ассистентов — kip8test
 
 ---
+Task ID: 243
+Agent: main (Super Z)
+Task: Фикс бага «hamburger не открывает sidebar на мобильном viewport (377px)».
+      Симптом: клик по ☰ отрабатывает без ошибок, .active добавляется,
+      но computed transform остаётся translateX(-280px) — sidebar
+      визуально невидим. Workaround через inline style.setProperty
+      ('transform','translateX(0)','important') РАБОТАЕТ.
+
+Симптом (диагностика пользователя):
+- Среда: Yandex Browser 26.8.0.0 / Windows 10 / Chrome 150, viewport 377px
+  (НЕ Electron — IS_ELECTRON=false, window.__isElectron=undefined).
+- matchMedia 1024+: false (mobile), matchMedia 1023-: true.
+- typeof toggleSidebar: function ✓
+- typeof isDesktop: function ✓
+- isDesktop(): false ✓
+- sidebar className BEFORE toggle: 'sidebar' (нет .active)
+- toggleSidebar() called OK (без throw)
+- sidebar className AFTER toggle: 'sidebar active' (.active добавлен ✓)
+- computed transform AFTER: matrix(1,0,0,1,-280,0) = translateX(-280px)
+  = translateX(-100%) — sidebar всё ещё СКРЫТ несмотря на .active класс!
+- Inline workaround style.setProperty('transform','translateX(0)','important'):
+  matrix(1,0,0,1,0,0) = translateX(0) — sidebar открывается ✓
+
+Корневая причина:
+- Десктопное правило внутри @media (min-width: 1024px):
+    #sidebar { transform: translateX(-100%) !important; }
+  (line 9503) — применялось на мобильном viewport (377px), несмотря на
+  media query, которое НЕ должно матчить.
+- Мобильное правило #sidebar.active { transform: translateX(0); }
+  (line 8354, без !important) проигрывало, т.к. !important всегда бьёт
+  не-!important, независимо от специфичности.
+- Почему десктопное @media правило применялось на mobile — НЕ УСТАНОВЛЕНО.
+  Возможно баг Yandex Browser (Chromium 150 fork) в обработке media
+  queries с !important, либо кэш браузера.
+
+Фикс:
+- В @media (max-width: 1023px) добавлены !important к мобильным правилам:
+  * #sidebar.desktop-open { transform: translateX(-100%) !important; }
+    (явный запрет desktop-open влиять на mobile — было без !important)
+  * #sidebar.active { transform: translateX(0) !important; } ← КЛЮЧЕВОЕ
+  * #sidebarOverlay.active { display: block !important; opacity: 1
+    !important; } (новое правило)
+- Specificity: #sidebar.active (1,1,0) > #sidebar (1,0,0) — при равном
+  !important мобильное правило гарантированно побеждает.
+- Это belt-and-suspenders фикс: если десктопное !important почему-то
+  протекает на mobile, мобильное !important с более высокой
+  специфичностью его перебьёт.
+
+Деплой:
+- sw.js: CACHE_VERSION kipia-v396 → kipia-v397 (для инвалидации кэша).
+- Коммит d0a0871 запушен в main. GitHub Pages обновился.
+- Production HTML проверен curl'ом — содержит фикс:
+    #sidebar.active { transform: translateX(0) !important; /* Task 243... */ }
+- Production sw.js проверен: CACHE_VERSION = 'kipia-v397'.
+
+Валидация:
+- Тесты: 542 passed / 0 failed (node tests/run-all.js).
+- Все 4 <script> блока index.html парсятся без ошибок (1 077 353 символа).
+
+Что проверить пользователю:
+- Hard reload (Ctrl+Shift+R) или закрыть все вкладки и открыть заново.
+- caches.keys() должно показать 'kipia-v397'.
+- Клик hamburger (☰) → sidebar должен открыться.
+- Под Админом: проверить «График работы» в группе «Документация ИОС»
+  сайдбара + новую зебру расходомеров хозрасчётных.
+
+Stage Summary:
+- Фикс бага «hamburger не открывает sidebar на мобильном viewport».
+- CSS: !important добавлен к мобильным правилам #sidebar.active,
+  #sidebar.desktop-open, #sidebarOverlay.active в @media (max-width:1023px).
+- SW: kipia-v396 → kipia-v397.
+- Тесты: 542 passed / 0 failed.
+- Коммит d0a0871 запушен в main.
+
+---
 Task ID: 85
 Agent: AI Assistant (GLM)
 Task: Добавить графики ППР на 2026 год в Приборы и Блокировки
