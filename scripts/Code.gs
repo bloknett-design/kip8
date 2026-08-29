@@ -45,7 +45,7 @@
  */
 
 /** URL деплоя (заполните после первого деплоя). */
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbztmOJb_QVnjRk1GnvKe4X1TWcDgPSFVvGJiumm3y5RaGwgEiJX15PBiJVUX9mKJiWHzA/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyt2sjbJ8xT5UPKDlYj4q-CV-5pH_Yrv5COrg0PIpp92snpQULUNtJC__pMnQ0h6feNlA/exec';
 
 /**
  * Обработка POST-запросов от PWA.
