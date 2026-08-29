@@ -1,6 +1,130 @@
 # Журнал работы ИИ-ассистентов — kip8test
 
 ---
+Task ID: 244
+Agent: main (Super Z)
+Task: Фикс корневой причины бага «hamburger не открывает sidebar на мобильном
+      viewport». Task 243 был belt-and-suspenders фикс (!important в mobile
+      CSS), но НЕ решил корневую проблему. Task 244 находит и фиксит её.
+
+Симптом (полный diagnostic от пользователя):
+- Среда: Yandex Browser 26.8.0.0 / Windows / Chrome 150, viewport 377×587.
+  (НЕ Electron: IS_ELECTRON=false, window.__isElectron=undefined.)
+- matchMedia 1024+: false (mobile), matchMedia 1023-: true.
+- typeof toggleSidebar: function ✓
+- toggleSidebar() called OK (без throw).
+- sidebar className AFTER toggle: 'sidebar active' (.active добавлен ✓).
+- inline style.cssText: '' (нет inline override).
+- computed transform: matrix(1,0,0,1,0,0) = translateX(0) ✓
+  (после Task 243 — мобильное правило #sidebar.active { transform:
+  translateX(0) !important } побеждает).
+- computed display: flex ✓, visibility: visible ✓, zIndex: 160 ✓.
+- НО sidebar bounding rect: {x:0, y:587.5, width:280, height:442.4}!
+  → sidebar находится в (0, 587.5), что НИЖЕ viewport (height=587).
+  → sidebar невидим пользователю!
+
+Root cause diagnostic:
+- Спец-тест обходит всех предков sidebar, ищет transform:
+  [depth 0] <DIV> id="wsTrSheet" class="flow-input-sheet"
+    transform: matrix(1,0,0,1,0,457.12) ← translateY(457.12px)
+    position: fixed, top: 130.4px
+    rect: x=0, y=587.5, w=377.6, h=457.1
+    ⚠️ THIS ANCESTOR HAS TRANSFORM — breaks position:fixed for sidebar
+  [depth 1] <BODY> transform: none, position: relative
+  [depth 2] <HTML> transform: none, position: static
+- wsTrSheet — НЕСОМНЕННЫЙ предок sidebar (а должен быть сиблингом).
+
+Корневая причина:
+- wsTrSheet открывается на line 12896: <div id="wsTrSheet"
+  class="flow-input-sheet" style="max-height: 90vh; overflow-y: auto;">
+- wsTrSheet НИКОГДА не закрывается в HTML!
+- Python-анализ глубины (с учётом script-блоков): после wsTrSheet
+  depth=1 держится до </body> в конце документа.
+- Всё после wsTrSheet — гигантский <script> блок (lines 12936-32844),
+  sidebar (line 32851), sidebarOverlay (line 32850), sidebarToggleBtn
+  (line 32847), aboutModalOverlay, createUserOverlay — ВНУТРИ wsTrSheet.
+- wsCellSheet (line 12793) и wsEmpSheet (line 12836) закрыты корректно.
+  wsTrSheet — единственный без закрытия.
+
+Почему это ломает sidebar:
+- CSS: .flow-input-sheet { position: fixed; bottom: 0;
+  transform: translateY(100%); ... }
+- transform: translateY(100%) в скрытом состоянии (wsTrSheet без .active).
+- Любой элемент с transform создаёт containing block для position: fixed
+  потомков (CSS-спецификация, см. MDN: containing block).
+- Поэтому sidebar { position: fixed; top: 0 } позиционируется относительно
+  wsTrSheet's box, а не viewport.
+- wsTrSheet's box: top=130.4px, height=457.1px → bottom=587.5px.
+  Sidebar с top:0 относительно wsTrSheet → sidebar y=130.4 (vs viewport
+  y=0). НО в момент diagnostic wsTrSheet имеет transform translateY(457.12px)
+  → дополнительно смещён на 457.12px вниз → sidebar y=130.4+457.12≈587.5.
+  Sidebar ровно за пределами viewport (587×587.5) — невидим.
+
+Причина возникновения бага:
+- Task 241 (перенос WorkSchedule из kip8test@96039d0 в kip8): скрипт
+  kip8_inject_workschedule.py вставил 3 bottom-sheet'а (wsCellSheet,
+  wsEmpSheet, wsTrSheet). Для wsTrSheet закрывающий </div> был потерян
+  при вставке.
+- Баг не проявлялся в kip8test, потому что там wsTrSheet лежал в другой
+  части HTML (вероятно, после всех основных элементов). После переноса
+  в kip8 wsTrSheet оказался в середине HTML, и его незакрытие «проглотило»
+  sidebar и AboutModal.
+
+Фикс:
+- Добавлен </div> после </button> 'Отмена' в wsTrSheet (line 12936):
+    <button ... onclick="WorkSchedule.closeTrainingForm()">Отмена</button>
+    </div><!-- /wsTrSheet — Task 244: ... подробный комментарий ... -->
+- Подробный комментарий объясняет баг, причину и фикс для будущих
+  разработчиков.
+- ВАЖНО: комментарий НЕ содержит текст '<script>' или '</script>' —
+  иначе regex-экстрактор тестов (tests/extract-functions.js, regex
+  /<script[^>]*>([\s\S]*?)<\/script>/gi) сломается, thinking что
+  текст '<script>' внутри комментария — открывающий тег.
+
+Валидация:
+- Все 4 <script> блока парсятся без ошибок (1 064 340 + 2 237 +
+  9 430 + 1 773 = 1 077 780 символов).
+- Тесты: 542 passed / 0 failed (node tests/run-all.js).
+- Python-анализ: wsTrSheet закрывается на line 12936 (depth=0 после неё).
+
+Деплой:
+- sw.js: CACHE_VERSION kipia-v397 → kipia-v398 (для инвалидации кэша).
+- Коммит b56aae6 запушен в main. GitHub Pages обновился:
+  * sw.js: CACHE_VERSION = 'kipia-v398' (curl проверен).
+  * index.html: </div><!-- /wsTrSheet — Task 244... --> присутствует
+    после </button> wsTrSheet (curl проверен).
+
+Что проверить пользователю:
+- Hard reload (Ctrl+Shift+R) или закрыть все вкладки и открыть заново.
+- caches.keys() должно показать 'kipia-v398'.
+- Клик hamburger (☰) → sidebar должен открыться у левого края viewport.
+- Под Админом:
+  * «График работы» в сворачиваемой группе «Документация ИОС» сайдбара
+    (Task 241).
+  * Новая зебра расходомеров хозрасчётных (Task 240-241, светлая тема,
+    контрастней).
+  * AboutModal и CreateUserModal — должны открываться корректно (они
+    тоже были внутри wsTrSheet, теперь сиблинги).
+
+Stage Summary:
+- Корневая причина бага «hamburger не открывает sidebar» найдена и
+  исправлена: wsTrSheet (bottom-sheet «Новое мероприятие» модуля
+  WorkSchedule) был открыт, но НИКОГДА не закрыт в HTML. Все элементы
+  после wsTrSheet (script-блок, sidebar, AboutModal, CreateUserModal)
+  оказывались ВНУТРИ wsTrSheet, чей transform: translateY(100%) в
+  скрытом состоянии создавал containing block для position: fixed
+  потомков — sidebar позиционировался относительно wsTrSheet
+  (смещённого на translateY(100%) ниже viewport), а не относительно
+  viewport.
+- Фикс: добавлен </div> после последнего </button> wsTrSheet.
+- Task 243 (предыдущий) остаётся как belt-and-suspenders мера
+  (!important в мобильном CSS), но корневой причиной был именно
+  незакрытый wsTrSheet.
+- SW: kipia-v397 → kipia-v398.
+- Тесты: 542 passed / 0 failed.
+- Коммит b56aae6 запушен в main.
+
+---
 Task ID: 243
 Agent: main (Super Z)
 Task: Фикс бага «hamburger не открывает sidebar на мобильном viewport (377px)».
