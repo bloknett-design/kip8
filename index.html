@@ -3034,8 +3034,13 @@
     /* Зебра: тёмная тема — тёплые тона в палитру расходомеров (#c87048) */
     .flow-card:nth-child(odd)  { background: rgba(35, 30, 28, 0.96); }
     .flow-card:nth-child(even) { background: rgba(48, 42, 38, 0.96); }
-    [data-theme="light"] .flow-card:nth-child(odd)  { background: rgba(248, 242, 238, 0.96); }
+    [data-theme="light"] .flow-card:nth-child(odd)  { background: rgba(243, 233, 223, 0.96); }
     [data-theme="light"] .flow-card:nth-child(even) { background: rgba(252, 248, 244, 0.97); }
+    /* Task 241 (перенос из kip8test@96039d0): зебра карточек расходомеров в
+       светлой теме немного контрастней — odd-ряд потемнее (243,233,223 vs
+       было 248,242,238). Sidebar-move часть Task 241 НЕ перенесена —
+       требует модуля WorkSchedule (Tasks 201-239), которого в kip8 ещё
+       нет. См. worklog.md Task 240-241 (перенос). */
     [data-theme="light"] .flow-card { border-bottom-color: rgba(20,20,19,0.08); }
     .flow-card:active { background: rgba(200,112,72,0.12); }
     [data-theme="light"] .flow-card:active { background: rgba(200,112,72,0.08); }
@@ -31741,7 +31746,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
              но не имеет kip-ios по фильтру 3). Видимость группы определяется
              общей логикой _applyRoleToUI: группа видна, если виден её единственный
              пункт «Расходомеры хозрасчётные» (flowmeter-data), т.е. для ролей
-             с доступом к расходомерам. -->
+             с доступом к расходомерами. -->
         <div class="sidebar-group" data-group="docs-ios">
         <div class="sidebar-group-title sidebar-group-title-docs" onclick="toggleSidebarGroup(this.parentElement)">
             <span class="sidebar-group-title-text">Документация ИОС</span>

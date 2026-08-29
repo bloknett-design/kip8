@@ -5890,3 +5890,53 @@ Stage Summary:
 - Пользователям PWA: перезагрузить страницу 2 раза (v393); APK пересборка
   НЕ требуется (TWA грузит живую страницу); десктоп обновится сам
 - Следующий Task ID — 191
+---
+Task ID: 240-241 (перенос из kip8test — частичный)
+Agent: main (Super Z)
+Task: Перенос в боевой репозиторий kip8 изменений Tasks 240+241 из kip8test.
+      Task 241 зебра применена; sidebar-move часть Task 241 НЕ перенесена —
+      требует модуля WorkSchedule (Tasks 201-239), которого в kip8 ещё нет.
+
+Work Log:
+- Источник: kip8test@96039d0 (Task 241: «График работы» в группу
+  «Документация ИОС» сайдбара; светлая зебра расходомеров контрастней).
+- index.html (~line 3037-3038): светлая тема зебры карточек расходомеров —
+  odd-ряд потемнее (rgba(243,233,223,0.96) vs было 248,242,238),
+  even без изменений. Разница R-канала 4 → 9 (заметно контрастней,
+  но не «полосато»). Добавлен CSS-комментарий с пояснением, что
+  sidebar-move часть НЕ перенесена.
+- index.html: sidebar-item «График работы» ВНУТРИ группы docs-ios
+  НЕ добавлен. Причина: в kip8 отсутствует модуль WorkSchedule (var
+  WorkSchedule = {...}, _WORK_SCHEDULE_PAGES, page-work-schedule HTML,
+  bottom sheets wsCellOverlay/wsEmpOverlay/wsTrOverlay, CSS-классы
+  ws-*, серверный бэкенд workSchedule.*). Добавление sidebar-item с
+  navigateTo('work-schedule') без этих компонентов приведёт к:
+  (a) тест test-role-access.js «Пункты сайдбара: все target валидны»
+      упадёт, т.к. 'work-schedule' нет в ALL_PAGES (Kip._WORK_SCHEDULE_PAGES
+      не определён в kip8/index.html);
+  (b) при клике пользователь увидит пустую страницу (page-work-schedule
+      не существует).
+- sw.js: CACHE_VERSION kipia-v393 → kipia-v394 (для инвалидации кэша
+  пользователей при обновлении зебры).
+- tests/test-role-access.js: БЕЗ изменений (ALL_PAGES остаётся без
+  _WORK_SCHEDULE_PAGES, как было).
+
+Stage Summary:
+- В kip8 применена ТОЛЬКО зебра-часть Task 241.
+- Sidebar-move («График работы» в группу docs-ios) — ОТЛОЖЕНО.
+  Требуется предварительный перенос модуля WorkSchedule (Tasks 201-239)
+  из kip8test в kip8:
+  - var WorkSchedule = {...} — клиентский модуль (~700 строк).
+  - HTML-страницы page-work-schedule, page-work-schedule-employees,
+    page-work-schedule-trainings + 3 bottom sheets.
+  - _WORK_SCHEDULE_PAGES в ROLE_ACCESS (3 страницы).
+  - CSS-классы ws-* (легенда, тулбар, сетка, bottom sheets).
+  - Серверный бэкенд workSchedule.* (Apps Script Web App).
+  - Тесты test-work-schedule.js.
+- Перенос в kip8-desktop — автоматически через GitHub Action
+  sync-to-desktop.yml при пуше в kip8/index.html.
+- Файлы изменены: index.html (только зебра), sw.js (v394).
+- Пользователю: после обновления PWA (kipia-v394) в светлой теме на
+  странице расходомеров хозрасчётных зебра карточек станет немного
+  контрастней. Sidebar-move НЕ работает — ждите переноса модуля
+  WorkSchedule (отдельная задача).
