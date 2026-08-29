@@ -8348,13 +8348,17 @@
             z-index: 160;
         }
         #sidebar.desktop-open {
-            transform: translateX(-100%); /* .desktop-open не действует на мобильном */
+            transform: translateX(-100%) !important; /* .desktop-open не действует на мобильном */
         }
         #sidebar.active {
-            transform: translateX(0);
+            transform: translateX(0) !important; /* Task 243: !important бьёт десктопное правило #sidebar{transform:translateX(-100%)!important} (specificity #sidebar.active (1,1,0) > #sidebar (1,0,0)) — фикс бага «hamburger не открывает sidebar на 377px viewport» */
         }
         #sidebarOverlay.desktop-active {
             display: none !important; /* .desktop-active не действует на мобильном */
+        }
+        #sidebarOverlay.active {
+            display: block !important; /* Task 243: то же самое для overlay */
+            opacity: 1 !important;
         }
     }
 
