@@ -33064,9 +33064,16 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 <script>
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('./sw.js').then(function(reg) {
+        // updateViaCache: 'none' — браузер всегда ходит в сеть за sw.js,
+        // не использует HTTP-кэш. Это критично для быстрого деплоя новых
+        // версий (иначе пользователь может крутить старый SW сутками).
+        navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
             // Проверять обновления SW каждые 30 минут
             setInterval(function() { reg.update(); }, 30 * 60 * 1000);
+
+            // Принудительно проверить обновление сразу при загрузке —
+            // если на сервере уже лежит новый SW, он начнёт установку.
+            reg.update().catch(function() {});
 
             // Регистрация фоновой синхронизации для обновления данных
             // (exam-tickets.json). Сработает при появлении сети, если
