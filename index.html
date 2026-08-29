@@ -12933,6 +12933,15 @@
     <textarea id="wsTrComment" class="flow-comment-field" rows="2" maxlength="500" placeholder="Комментарий (необязательно)" autocomplete="off"></textarea>
     <button type="button" class="flow-input-submit" onclick="WorkSchedule.submitTrainingForm()">Добавить</button>
     <button type="button" class="flow-input-cancel" onclick="WorkSchedule.closeTrainingForm()">Отмена</button>
+</div><!-- /wsTrSheet — Task 244: закрытие sheet-а было ПРОПУЩЕНО при переносе
+     модуля WorkSchedule (Task 241). Из-за этого все элементы ПОСЛЕ wsTrSheet
+     (script-блок, sidebar, sidebarOverlay, aboutModalOverlay, createUserOverlay)
+     оказывались ВНУТРИ wsTrSheet. А .flow-input-sheet имеет
+     transform: translateY(100%) в скрытом состоянии — transform создаёт
+     containing block для position:fixed потомков. Поэтому sidebar
+     (position: fixed; top: 0) позиционировался относительно wsTrSheet
+     (который сам был смещён на translateY(100%) ниже viewport),
+     а не относительно viewport — sidebar оказывался НИЖЕ экрана. -->
 <script>
     // ============================================================
     // ELECTRON: ПРИНУДИТЕЛЬНЫЙ ДЕСКТОПНЫЙ РЕЖИМ (Task 131)
