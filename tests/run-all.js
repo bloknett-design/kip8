@@ -27,6 +27,7 @@ require('./test-thermocouple.js');
 require('./test-orifice.js');
 require('./test-utils.js');
 require('./test-role-access.js');
+require('./test-work-schedule.js');
 
 // Запускаем
 runAll().then(exitCode => {

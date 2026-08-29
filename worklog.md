@@ -5940,3 +5940,104 @@ Stage Summary:
   странице расходомеров хозрасчётных зебра карточек станет немного
   контрастней. Sidebar-move НЕ работает — ждите переноса модуля
   WorkSchedule (отдельная задача).
+
+---
+Task ID: 241 (финальный перенос в kip8 — модуль WorkSchedule Tasks 201-239 + sidebar-move)
+Agent: main (Super Z)
+Task: Завершение Task 241 в боевом kip8 — перенос модуля WorkSchedule (Tasks 201-239)
+      из kip8test и применение отложенной sidebar-move части («График работы»
+      в сворачиваемую группу «Документация ИОС» сайдбара).
+
+Work Log:
+- Источник: kip8test@96039d0 (Task 241: «График работы» в группу «Документация
+  ИОС» сайдбара; светлая зебра расходомеров контрастней).
+- Шаг 1 (бэкенд): скопирован scripts/WorkSchedule.gs (854 строки) из kip8test
+  в kip8 — серверный бэкенд графика работы (Apps Script Web App,
+  SPREADSHEET_ID=1MQtW-CWCmjlu-SAeVBllKDP6NRkiOkmW-7xgOjHskWY).
+- Шаг 2 (бэкенд): в scripts/Code.gs добавлены 11 case-роутов workSchedule.*
+  (getStatusCodes/getPatterns/listEmployees/listEntries/listTrainings/
+  generateMonth/setManualEntry/deleteEntry/addEmployee/addTraining/
+  deleteTraining) перед default-веткой в doPost.
+- Шаг 3 (фронтенд-инъекции через scripts/kip8_inject_workschedule.py — 9 шагов):
+  1) CSS-блок .ws-* (279 строк) вставлен ПЕРЕД ".flow-bottom-bar" в общую
+     таблицу стилей — тулбар, сетка шахматки, легенда, карточки сотрудников
+     и инструктажей, светлая тема;
+  2) HTML 3 страницы (#page-work-schedule, #page-work-schedule-employees,
+     #page-work-schedule-trainings) вставлены между #page-docs-ios и
+     #page-flowmeter-data;
+  3) Кнопка меню «График работы» (id=workScheduleMenuBtn, navigateTo
+     ('work-schedule')) добавлена в .kip-ios-block страницы #page-docs-ios
+     после меню «Расходомеры хозрасчётные»;
+  4) 3 bottom-sheet-а (wsCellOverlay/wsEmpOverlay/wsTrOverlay + 145 строк
+     разметки) вставлены после flowInputSheet, перед главным <script>;
+  5) JS-модуль var WorkSchedule = {...} (770 строк, lines 33252-34021
+     kip8test) вставлен после модуля FlowmeterData, перед function
+     flowmeterRenderDetailInPanel;
+  6) В navigateTo() добавлены 3 init-блока (WorkSchedule.init/initEmployeesPage/
+     initTrainingsPage) после блока 'flowmeter-data';
+  7) _WORK_SCHEDULE_PAGES массив добавлен в ROLE-конфиг (после _FLOWMETER_PAGES,
+     перед _CHARTS_PAGES) с тремя страницами: 'work-schedule',
+     'work-schedule-employees', 'work-schedule-trainings';
+  8) const WORK_SCHEDULE = this._WORK_SCHEDULE_PAGES добавлен в init() после
+     const CHARTS = ...; добавлен комментарий к LVL_KIP_IOS про Task 201/204
+     (WORK_SCHEDULE НЕ входит ни в один LVL_* массив — доступ через ['*']
+     только для 'Админ');
+  9) Task 241 sidebar-move: в группе docs-ios сайдбара добавлен
+     sidebar-item sidebar-item-extra с id=sidebarWorkScheduleBtn (navigateTo
+     ('work-schedule'), style="display:none"), оранжевый цвет
+     rgba(200,112,72,0.9); счётчик группы «1» → «2»; расширен комментарий
+     группы пояснением Task 241.
+- Шаг 4 (тесты): скопирован tests/test-work-schedule.js (344 строки) из
+  kip8test; в tests/run-all.js добавлен require('./test-work-schedule.js');
+  в tests/test-role-access.js в массив ALL_PAGES добавлен Kip._WORK_SCHEDULE_PAGES
+  (раньше ALL_PAGES не включал график работы — тест «Пункты сайдбара: все
+  target валидны» упал бы на sidebarWorkScheduleBtn с navigateTo('work-schedule')).
+- Шаг 5 (SW): sw.js CACHE_VERSION kipia-v394 → kipia-v395 (мажорный фич-релиз
+  — модуль WorkSchedule полностью переносён в kip8).
+- Шаг 6 (валидация): scripts/kip8_syntax_check.js — JS всех 4 <script>
+  блоков index.html парсится без ошибок (1 077 353 символа).
+- Шаг 7 (тесты): node kip8/tests/run-all.js → 542 passed / 0 failed
+  (было 509 до переноса; +33 из test-work-schedule.js). Все тесты
+  WorkSchedule (парсинг ISO-дат, алгоритм дня цикла, индекс ключа записи,
+  серверные инварианы WorkSchedule.gs, клиентский модуль в index.html)
+  проходят.
+
+Stage Summary:
+- Модуль WorkSchedule (Tasks 201-239) полностью перенесён из kip8test в kip8:
+  - Сервер: scripts/WorkSchedule.gs (Apps Script Web App, бэкенд графика
+    работы) + 11 роутов в scripts/Code.gs.
+  - Фронтенд: 770 строк JS (var WorkSchedule), 279 строк CSS (.ws-*),
+    44 строки HTML (3 страницы), 145 строк HTML (3 bottom-sheet-а),
+    пункт сайдбара с navigateTo('work-schedule'), кнопка меню на
+    странице Документация ИОС, 3 init-блока в navigateTo(),
+    _WORK_SCHEDULE_PAGES в role config, WORK_SCHEDULE const в init().
+- Task 241 (sidebar-move) завершён: «График работы» теперь ВНУТРИ
+  сворачиваемой группы «Документация ИОС» сайдбара (sidebar-item-extra),
+  счётчик «2», виден только роли «Админ» (WORK_SCHEDULE_PAGES отсутствует
+  в LVL_* массивах — доступ через ['*']). Ранее Task 241 в kip8 был
+  применён частично (только зебра); теперь — полностью.
+- SW: kipia-v394 → kipia-v395.
+- Тесты: 509 → 542 passed / 0 failed (+33 из test-work-schedule.js).
+- Файлы изменены (kip8):
+  - index.html (+1238 строк: CSS + HTML pages + menu button + bottom sheets +
+    JS module + role config + navigateTo init + sidebar).
+  - sw.js (CACHE_VERSION v395).
+  - scripts/Code.gs (+44 строки workSchedule.* роутов).
+  - tests/run-all.js (+1 строка require test-work-schedule).
+  - tests/test-role-access.js (ALL_PAGES += _WORK_SCHEDULE_PAGES).
+- Файлы добавлены (kip8):
+  - scripts/WorkSchedule.gs (854 строки — серверный бэкенд).
+  - tests/test-work-schedule.js (344 строки — тесты модуля).
+- Допущения / что нужно знать пользователю:
+  - Apps Script проект (production deployment) должен включать WorkSchedule.gs
+    и обновлённые роуты Code.gs. Если production Apps Script ещё не развёрнут
+    с WorkSchedule.gs — график работы будет возвращать no_session/unknown_action.
+    Пользователю: открыть Apps Script editor для production проекта,
+    вставить WorkSchedule.gs + обновлённый Code.gs, Deploy → New version.
+  - SPREADSHEET_ID в WorkSchedule.gs = 1MQtW-CWCmjlu-SAeVBllKDP6NRkiOkmW-7xgOjHskWY
+    (общая таблица графика работы; не зависит от kip8/kip8test).
+  - READ_ROLES/WRITE_ROLES в WorkSchedule.gs ограничены ['Админ']
+    (Task 204) — как в kip8test.
+- Перенос в kip8-desktop — автоматически через GitHub Action sync-to-desktop.yml
+  при пуше в kip8/index.html. Worklog и Системный_промт обновлены отдельно.
+- Локальная дата: 2026-08-29 18:04:34 UTC+07:00 (Asia/Novosibirsk).
