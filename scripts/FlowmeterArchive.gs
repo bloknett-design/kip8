@@ -28,6 +28,20 @@
 //   M: modRole       — роль пользователя, внёсшего показания
 //   N: modName       — имя пользователя, внёсшего показания
 //   O: timestamp     — метка времени записи (Date object)
+//   P: comment       — комментарий к этим показаниям (Task 197).
+//                      Копируется из hozraschet_meters.O в момент смены автора
+//                      показаний (см. Flowmeter.updateReading). Для того же
+//                      автора (перезапись) — пусто, т.к. активный комментарий
+//                      остаётся в O и не «архивный».
+//   Q: anomaly        — строка с кодами аномалий валидации (Task 199, Фаза 1).
+//                      Формат: «CODE1: detail; CODE2: detail; ...» (пусто = аномалий
+//                      нет). Заполняется в appendToArchive из результата
+//                      ValidationRules.compute, вызванного в updateReading.
+//                      Коды: SIGN_NEG / DATE_INCONSISTENT (hard-block, в archive не
+//                      попадают, т.к. показания не сохраняются) + JUMP_NEGATIVE /
+//                      JUMP_HIGH / JUMP_LOW / PERIOD_MISMATCH / TEMP_OUT_OF_RANGE /
+//                      GCAL_RATIO / DUPLICATE (soft-confirm, попадают в archive
+//                      с пометкой).
 // ============================================================
 
 var FlowmeterArchive = {
@@ -82,8 +96,17 @@ var FlowmeterArchive = {
   //   period    — периодичность
   //   role      — роль пользователя
   //   name      — имя пользователя
+  //   comment   — Task 197: комментарий к этим показаниям (строка или пусто).
+  //              Передаётся из Flowmeter.updateReading как старый комментарий
+  //              из meters.O в момент смены автора показаний. Для того же
+  //              автора (перезапись) — пусто.
+  //   anomaly   — Task 199: строка с кодами аномалий валидации (soft-confirm),
+  //              формат «CODE1: detail; CODE2: detail; ...». Пусто = аномалий
+  //              нет. Hard-block-коды (SIGN_NEG, DATE_INCONSISTENT) сюда не
+  //              попадают, т.к. показания не сохраняются (caller возвращает
+  //              ошибку до вызова appendToArchive).
   // ============================================================
-  appendToArchive: function(meterId, hoz, prev, curr, datePrev, dateCurr, temp, gcal, unit, period, role, name) {
+  appendToArchive: function(meterId, hoz, prev, curr, datePrev, dateCurr, temp, gcal, unit, period, role, name, comment, anomaly) {
     var sheet = this._getSheet();
     if (!sheet) {
       // Лист архива не создан — тихо пропускаем (не блокируем основной flow)
@@ -103,10 +126,12 @@ var FlowmeterArchive = {
     }
 
     // Добавляем строку в конец листа.
-    // Структура (15 столбцов A–O, Task 100 добавил K=Gcal):
+    // Структура (17 столбцов A–Q, Task 100 добавил K=Gcal, Task 197 — P=comment,
+    // Task 199 — Q=anomaly):
     //   A meterId, B hoz, C prev, D curr, E consumption,
     //   F datePrev, G dateCurr, H daysBetween, I unit, J temp,
-    //   K Gcal (Task 100), L period, M modRole, N modName, O timestamp
+    //   K Gcal (Task 100), L period, M modRole, N modName, O timestamp,
+    //   P comment (Task 197), Q anomaly (Task 199)
     sheet.appendRow([
       meterId,                                                                    // A: meterId
       hoz || '',                                                                  // B: hoz
@@ -122,10 +147,62 @@ var FlowmeterArchive = {
       period || '',                                                               // L: period
       role || '',                                                                 // M: modRole
       name || '',                                                                 // N: modName
-      new Date()                                                                  // O: timestamp
+      new Date(),                                                                  // O: timestamp
+      String(comment || ''),                                                       // P: comment (Task 197)
+      String(anomaly || '')                                                        // Q: anomaly (Task 199)
     ]);
 
     Logger.log('Archive: meterId=' + meterId + ', prev=' + prev + ', curr=' + curr + ', consumption=' + consumption + ', gcal=' + (gcal || '—'));
+  },
+
+  // ============================================================
+  // updateLatestComment — Task 237: обновить P (comment) в самой свежей
+  // архивной записи для meterId.
+  // ============================================================
+  // Вызывается:
+  //   1) из Flowmeter.setComment — синхронизация: при записи нового
+  //      комментария в meters.O он же пишется в archive.P самой свежей
+  //      записи этого счётчика. Так комментарий остаётся в архиве даже
+  //      после того, как при следующем вводе показаний meters.O будет
+  //      очищен.
+  //   2) из Flowmeter.updateReading — миграция старых комментариев:
+  //      если в meters.O был комментарий (а archive.P пуст из-за того,
+  //      что setComment был вызван ДО развертывания этого патча),
+  //      дублируем его в archive.P перед сбросом meters.O. Idempotent:
+  //      если setComment уже записал, значение совпадает и перезапись
+  //      не меняет данных.
+  //
+  // @param {number} meterId — id позиции (1–12)
+  // @param {string} comment — текст комментария (пустая строка = удалить)
+  // @returns {boolean} true если строка найдена и обновлена, false если
+  //                     архив пуст или нет записей для этого meterId.
+  // Не требует авторизации — вызывается только сервером из
+  // Flowmeter.setComment / Flowmeter.updateReading.
+  // ============================================================
+  updateLatestComment: function(meterId, comment) {
+    var sheet = this._getSheet();
+    if (!sheet) return false;
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow < this.DATA_START_ROW) return false;
+
+    // Читаем только колонку A (meterId) для поиска последней записи.
+    // Для эффективности: 1 колонка вместо 17.
+    var range = sheet.getRange(this.DATA_START_ROW, 1,
+                               lastRow - this.DATA_START_ROW + 1, 1);
+    var values = range.getValues();
+
+    // Идём с конца, ищем самую свежую запись для meterId.
+    // (appendRow всегда добавляет в конец листа → последняя по позиции
+    //  с совпадающим meterId и есть самая свежая.)
+    for (var i = values.length - 1; i >= 0; i--) {
+      if (parseInt(values[i][0], 10) === meterId) {
+        var rowToUpdate = this.DATA_START_ROW + i;
+        sheet.getRange(rowToUpdate, 16).setValue(String(comment || ''));  // P=16
+        return true;
+      }
+    }
+    return false;  // записей для этого meterId нет
   },
 
   // ============================================================
@@ -159,8 +236,9 @@ var FlowmeterArchive = {
       return { ok: true, data: { records: [], meterId: meterId } };
     }
 
-    // Читаем все данные ( столбцы A–O, 15 столбцов; Task 100 добавил K=Gcal)
-    var range = sheet.getRange(this.DATA_START_ROW, 1, lastRow - this.DATA_START_ROW + 1, 15);
+    // Читаем все данные (столбцы A–Q, 17 столбцов; Task 100 добавил K=Gcal,
+    // Task 197 добавил P=comment, Task 199 добавил Q=anomaly)
+    var range = sheet.getRange(this.DATA_START_ROW, 1, lastRow - this.DATA_START_ROW + 1, 17);
     var values = range.getValues();
 
     var records = [];
@@ -186,7 +264,9 @@ var FlowmeterArchive = {
         modName:     String(row[13] || ''),
         timestamp:   (row[14] instanceof Date)
                        ? row[14].toISOString()
-                       : String(row[14] || '')
+                       : String(row[14] || ''),
+        comment:     String(row[15] || '').trim(),    // P=16 — Task 197
+        anomaly:     String(row[16] || '').trim()    // Q=17 — Task 199
       };
       records.push(record);
     }
@@ -199,7 +279,96 @@ var FlowmeterArchive = {
       records = records.slice(0, limit);
     }
 
-    return { ok: true, data: { records: records, meterId: meterId } };
+    // Task 222: добавляем карту описаний кодов аномалий (для рендера в
+    // столбце «⚠ Замечания» хронологии показаний). Фронтенд берёт из
+    // этой карты дружелюбное описание вместо технического detail.
+    var anomalyHelp = {};
+    try {
+      if (typeof ValidationRules !== 'undefined' && ValidationRules.getHelpMap) {
+        anomalyHelp = ValidationRules.getHelpMap();
+      }
+    } catch (e) {
+      // Тихо игнорируем — фронтенд использует технический detail
+    }
+
+    return { ok: true, data: { records: records, meterId: meterId, anomalyHelp: anomalyHelp } };
+  },
+
+  // ============================================================
+  // getRecentAllMeters — последние записи архива для всех счётчиков
+  // за последние daysBack дней (Task 200, для WRONG_METER валидации)
+  // ============================================================
+  // @param {number} daysBack — сколько дней назад смотреть (по умолчанию 7)
+  // @returns {Array} — массив объектов:
+  //   { meterId, hoz, prev, curr, consumption, dateCurr, modName, timestamp }
+  // Берёт самую свежую запись для каждого meterId (по dateCurr).
+  // Не требует авторизации — вызывается сервером из updateReading
+  // и из listRules (для клиента, через маршрут flowmeter.getRecentAllMeters).
+  // ============================================================
+  getRecentAllMeters: function(daysBack) {
+    daysBack = daysBack || 7;
+    var sheet = this._getSheet();
+    if (!sheet) return [];
+
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) return [];
+
+    // A..Q = 17 колонок
+    var range = sheet.getRange(this.DATA_START_ROW, 1, lastRow - this.DATA_START_ROW + 1, 17);
+    var data = range.getValues();
+
+    var byMeter = {};
+    var cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysBack);
+    // cutoffDate = начало дня (daysBack дней назад)
+    cutoffDate.setHours(0, 0, 0, 0);
+
+    for (var i = 0; i < data.length; i++) {
+      var row = data[i];
+      var mid = parseInt(row[0], 10); // A=meterId
+      if (!mid) continue;
+
+      var dateCurr = row[6]; // G=dateCurr
+      if (!(dateCurr instanceof Date)) continue;
+      if (dateCurr < cutoffDate) continue;
+
+      var existing = byMeter[mid];
+      if (!existing || (dateCurr > existing.dateCurr)) {
+        byMeter[mid] = {
+          meterId:     mid,
+          hoz:         row[1],            // B=hoz
+          prev:        row[2],            // C=prev
+          curr:        row[3],            // D=curr
+          consumption: row[4],            // E=consumption
+          dateCurr:    dateCurr,          // G=dateCurr
+          modName:     row[13],           // N=modName
+          timestamp:   row[14]            // O=timestamp
+        };
+      }
+    }
+
+    var result = [];
+    for (var k in byMeter) {
+      if (byMeter.hasOwnProperty(k)) result.push(byMeter[k]);
+    }
+    return result;
+  },
+
+  // ============================================================
+  // listRecentAllMeters — endpoint-обёртка (с авторизацией)
+  // для клиента: flowmeter.getRecentAllMeters (через Code.gs).
+  // ============================================================
+  // @param payload.token — токен сессии
+  // @param payload.daysBack — число дней (по умолчанию 7)
+  // @returns { ok: true, data: { records: [...] } }
+  // ============================================================
+  listRecentAllMeters: function(payload) {
+    var auth = this._requireRead(payload && payload.token);
+    if (auth.error) return auth.error;
+    var days = parseInt(payload.daysBack, 10);
+    if (isNaN(days) || days <= 0) days = 7;
+    var records = this.getRecentAllMeters(days);
+    return { ok: true, data: { records: records } };
   }
 };
 
@@ -237,22 +406,33 @@ function flowmeterInitArchive(force) {
     sheet.clear();
   }
 
-  // Заголовки (строка 1)
+  // Заголовки (строка 1). ВАЖНО: порядок соответствует appendToArchive:
+  //   A=1 meterId, B=2 hoz, C=3 prev, D=4 curr, E=5 consumption,
+  //   F=6 datePrev, G=7 dateCurr, H=8 daysBetween, I=9 unit, J=10 temp,
+  //   K=11 Gcal, L=12 period, M=13 modRole, N=14 modName, O=15 timestamp,
+  //   P=16 comment (Task 197), Q=17 anomaly (Task 199).
+  // В предыдущей версии init-функции заголовки I/J и N/O были перепутаны
+  // (I='temp' вместо 'unit', N='timestamp' вместо 'modName') — это
+  // расходилось с реальной структурой данных в appendToArchive. Теперь
+  // заголовки строго соответствуют позициям данных.
   var headers = [
-    'meterId',       // A
-    'hoz',           // B
-    'prev',          // C
-    'curr',          // D
-    'consumption',   // E
-    'datePrev',      // F
-    'dateCurr',      // G
-    'daysBetween',   // H
-    'temp',          // I
-    'unit',          // J
-    'period',        // K
-    'modRole',       // L
-    'modName',       // M
-    'timestamp'      // N
+    'meterId',       // A=1
+    'hoz',           // B=2
+    'prev',          // C=3
+    'curr',          // D=4
+    'consumption',   // E=5
+    'datePrev',      // F=6
+    'dateCurr',      // G=7
+    'daysBetween',   // H=8
+    'unit',          // I=9  (fix: было 'temp')
+    'temp',          // J=10 (fix: было 'unit')
+    'Gcal',          // K=11
+    'period',        // L=12
+    'modRole',       // M=13
+    'modName',       // N=14 (fix: было 'timestamp')
+    'timestamp',     // O=15 (fix: было пропущено)
+    'comment',       // P=16 — Task 197
+    'anomaly'        // Q=17 — Task 199
   ];
 
   // Записываем заголовки

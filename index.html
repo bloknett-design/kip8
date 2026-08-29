@@ -3010,6 +3010,54 @@
     .flow-empty-icon { font-size: 40px; margin-bottom: 10px; }
     .flow-empty-text { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
     .flow-empty-hint { font-size: 12px; }
+    /* Task 238: состояния «Загрузка данных…» (с анимированными точками)
+       и «Нет связи с сервером» (ошибка сети/сервера) для расходомеров. */
+    .flow-loading {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-secondary);
+    }
+    .flow-loading-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .flow-loading-dots {
+        display: inline-block;
+        margin-left: 1px;
+    }
+    .flow-loading-dots span {
+        display: inline-block;
+        opacity: 0;
+        animation: flowLoadingDot 1.4s infinite;
+    }
+    .flow-loading-dots span:nth-child(1) { animation-delay: 0s; }
+    .flow-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .flow-loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes flowLoadingDot {
+        0%, 60%, 100% { opacity: 0; }
+        30% { opacity: 1; }
+    }
+    .flow-error {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-secondary);
+    }
+    .flow-error-icon {
+        font-size: 32px;
+        margin-bottom: 10px;
+        opacity: 0.55;
+        line-height: 1;
+    }
+    .flow-error-text {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+    .flow-error-hint {
+        font-size: 12px;
+    }
     .flow-sheet-link {
         display: block; text-align: center; padding: 10px 16px;
         margin: 8px 14px 8px; border-radius: 8px;
@@ -3036,11 +3084,6 @@
     .flow-card:nth-child(even) { background: rgba(48, 42, 38, 0.96); }
     [data-theme="light"] .flow-card:nth-child(odd)  { background: rgba(243, 233, 223, 0.96); }
     [data-theme="light"] .flow-card:nth-child(even) { background: rgba(252, 248, 244, 0.97); }
-    /* Task 241 (перенос из kip8test@96039d0): зебра карточек расходомеров в
-       светлой теме немного контрастней — odd-ряд потемнее (243,233,223 vs
-       было 248,242,238). Sidebar-move часть Task 241 НЕ перенесена —
-       требует модуля WorkSchedule (Tasks 201-239), которого в kip8 ещё
-       нет. См. worklog.md Task 240-241 (перенос). */
     [data-theme="light"] .flow-card { border-bottom-color: rgba(20,20,19,0.08); }
     .flow-card:active { background: rgba(200,112,72,0.12); }
     [data-theme="light"] .flow-card:active { background: rgba(200,112,72,0.08); }
@@ -3055,6 +3098,22 @@
     .flow-summary-label { font-size: 11px; color: var(--text-secondary); }
     .flow-summary-val { font-size: 16px; font-weight: 700; color: #5ab870; }
     .flow-summary-days { font-size: 12px; font-weight: 400; color: var(--text-secondary); margin-left: 8px; }
+    /* Task 231: дата — под-элемент label «Последние показания» в карточке (одна строка,
+       как в детальной карточке Task 229). Меньший шрифт, нейтральный цвет. */
+    .flow-summary-label .flow-summary-date-inline {
+        font-size: 11px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        margin-left: 4px;
+    }
+    /* Task 231: sub-значения temp/gcal под основным значением, без названий.
+       Значения включают собственные единицы (°C, Гкал), поэтому лейблы не нужны. */
+    .flow-summary-sub {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--text-secondary);
+        margin-top: 2px;
+    }
     .flow-card-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
     .flow-card-date { font-size: 11px; color: var(--text-secondary); flex-shrink: 0; margin-left: 8px; }
     .flow-card-location { font-size: 12px; color: #c87048; margin-bottom: 2px; }
@@ -3259,8 +3318,264 @@
     [data-theme="light"] .flow-detail-value { color: #1a1a1a; }
     .flow-detail-curr { color: #6aa6e0; }
     [data-theme="light"] .flow-detail-curr { color: #1a5a8a; }
+    /* Task 225: подзначения (температура, гигакалории) под основными показаниями —
+       меньше и второстепенным цветом, чтобы визуально подчинялись осн. значению. */
+    .flow-detail-sub {
+        font-size: 14px;
+        color: rgba(220, 200, 190, 0.7);
+        font-weight: 400;
+    }
+    [data-theme="light"] .flow-detail-sub { color: rgba(20, 20, 19, 0.6); }
+    /* Task 227+229: дата в строке «Последние показания» — под-элемент label,
+       одна общая строка текста с названием (без разделения на 2 блока).
+       Стили даты мягко переопределяют label: меньший шрифт, normal регистр
+       (label uppercase, дата lowercase), нейтральный цвет. */
+    .flow-detail-label .flow-detail-date-inline {
+        font-size: 12px;
+        font-weight: 400;
+        text-transform: none;      /* отменить uppercase от .flow-detail-label */
+        letter-spacing: 0;         /* отменить от label */
+        color: var(--text-secondary);
+    }
     /* Подсветка строки «Расход» — фон и лейбл как у обычной строки, зелёным только значение */
     .flow-detail-highlight .flow-detail-value { color: #5ab870; font-weight: 700; }
+    /* ========== Task 195: комментарий к последним показаниям ========== */
+    /* Шапка строки «Последние показания»: label слева, кнопка комментария справа */
+    .flow-detail-row-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .flow-detail-row-head .flow-detail-label { margin-bottom: 0; }
+    /* Кнопка ввода комментария — видна автору последних показаний ИЛИ админу */
+    /* Task 198: margin-right:16px симметричен padding-left:16px строки
+       (.flow-detail-row), чтобы кнопка-значок имела такой же отступ от
+       правого края строки, как текст метки от левого. */
+    .flow-comment-btn {
+        flex-shrink: 0;
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 30px; height: 30px; padding: 0;
+        margin-right: 16px;
+        border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
+        background: rgba(255,255,255,0.05);
+        color: rgba(200,180,170,0.55);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: all 0.15s;
+    }
+    .flow-comment-btn svg { width: 15px; height: 15px; }
+    .flow-comment-btn:active { transform: scale(0.92); }
+    .flow-comment-btn.has-comment {
+        color: #c87048;
+        border-color: rgba(200,112,72,0.45);
+        background: rgba(200,112,72,0.12);
+    }
+    [data-theme="light"] .flow-comment-btn {
+        border-color: rgba(0,0,0,0.15);
+        background: rgba(0,0,0,0.03);
+        color: rgba(20,20,19,0.5);
+    }
+    [data-theme="light"] .flow-comment-btn.has-comment {
+        color: #a05a34;
+        border-color: rgba(200,112,72,0.45);
+        background: rgba(200,112,72,0.10);
+    }
+    /* Подстрока комментария — видна всем пользователям раздела */
+    .flow-detail-comment-row .flow-detail-value { font-size: 15px; }
+    .flow-comment-local {
+        font-size: 12px; font-style: italic;
+        color: var(--text-secondary);
+        white-space: nowrap;
+    }
+    /* Task 197: строка «Последний архивный комментарий» в карточке расходомера */
+    .flow-archived-comment-row .flow-detail-value {
+        font-size: 14px;
+        color: var(--text-secondary);
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+    .flow-archived-comment-row .flow-archived-meta {
+        font-size: 12px; color: var(--text-tertiary);
+        font-style: italic;
+    }
+    .flow-archived-comment-row .flow-archived-text {
+        display: block;
+        color: var(--text-secondary);
+        line-height: 1.35;
+    }
+    [data-theme="light"] .flow-archived-comment-row .flow-archived-meta {
+        color: #6c7a8a;
+    }
+    [data-theme="light"] .flow-archived-comment-row .flow-archived-text {
+        color: #5b6a7d;
+    }
+    /* Task 197: ячейка комментария в архивной таблице */
+    /* Task 215→221: ширина столбца задаётся динамически через JS
+       (_adjustArchiveColumnWidths) после рендера таблицы. CSS даёт
+       только перенос слов + 4-строчную отсечку по высоте. */
+    .flow-archive-table .flow-archive-comment {
+        font-size: 13px; color: var(--text-secondary);
+        white-space: normal; word-break: break-word;
+        line-height: 1.3;
+        vertical-align: top;
+    }
+    .flow-archive-table .flow-archive-comment-inner {
+        max-height: 5.2em; /* 4 строки × 1.3 line-height — safety cap */
+        overflow: hidden;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+    [data-theme="light"] .flow-archive-table .flow-archive-comment {
+        color: #5b6a7d;
+    }
+    /* Task 199: ячейка аномалий в архивной таблице — значки с кодами */
+    /* Task 215→221: ширина через JS (_adjustArchiveColumnWidths). */
+    .flow-archive-table .flow-archive-anomaly {
+        white-space: normal; word-break: break-word;
+        line-height: 1.3;
+        vertical-align: top;
+    }
+    .flow-archive-table .flow-archive-anomaly-inner {
+        max-height: 5.2em;
+        overflow: hidden;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+    .flow-archive-table .flow-archive-anomaly .flow-anomaly-badge {
+        display: inline-block; padding: 2px 6px; margin: 1px 2px 1px 0;
+        font-size: 11px; font-weight: 600; border-radius: 4px;
+        background: rgba(220, 80, 50, 0.18); color: #e08060;
+        border: 1px solid rgba(220, 80, 50, 0.35);
+        line-height: 1.2;
+    }
+    .flow-archive-table .flow-archive-anomaly .flow-anomaly-badge-detail {
+        display: inline-block; font-size: 11px; color: var(--text-tertiary);
+        margin: 1px 4px 1px 0; font-style: italic;
+    }
+    /* Task 233: каждая аномалия — отдельная строка (раньше рядом с описанием
+       рендерился badge с кодом правила — убрали, теперь только описание). */
+    .flow-archive-table .flow-archive-anomaly .flow-anomaly-line {
+        display: block;
+        margin-bottom: 4px;
+        line-height: 1.3;
+    }
+    .flow-archive-table .flow-archive-anomaly .flow-anomaly-line:last-child {
+        margin-bottom: 0;
+    }
+    [data-theme="light"] .flow-archive-table .flow-archive-anomaly .flow-anomaly-badge {
+        background: rgba(220, 80, 50, 0.10); color: #a05030;
+        border-color: rgba(220, 80, 50, 0.30);
+    }
+    /* Task 199: модалка подтверждения аномалий */
+    .flow-anomaly-modal-overlay {
+        position: fixed; inset: 0; z-index: 2000;
+        background: rgba(0, 0, 0, 0.55);
+        display: flex; align-items: center; justify-content: center;
+        padding: 16px;
+        animation: flowAnomalyFadeIn 0.18s ease-out;
+    }
+    @keyframes flowAnomalyFadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .flow-anomaly-modal {
+        background: var(--bg-card, #2a2521); color: var(--text-primary);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px; padding: 18px 18px 14px;
+        max-width: 460px; width: 100%; max-height: 90vh; overflow-y: auto;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+    }
+    .flow-anomaly-modal-header {
+        font-size: 17px; font-weight: 700;
+        color: #e08060; margin-bottom: 6px;
+    }
+    .flow-anomaly-modal-meter {
+        font-size: 13px; color: var(--text-secondary);
+        margin-bottom: 12px;
+    }
+    .flow-anomaly-list {
+        list-style: none; padding: 0; margin: 0 0 14px 0;
+    }
+    .flow-anomaly-item {
+        display: flex; flex-direction: column; gap: 2px;
+        padding: 8px 10px; margin-bottom: 6px;
+        background: rgba(220, 80, 50, 0.08);
+        border-left: 3px solid rgba(220, 80, 50, 0.55);
+        border-radius: 4px;
+    }
+    .flow-anomaly-code {
+        font-size: 12px; font-weight: 700; color: #e08060;
+        letter-spacing: 0.4px;
+    }
+    .flow-anomaly-detail {
+        font-size: 13px; color: var(--text-secondary);
+        line-height: 1.4;
+    }
+    [data-theme="light"] .flow-anomaly-modal {
+        background: #ffffff; color: #1a1a1a;
+        border-color: rgba(0, 0, 0, 0.12);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    }
+    [data-theme="light"] .flow-anomaly-modal-header { color: #c54a2a; }
+    [data-theme="light"] .flow-anomaly-modal-meter { color: #5b6a7d; }
+    [data-theme="light"] .flow-anomaly-item {
+        background: rgba(220, 80, 50, 0.06);
+        border-left-color: rgba(220, 80, 50, 0.55);
+    }
+    [data-theme="light"] .flow-anomaly-code { color: #c54a2a; }
+    [data-theme="light"] .flow-anomaly-detail { color: #5b6a7d; }
+    .flow-anomaly-modal-actions {
+        display: flex; gap: 10px; justify-content: flex-end;
+    }
+    .flow-anomaly-btn {
+        padding: 10px 18px; border-radius: 8px; border: none;
+        font-size: 14px; font-weight: 600; cursor: pointer;
+        transition: background 0.15s, opacity 0.15s;
+        font-family: 'Inter', sans-serif;
+    }
+    .flow-anomaly-btn:active { transform: scale(0.96); }
+    .flow-anomaly-cancel {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .flow-anomaly-confirm {
+        background: #e08060; color: #fff;
+    }
+    .flow-anomaly-confirm:hover { background: #c66a48; }
+    [data-theme="light"] .flow-anomaly-cancel {
+        background: rgba(0, 0, 0, 0.05); color: #5b6a7d;
+        border-color: rgba(0, 0, 0, 0.12);
+    }
+    [data-theme="light"] .flow-anomaly-confirm {
+        background: #c54a2a; color: #fff;
+    }
+    [data-theme="light"] .flow-anomaly-confirm:hover { background: #a04020; }
+    /* Sheet ввода комментария (по паттерну flow-input-sheet) */
+    .flow-comment-field {
+        width: 100%; min-height: 100px; padding: 12px 14px;
+        resize: vertical;
+        border: 1px solid rgba(255,255,255,0.12); border-radius: 10px;
+        background: rgba(255,255,255,0.05);
+        color: var(--text-primary); font-size: 16px;
+        font-family: 'Inter', sans-serif; line-height: 1.45;
+        box-sizing: border-box; outline: none;
+        transition: border-color 0.15s;
+    }
+    .flow-comment-field:focus { border-color: #6aa6e0; }
+    [data-theme="light"] .flow-comment-field { border-color: rgba(0,0,0,0.15); background: rgba(0,0,0,0.03); }
+    .flow-comment-counter {
+        font-size: 11px; color: var(--text-secondary);
+        text-align: right; margin-top: 4px;
+    }
+    .flow-comment-delete {
+        display: block; width: 100%; padding: 12px; margin-top: 8px;
+        border: none; background: transparent;
+        font-size: 14px; color: #e07a7a;
+        font-family: 'Inter', sans-serif; cursor: pointer;
+        text-align: center;
+        -webkit-tap-highlight-color: transparent;
+    }
+    [data-theme="light"] .flow-comment-delete { color: #b04a4a; }
     /* [data-theme="light"] .flow-card — убрано: зебра задана выше */
     [data-theme="light"] .flow-sheet-link { background: rgba(74,143,199,0.06); border-color: rgba(74,143,199,0.15); }
     /* [data-theme="light"] .flow-card:active — убрано: задано выше */
@@ -3385,7 +3700,23 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         padding: 0 0 8px;
-        /* touch-action задаётся классом .pinch-zoom-target */
+        /* Task 230: touch-action задаётся НИЖЕ, переопределяет .pinch-zoom-target.
+           Без этого горизонтальный скролл таблицы не работает в НЕ-zoomed
+           состоянии — пользователь обязан сначала сделать pinch-zoom, и только
+           потом таблица начинает скроллиться по горизонтали. Это связано с тем,
+           что .pinch-zoom-target имеет touch-action: pan-y (только вертикаль),
+           и лишь после добавления класса .zoomed (через pinch-zoom) touch-action
+           становится pan-x pan-y. Для таблицы хронологии мы хотим, чтобы
+           горизонтальный скролл работал СРАЗУ, без необходимости зумить. */
+    }
+    /* Task 230: разрешаем horizontal pan для таблицы хронологии с самого начала.
+       Селектор .flow-archive-table-wrap.pinch-zoom-target более специфичен, чем
+       .pinch-zoom-target — переопределяет базовое правило.
+       pan-x pan-y разрешает: 1 палец → горизонтальный+вертикальный скролл,
+       2 пальца → передаётся в JS-обработчик pinch-zoom (preventDefault в
+       touchstart/touchmove/gesturechange). */
+    .flow-archive-table-wrap.pinch-zoom-target {
+        touch-action: pan-x pan-y;
     }
     .flow-archive-table {
         width: 100%;
@@ -3819,6 +4150,8 @@
         background: rgba(0, 0, 0, 0.04);
         color: #555;
     }
+
+    /* === Конец CSS графика работы (Task 201) === */
 
     /* Нижний бар с табами — позиционируется fixed внизу, как dashboard-bottom-bar */
     .flow-bottom-bar {
@@ -4755,6 +5088,34 @@
     }
     .ms-game-over-sub {
         font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 16px;
+    }
+    /* ===== Task 192: счёт достижений — три последних результата ===== */
+    .ms-achievements { margin-top: 14px; }
+    .ms-ach-title {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+        color: var(--text-secondary); margin-bottom: 8px;
+    }
+    .ms-ach-sub { font-weight: 400; color: var(--text-faint); }
+    .ms-ach-score {
+        margin-left: auto; padding: 1px 8px; border-radius: 8px;
+        font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums;
+        background: rgba(74, 199, 113, 0.12); color: var(--accent-green);
+        border: 1px solid rgba(74, 199, 113, 0.25);
+    }
+    .ms-ach-row { display: flex; gap: 8px; }
+    .ms-ach-slot {
+        flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px;
+        padding: 8px 10px; border-radius: 10px;
+        background: var(--card-bg); border: 1px solid var(--card-border);
+    }
+    .ms-ach-slot.win { background: rgba(74, 199, 113, 0.08); border-color: rgba(74, 199, 113, 0.35); }
+    .ms-ach-slot.empty { opacity: 0.45; }
+    .ms-ach-icon { font-size: 15px; line-height: 1; flex-shrink: 0; }
+    .ms-ach-diff { font-size: 12px; font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+    .ms-ach-time {
+        margin-left: auto; font-size: 12px; color: var(--text-secondary);
+        font-variant-numeric: tabular-nums; white-space: nowrap;
     }
     /* ===== Placeholder button (раздел в разработке) ===== */
     .menu-btn-placeholder {
@@ -7741,9 +8102,29 @@
     [data-theme="light"] .ms-game-over-text { color: #141413; }
     [data-theme="light"] .ms-hint { background: rgba(232,230,220,0.5); color: rgba(20,20,19,0.45); }
     [data-theme="light"] .ms-face-btn { background: rgba(255,255,255,0.5); border-color: rgba(20,20,19,0.12); }
+    /* Task 192: счёт достижений — светлая тема */
+    [data-theme="light"] .ms-ach-title { color: rgba(20,20,19,0.55); }
+    [data-theme="light"] .ms-ach-sub { color: rgba(20,20,19,0.35); }
+    [data-theme="light"] .ms-ach-slot { background: rgba(232,230,220,0.5); border-color: rgba(20,20,19,0.1); }
+    [data-theme="light"] .ms-ach-slot.win { background: rgba(74,199,113,0.1); border-color: rgba(74,199,113,0.4); }
+    [data-theme="light"] .ms-ach-diff { color: #141413; }
+    [data-theme="light"] .ms-ach-time { color: rgba(20,20,19,0.5); }
 
     @media (max-width: 400px) {
         .ms-board { padding: 4px; }
+    }
+
+    /* Task 191: десктоп — компактное игровое поле по центру.
+       Клетки ограничены 40px в msCalcCellSize(), поэтому контейнер
+       ограничиваем по ширине и центрируем; touch-спейсер прокрутки
+       справа не нужен (мышь), поле центрируем в ряд.
+       Task 192: поля на десктопе горизонтальные (16x9, 28x9) — точную
+       ширину панели под сложность задаёт msApplyContainerWidth()
+       инлайн-стилем; 1240px — потолок для 28x9 при клетке 40px. */
+    @media (min-width: 1024px) {
+        #page-minesweeper .ms-container { max-width: 1240px; margin-left: auto; margin-right: auto; }
+        #page-minesweeper .ms-board-row { justify-content: center; overflow-x: auto; }
+        #page-minesweeper .ms-board-scroll-spacer { display: none; }
     }
 
     /* Prefers-reduced-motion: disable animations */
@@ -8351,14 +8732,13 @@
             transform: translateX(-100%) !important; /* .desktop-open не действует на мобильном */
         }
         #sidebar.active {
-            transform: translateX(0) !important; /* Task 243: !important бьёт десктопное правило #sidebar{transform:translateX(-100%)!important} (specificity #sidebar.active (1,1,0) > #sidebar (1,0,0)) — фикс бага «hamburger не открывает sidebar на 377px viewport» */
+            transform: translateX(0) !important; /* Task 243: !important бьёт десктопное правило #sidebar{transform:translateX(-100%)!important} (specificity #sidebar.active (1,1,0) > #sidebar (1,0,0)) — фикс бага «hamburger не открывает sidebar на 377px viewport». Task 244: корневая причина — wsTrSheet не был закрыт, sidebar оказывался вложенным в него (position:fixed относительно wsTrSheet, имевшего transform). В kip8test wsTrSheet уже правильно закрыт, но !important оставлен для надёжности. */
         }
         #sidebarOverlay.desktop-active {
             display: none !important; /* .desktop-active не действует на мобильном */
         }
         #sidebarOverlay.active {
             display: block !important; /* Task 243: то же самое для overlay */
-            opacity: 1 !important;
         }
     }
 
@@ -10042,6 +10422,36 @@
             </div>
         </div>
 
+        <!-- ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ — список записей ======================== -->
+        <div id="page-flowmeter-data" class="page-content">
+            <div class="page-inline-header">
+                <div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div>
+                <div class="page-inline-header-title">Расходомеры хозрасчётные</div>
+            </div>
+            <div id="flowList" class="flow-list">
+                <div class="admin-empty" id="flowEmpty">Загрузка…</div>
+            </div>
+        </div>
+
+        <!-- ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ — нижний бар «Все / Избранные» ======================== -->
+        <!-- Фиксированный бар внизу экрана (как dashboardBottomBar), показывается только на page-flowmeter-data -->
+        <div id="flowBottomBar" class="flow-bottom-bar">
+            <button class="flow-tab active" data-flow-tab="all" onclick="FlowmeterData.setTab('all')">Все <span class="flow-tab-count" id="flowAllCount">0</span></button>
+            <button class="flow-tab" data-flow-tab="fav" onclick="FlowmeterData.setTab('fav')">Избранные <span class="flow-tab-count" id="flowFavCount">0</span></button>
+        </div>
+
+        <!-- ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ — детальная карточка ======================== -->
+        <div id="page-flowmeter-detail" class="page-content">
+            <div class="page-inline-header">
+                <div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div>
+                <div class="page-inline-header-title" id="flowDetailTitle">Расходомер</div>
+                <button type="button" id="flowFavBtn" onclick="FlowmeterData.toggleFavFromDetail()" aria-label="В избранное">☆</button>
+            </div>
+            <div id="flowDetailBody" class="flow-detail-body"></div>
+            <div class="flow-detail-bottom-bar" id="flowDetailBottomBar"></div>
+        </div>
+
+        <!-- ======================== ГРАФИК РАБОТЫ — шахматка на месяц ======================== -->
         <div id="page-work-schedule" class="page-content">
             <div class="page-inline-header">
                 <div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div>
@@ -10084,35 +10494,6 @@
             <div class="ws-add-bar" id="wsAddTrainingBar" hidden>
                 <button type="button" class="ws-add-btn" onclick="WorkSchedule.openTrainingForm()">+ Добавить мероприятие</button>
             </div>
-        </div>
-
-        <!-- ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ — список записей ======================== -->
-        <div id="page-flowmeter-data" class="page-content">
-            <div class="page-inline-header">
-                <div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div>
-                <div class="page-inline-header-title">Расходомеры хозрасчётные</div>
-            </div>
-            <div id="flowList" class="flow-list">
-                <div class="admin-empty" id="flowEmpty">Загрузка…</div>
-            </div>
-        </div>
-
-        <!-- ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ — нижний бар «Все / Избранные» ======================== -->
-        <!-- Фиксированный бар внизу экрана (как dashboardBottomBar), показывается только на page-flowmeter-data -->
-        <div id="flowBottomBar" class="flow-bottom-bar">
-            <button class="flow-tab active" data-flow-tab="all" onclick="FlowmeterData.setTab('all')">Все <span class="flow-tab-count" id="flowAllCount">0</span></button>
-            <button class="flow-tab" data-flow-tab="fav" onclick="FlowmeterData.setTab('fav')">Избранные <span class="flow-tab-count" id="flowFavCount">0</span></button>
-        </div>
-
-        <!-- ======================== РАСХОДОМЕРЫ ХОЗРАСЧЁТНЫЕ — детальная карточка ======================== -->
-        <div id="page-flowmeter-detail" class="page-content">
-            <div class="page-inline-header">
-                <div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div>
-                <div class="page-inline-header-title" id="flowDetailTitle">Расходомер</div>
-                <button type="button" id="flowFavBtn" onclick="FlowmeterData.toggleFavFromDetail()" aria-label="В избранное">☆</button>
-            </div>
-            <div id="flowDetailBody" class="flow-detail-body"></div>
-            <div class="flow-detail-bottom-bar" id="flowDetailBottomBar"></div>
         </div>
 
         <!-- ======================== КИП ИОС (родительское меню) ======================== -->
@@ -10424,7 +10805,7 @@
                         <option value="hard">9x28</option>
                     </select>
                 </div>
-                <div style="display:flex;">
+                <div class="ms-board-row" style="display:flex;">
                     <div class="ms-board-center" style="position:relative; flex-shrink:0;">
                         <div class="ms-board" id="msBoard"></div>
                         <div class="ms-game-over-overlay" id="msOverlay" style="display:none;">
@@ -10434,6 +10815,11 @@
                         </div>
                     </div>
                     <div class="ms-board-scroll-spacer"></div>
+                </div>
+                <!-- Task 193: счёт достижений — лучшие результаты по времени -->
+                <div class="ms-achievements">
+                    <div class="ms-ach-title">Достижения <span class="ms-ach-sub">· лучшие результаты по времени</span><span class="ms-ach-score" id="msAchScore" style="display:none;"></span></div>
+                    <div class="ms-ach-row" id="msAchRow"></div>
                 </div>
                 <div class="ms-hint">Нажмите — открыть клетку · Долгое нажатие — поставить флаг</div>
             </div>
@@ -10497,6 +10883,7 @@
             </div>
             <div class="admin-footer">
                 <button type="button" class="admin-refresh-btn" onclick="KipAdmin.refreshAll()">Обновить данные</button>
+                <button type="button" class="admin-refresh-btn" onclick="KipAdmin.refreshValidationRules()">Обновить правила</button>
             </div>
         </div>
 
@@ -12769,17 +13156,22 @@
     <div class="flow-input-sheet-handle"></div>
     <div class="flow-input-sheet-title" id="flowInputTitle">Ввести показания</div>
     <input type="text" inputmode="decimal" id="flowInputField" class="flow-input-field" placeholder="Текущие показания" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter')FlowmeterData.submitInput()">
+    <!-- Task 208: поля уложены построчно столбиком (каждая в своём .flow-input-row) -->
     <div class="flow-input-row">
         <div class="flow-input-group">
             <label class="flow-input-label" for="flowInputTemp">Температура, °C</label>
             <input type="text" inputmode="decimal" id="flowInputTemp" class="flow-input-field-small" placeholder="— (необязательно)" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter')FlowmeterData.submitInput()">
         </div>
+    </div>
+    <div class="flow-input-row">
         <div class="flow-input-group" id="flowInputGcalGroup" style="display:none;">
             <label class="flow-input-label" for="flowInputGcal">Гкал</label>
             <input type="text" inputmode="decimal" id="flowInputGcal" class="flow-input-field-small" placeholder="— (необязательно)" autocomplete="off" enterkeyhint="done" onkeydown="if(event.key==='Enter')FlowmeterData.submitInput()">
         </div>
+    </div>
+    <div class="flow-input-row">
         <div class="flow-input-group">
-            <label class="flow-input-label" for="flowInputDate">Дата снятия</label>
+            <label class="flow-input-label" for="flowInputDate">Дата за предыдущие сутки</label>
             <input type="date" id="flowInputDate" class="flow-input-field-small">
         </div>
     </div>
@@ -12787,6 +13179,19 @@
     <button type="button" class="flow-input-cancel" onclick="FlowmeterData.closeInput()">Отмена</button>
 </div>
 
+<!-- Task 195: sheet ввода комментария к последним показаниям.
+     Кнопка открытия есть только у автора последних показаний;
+     комментарий виден всем, пока другой пользователь не внесёт новые данные. -->
+<div id="flowCommentOverlay" class="pin-sheet-overlay" onclick="FlowmeterData.closeComment()"></div>
+<div id="flowCommentSheet" class="flow-input-sheet">
+    <div class="flow-input-sheet-handle"></div>
+    <div class="flow-input-sheet-title" id="flowCommentTitle">Комментарий к показаниям</div>
+    <textarea id="flowCommentField" class="flow-comment-field" rows="4" maxlength="100" placeholder="Пояснение к последним показаниям (необязательно)" autocomplete="off" oninput="FlowmeterData._updateCommentCounter()"></textarea>
+    <div class="flow-comment-counter" id="flowCommentCounter">0 / 100</div>
+    <button type="button" class="flow-input-submit" onclick="FlowmeterData.submitComment()">Сохранить</button>
+    <button type="button" class="flow-comment-delete" id="flowCommentDelete" style="display:none;" onclick="FlowmeterData.deleteComment()">Удалить комментарий</button>
+    <button type="button" class="flow-input-cancel" onclick="FlowmeterData.closeComment()">Отмена</button>
+</div>
 
 <!-- ===== Bottom sheet: правка ячейки шахматки (workSchedule) ===== -->
 <div id="wsCellOverlay" class="pin-sheet-overlay" onclick="WorkSchedule.closeCellForm()"></div>
@@ -12933,15 +13338,8 @@
     <textarea id="wsTrComment" class="flow-comment-field" rows="2" maxlength="500" placeholder="Комментарий (необязательно)" autocomplete="off"></textarea>
     <button type="button" class="flow-input-submit" onclick="WorkSchedule.submitTrainingForm()">Добавить</button>
     <button type="button" class="flow-input-cancel" onclick="WorkSchedule.closeTrainingForm()">Отмена</button>
-</div><!-- /wsTrSheet — Task 244: закрытие sheet-а было ПРОПУЩЕНО при переносе
-     модуля WorkSchedule (Task 241). Из-за этого все элементы ПОСЛЕ wsTrSheet
-     (script-блок, sidebar, sidebarOverlay, aboutModalOverlay, createUserOverlay)
-     оказывались ВНУТРИ wsTrSheet. А .flow-input-sheet имеет
-     transform: translateY(100%) в скрытом состоянии — transform создаёт
-     containing block для position:fixed потомков. Поэтому sidebar
-     (position: fixed; top: 0) позиционировался относительно wsTrSheet
-     (который сам был смещён на translateY(100%) ниже viewport),
-     а не относительно viewport — sidebar оказывался НИЖЕ экрана. -->
+</div>
+
 <script>
     // ============================================================
     // ELECTRON: ПРИНУДИТЕЛЬНЫЙ ДЕСКТОПНЫЙ РЕЖИМ (Task 131)
@@ -13301,6 +13699,8 @@
 
     // ======================== ИГРА САПЁР ========================
     let msCols = 9, msRows = 9, msMines = 10;
+    let msCurrentDiff = 'easy';    // Task 192: активная сложность
+    let msLayoutWasDesktop = null; // Task 192: ориентация поля при прошлом рендере
     let msBoard = [], msRevealed = [], msFlagged = [], msGameOver = false, msFirstClick = true;
     let msTimerInterval = null, msSeconds = 0;
     let msLongPressTimer = null, msLongPressFired = false;
@@ -13311,16 +13711,55 @@
         hard: { cols: 9, rows: 28, mines: 45 }
     };
 
-    function msSetDifficulty(diff) {
+    // Task 192: десктопный лейаут (>= 1024px) — игровые поля
+    // горизонтальные; на мобильном/планшете — вертикальные, как раньше
+    function msIsDesktopLayout() {
+        return window.innerWidth >= 1024;
+    }
+
+    // Task 192: эффективные размеры поля — на десктопе medium/hard
+    // разворачиваются горизонтально (16x9, 28x9), easy остаётся квадратом
+    function msEffectiveDims(diff) {
+        const d = msDifficulties[diff] || msDifficulties.easy;
+        if (msIsDesktopLayout() && d.rows > d.cols) {
+            return { cols: d.rows, rows: d.cols, mines: d.mines };
+        }
+        return { cols: d.cols, rows: d.rows, mines: d.mines };
+    }
+
+    // Task 192: подпись сложности в селекторе — «ширина x высота»
+    // текущей ориентации: на десктопе «16x9» / «28x9», на мобильном «9x16» / «9x28»
+    function msDiffLabel(diff) {
         const d = msDifficulties[diff];
-        if (!d) return;
-        msCols = d.cols; msRows = d.rows; msMines = d.mines;
+        if (!d) return '';
+        const w = msIsDesktopLayout() ? Math.max(d.cols, d.rows) : d.cols;
+        const h = msIsDesktopLayout() ? Math.min(d.cols, d.rows) : d.rows;
+        return w + 'x' + h;
+    }
+
+    // Task 192: обновить подписи сложностей в селекторе под ориентацию
+    function msUpdateDiffLabels() {
+        const sel = document.getElementById('msDiffSelect');
+        if (!sel) return;
+        Object.keys(msDifficulties).forEach(function (k) {
+            const opt = sel.querySelector('option[value="' + k + '"]');
+            if (opt) opt.textContent = msDiffLabel(k);
+        });
+    }
+
+    function msSetDifficulty(diff) {
+        if (!msDifficulties[diff]) return;
+        msCurrentDiff = diff;
         const sel = document.getElementById('msDiffSelect');
         if (sel) sel.value = diff;
         msInit();
     }
 
     function msInit() {
+        // Task 192: размеры поля зависят от ориентации (десктоп — горизонталь)
+        const dims = msEffectiveDims(msCurrentDiff);
+        msCols = dims.cols; msRows = dims.rows; msMines = dims.mines;
+        msLayoutWasDesktop = msIsDesktopLayout();
         msBoard = []; msRevealed = []; msFlagged = [];
         msGameOver = false; msFirstClick = true; msSeconds = 0;
         if (msTimerInterval) { clearInterval(msTimerInterval); msTimerInterval = null; }
@@ -13335,6 +13774,11 @@
                 msBoard[r][c] = 0; msRevealed[r][c] = false; msFlagged[r][c] = false;
             }
         }
+        msUpdateDiffLabels();    // Task 192: подписи под ориентацию
+        msApplyContainerWidth(); // Task 192: ширина панели под поле
+        msMigrateResults();      // Task 193: разовый перенос побед из старого ключа
+        msRenderAchievements();  // Task 193: лучшие результаты по времени
+        msUpdateHint();          // Task 192: подсказка под устройство (мышь/тач)
         msRender();
     }
 
@@ -13363,14 +13807,54 @@
         }
     }
 
-    function msCalcCellSize() {
+    function msCalcCellSize(colsParam) {
+        // Task 192: количество колонок можно передать явно (для тестов и
+        // расчёта ширины панели); по умолчанию — активные msCols
+        const cols = (typeof colsParam === 'number' && colsParam > 0) ? colsParam : msCols;
+        const isDesktop = window.innerWidth >= 1024; // Task 191: десктопный лейаут
         const containerPad = 32;  // ms-container: padding 10px*2 + margin
         const boardPad = window.innerWidth <= 400 ? 8 : 16; // ms-board padding 4px*2 or 8px*2
         const gapSize = window.innerWidth <= 400 ? 1 : 2;
-        const scrollSpace = 36;   // scroll-spacer width for touch scrolling
-        const availW = window.innerWidth - containerPad - boardPad - scrollSpace;
-        const cellSz = Math.floor((availW - (msCols - 1) * gapSize) / msCols);
+        // Task 191: на десктопе scroll-spacer скрыт (не нужен для мыши)
+        const scrollSpace = isDesktop ? 0 : 36;
+        // Task 191: базовая ширина — реальная ширина страницы (на десктопе она
+        // может быть уже окна из-за открытой detail-панели), с fallback на окно
+        let baseW = window.innerWidth;
+        const msPage = document.getElementById('page-minesweeper');
+        if (msPage && msPage.clientWidth > 0) baseW = msPage.clientWidth;
+        const availW = baseW - containerPad - boardPad - scrollSpace;
+        let cellSz = Math.floor((availW - (cols - 1) * gapSize) / cols);
+        // Task 191: на десктопе ограничиваем клетку сверху (40px), иначе поле
+        // растягивается почти на весь экран и выглядит гигантским
+        if (isDesktop && cellSz > 40) cellSz = 40;
         return Math.max(cellSz, 20); // minimum 20px for tappability
+    }
+
+    // Task 192: ширина панели игры на десктопе — под фактическую ширину
+    // горизонтального поля при клетке 40px (9x9 → 520px, 16x9 → ~710px,
+    // 28x9 → ~1225px). На мобильном инлайн-ширина сбрасывается — там панель
+    // и так на всю ширину экрана.
+    function msApplyContainerWidth() {
+        const cont = document.querySelector('#page-minesweeper .ms-container');
+        if (!cont) return;
+        if (msIsDesktopLayout()) {
+            const gapSize = 2;
+            // клетка 40px + гэпы + паддинги доски (8px*2 + border 1px*2) и панели (16px*2)
+            const w = msCols * 40 + (msCols - 1) * gapSize + 18 + 32;
+            cont.style.maxWidth = Math.max(w, 520) + 'px';
+        } else {
+            cont.style.maxWidth = '';
+        }
+    }
+
+    // Task 192: подсказка управления под устройство: на десктопе флаг —
+    // правый клик мышью, на тач-устройстве — долгое нажатие
+    function msUpdateHint() {
+        const hint = document.querySelector('#page-minesweeper .ms-hint');
+        if (!hint) return;
+        hint.textContent = msIsDesktopLayout()
+            ? 'Клик — открыть клетку · Правый клик — поставить флаг'
+            : 'Нажмите — открыть клетку · Долгое нажатие — поставить флаг';
     }
 
     function msRender() {
@@ -13453,7 +13937,14 @@
 
     // Recalculate cell sizes on resize/orientation change
     window.addEventListener('resize', function() {
-        if (document.getElementById('page-minesweeper').classList.contains('active')) {
+        const page = document.getElementById('page-minesweeper');
+        if (!page || !page.classList.contains('active')) return;
+        // Task 192: при переходе десктоп↔мобиль поле меняет ориентацию —
+        // перезапускаем игру с новыми размерами (транспонировать живое поле
+        // нельзя), иначе просто пересчитываем размер клеток
+        if (msLayoutWasDesktop !== null && msIsDesktopLayout() !== msLayoutWasDesktop) {
+            msInit();
+        } else {
             msRender();
         }
     });
@@ -13549,6 +14040,118 @@
             sub.textContent = 'Попробуйте ещё раз';
         }
         overlay.style.display = 'flex';
+        // Task 193: фиксируем победу в счёте лучших результатов
+        msRecordResult(won, msSeconds, msCurrentDiff);
+        msRenderAchievements();
+    }
+
+    // ===== Task 193: счёт достижений — лучшие результаты по времени =====
+    // (ранее Task 192 хранил три последних результата). В «лучшие»
+    // попадают только победы — поражение не может быть лучшим
+    // результатом. Список отсортирован по времени партии (быстрее —
+    // выше) и ограничен тремя записями: медленная победа, не входящая
+    // в топ-3, не вытесняет более быстрые. Хранится в localStorage
+    // (kip8 — основной репозиторий, ключи без префикса). При первом
+    // запуске победы из старого
+    // ключа msRecentResults (Task 192) переносятся в новый ключ
+    // msBestResults, старый ключ удаляется.
+    const MS_RESULTS_KEY = 'msBestResults';
+    const MS_RESULTS_LEGACY_KEY = 'msRecentResults';
+    const MS_RESULTS_MAX = 3;
+
+    // Возвращает топ-3 побед по времени (лучшая — первая)
+    function msLoadResults() {
+        try {
+            const raw = localStorage.getItem(MS_RESULTS_KEY);
+            const arr = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(arr)) return [];
+            return arr
+                .filter(function (r) { return r && r.won && typeof r.time === 'number'; })
+                .sort(function (a, b) { return a.time - b.time || (a.ts || 0) - (b.ts || 0); })
+                .slice(0, MS_RESULTS_MAX);
+        } catch (e) { return []; }
+    }
+
+    // Сохраняет только победы, отсортированные по времени, максимум 3
+    function msSaveResults(arr) {
+        try {
+            const wins = (Array.isArray(arr) ? arr : [])
+                .filter(function (r) { return r && r.won && typeof r.time === 'number'; })
+                .sort(function (a, b) { return a.time - b.time || (a.ts || 0) - (b.ts || 0); })
+                .slice(0, MS_RESULTS_MAX);
+            localStorage.setItem(MS_RESULTS_KEY, JSON.stringify(wins));
+        } catch (e) { /* приватный режим — счёт просто не сохранится */ }
+    }
+
+    // Записывает завершённую партию. В топ попадают только победы —
+    // чем меньше время, тем выше место. Возвращает итоговый список.
+    function msRecordResult(won, seconds, diff) {
+        const arr = msLoadResults();
+        if (won) {
+            arr.push({
+                won: true,
+                time: Math.max(0, seconds | 0),
+                diff: msDifficulties[diff] ? diff : msCurrentDiff,
+                ts: Date.now()
+            });
+        }
+        msSaveResults(arr);
+        return msLoadResults();
+    }
+
+    // Task 193: разовая миграция — переносит победы из старого ключа
+    // «последних результатов» (Task 192) в новый «лучших результатов»
+    // и удаляет старый ключ. Поражения не переносятся; существующий
+    // новый счёт не затирается. Вызывается из msInit().
+    function msMigrateResults() {
+        try {
+            const legacyRaw = localStorage.getItem(MS_RESULTS_LEGACY_KEY);
+            if (legacyRaw === null) return;
+            let legacy = [];
+            try { legacy = JSON.parse(legacyRaw) || []; } catch (e) { legacy = []; }
+            if (!Array.isArray(legacy)) legacy = [];
+            const wins = legacy.filter(function (r) {
+                return r && r.won && typeof r.time === 'number';
+            });
+            if (wins.length && localStorage.getItem(MS_RESULTS_KEY) === null) {
+                msSaveResults(wins);
+            }
+            localStorage.removeItem(MS_RESULTS_LEGACY_KEY);
+        } catch (e) { /* миграция не критична */ }
+    }
+
+    // Рендер счёта: 3 слота — лучшие победы по времени (🥇🥈🥉),
+    // пустые слоты приглушены. Бейдж — рекордное время.
+    function msRenderAchievements() {
+        const row = document.getElementById('msAchRow');
+        if (!row) return;
+        const results = msLoadResults();
+        const medals = ['🥇', '🥈', '🥉'];
+        const score = document.getElementById('msAchScore');
+        if (score) {
+            if (results.length) {
+                score.textContent = 'рекорд ' + results[0].time + ' с';
+                score.style.display = '';
+            } else {
+                score.style.display = 'none';
+            }
+        }
+        let html = '';
+        for (let i = 0; i < MS_RESULTS_MAX; i++) {
+            const r = results[i];
+            if (r) {
+                html += '<div class="ms-ach-slot win">' +
+                    '<span class="ms-ach-icon">' + medals[i] + '</span>' +
+                    '<span class="ms-ach-diff">' + msDiffLabel(r.diff) + '</span>' +
+                    '<span class="ms-ach-time">' + r.time + ' с</span></div>';
+            } else {
+                html += '<div class="ms-ach-slot empty">' +
+                    '<span class="ms-ach-icon">·</span>' +
+                    '<span class="ms-ach-diff">—</span>' +
+                    '<span class="ms-ach-time">—</span></div>';
+            }
+        }
+        row.innerHTML = html;
     }
 
     // ===== СЕКРЕТНЫЕ КНОПКИ (САПЁР + ТЕЛЕФОННЫЙ СПРАВОЧНИК) =====
@@ -20660,6 +21263,17 @@
                 if (_flowOverlay) _flowOverlay.classList.remove('active');
             }
         }
+        // Task 195: комментарий к показаниям — тот же сценарий, что и Task 105.
+        var _flowCommentSheet = document.getElementById('flowCommentSheet');
+        if (_flowCommentSheet && _flowCommentSheet.classList.contains('active')) {
+            if (typeof FlowmeterData !== 'undefined' && FlowmeterData.closeComment) {
+                FlowmeterData.closeComment();
+            } else {
+                _flowCommentSheet.classList.remove('active');
+                var _flowCommentOverlay = document.getElementById('flowCommentOverlay');
+                if (_flowCommentOverlay) _flowCommentOverlay.classList.remove('active');
+            }
+        }
         // Проверка доступа (если KipAuth инициализирован).
         if (typeof KipAuth !== 'undefined' && KipAuth._cachedRole && !KipAuth.canAccess(page)) {
             KipAuth._showNoAccess(page);
@@ -21083,12 +21697,14 @@
         'calculators':      'dashboard',
         'docs':             'dashboard',
         'phonebook':        'dashboard',
+        'minesweeper':      'dashboard',   // Task 194: Сапёр — корневой раздел главной
+                                            // (был 'calculators' — крошки показывали
+                                            // «Главная / Инженерные калькуляторы / Сапёр»)
         'admin':            'dashboard',
         // Инженерные калькуляторы
         'calc-kipa':        'calculators',
         'calc-electro':     'calculators',
         'calc-geometry':    'calculators',
-        'minesweeper':      'calculators',
         // КИП и А — подразделы
         'converter':        'calc-kipa',
         'scale-signal':     'calc-kipa',
@@ -22263,6 +22879,13 @@
 
     // Обработчик системной кнопки «Назад»
     window.addEventListener('popstate', function(e) {
+        // Если открыт sheet комментария к показаниям — закрыть без сохранения (Task 195)
+        var flowCommentSheet = document.getElementById('flowCommentSheet');
+        if (flowCommentSheet && flowCommentSheet.classList.contains('active')) {
+            FlowmeterData.closeComment();
+            history.pushState({ page: e.state ? e.state.page : 'dashboard' }, '', location.hash || '#dashboard');
+            return;
+        }
         // Если открыта форма ввода показаний расходомера — закрыть её без сохранения (Task 104)
         var flowInputSheet = document.getElementById('flowInputSheet');
         if (flowInputSheet && flowInputSheet.classList.contains('active')) {
@@ -26286,7 +26909,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
     const KipAuth = {
         // URL Apps Script Web App.
-        WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbztmOJb_QVnjRk1GnvKe4X1TWcDgPSFVvGJiumm3y5RaGwgEiJX15PBiJVUX9mKJiWHzA/exec',
+        WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbzgPtyya6eMCql4pxZiOyYkfJaBsMRLvKK5bzrsbZpLa5zoNtxSoKeNYJauQVIOtlz2rg/exec',
 
         // Ключ localStorage для session token.
         TOKEN_KEY: 'kip8_session_token',
@@ -30295,6 +30918,423 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         }
     };
 
+    // ============================================================
+    // Task 195: комментарий к «Последним показаниям» расходомера.
+    //
+    // Правила (по требованию):
+    //   • кнопка ввода комментария (в правой части строки «Последние
+    //     показания» детальной карточки) видна ТОЛЬКО пользователю,
+    //     который ввёл последние показания (автору, m.modName);
+    //     дополнительно — кнопка видна АДМИНУ (роль «Админ») всегда,
+    //     даже если он не автор последних показаний (Task 195 update);
+    //   • автор и админ могут добавить/изменить/удалить текстовый
+    //     комментарий в любой момент — БЕЗ ограничения по времени
+    //     (в отличие от правки показаний, где окно 1 час);
+    //   • возможность комментировать для автора длится, пока последний
+    //     ввод показаний остаётся за ним: как только другой пользователь
+    //     внёс новые показания — кнопка у автора исчезает, а комментарий
+    //     к прежним показаниям очищается (сервер: updateReading при
+    //     смене автора); у админа кнопка остаётся видимой всегда;
+    //   • сам комментарий (строка «Комментарий» под показаниями) виден
+    //     ВСЕМ пользователям раздела — это пояснение к данным.
+    //
+    // Хранение — двухуровневое:
+    //   1. Сервер (основной): столбец O «comment» листа hozraschet_meters,
+    //      эндпоинт flowmeter.setComment (см. scripts/Flowmeter.gs, Task 195).
+    //      Валидация авторства — на сервере (not_your_input); для админа
+    //      проверка авторства пропускается (см. Flowmeter.gs setComment).
+    //   2. localStorage (fallback): если серверный патч ещё не задеплоен
+    //      (ответ «Unknown action»), комментарий сохраняется локально
+    //      в kip8_flow_comments_v1 и виден только на устройстве автора/админа
+    //      (с пометкой). При успешной серверной записи локальная копия
+    //      удаляется; при смене автора показаний — устаревает и удаляется.
+    // ============================================================
+
+    /** Право комментирования: текущий пользователь — автор последних
+     *  показаний (сравнение email без учёта регистра/пробелов) ИЛИ админ
+     *  (role === 'Админ', без сравнения email). userRole — опциональный
+     *  3-й параметр для обратной совместимости со старыми вызовами. */
+    function flowCanComment(m, userEmail, userRole) {
+        if (!m) return false;
+        // Админ видит кнопку всегда (Task 195 update)
+        if (userRole && String(userRole).toLowerCase().trim() === 'админ') return true;
+        if (!m.modName) return false;
+        if (!userEmail) return false;
+        return String(m.modName).toLowerCase().trim() === String(userEmail).toLowerCase().trim();
+    }
+
+    /** Текст комментария к показаниям для отображения.
+     *  Приоритет: серверное поле m.comment → локальный fallback.
+     *  localComments — карта { meterId: { text, ts } } или null.
+     *  Локальные комментарии показываются только автору (передавать
+     *  карту лишь когда flowCanComment === true). */
+    function flowCommentText(m, localComments) {
+        if (m && m.comment !== undefined && m.comment !== null &&
+            String(m.comment).trim() !== '') {
+            return String(m.comment).trim();
+        }
+        if (m && localComments) {
+            var e = localComments[String(m.id)];
+            if (e && e.text && String(e.text).trim() !== '') {
+                return String(e.text).trim();
+            }
+        }
+        return '';
+    }
+
+    /** HTML кнопки комментария для шапки строки «Последние показания»
+     *  (автору показаний или админу; при наличии комментария — подсвечена).
+     *  userRole — опциональный 4-й параметр (для обратной совместимости).
+     *
+     *  Task 198: внутрь иконки-пузыря добавлены три точки (заполненные
+     *  circle, fill=currentColor, без stroke) — обозначение «есть контент»
+     *  или «комментарий/обсуждение». Размер и положение точек: r=1.1, по
+     *  горизонтали cx=8/12/16, по вертикали cy=9 — примерно по центру
+     *  внутренней области пузыря (путь пузыря M21 15… охватывает y=1..17). */
+    function flowBuildCommentBtnHtml(m, userEmail, commentText, userRole) {
+        if (!flowCanComment(m, userEmail, userRole)) return '';
+        var has = !!(commentText && String(commentText).trim() !== '');
+        var label = has ? 'Изменить комментарий к показаниям' : 'Добавить комментарий к показаниям';
+        var svg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+                  '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>' +
+                  '<circle cx="8" cy="9" r="1.1" fill="currentColor" stroke="none"/>' +
+                  '<circle cx="12" cy="9" r="1.1" fill="currentColor" stroke="none"/>' +
+                  '<circle cx="16" cy="9" r="1.1" fill="currentColor" stroke="none"/>' +
+                  '</svg>';
+        return '<button type="button" class="flow-comment-btn' + (has ? ' has-comment' : '') + '" ' +
+               'onclick="event.stopPropagation(); FlowmeterData.openComment()" ' +
+               'aria-label="' + label + '" title="' + label + '">' + svg + '</button>';
+    }
+
+    /** HTML подстроки «Комментарий» (видна всем пользователям раздела).
+     *  isLocal=true — пометка «только на этом устройстве» (fallback,
+     *  серверный патч Task 195 ещё не задеплоен). */
+    function flowBuildCommentRowHtml(commentText, isLocal) {
+        var t = commentText ? String(commentText).trim() : '';
+        if (!t) return '';
+        var localMark = isLocal
+            ? ' <span class="flow-comment-local">· только на этом устройстве</span>'
+            : '';
+        return '<div class="flow-detail-row flow-detail-comment-row">' +
+               '<span class="flow-detail-label" style="color:#7a8fa6;">Комментарий</span>' +
+               '<span class="flow-detail-value flow-comment-text">' + escHtml(t) + localMark + '</span>' +
+               '</div>';
+    }
+
+    /** HTML строки «Последний архивный комментарий» (Task 197, виден всем).
+     *  archivedComment — значение meters.P, формат:
+     *  «[ISO-timestamp | email]: текст».
+     *  Разбираем формат, показываем дату+email и текст в карточке. */
+    function flowBuildArchivedCommentRowHtml(archivedComment) {
+        var s = archivedComment ? String(archivedComment).trim() : '';
+        if (!s) return '';
+        // Парсим формат «[ISO | email]: текст». Если не совпал — показываем как есть.
+        var meta = '';
+        var text = s;
+        var m = s.match(/^\[([^\]]+)\]:?\s*(.*)$/);
+        if (m) {
+            meta = m[1];          // «2026-08-27T05:47:39.123Z | email@x.local»
+            text = m[2] || '';
+            // Заменяем « | » на красивый разделитель при показе
+            meta = meta.replace(/\s*\|\s*/, ' · ');
+            // Форматируем ISO-дату в локальный dd.mm.yyyy HH:MM
+            var isoMatch = meta.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})/);
+            if (isoMatch) {
+                var iso = isoMatch[0];
+                var d = new Date(iso);
+                if (!isNaN(d.getTime())) {
+                    var dd = String(d.getDate()).padStart(2, '0');
+                    var mm = String(d.getMonth() + 1).padStart(2, '0');
+                    var yyyy = d.getFullYear();
+                    var hh = String(d.getHours()).padStart(2, '0');
+                    var mi = String(d.getMinutes()).padStart(2, '0');
+                    var rest = meta.substring(iso.length);
+                    meta = dd + '.' + mm + '.' + yyyy + ' ' + hh + ':' + mi + rest;
+                }
+            }
+        }
+        var metaHtml = meta ? '<span class="flow-archived-meta">' + escHtml(meta) + '</span>' : '';
+        return '<div class="flow-detail-row flow-archived-comment-row">' +
+               '<span class="flow-detail-label" style="color:#6c7a8a;">Последний архивный комментарий</span>' +
+               '<span class="flow-detail-value flow-archived-comment-body">' +
+               metaHtml +
+               '<span class="flow-archived-text">' + escHtml(text) + '</span>' +
+               '</span>' +
+               '</div>';
+    }
+
+    /** Task 199: Клиентская валидация показаний (UX only — сервер тоже
+     *  валидирует независимо). Зеркалит логику ValidationRules.compute на
+     *  стороне сервера. Возвращает { codes: [...], hardBlock: null|{code,
+     *  message}, detail: '...' }. Если codes пустой и hardBlock null —
+     *  показания валидны, можно отправлять без модалки.
+     *
+     *  Параметры:
+     *    meter           — объект из FlowmeterData._METERS (с allowNegative);
+     *    payload         — { id, prev, curr, datePrev, dateCurr, temp, gcal };
+     *    rules           — объект из flowmeter.getValidationRules для этого
+     *                      meterId (или null = правила не заданы);
+     *    lastArchive     — последняя запись архива (или null) — для DUPLICATE;
+     *    recentAllMeters — (Task 200) последние записи архива всех счётчиков
+     *                      за 7 дней (или null) — для WRONG_METER.
+     */
+    function flowValidateReading(meter, payload, rules, lastArchive, recentAllMeters) {
+        var codes = [];
+        var hardBlock = null;
+
+        var prev = parseFloat(payload.prev);
+        var curr = parseFloat(payload.curr);
+        if (isNaN(prev)) prev = 0;
+        if (isNaN(curr)) curr = 0;
+        var consumption = curr - prev;
+
+        // #12 SIGN_NEG — hard-block
+        if (prev < 0 || curr < 0) {
+            codes.push('SIGN_NEG: prev=' + prev + ', curr=' + curr);
+            hardBlock = { code: 'SIGN_NEG',
+                          message: 'Отрицательное значение показания: prev=' + prev +
+                                   ', curr=' + curr + '. Проверьте, не введён ли знак «минус» случайно.' };
+            return { codes: codes, hardBlock: hardBlock };
+        }
+
+        // #6 DATE_INCONSISTENT — hard-block
+        var dp = _flowParseDate(payload.datePrev);
+        var dc = _flowParseDate(payload.dateCurr);
+        if (dp && dc && dc < dp) {
+            codes.push('DATE_INCONSISTENT: prev=' + payload.datePrev + ', curr=' + payload.dateCurr);
+            hardBlock = { code: 'DATE_INCONSISTENT',
+                          message: 'Дата текущая раньше предыдущей: prev=' + payload.datePrev +
+                                   ', curr=' + payload.dateCurr + '. Проверьте даты.' };
+            return { codes: codes, hardBlock: hardBlock };
+        }
+
+        // Дальше — только soft-confirm правила (если rules заданы)
+        if (!rules) return { codes: codes, hardBlock: hardBlock };
+
+        var allowNegative = String((meter && meter.allowNegative) || '').toLowerCase() === 'yes';
+
+        // #4 → JUMP_NEGATIVE (merged): для не-конденсатных счётчиков
+        if (consumption < 0 && !allowNegative) {
+            codes.push('JUMP_NEGATIVE: расход ' + _flowFmt(consumption) +
+                       ' < 0 (curr < prev), allowNegative!=' + (allowNegative ? 'yes' : 'no'));
+        }
+
+        // #3/#10 JUMP_HIGH — consumption > max_cons × 3
+        if (rules.max_cons !== null && !isNaN(rules.max_cons)) {
+            var highThr = rules.max_cons * 3;
+            if (consumption > highThr) {
+                var factor = rules.max_cons > 0 ? (consumption / rules.max_cons) : 0;
+                codes.push('JUMP_HIGH: расход ' + _flowFmt(consumption) +
+                           ' > max×3=' + _flowFmt(highThr) +
+                           ' (превышение в ' + _flowFmt(factor) +
+                           ' раз от max_cons=' + _flowFmt(rules.max_cons) + ')');
+            }
+            // #10 JUMP_LOW — 0 ≤ consumption < min_cons / 10
+            if (consumption >= 0 && rules.min_cons !== null && !isNaN(rules.min_cons)) {
+                var lowThr = rules.min_cons / 10;
+                if (consumption < lowThr) {
+                    codes.push('JUMP_LOW: расход ' + _flowFmt(consumption) +
+                               ' < min/10=' + _flowFmt(lowThr) +
+                               ' (ожидается не менее ' + _flowFmt(rules.min_cons) + ')');
+                }
+            }
+        }
+
+        // #7 PERIOD_MISMATCH — daysBetween != expected_days (±tolerance)
+        if (rules.expected_days !== null && !isNaN(rules.expected_days) && dp && dc) {
+            var daysBetween = Math.round((dc - dp) / 86400000);
+            if (daysBetween < 0) daysBetween = 0;
+            var tolerance = (rules.expected_days === 1) ? 1 :
+                             Math.max(1, Math.round(rules.expected_days * 0.1));
+            if (Math.abs(daysBetween - rules.expected_days) > tolerance) {
+                codes.push('PERIOD_MISMATCH: дней между показаниями ' + daysBetween +
+                           ', ожидается ' + rules.expected_days +
+                           ' (допуск ±' + tolerance + ')');
+            }
+        }
+
+        // #8 TEMP_OUT_OF_RANGE
+        if (payload.temp !== null && payload.temp !== undefined && payload.temp !== '' &&
+            rules.temp_min !== null && rules.temp_max !== null) {
+            var t = parseFloat(payload.temp);
+            if (!isNaN(t) && (t < rules.temp_min || t > rules.temp_max)) {
+                codes.push('TEMP_OUT_OF_RANGE: температура ' + t +
+                           '°C вне [' + rules.temp_min + ', ' + rules.temp_max + ']');
+            }
+        }
+
+        // #9 GCAL_RATIO (только для расходомеров пара: payload.gcal задан)
+        if (consumption > 0 && payload.gcal !== null && payload.gcal !== undefined &&
+            payload.gcal !== '' && rules.gcal_ratio_min !== null && rules.gcal_ratio_max !== null) {
+            var g = parseFloat(payload.gcal);
+            if (!isNaN(g) && g > 0) {
+                var ratio = g / consumption;
+                if (ratio < rules.gcal_ratio_min || ratio > rules.gcal_ratio_max) {
+                    codes.push('GCAL_RATIO: отношение Gcal/consumption=' + _flowFmt(ratio) +
+                               ' вне [' + rules.gcal_ratio_min + ', ' + rules.gcal_ratio_max +
+                               '] (consumption=' + _flowFmt(consumption) +
+                               ', Gcal=' + _flowFmt(g) + ')');
+                }
+            }
+        }
+
+        // #11 DUPLICATE — те же (prev, curr) в последней записи архива,
+        // тем же автором, в течение 5 минут
+        if (lastArchive && lastArchive.prev === prev && lastArchive.curr === curr) {
+            var sameAuthor = false;
+            var recent = false;
+            if (lastArchive.modName && meter && meter.modName) {
+                sameAuthor = String(lastArchive.modName).toLowerCase() ===
+                             String(meter.modName).toLowerCase();
+            }
+            if (lastArchive.timestamp) {
+                var lastTs = new Date(lastArchive.timestamp);
+                var nowTs = new Date();
+                if (!isNaN(lastTs.getTime())) {
+                    var elapsed = nowTs - lastTs;
+                    recent = elapsed >= 0 && elapsed < 300000;
+                }
+            }
+            if (sameAuthor && recent) {
+                codes.push('DUPLICATE: те же показания prev=' + prev +
+                           ', curr=' + curr + ' уже введены этим же автором менее 5 минут назад');
+            }
+        }
+
+        // #5 WRONG_METER (Task 200, Фаза 2)
+        // Эвристика: exact-match по consumption + swap по паре (prev, curr)
+        // с другим счётчиком за последние 7 дней. Близкое совпадение
+        // (уровень 2) отключено — слишком много false positives.
+        var WM_THRESHOLD = 0.01;
+        var WM_MIN_CONS = 1.0;
+        var WM_SWAP = true;
+        if (recentAllMeters && recentAllMeters.length > 0 &&
+            consumption >= WM_MIN_CONS) {
+            var myMeterId = meter && meter.id ? parseInt(meter.id, 10) : null;
+            for (var ri = 0; ri < recentAllMeters.length; ri++) {
+                var other = recentAllMeters[ri];
+                var otherId = parseInt(other.meterId, 10);
+                if (otherId === myMeterId) continue;
+
+                // Уровень 1: exact-match по consumption
+                var otherCons = parseFloat(other.consumption);
+                if (!isNaN(otherCons) && Math.abs(otherCons - consumption) < WM_THRESHOLD) {
+                    codes.push('WRONG_METER: расход ' + _flowFmt(consumption) +
+                               ' совпадает с расходомером id=' + otherId +
+                               ' (' + (other.hoz || '?') + '), расход ' + _flowFmt(otherCons) +
+                               ' — возможно, оператор ввёл показания не в тот счётчик');
+                    break;
+                }
+
+                // Уровень 3: swap — пара (prev, curr) совпадает с последней
+                // записью другого счётчика = оператор ввёл чужие показания целиком
+                if (WM_SWAP &&
+                    !isNaN(parseFloat(other.prev)) && !isNaN(parseFloat(other.curr)) &&
+                    Math.abs(parseFloat(other.prev) - prev) < WM_THRESHOLD &&
+                    Math.abs(parseFloat(other.curr) - curr) < WM_THRESHOLD) {
+                    codes.push('WRONG_METER: пара (prev=' + prev + ', curr=' + curr +
+                               ') совпадает с последней записью расходомера id=' + otherId +
+                               ' (' + (other.hoz || '?') +
+                               ') — оператор, вероятно, ввёл чужие показания целиком');
+                    break;
+                }
+            }
+        }
+
+        return { codes: codes, hardBlock: hardBlock, detail: codes.join('; ') };
+    }
+
+    /** Task 199: парсинг даты M/D/YYYY → Date object (для валидации) */
+    function _flowParseDate(s) {
+        if (!s) return null;
+        var str = String(s).trim();
+        var m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (m) {
+            var d = new Date(+m[3], +m[1] - 1, +m[2]);
+            return isNaN(d.getTime()) ? null : d;
+        }
+        // YYYY-MM-DD (из input type="date")
+        var m2 = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (m2) {
+            var d2 = new Date(+m2[1], +m2[2] - 1, +m2[3]);
+            return isNaN(d2.getTime()) ? null : d2;
+        }
+        // DD.MM.YYYY
+        var m3 = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+        if (m3) {
+            var d3 = new Date(+m3[3], +m3[2] - 1, +m3[1]);
+            return isNaN(d3.getTime()) ? null : d3;
+        }
+        return null;
+    }
+
+    /** Task 199: форматирование числа для detail (2 знака) */
+    function _flowFmt(n) {
+        if (typeof n !== 'number' || isNaN(n)) return String(n);
+        return n.toFixed(2);
+    }
+
+    /** Task 199: построить HTML модалки подтверждения аномалий.
+     *  codes — массив строк вида 'CODE: detail'. meter — для шапки.
+     *  Task 222: если в FlowmeterData._anomalyHelp[code] есть дружелюбное
+     *  описание — показываем его вместо технического detail.
+     *  Task 234: код правила (CODE) больше не показываем — только описание,
+     *  как в столбце «⚠ Замечания» хронологии показаний. */
+    function flowBuildAnomalyModalHtml(meter, codes) {
+        var items = '';
+        // Task 222: подгружаем карту описаний, если FlowmeterData уже инициализирован
+        var helpMap = (typeof FlowmeterData !== 'undefined' && FlowmeterData._anomalyHelp)
+                      ? FlowmeterData._anomalyHelp : {};
+        for (var i = 0; i < codes.length; i++) {
+            var c = String(codes[i] || '');
+            var colon = c.indexOf(':');
+            var code = colon > 0 ? c.substring(0, colon) : c;
+            var detail = colon > 0 ? c.substring(colon + 1).trim() : '';
+            // Task 222: предпочитаем дружелюбное описание, иначе — технический detail
+            var displayText = (helpMap[code]) || detail;
+            // Task 234: код правила не показываем — только описание (как в столбце «⚠ Замечания»).
+            if (!displayText) continue;
+            items += '<li class="flow-anomaly-item">' +
+                     '<span class="flow-anomaly-detail">' + escHtml(displayText) + '</span>' +
+                     '</li>';
+        }
+        // Task 234: fallback, если после фильтра пусто (все displayText пусты) —
+        // чтобы модалка не оставалась без единого пункта.
+        if (!items) {
+            items = '<li class="flow-anomaly-item">' +
+                    '<span class="flow-anomaly-detail">Проверьте корректность введённых показаний</span>' +
+                    '</li>';
+        }
+        var meterTitle = meter ? (escHtml(meter.hoz || '') + ' — ' + escHtml(meter.param || '')) : '';
+        return '<div id="flowAnomalyModal" class="flow-anomaly-modal-overlay">' +
+               '<div class="flow-anomaly-modal">' +
+                 '<div class="flow-anomaly-modal-header">⚠ Проверьте показания</div>' +
+                 '<div class="flow-anomaly-modal-meter">' + meterTitle + '</div>' +
+                 '<ul class="flow-anomaly-list">' + items + '</ul>' +
+                 '<div class="flow-anomaly-modal-actions">' +
+                   '<button type="button" class="flow-anomaly-btn flow-anomaly-cancel" ' +
+                           'onclick="FlowmeterData.cancelAnomalyModal()">Отменить</button>' +
+                   '<button type="button" class="flow-anomaly-btn flow-anomaly-confirm" ' +
+                           'onclick="FlowmeterData.confirmAnomalyModal()">Сохранить с пометкой</button>' +
+                 '</div>' +
+               '</div>' +
+               '</div>';
+    }
+
+    /** Fallback-хранилище комментариев (localStorage, ключ kip8_flow_comments_v1).
+     *  Используется только пока серверный патч Task 195 не задеплоен. */
+    function flowLocalCommentsLoad() {
+        try {
+            var raw = localStorage.getItem('kip8_flow_comments_v1');
+            var parsed = raw ? JSON.parse(raw) : {};
+            return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : {};
+        } catch (e) { return {}; }
+    }
+
+    function flowLocalCommentsSave(map) {
+        try { localStorage.setItem('kip8_flow_comments_v1', JSON.stringify(map || {})); } catch (e) { /* quota */ }
+    }
+
     var FlowmeterData = {
         _GOOGLE_SHEET_URL: 'https://docs.google.com/spreadsheets/d/1enZSq7K8pwJVzaAI_tbXZtvATqARTxH0lSU4c-wc1eY/edit?usp=sharing',
 
@@ -30306,6 +31346,18 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // Ключи localStorage для кэша данных
         _cacheKey: 'kip8_flow_cache_v1',
 
+        // Task 235: ключ localStorage для кэша правил валидации.
+        // Сохраняем правила между сессиями, чтобы при открытии карточки
+        // расходомера не ходить на сервер за conditions каждый раз —
+        // модалка аномалий появляется моментально.
+        _rulesCacheKey: 'kip8_flow_rules_v1',
+        // TTL для кэша правил: 24 часа. Если кэш свежее — loadValidationRules
+        // НЕ делает серверный запрос, а раздаёт правила из localStorage.
+        // Если устарел — фоновым запросом обновляем (не блокируя UX).
+        _rulesCacheTtlMs: 24 * 60 * 60 * 1000,
+        // Timestamp последней успешной синхронизации правил с сервера.
+        _rulesCacheTs: 0,
+
         // Текущая вкладка: 'all' или 'fav'
         _activeTab: 'all',
 
@@ -30315,11 +31367,31 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // Флаг: данные загружены с сервера (true) или это fallback
         _loaded: false,
 
+        // Task 195: ленивый кэш fallback-комментариев (localStorage),
+        // используется пока серверный патч flowmeter.setComment не задеплоен
+        _localComments: null,
+
+        // Task 222: карта кодов правил аномалий → текстовые описания
+        // в простой форме. Заполняется из response.flowmeter.archive
+        // (поле anomalyHelp) или из flowmeter.getValidationHelp.
+        // Используется в _buildArchiveHtml (столбец «⚠ Замечания»)
+        // и в flowBuildAnomalyModalHtml (модалка подтверждения).
+        _anomalyHelp: {},
+
         // 12 позиций хозрасчётных расходомеров
         // Заполняются из data/flowmeters.json (_loadFallback),
         // localStorage (_restoreCache) или сервера (load).
         // Пустой массив до первой загрузки — рендер покажет заглушку.
         _METERS: [],
+
+        // Task 238: состояние загрузки списка расходомеров.
+        // 'idle'    — исходное / не авторизован (нет токена).
+        // 'loading' — fetch с сервера в полёте (init/load только что запущены).
+        // 'loaded'  — сервер ответил (массив может быть пустым — genuine empty).
+        // 'error'   — fetch упал (сеть/сессия/500). При наличии кэша данные
+        //             рендерятся из кэша, при отсутствии — показывается
+        //             «Нет связи с сервером, попробуйте зайти позже».
+        _loadState: 'idle',
 
         // ============================================================
         // API вызовы (по паттерну KipCableJournal)
@@ -30343,6 +31415,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var token = KipAuth.getToken();
             var silent = !!token; // авторизован → не рендерить промежуточные данные
 
+            // Task 238: исходное состояние — «загрузка» (если есть токен).
+            // init() сразу рендерит список с пустым _METERS, поэтому
+            // пользователь видит «Загрузка данных…» до того, как load()
+            // вернёт данные. Если токена нет — состояние 'idle', renderList
+            // покажет fallback/кэш (если есть) или «Нет данных».
+            this._loadState = token ? 'loading' : 'idle';
+
             // 1. Показать «Загрузка…» (_METERS пустой)
             this.renderList();
 
@@ -30350,6 +31429,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             //    Если silent=true — populate без renderList().
             this._restoreCache(silent);
             this._loadFallback(silent);
+
+            // Task 235: подгрузить кэш правил валидации из localStorage
+            // (синхронно, до load()) — чтобы первое открытие карточки
+            // расходомера уже имело правила в памяти и модалка аномалий
+            // появлялась моментально, без серверного round-trip.
+            this._loadRulesCacheFromStorage();
 
             // 3. Загрузить свежие данные с сервера.
             //    load() всегда рендерит по завершении (успех или ошибка).
@@ -30455,8 +31540,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // рендерим fallback/кэш (если они ещё не отрендерены)
             var token = KipAuth.getToken();
             if (!token) {
+                this._loadState = 'idle';  // Task 238: нет токена — нет «загрузки»
                 this.renderList();
                 return;
+            }
+
+            // Task 238: если данных ещё нет — помечаем состояние «загрузка»
+            // и сразу перерисовываем список (показывает «Загрузка данных…»).
+            // Если данные уже есть (кэш/fallback) — не трогаем состояние и
+            // UI; пользователь видит актуальный список, а фоновый refresh
+            // его обновит после завершения fetch.
+            if (this._METERS.length === 0) {
+                this._loadState = 'loading';
+                this.renderList();
             }
 
             this._api('flowmeter.list', {}).then(function(data) {
@@ -30465,6 +31561,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     self._loaded = true;
                     self._persistData(self._METERS);
                 }
+                self._loadState = 'loaded';  // Task 238
                 self.renderList();
                 // Если детальный вид сейчас видим — перерендерить его.
                 // Проверяем, что страница/панель реально открыты,
@@ -30482,6 +31579,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 // При ошибке — рендерим fallback/кэш,
                 // чтобы не оставлять «Загрузка…» навсегда.
                 console.error('FlowmeterData.load:', err);
+                self._loadState = 'error';  // Task 238
                 self.renderList();
             });
         },
@@ -30507,7 +31605,27 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         '<div class="flow-empty-fav-text">Нет избранных расходомеров</div>' +
                         '<div class="flow-empty-fav-hint">Перейдите во вкладку «Все»<br>и нажмите <span class="star">☆</span> на карточке</div>' +
                         '</div>';
+                } else if (this._loadState === 'loading') {
+                    // Task 238: fetch с сервера в полёте. Анимированные три точки
+                    // дают пользователю визуальный отклик, что процесс идёт.
+                    container.innerHTML =
+                        '<div class="flow-loading">' +
+                        '<div class="flow-loading-text">Загрузка данных' +
+                        '<span class="flow-loading-dots"><span>.</span><span>.</span><span>.</span></span>' +
+                        '</div>' +
+                        '</div>';
+                } else if (this._loadState === 'error') {
+                    // Task 238: fetch упал (сеть/сессия/500) И нет кэша/fallback.
+                    // Если кэш есть — meters.length > 0 и эта ветка не сработает.
+                    container.innerHTML =
+                        '<div class="flow-error">' +
+                        '<div class="flow-error-icon">⚠</div>' +
+                        '<div class="flow-error-text">Нет связи с сервером</div>' +
+                        '<div class="flow-error-hint">Попробуйте зайти позже</div>' +
+                        '</div>';
                 } else {
+                    // _loadState === 'loaded' (сервер вернул пустой список) или
+                    // _loadState === 'idle' (не авторизован, нет fallback/кэша).
                     container.innerHTML = '<div class="admin-empty">Нет данных</div>';
                 }
                 return;
@@ -30537,9 +31655,17 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 html += '</div>';
                 html += '<div class="flow-card-param" onclick="FlowmeterData.openDetail(' + m.id + ')">' + this._esc(m.param) + '</div>';
                 html += '<div class="flow-card-summary" onclick="FlowmeterData.openDetail(' + m.id + ')">';
-                html += '<span class="flow-summary-item"><span class="flow-summary-label">Последние показания</span><span class="flow-summary-val">' + this._fmtNum(m.curr) + ' ' + this._esc(m.unit) + ',<span class="flow-detail-date"> от ' + this._fmtDate(m.dateCurr) + ' г.</span></span></span>';
-                if (m.temp !== null && m.temp !== undefined) { html += '<span class="flow-summary-item"><span class="flow-summary-label">T среды</span><span class="flow-summary-val">' + tempStr + '</span></span>'; }
-                if (m.gcal !== null && m.gcal !== undefined) { html += '<span class="flow-summary-item"><span class="flow-summary-label">Гкал</span><span class="flow-summary-val">' + gcalStr + '</span></span>'; }
+                // Task 231: «Последние показания» + дата в одной строке (дата — под-элемент label);
+                // лейблы «Гкал» и «T среды» убраны — значения temp/gcal (с собственными единицами °C и Гкал)
+                // показаны под основным значением как sub-текст без названий.
+                html += '<span class="flow-summary-item flow-summary-item-last">';
+                html += '<span class="flow-summary-label">Последние показания<span class="flow-summary-date-inline"> за ' + this._fmtDate(m.dateCurr) + ' г.</span></span>';
+                html += '<span class="flow-summary-val">' + this._fmtNum(m.curr) + ' ' + this._esc(m.unit) + '</span>';
+                var subParts = [];
+                if (m.temp !== null && m.temp !== undefined) { subParts.push(tempStr); }
+                if (m.gcal !== null && m.gcal !== undefined) { subParts.push(gcalStr); }
+                if (subParts.length) { html += '<span class="flow-summary-sub">' + subParts.join(' · ') + '</span>'; }
+                html += '</span>';
                 html += '</div>';
                 html += '</div>';
             }
@@ -30840,9 +31966,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
         // Построить HTML детальной карточки
         _buildDetailHtml: function(m) {
-            var consumption = m.curr - m.prev;
-            var consStr = this._fmtNum(Math.abs(consumption));
-            var tempStr = (m.temp !== null && m.temp !== undefined) ? m.temp.toFixed(1).replace('.', ',') + ' °C' : '—';
+            // Task 205/207: Хозрасчёт №1 (id=1) — режим «расход за предыдущие сутки».
+            // Данные приходят из Тэкон-19 сразу как расход, без накопительных показаний.
+            // В этом режиме: нет «Температуры». Строка «Последние показания»
+            // показывает введённое значение расхода (как и для остальных расходомеров).
+            // Task 207: убраны строки «Предыдущие показания» и «Расход» из карточки —
+            // эти данные дублируются в таблице хронологии показаний ниже.
+            var dailyMode = this._isDailyMode(m);
             // Гигакалории пара (Task 100) — отображаем с 3 знаками после запятой
             var gcalStr = (m.gcal !== null && m.gcal !== undefined) ? m.gcal.toFixed(3).replace('.', ',') + ' Гкал' : '—';
 
@@ -30850,33 +31980,69 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // Заголовок карточки — param + period внутри одного div с зеброй
             html += '<div class="flow-detail-header"><div class="flow-detail-param">' + this._esc(m.param) + '</div><div class="flow-detail-period">' + this._esc(m.period) + '</div></div>';
 
-            // Предыдущие показания
-            html += '<div class="flow-detail-row"><span class="flow-detail-label">Предыдущие показания</span><span class="flow-detail-value">' + this._fmtNum(m.prev) + ' ' + this._esc(m.unit) + ',<span class="flow-detail-date"> от ' + this._fmtDate(m.datePrev) + ' г.</span></span></div>';
-            // Последние показания
-            html += '<div class="flow-detail-row"><span class="flow-detail-label">Последние показания</span><span class="flow-detail-value flow-detail-curr">' + this._fmtNum(m.curr) + ' ' + this._esc(m.unit) + ',<span class="flow-detail-date"> от ' + this._fmtDate(m.dateCurr) + ' г.</span></span></div>';
-            // Расход
-            html += '<div class="flow-detail-row flow-detail-highlight"><span class="flow-detail-label">Расход</span><span class="flow-detail-value">' + consStr + ' ' + this._esc(m.unit) + ',<span class="flow-detail-date"> за ' + this._daysBetween(m.datePrev, m.dateCurr) + ' дн.</span></span></div>';
-
-            // Температура среды (только если есть) — с датой, как в показаниях
-            if (m.temp !== null && m.temp !== undefined) {
-                html += '<div class="flow-detail-row"><span class="flow-detail-label">Температура среды</span><span class="flow-detail-value">' + tempStr + ',<span class="flow-detail-date"> от ' + this._fmtDate(m.dateCurr) + ' г.</span></span></div>';
-            }
-
-            // Гигакалории пара (только для расходомеров пара, Task 100) — с датой
-            // Показываем, только если это расходомер пара (param содержит «пара») и значение есть
-            if (this._isSteamMeter(m) && (m.gcal !== null && m.gcal !== undefined)) {
-                html += '<div class="flow-detail-row"><span class="flow-detail-label">Гигакалории пара</span><span class="flow-detail-value">' + gcalStr + ',<span class="flow-detail-date"> от ' + this._fmtDate(m.dateCurr) + ' г.</span></span></div>';
-            }
+            // Task 195: последние показания + кнопка комментария в правой части
+            // строки (видна автору показаний ИЛИ админу) + подстрока комментария (всем).
+            // Task 207: формат даты «за (дата) г.», а не «от (дата) г.»
+            var _email = (typeof KipAuth !== 'undefined' ? KipAuth._cachedEmail : null);
+            var _role = (typeof KipAuth !== 'undefined' ? KipAuth._cachedRole : null);
+            var canComment = flowCanComment(m, _email, _role);
+            // Локальные fallback-комментарии показываем только автору/админу
+            var commentText = flowCommentText(m, canComment ? this._getLocalComments() : null);
+            var isLocalComment = !!commentText &&
+                !(m.comment !== undefined && m.comment !== null && String(m.comment).trim() !== '');
+            var commentBtnHtml = flowBuildCommentBtnHtml(m, _email, commentText, _role);
+            // Task 225: строка «Последние показания» объединяет в себе:
+            //   1) Заголовок «Последние показания» + дата справа + кнопка комментария
+            //   2) Значение последних показаний с единицей измерения
+            //   3) Температуру среды (если есть) — без отдельного заголовка
+            //   4) Гигакалории пара (если есть и это расходомер пара) — без заголовка
+            // Строки «Температура среды» и «Гигакалории пара» как отдельные
+            // строки убраны — их значения перенесены под основные показания.
+            // Task 227: дата «за (дата) г.» перенесена в правую часть row-head.
+            // Task 229: дата — под-элемент label (одна общая строка текста,
+            // без визуального разделения на 2 блока). Пробел перед «за» даёт
+            // разделитель между названием и датой.
+            var lastReadingLabel = 'Последние показания';
+            html += '<div class="flow-detail-row flow-detail-row-last">' +
+                '<div class="flow-detail-row-head">' +
+                    '<span class="flow-detail-label">' + lastReadingLabel +
+                        '<span class="flow-detail-date-inline"> за ' + this._fmtDate(m.dateCurr) + ' г.</span>' +
+                    '</span>' +
+                    commentBtnHtml +
+                '</div>' +
+                // Значение последних показаний (без встроенной даты)
+                '<div class="flow-detail-value flow-detail-curr">' + this._fmtNum(m.curr) + ' ' + this._esc(m.unit) + '</div>' +
+                // Температура среды — под значением показаний (если есть)
+                (function(self, m, dailyMode) {
+                    if (!dailyMode && m.temp !== null && m.temp !== undefined) {
+                        var tempStr = m.temp.toFixed(1).replace('.', ',') + ' °C';
+                        return '<div class="flow-detail-value flow-detail-sub">' + tempStr + '</div>';
+                    }
+                    return '';
+                })(this, m, dailyMode) +
+                // Гигакалории пара — под значением показаний (если есть и это пар)
+                (function(self, m, dailyMode) {
+                    if ((dailyMode || self._isSteamMeter(m)) && (m.gcal !== null && m.gcal !== undefined)) {
+                        return '<div class="flow-detail-value flow-detail-sub">' + gcalStr + '</div>';
+                    }
+                    return '';
+                })(this, m, dailyMode) +
+                '</div>';
+            // Комментарий к показаниям — виден всем пользователям раздела
+            html += flowBuildCommentRowHtml(commentText, isLocalComment);
+            // Task 210: строка «Последний архивный комментарий» убрана из карточки —
+            // этот комментарий уже отображается в таблице хронологии показаний
+            // в столбце «Комментарий» (первая строка таблицы = последняя запись).
 
             // Внёс изменения
             // Task 109: показываем modDisplayName (имя из KIP8_Access), а не modName (email)
             // Task 111: добавляем дату ввода (из modTimestamp) через запятую справа
+            // Task 207: убрано слово «от» — просто «ДД.ММ.ГГГГ ЧЧ:ММ»
             var modDisplay = m.modDisplayName || m.modName || '';
             if (modDisplay || m.modRole) {
                 var modParts = [];
                 if (m.modRole) modParts.push(this._esc(m.modRole));
                 if (modDisplay) modParts.push(this._esc(modDisplay));
-                // Task 111: дата из modTimestamp → формат ДД.ММ.ГГГГ, ЧЧ:ММ
                 var modDateStr = '';
                 if (m.modTimestamp) {
                     try {
@@ -30885,7 +32051,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         var mm = (md.getMonth() + 1 < 10 ? '0' : '') + (md.getMonth() + 1);
                         var hh = (md.getHours() < 10 ? '0' : '') + md.getHours();
                         var mi = (md.getMinutes() < 10 ? '0' : '') + md.getMinutes();
-                        modDateStr = ',<span class="flow-detail-date"> от ' + dd + '.' + mm + '.' + md.getFullYear() + ' ' + hh + ':' + mi + '</span>';
+                        modDateStr = ',<span class="flow-detail-date"> ' + dd + '.' + mm + '.' + md.getFullYear() + ' ' + hh + ':' + mi + '</span>';
                     } catch(e) { /* ignore */ }
                 }
                 html += '<div class="flow-detail-row"><span class="flow-detail-label" style="color:#7a8fa6;">Внёс изменения</span><span class="flow-detail-value" style="color:#5b7a96;">' + modParts.join(', ') + modDateStr + '</span></div>';
@@ -30904,6 +32070,14 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             return String(m.param).toLowerCase().indexOf('пара') !== -1;
         },
 
+        // Task 205: Хозрасчёт №1 (id=1) — особый режим «расход за предыдущие сутки».
+        // Данные приходят из Тэкон-19 уже сформированными (расход в т и Гкал).
+        // В этом режиме: нет полей prev/datePrev/temp; gcal необязательно; главное
+        // поле — «Расход, т»; строка «Расход за N дн.» в детальной карточке скрыта.
+        _isDailyMode: function(m) {
+            return !!(m && m.id === 1);
+        },
+
         // Открыть детальную карточку
         // addToHistory: true (по умолчанию) — добавить в history браузера.
         //                false — перерисовать карточку без navigateTo/pushState
@@ -30916,7 +32090,17 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
             if (!m) return;
 
+            // Task 195: если показания теперь за другим пользователем —
+            // локальный fallback-комментарий устарел, удалить его
+            this._pruneStaleLocalComment(m);
+
             window._flowDetailId = id;
+
+            // Task 199: предзагрузить правила валидации (для UX-модалки).
+            // Ставим ДО ветвления desktop/mobile, чтобы и десктопный
+            // flowmeterRenderDetailInPanel тоже имел правила наготове.
+            // Не блокирует UI — фоновый запрос, при ошибке тихо пропускаем.
+            try { this.loadValidationRules(); } catch (e) { /* ignore */ }
 
             // На десктопе — рендерим в правую панель
             if (isDesktop()) {
@@ -30945,6 +32129,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 if (container) {
                     container.className = '';
                     container.innerHTML = FlowmeterData._buildArchiveHtml(records, m);
+                    // Task 220: динамическая ширина столбцов «Комментарий»/«Замечания» —
+                    // измеряем естественную ширину контента и выставляем ширину так,
+                    // чтобы контент влезал в ≤ 4 строк, при этом столбец растягивался.
+                    FlowmeterData._adjustArchiveColumnWidths(container);
                 }
             });
 
@@ -31009,6 +32197,179 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             } catch(e) { return false; }
         },
 
+        // ============================================================
+        // Task 195: комментарий к последним показаниям
+        // ============================================================
+
+        // Ленивая загрузка fallback-комментариев из localStorage
+        _getLocalComments: function() {
+            if (this._localComments === null) {
+                this._localComments = flowLocalCommentsLoad();
+            }
+            return this._localComments;
+        },
+
+        // Удалить локальный fallback-комментарий, если авторство показаний
+        // сменилось (другой пользователь внёс новые данные — срок истёк)
+        _pruneStaleLocalComment: function(m) {
+            if (!m) return;
+            var map = this._getLocalComments();
+            var key = String(m.id);
+            if (map.hasOwnProperty(key) && !flowCanComment(m, (typeof KipAuth !== 'undefined' ? KipAuth._cachedEmail : null))) {
+                delete map[key];
+                flowLocalCommentsSave(map);
+                this._localComments = map;
+            }
+        },
+
+        // Открыть sheet ввода комментария (только автор последних показаний)
+        openComment: function() {
+            var id = window._flowDetailId;
+            var m = null;
+            for (var i = 0; i < this._METERS.length; i++) {
+                if (this._METERS[i].id === id) { m = this._METERS[i]; break; }
+            }
+            if (!m) return;
+
+            var userEmail = (typeof KipAuth !== 'undefined' ? KipAuth._cachedEmail : null);
+            var userRole = (typeof KipAuth !== 'undefined' ? KipAuth._cachedRole : null);
+            if (!flowCanComment(m, userEmail, userRole)) return;  // защита: только автор/админ
+
+            var titleEl = document.getElementById('flowCommentTitle');
+            if (titleEl) titleEl.textContent = m.hoz + ' — комментарий к показаниям';
+
+            // Предзаполнение: серверный комментарий, иначе локальный fallback
+            var text = flowCommentText(m, this._getLocalComments());
+
+            var field = document.getElementById('flowCommentField');
+            if (field) field.value = text;
+            this._updateCommentCounter();
+
+            // Кнопка «Удалить» — только если комментарий уже есть
+            var delBtn = document.getElementById('flowCommentDelete');
+            if (delBtn) delBtn.style.display = text ? '' : 'none';
+
+            document.getElementById('flowCommentOverlay').classList.add('active');
+            document.getElementById('flowCommentSheet').classList.add('active');
+
+            var self = this;
+            setTimeout(function() { if (field) field.focus(); }, 350);
+        },
+
+        // Закрыть sheet комментария
+        closeComment: function() {
+            var field = document.getElementById('flowCommentField');
+            if (field) field.blur();
+            var overlay = document.getElementById('flowCommentOverlay');
+            var sheet = document.getElementById('flowCommentSheet');
+            if (overlay) overlay.classList.remove('active');
+            if (sheet) sheet.classList.remove('active');
+        },
+
+        // Счётчик символов (maxlength=100, Task 218)
+        _updateCommentCounter: function() {
+            var field = document.getElementById('flowCommentField');
+            var counter = document.getElementById('flowCommentCounter');
+            if (field && counter) {
+                counter.textContent = field.value.length + ' / ' + field.maxLength;
+            }
+        },
+
+        // Сохранить комментарий (пустой текст = удалить).
+        // Основной путь — сервер (flowmeter.setComment, валидация авторства
+        // на сервере; админ обходит not_your_input). Если серверный патч
+        // Task 195 ещё не задеплоен («Unknown action») — fallback в
+        // localStorage (только это устройство).
+        submitComment: function() {
+            var id = window._flowDetailId;
+            var m = null;
+            for (var i = 0; i < this._METERS.length; i++) {
+                if (this._METERS[i].id === id) { m = this._METERS[i]; break; }
+            }
+            if (!m) return;
+
+            var userEmail = (typeof KipAuth !== 'undefined' ? KipAuth._cachedEmail : null);
+            var userRole = (typeof KipAuth !== 'undefined' ? KipAuth._cachedRole : null);
+            if (!flowCanComment(m, userEmail, userRole)) return;
+
+            var field = document.getElementById('flowCommentField');
+            var text = field ? field.value.trim() : '';
+            if (text.length > 500) text = text.slice(0, 500);  // подстраховка
+
+            var self = this;
+
+            this._api('flowmeter.setComment', { id: id, comment: text }).then(function() {
+                // Успех: серверный комментарий; локальную копию убрать
+                m.comment = text;
+                var map = self._getLocalComments();
+                if (map.hasOwnProperty(String(id))) {
+                    delete map[String(id)];
+                    flowLocalCommentsSave(map);
+                }
+                self.closeComment();
+                self.renderList();
+                self.openDetail(id, false);  // перерендер карточки без pushState
+                // Task 232: сразу отрендерить архив из кэша с обновлённым m.comment,
+                // не дожидаясь network round-trip в loadArchive (контейнер
+                // #flowArchiveContainer уже создан в _buildDetailHtml). После
+                // завершения loadArchive контейнер будет перерисован актуальными
+                // данными сервера — но в первой (новейшей) записи комментарий
+                // останется, т.к. _buildArchiveHtml берёт m.comment для i===0.
+                try {
+                    var cachedRecords = self._restoreArchiveCache(id);
+                    var archiveContainer = document.getElementById('flowArchiveContainer');
+                    if (archiveContainer && cachedRecords && cachedRecords.length) {
+                        archiveContainer.className = '';
+                        archiveContainer.innerHTML = self._buildArchiveHtml(cachedRecords, m);
+                        try { self._adjustArchiveColumnWidths(archiveContainer); } catch (e2) { /* не критично */ }
+                    }
+                } catch (e) { /* кэш-рендер не критичен, сервер всё равно перерисует */ }
+                try { showToast(text ? 'Комментарий сохранён' : 'Комментарий удалён'); } catch (e) {}
+            }).catch(function(err) {
+                var msg = (err && err.message) ? String(err.message) : '';
+                if (msg.indexOf('Unknown action') !== -1) {
+                    // Серверный патч Task 195 не задеплоен → локальный fallback
+                    var map = self._getLocalComments();
+                    if (text) {
+                        map[String(id)] = { text: text, ts: new Date().toISOString() };
+                    } else {
+                        delete map[String(id)];
+                    }
+                    flowLocalCommentsSave(map);
+                    self.closeComment();
+                    self.renderList();
+                    self.openDetail(id, false);
+                    // Task 232: кэш-рендер архива для локального fallback-комментария
+                    try {
+                        var cachedRecords = self._restoreArchiveCache(id);
+                        var archiveContainer = document.getElementById('flowArchiveContainer');
+                        if (archiveContainer && cachedRecords && cachedRecords.length) {
+                            archiveContainer.className = '';
+                            archiveContainer.innerHTML = self._buildArchiveHtml(cachedRecords, m);
+                            try { self._adjustArchiveColumnWidths(archiveContainer); } catch (e2) { /* ignore */ }
+                        }
+                    } catch (e) { /* ignore */ }
+                    try { showToast(text
+                        ? 'Сохранено только на этом устройстве (сервер без поддержки комментариев)'
+                        : 'Комментарий удалён'); } catch (e) {}
+                } else if (msg.indexOf('not_your_input') !== -1) {
+                    // Авторство показаний уже сменилось (кто-то внёс новые данные)
+                    try { showToast('Комментарий доступен только тому, кто вводил последние показания'); } catch (e) {}
+                    self.load();  // актуализировать данные и карточку
+                } else {
+                    // Сеть/сессия — sheet не закрываем, текст не теряется
+                    try { showToast('Ошибка сохранения: ' + (msg || 'сеть')); } catch (e) {}
+                }
+            });
+        },
+
+        // Удалить комментарий (кнопка «Удалить» в sheet)
+        deleteComment: function() {
+            var field = document.getElementById('flowCommentField');
+            if (field) field.value = '';
+            this.submitComment();
+        },
+
         // Открыть sheet ввода новых показаний
         // isEdit (Task 108): если true — предзаполняем форму текущими показаниями
         openInput: function(isEdit) {
@@ -31019,8 +32380,17 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
             if (!m) return;
 
+            // Task 205: Хозрасчёт №1 — особый режим «расход за предыдущие сутки»
+            var dailyMode = this._isDailyMode(m);
+
             var titleEl = document.getElementById('flowInputTitle');
-            if (titleEl) titleEl.textContent = m.hoz + (isEdit ? ' — изменить показания' : ' — ввести показания');
+            if (titleEl) {
+                if (dailyMode) {
+                    titleEl.textContent = m.hoz + (isEdit ? ' — изменить расход' : ' — внести расход за сутки');
+                } else {
+                    titleEl.textContent = m.hoz + (isEdit ? ' — изменить показания' : ' — ввести показания');
+                }
+            }
 
             var field = document.getElementById('flowInputField');
             if (field) {
@@ -31030,15 +32400,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 } else {
                     field.value = '';
                 }
-                field.placeholder = 'Текущие показания, ' + m.unit;
+                // Task 205: для dailyMode — другой placeholder (вводится расход, а не показания)
+                field.placeholder = dailyMode
+                    ? 'Расход за предыдущие сутки, ' + m.unit
+                    : 'Текущие показания, ' + m.unit;
             }
 
             // Температура — поле видно только для Хозрасчёта №6 (Task 103)
             // Task 104: при новом вводе — пустое; при редактировании (isEdit) — предзаполняем
+            // Task 205: для dailyMode (Хозрасчёт №1) — всегда скрыто (Тэкон-19 не отдаёт температуру)
             var tempField = document.getElementById('flowInputTemp');
             var tempGroup = tempField ? tempField.closest('.flow-input-group') : null;
             if (tempField && tempGroup) {
-                if (m.id === 6) {
+                if (!dailyMode && m.id === 6) {
                     tempGroup.style.display = '';
                     if (isEdit && m.temp !== null && m.temp !== undefined) {
                         tempField.value = m.temp.toFixed(1).replace('.', ',');
@@ -31054,10 +32428,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
             // Гигакалории пара (Task 100) — поле видно только для расходомеров пара
             // Task 104: при новом вводе — пустое; при редактировании (isEdit) — предзаполняем
+            // Task 205/206: для dailyMode (Хозрасчёт №1) — Гкал необязательно
+            // (Тэкон-19 отдаёт расход в Гкал, но поле остаётся на усмотрение оператора)
             var gcalGroup = document.getElementById('flowInputGcalGroup');
             var gcalField = document.getElementById('flowInputGcal');
             if (gcalGroup && gcalField) {
-                if (this._isSteamMeter(m)) {
+                if (dailyMode || this._isSteamMeter(m)) {
                     gcalGroup.style.display = '';
                     if (isEdit && m.gcal !== null && m.gcal !== undefined) {
                         gcalField.value = m.gcal.toFixed(3).replace('.', ',');
@@ -31167,18 +32543,27 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             for (var i = 0; i < this._METERS.length; i++) {
                 if (this._METERS[i].id === id) {
                     meter = this._METERS[i];
-                    // Task 108: при редактировании НЕ сдвигаем prev → curr (просто перезаписываем curr)
-                    if (!isEdit) {
+                    // Task 205: для dailyMode (Хозрасчёт №1) — не сдвигаем prev → curr
+                    // (prev всегда 0, т.к. данные сразу расход, а не накопительные показания).
+                    // Для остальных расходомеров — стандартная логика Task 108:
+                    // при новом вводе сдвигаем prev → curr; при isEdit — не сдвигаем.
+                    var dailyMode = this._isDailyMode(meter);
+                    if (!dailyMode && !isEdit) {
                         meter.prev = meter.curr;
                         meter.datePrev = meter.dateCurr;
                     }
+                    if (dailyMode) {
+                        meter.prev = 0;
+                        meter.datePrev = dateStr;  // datePrev = dateCurr (нет «предыдущей даты»)
+                        meter.temp = null;  // Тэкон-19 не отдаёт температуру
+                    }
                     meter.curr = num;
                     meter.dateCurr = dateStr;
-                    if (tempVal !== null) {
+                    if (!dailyMode && tempVal !== null) {
                         meter.temp = tempVal;
                     }
-                    // Гкал обновляем только для расходомеров пара (Task 100)
-                    if (this._isSteamMeter(meter) && gcalVal !== null) {
+                    // Гкал обновляем для расходомеров пара и для dailyMode (Task 100/205)
+                    if ((dailyMode || this._isSteamMeter(meter)) && gcalVal !== null) {
                         meter.gcal = gcalVal;
                     }
                     // Обновляем подпись — текущий пользователь + timestamp
@@ -31196,13 +32581,18 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
             this.closeInput();
 
-            // Перерендерить список и текущую карточку
+            // Перерендерить список и текущую карточку (оптимистичное UI)
             this.renderList();
-            this.openDetail(id, false);  // Task 106: без pushState — мы уже на flowmeter-detail
+            this.openDetail(id, false);  // Task 106: без pushState
 
-            // Отправить обновление на сервер (в Google Sheets через Apps Script)
+            // Task 199: клиентская валидация показаний. Если сработали
+            // soft-confirm правила — показываем модалку, пользователь
+            // подтверждает или отменяет. Если hard-block — показываем
+            // toast, ничего не отправляем на сервер. Если ошибок нет —
+            // сразу отправляем. Сервер в любом случае валидирует
+            // независимо и пишет аномалии в archive.Q.
             if (meter) {
-                // Для расходомеров пара добавляем gcal в payload (Task 100)
+                var dailyMode = this._isDailyMode(meter);
                 var apiPayload = {
                     id: id,
                     prev: meter.prev,
@@ -31212,32 +32602,250 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     temp: meter.temp,
                     isEdit: isEdit  // Task 108: сервер проверит «1 час + тот же пользователь»
                 };
-                if (this._isSteamMeter(meter)) {
+                if (dailyMode || this._isSteamMeter(meter)) {
                     apiPayload.gcal = (gcalVal !== null) ? gcalVal : (meter.gcal || '');
                 }
-                this._api('flowmeter.updateReading', apiPayload).then(function(res) {
-                    if (res && res.ok === false) {
-                        // Task 108: серверная ошибка (edit_window_expired / not_your_input)
-                        var msg = res.message || res.error || 'Ошибка сохранения';
-                        if (typeof KipToast !== 'undefined' && KipToast.show) {
-                            KipToast.show(msg);
+
+                var rules = this._getRulesForMeter(id);
+                var lastArch = this._getLastArchiveForValidation(id, meter);
+                var self = this;
+
+                // Task 200: lazy-fetch recentAllMeters для WRONG_METER.
+                // Один доп-запрос перед валидацией — его стоимость оправдана
+                // тем, что WRONG_METER спасает от серьёзной ошибки вводода.
+                // Сервер всё равно валидирует независимо (даже если fetch упадёт).
+                this._api('flowmeter.getRecentAllMeters', { daysBack: 7 })
+                    .then(function(res) {
+                        var recentAll = (res && res.ok && res.data && res.data.records)
+                                        ? res.data.records : null;
+                        return flowValidateReading(meter, apiPayload, rules, lastArch, recentAll);
+                    })
+                    .then(function(validation) {
+                        if (validation.hardBlock) {
+                            // Hard-block: показываем toast, ничего не отправляем.
+                            // Оптимистичное обновление UI откатываем перезагрузкой.
+                            if (typeof KipToast !== 'undefined' && KipToast.show) {
+                                KipToast.show(validation.hardBlock.message || 'Ошибка валидации');
+                            }
+                            setTimeout(function() { self.load(); }, 200);
+                            return;
                         }
-                        // Перезагрузить данные с сервера — откатить оптимистичное обновление
-                        setTimeout(function() { self.load(); }, 200);
-                    } else {
-                        if (typeof KipToast !== 'undefined' && KipToast.show) {
-                            KipToast.show(isEdit ? 'Показания изменены' : 'Показания сохранены');
+                        if (validation.codes && validation.codes.length > 0) {
+                            // Soft-confirm: показываем модалку, отправку откладываем
+                            self._pendingApiPayload = apiPayload;
+                            self._pendingAnomalyCodes = validation.codes;
+                            self._showAnomalyModal(meter, validation.codes);
+                            return;
                         }
-                        // Перезагрузить данные с сервера, чтобы убедиться в синхронизации
-                        setTimeout(function() { self.load(); }, 200);
-                    }
-                }).catch(function(err) {
-                    console.error('flowmeter.updateReading:', err);
-                    if (typeof KipToast !== 'undefined' && KipToast.show) {
-                        KipToast.show('Ошибка сохранения: ' + (err.message || 'сеть'));
-                    }
-                });
+                        // Ошибок нет — отправляем сразу
+                        self._sendUpdateReading(apiPayload, isEdit);
+                    })
+                    .catch(function(err) {
+                        // Fallback: fetch упал — валидируем без recentAllMeters
+                        // (WRONG_METER пропустится; сервер всё равно проверит)
+                        console.error('flowmeter.getRecentAllMeters failed:', err);
+                        var validation = flowValidateReading(meter, apiPayload, rules, lastArch, null);
+                        if (validation.hardBlock) {
+                            if (typeof KipToast !== 'undefined' && KipToast.show) {
+                                KipToast.show(validation.hardBlock.message || 'Ошибка валидации');
+                            }
+                            setTimeout(function() { self.load(); }, 200);
+                            return;
+                        }
+                        if (validation.codes && validation.codes.length > 0) {
+                            self._pendingApiPayload = apiPayload;
+                            self._pendingAnomalyCodes = validation.codes;
+                            self._showAnomalyModal(meter, validation.codes);
+                            return;
+                        }
+                        self._sendUpdateReading(apiPayload, isEdit);
+                    });
             }
+        },
+
+        // Task 199: получить правила валидации для meterId (с кэшем в памяти)
+        _rulesCache: {},
+        _getRulesForMeter: function(meterId) {
+            if (this._rulesCache[meterId]) return this._rulesCache[meterId];
+            // Синхронно вернуть не можем — правила грузятся с сервера.
+            // Если кэша нет, возвращаем null (валидация soft-confirm
+            // пропустится; сервер всё равно валидирует).
+            // Для предзагрузки используй loadValidationRules().
+            return null;
+        },
+
+        // Task 235: синхронно подгрузить кэш правил из localStorage в
+        // _rulesCache + _rulesCacheTs. Вызывается в init() (до load()),
+        // чтобы ПЕРВОЕ же открытие карточки расходомера уже имело правила
+        // в памяти — мгновенная модалка аномалий без серверного round-trip.
+        // Никогда не бросает исключение; при ошибке парсинга — тихий возврат.
+        _loadRulesCacheFromStorage: function() {
+            try {
+                var raw = localStorage.getItem(this._rulesCacheKey);
+                if (!raw) return;
+                var parsed = JSON.parse(raw);
+                if (!parsed || typeof parsed !== 'object') return;
+                var rules = (Array.isArray(parsed.rules)) ? parsed.rules : null;
+                var ts = parseInt(parsed.ts, 10) || 0;
+                if (rules && ts > 0) {
+                    // Заполняем _rulesCache (объект по meterId).
+                    for (var i = 0; i < rules.length; i++) {
+                        var r = rules[i];
+                        if (r && r.meterId) {
+                            this._rulesCache[r.meterId] = r;
+                        }
+                    }
+                    this._rulesCacheTs = ts;
+                }
+            } catch (e) { /* ignore parse errors / quota */ }
+        },
+
+        // Task 235: сохранить _rulesCache + текущий timestamp в localStorage.
+        // Вызывается после успешного fetch в loadValidationRules. Пишем в
+        // try/catch — quota/disabled localStorage не должны валить валидацию.
+        _persistRulesCache: function() {
+            try {
+                var rules = [];
+                for (var k in this._rulesCache) {
+                    if (Object.prototype.hasOwnProperty.call(this._rulesCache, k)) {
+                        rules.push(this._rulesCache[k]);
+                    }
+                }
+                var payload = { rules: rules, ts: Date.now() };
+                localStorage.setItem(this._rulesCacheKey, JSON.stringify(payload));
+                this._rulesCacheTs = payload.ts;
+            } catch (e) { /* quota or disabled */ }
+        },
+
+        // Task 199/235: асинхронно загрузить все правила с сервера и
+        // закэшировать в памяти + localStorage. Вызывать при открытии карточки.
+        //
+        // Оптимизация (Task 235): если кэш в localStorage свежий
+        // (< _rulesCacheTtlMs с момента последней синхронизации) — НЕ делаем
+        // серверный запрос, отдаём правила из памяти. Это убирает «каждый раз
+        // за условиями на сервер» при открытии карточки — модалка аномалий
+        // появляется моментально. Сервер всё равно валидирует независимо
+        // при фактическом сохранении (т.е. даже с устаревшим клиентским кэшем
+        // грубые ошибки будут пойманы на сервере).
+        //
+        // Если кэш устарел или отсутствует — фоновым запросом обновляем,
+        // при ошибке сети fallback на stale-кэш (лучше устаревшие правила,
+        // чем ничего).
+        loadValidationRules: function() {
+            var self = this;
+            // Task 235: если кэш свежий — отдаём сразу, без round-trip.
+            var now = Date.now();
+            if (this._rulesCacheTs > 0 &&
+                (now - this._rulesCacheTs) < this._rulesCacheTtlMs) {
+                return Promise.resolve(this._rulesCache);
+            }
+            return this._api('flowmeter.getValidationRules', {}).then(function(data) {
+                if (data && Array.isArray(data.rules)) {
+                    // Сбросить старый кэш перед заполнением (если сервер
+                    // вернул урезанный список — не оставляем «зомби»-правил).
+                    self._rulesCache = {};
+                    for (var i = 0; i < data.rules.length; i++) {
+                        var r = data.rules[i];
+                        if (r && r.meterId) {
+                            self._rulesCache[r.meterId] = r;
+                        }
+                    }
+                    // Task 235: персист в localStorage для следующих сессий.
+                    self._persistRulesCache();
+                }
+                return self._rulesCache;
+            }).catch(function(err) {
+                // Task 235: если fetch упал, а в localStorage есть stale-кэш —
+                // используем его (лучше устаревшие правила, чем отсутствие
+                // клиентской валидации). Сервер всё равно проверит авторитетно.
+                if (Object.keys(self._rulesCache).length === 0) {
+                    self._loadRulesCacheFromStorage();
+                }
+                // Если и localStorage пуст — тихо возвращаем null,
+                // soft-confirm валидация пропустится (только hard-block
+                // на клиенте + независимая серверная).
+                return (Object.keys(self._rulesCache).length > 0)
+                       ? self._rulesCache : null;
+            });
+        },
+
+        // Task 199: получить последнюю запись архива (для DUPLICATE).
+        // Берём из кэша архива (loadArchive сохраняет в localStorage).
+        _getLastArchiveForValidation: function(meterId, meter) {
+            var cached = this._restoreArchiveCache(meterId);
+            if (cached && cached.length > 0) {
+                // Архив отсортирован новейшие-первыми в listArchive.
+                // Кэш сохраняется в этом же порядке.
+                var last = cached[0];
+                // author: из meter.modName (текущий автор последних показаний)
+                return {
+                    prev: last.prev,
+                    curr: last.curr,
+                    modName: meter ? meter.modName : (last.modName || ''),
+                    timestamp: last.timestamp
+                };
+            }
+            return null;
+        },
+
+        // Task 199: показать модалку аномалий
+        _showAnomalyModal: function(meter, codes) {
+            // Удалить старую модалку если есть
+            var old = document.getElementById('flowAnomalyModal');
+            if (old) old.remove();
+            var html = flowBuildAnomalyModalHtml(meter, codes);
+            var container = document.createElement('div');
+            container.innerHTML = html;
+            document.body.appendChild(container.firstChild);
+        },
+
+        // Task 199: пользователь нажал «Отменить» в модалке
+        cancelAnomalyModal: function() {
+            var modal = document.getElementById('flowAnomalyModal');
+            if (modal) modal.remove();
+            this._pendingApiPayload = null;
+            this._pendingAnomalyCodes = null;
+            // Оптимистичное обновление UI нужно откатить
+            this.load();
+        },
+
+        // Task 199: пользователь нажал «Сохранить с пометкой»
+        confirmAnomalyModal: function() {
+            var modal = document.getElementById('flowAnomalyModal');
+            if (modal) modal.remove();
+            if (!this._pendingApiPayload) return;
+            var payload = this._pendingApiPayload;
+            var isEdit = !!payload.isEdit;
+            this._pendingApiPayload = null;
+            this._pendingAnomalyCodes = null;
+            this._sendUpdateReading(payload, isEdit);
+        },
+
+        // Task 199: фактическая отправка updateReading на сервер
+        // (используется и при отсутствии аномалий, и после confirm)
+        _sendUpdateReading: function(apiPayload, isEdit) {
+            var self = this;
+            this._api('flowmeter.updateReading', apiPayload).then(function(res) {
+                if (res && res.ok === false) {
+                    // Task 108/199: серверная ошибка (edit_window_expired /
+                    // not_your_input / sign_neg / date_inconsistent / ...)
+                    var msg = res.message || res.error || 'Ошибка сохранения';
+                    if (typeof KipToast !== 'undefined' && KipToast.show) {
+                        KipToast.show(msg);
+                    }
+                    setTimeout(function() { self.load(); }, 200);
+                } else {
+                    if (typeof KipToast !== 'undefined' && KipToast.show) {
+                        KipToast.show(isEdit ? 'Показания изменены' : 'Показания сохранены');
+                    }
+                    setTimeout(function() { self.load(); }, 200);
+                }
+            }).catch(function(err) {
+                console.error('flowmeter.updateReading:', err);
+                if (typeof KipToast !== 'undefined' && KipToast.show) {
+                    KipToast.show('Ошибка сохранения: ' + (err.message || 'сеть'));
+                }
+            });
         },
 
         // ============================================================
@@ -31285,6 +32893,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
             this._api('flowmeter.archive', { id: meterId, limit: 200 }).then(function(data) {
                 if (data && Array.isArray(data.records)) {
+                    // Task 222: сохраняем карту описаний аномалий (если сервер прислал)
+                    if (data.anomalyHelp && typeof data.anomalyHelp === 'object') {
+                        self._anomalyHelp = data.anomalyHelp;
+                    }
                     self._persistArchive(meterId, data.records);
                     if (callback) callback(data.records);
                 } else {
@@ -31324,7 +32936,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             html += '<thead><tr>';
             html += '<th>Дата</th>';
             html += '<th>Показания</th>';
-            html += '<th>Расход</th>';
+            // Task 207: для dailyMode (Хозрасчёт №1) — столбец «Расход» не нужен,
+            // т.к. Показания = Расход (consumption = curr - 0 = curr)
+            var showConsCol = !this._isDailyMode(meter);
+            if (showConsCol) {
+                html += '<th>Расход</th>';
+            }
             // Температура — показываем колонку только если хоть в одной записи есть
             if (displayRecords[0] && displayRecords[0].temp !== null && displayRecords[0].temp !== undefined) {
                 html += '<th>T</th>';
@@ -31336,6 +32953,14 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             if (showGcalCol) {
                 html += '<th>Гкал</th>';
             }
+            // Task 197: колонка «Комментарий» — показываем всегда (Task 199.2)
+            // (раньше скрывалась, если ни в одной записи нет комментария)
+            // Task 221: добавлен класс для измерения ширины заголовка в JS.
+            html += '<th class="flow-archive-comment-th">Комментарий</th>';
+            // Task 199: колонка «Замечания» — показываем всегда (Task 199.2)
+            // (раньше скрывалась, если ни в одной записи нет anomaly)
+            // Task 221: добавлен класс для измерения ширины заголовка в JS.
+            html += '<th class="flow-archive-anomaly-th">⚠ Замечания</th>';
             html += '<th>Внёс</th>';
             html += '</tr></thead>';
             html += '<tbody>';
@@ -31346,7 +32971,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 html += '<tr>';
                 html += '<td class="flow-archive-date">' + this._fmtDate(r.dateCurr) + '</td>';
                 html += '<td class="flow-archive-val">' + this._fmtNum(r.curr) + '</td>';
-                html += '<td class="flow-archive-cons">' + this._fmtNum(consAbs) + '</td>';
+                if (showConsCol) {
+                    html += '<td class="flow-archive-cons">' + this._fmtNum(consAbs) + '</td>';
+                }
                 // Температура — показываем колонку только если хоть в одной записи есть
                 if (displayRecords[0] && displayRecords[0].temp !== null && displayRecords[0].temp !== undefined) {
                     var tStr = (r.temp !== null && r.temp !== undefined) ? r.temp.toFixed(1).replace('.', ',') : '—';
@@ -31356,6 +32983,66 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 if (showGcalCol) {
                     var gcalStr = (r.gcal !== null && r.gcal !== undefined) ? r.gcal.toFixed(3).replace('.', ',') : '—';
                     html += '<td class="flow-archive-gcal">' + gcalStr + '</td>';
+                }
+                // Task 197: комментарий к этой архивной записи (колонка видна всегда)
+                // Task 217: обёрнут в inner-div, т.к. max-height не работает
+                // напрямую на <td> (display: table-cell).
+                // Task 232: для НОВЕЙШЕЙ записи (i === 0) archive.P пуст (т.к. комментарий
+                // хранится в meters.O — активный, не «архивный»; попадает в archive.P
+                // только при смене автора показаний в updateReading). Поэтому для
+                // первой записи используем активный комментарий счётчика (meter.comment
+                // или локальный fallback), чтобы внесённый через setComment текст
+                // сразу отображался в хронологии — без ожидания новой архивной записи.
+                var cmtStr = (r.comment && String(r.comment).trim() !== '')
+                    ? String(r.comment).trim() : '';
+                if (!cmtStr && i === 0 && meter) {
+                    var liveCmt = flowCommentText(meter, this._getLocalComments());
+                    if (liveCmt) cmtStr = liveCmt;
+                }
+                if (!cmtStr) cmtStr = '—';
+                html += '<td class="flow-archive-comment"><div class="flow-archive-comment-inner">' + this._esc(cmtStr) + '</div></td>';
+                // Task 199: флаги аномалий — значки с кодами (колонка видна всегда)
+                // Task 222: если в _anomalyHelp[code] есть дружелюбное описание —
+                // показываем его вместо технического detail (который генерируется
+                // сервером в ValidationRules.compute и содержит внутренние числа).
+                // Fallback: если карта пуста или код в ней не найден — показываем
+                // технический detail (старое поведение, для обратной совместимости).
+                var anStr = (r.anomaly && String(r.anomaly).trim() !== '')
+                    ? String(r.anomaly).trim() : '';
+                if (anStr) {
+                    // Парсим формат «CODE1: detail; CODE2: detail; ...»
+                    var parts = anStr.split(';');
+                    var badges = '';
+                    for (var p = 0; p < parts.length; p++) {
+                        var part = parts[p].trim();
+                        if (!part) continue;
+                        var colonIdx = part.indexOf(':');
+                        var code = colonIdx > 0 ? part.substring(0, colonIdx).trim() : part;
+                        var detail = colonIdx > 0 ? part.substring(colonIdx + 1).trim() : '';
+                        // Task 222: предпочитаем дружелюбное описание из _anomalyHelp,
+                        // иначе — технический detail из archive.Q.
+                        var friendly = (this._anomalyHelp && this._anomalyHelp[code]) || '';
+                        var displayText = friendly || detail;
+                        // Task 233: код правила (JUMP_NEGATIVE, TEMP_OUT_OF_RANGE, ...)
+                        // НЕ показываем в тексте сообщения — только дружелюбное
+                        // описание (или технический detail как fallback). Раньше
+                        // рядом с описанием рендерился .flow-anomaly-badge с самим
+                        // кодом — убрали, теперь каждая аномалия = строка с текстом.
+                        if (displayText) {
+                            badges += '<div class="flow-anomaly-line">' +
+                                '<span class="flow-anomaly-badge-detail">' + this._esc(displayText) + '</span>' +
+                                '</div>';
+                        }
+                    }
+                    // Task 233: если ни одного описания не нашлось (например,
+                    // _anomalyHelp пуста и все detail пустые) — показываем «—».
+                    if (badges) {
+                        html += '<td class="flow-archive-anomaly"><div class="flow-archive-anomaly-inner">' + badges + '</div></td>';
+                    } else {
+                        html += '<td class="flow-archive-anomaly"><div class="flow-archive-anomaly-inner">—</div></td>';
+                    }
+                } else {
+                    html += '<td class="flow-archive-anomaly"><div class="flow-archive-anomaly-inner">—</div></td>';
                 }
                 var modStr = r.modName || r.modRole || '';
                 html += '<td class="flow-archive-mod">' + this._esc(modStr) + '</td>';
@@ -31369,24 +33056,148 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             return html;
         },
 
-        // График расхода — вертикальные бары (даты по X, расход по Y), зебра, без Y-оси
+        // Task 221: динамическая ширина столбцов «Комментарий» и «⚠ Замечания».
+        // Алгоритм (согласно ТЗ пользователя):
+        //   • минимальная ширина столбца = ширина, достаточная для полного
+        //     отображения текста заголовка (чтобы «Комментарий» / «⚠ Замечания»
+        //     не переносились);
+        //   • если контент ячеек помещается в 4 строки при этой ширине —
+        //     столбец не расширяем;
+        //   • если не помещается — расширяем ровно настолько, чтобы контент
+        //     укладывался в 4 строки (target = ceil(maxNatural / 4) + safety).
+        // Реализация:
+        //   1) Измерить scrollWidth у th-заголовка (временно white-space:nowrap) →
+        //      headerNatural — минимальная ширина столбца.
+        //   2) Для каждой inner-div — временно white-space:nowrap + no constraints,
+        //      measure scrollWidth → maxNatural — самая длинная ячейка в одну
+        //      строку. Восстановить исходные inline-стили.
+        //   3) target = max(headerNatural, ceil(maxNatural / 4) + 10).
+        //   4) Применить target как min-width + max-width на все inner-div'ы
+        //      столбца. td подстроится под ширину inner-div'а, th — следует за td.
+        // Вызывается после container.innerHTML = _buildArchiveHtml(...) в двух
+        // местах: renderDetail (мобильный) и renderDetailPanel (desktop panel).
+        _adjustArchiveColumnWidths: function(container) {
+            if (!container) return;
+            try {
+                var commentTh = container.querySelector('.flow-archive-comment-th');
+                var anomalyTh = container.querySelector('.flow-archive-anomaly-th');
+                var commentCells = container.querySelectorAll('.flow-archive-comment-inner');
+                var anomalyCells = container.querySelectorAll('.flow-archive-anomaly-inner');
+                this._applyOptimalWidth(commentCells, commentTh);
+                this._applyOptimalWidth(anomalyCells, anomalyTh);
+            } catch (e) {
+                // Тихо игнорируем — fallback: table-layout:auto + max-height:5.2em.
+            }
+        },
+
+        // Task 221: target = max(headerNatural, ceil(maxCellNatural / 4)).
+        // headerNatural — естественная ширина заголовка (чтобы слово
+        // «Комментарий» или «⚠ Замечания» полностью помещалось в одну строку).
+        // ceil(maxCellNatural / 4) — ширина, при которой самый длинный контент
+        // занимает ровно 4 строки (с word-break:break-word можно разрывать
+        // слова, так что деление на 4 точно).
+        // Если контент в 4 строки при ширине заголовка помещается (fourLineWidth
+        // <= headerNatural), target = headerNatural — столбец не расширяем.
+        // Если нет — target = fourLineWidth, столбец расширяется ровно под 4
+        // строки. max-height:5.2em + overflow:hidden в CSS остаётся как safety
+        // cap на случай edge-case'ов с длинными словами.
+        _applyOptimalWidth: function(cells, headerCell) {
+            if (!cells || cells.length === 0) return;
+
+            // 1. Измерить естественную ширину заголовка (минимальная ширина
+            //    столбца, чтобы название полностью отображалось без переноса).
+            var headerNatural = 0;
+            if (headerCell) {
+                var origHeaderCss = headerCell.style.cssText;
+                headerCell.style.cssText = origHeaderCss +
+                    '; white-space:nowrap !important; max-width:none !important;' +
+                    ' width:auto !important;';
+                headerNatural = headerCell.scrollWidth;
+                headerCell.style.cssText = origHeaderCss;
+            }
+
+            // 2. Измерить максимальную естественную ширину контента ячеек
+            //    (в одну строку без переноса).
+            var maxNatural = 0;
+            for (var i = 0; i < cells.length; i++) {
+                var cell = cells[i];
+                var origCss = cell.style.cssText;
+                cell.style.cssText = origCss +
+                    '; white-space:nowrap !important; max-width:none !important;' +
+                    ' max-height:none !important; overflow:visible !important;' +
+                    ' width:auto !important;';
+                var naturalWidth = cell.scrollWidth;
+                cell.style.cssText = origCss;
+                if (naturalWidth > maxNatural) maxNatural = naturalWidth;
+            }
+
+            // 3. Целевая ширина столбца:
+            //    • headerNatural — минимум, чтобы название столбца полностью
+            //      помещалось;
+            //    • ceil(maxNatural / 4) + 10px safety — чтобы контент помещался
+            //      ровно в 4 строки.
+            //    Берём максимум из двух.
+            var fourLineWidth = Math.ceil(maxNatural / 4) + 10;
+            var target = Math.max(headerNatural, fourLineWidth);
+
+            // 4. Применить target как min-width и max-width на inner-div'ы.
+            //    td подстроится под ширину inner-div'а.
+            for (var j = 0; j < cells.length; j++) {
+                cells[j].style.minWidth = target + 'px';
+                cells[j].style.maxWidth = target + 'px';
+            }
+        },
+
+        // График архива — вертикальные бары (даты по X, значение по Y), зебра, без Y-оси.
+        // Task 223: для Хозрасчёт №1 (dailyMode) график строится из фактических
+        // показаний (r.curr) — счётчик работает в режиме «расход за предыдущие
+        // сутки» и значения не накапливаются, поэтому показания = расход.
+        // Task 228: для остальных хозрасчётов (НЕ dailyMode) график строится
+        // из вычисленного расхода (r.consumption = curr − prev), т.к. счётчики
+        // накапливающие (вода, пар, газ) и показания монотонно растут —
+        // расход даёт более наглядную картину фактического потребления.
+        // Task 224: нормализация по диапазону — bar = (val − min) / (max − min) × 100.
+        // Task 226: минимальная высота бара 5% — чтобы минимальное за период
+        // значение было видно как «тонкая полоска».
         _buildArchiveChart: function(records, meter) {
             if (records.length < 2) return '';
 
-            var unit = meter ? meter.unit : (records[0].unit || '');
-            var maxCons = 0;
-            for (var i = 0; i < records.length; i++) {
-                var c = Math.abs(records[i].consumption || 0);
-                if (c > maxCons) maxCons = c;
+            var dailyMode = this._isDailyMode(meter);
+            // Источник данных графика: dailyMode → показания (r.curr),
+            // иначе → расход (r.consumption = curr − prev).
+            function pickValue(r) {
+                if (dailyMode) {
+                    return Math.abs(parseFloat(r.curr) || 0);
+                }
+                return Math.abs(parseFloat(r.consumption) || 0);
             }
-            if (maxCons === 0) return '';
+
+            var unit = meter ? meter.unit : (records[0].unit || '');
+            var minVal = Infinity;
+            var maxVal = -Infinity;
+            for (var i = 0; i < records.length; i++) {
+                var v = pickValue(records[i]);
+                if (v < minVal) minVal = v;
+                if (v > maxVal) maxVal = v;
+            }
+            if (maxVal === 0 || !isFinite(maxVal)) return '';
+
+            // Размах: если все значения одинаковы (max === min), нормализация
+            // даст деление на ноль. В этом случае ставим всем барам одинаковую
+            // высоту (60% — заметно, но не 100%, т.к. это плоская линия без
+            // динамики).
+            var range = maxVal - minVal;
+            var flat = (range === 0);
 
             // Записи от старых к новым (по X слева направо)
             var chartRecords = records.slice(0, 31).reverse();
 
+            // Заголовок графика зависит от источника данных
+            var chartTitle = dailyMode ? 'Показания' : 'Расход';
+
             var html = '';
             html += '<div class="flow-archive-chart">';
-            html += '<div class="flow-archive-chart-title">Расход, ' + this._esc(unit) + '</div>';
+            html += '<div class="flow-archive-chart-title">' + chartTitle + ', ' + this._esc(unit) + '</div>';
             html += '<div class="flow-archive-chart-body">';
 
             // Область графика (без Y-оси, без сетки)
@@ -31395,10 +33206,17 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // Бары вплотную, зебра через CSS :nth-child(even)
             for (var j = 0; j < chartRecords.length; j++) {
                 var r = chartRecords[j];
-                var cons = Math.abs(r.consumption || 0);
-                var barPct = Math.max(1, (cons / maxCons) * 100);
+                var val = pickValue(r);
+                // Task 224: нормализация по диапазону (val − min) / (max − min) × 100.
+                // Task 226: минимальная высота бара 5%.
+                var barPct;
+                if (flat) {
+                    barPct = 60; // все значения одинаковы — плоская линия
+                } else {
+                    barPct = Math.max(5, ((val - minVal) / range) * 100);
+                }
                 html += '<div class="flow-archive-vbar-col">';
-                html += '<div class="flow-archive-vbar-tip-zone"><span class="flow-archive-vbar-tip">' + this._fmtNum(cons) + '</span></div>';
+                html += '<div class="flow-archive-vbar-tip-zone"><span class="flow-archive-vbar-tip">' + this._fmtNum(val) + '</span></div>';
                 html += '<div class="flow-archive-vbar-bar-zone"><div class="flow-archive-vbar" style="height:' + barPct.toFixed(1) + '%"></div></div>';
                 html += '<div class="flow-archive-vbar-xlabel-zone"><span class="flow-archive-vbar-xlabel">' + this._fmtDateShort(r.dateCurr) + '</span></div>';
                 html += '</div>';
@@ -31420,10 +33238,6 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             } catch (e) { return dateStr; }
         }
     };
-
-    // Pinch-to-zoom для таблицы архива — используется универсальная система
-    // (класс pinch-zoom-target назначается при генерации HTML в _buildArchiveHtml)
-
 
     // ============================================================
     // WorkSchedule — модуль «График работы» (Task 201)
@@ -32194,6 +34008,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         }
     };
 
+    // Pinch-to-zoom для таблицы архива — используется универсальная система
+    // (класс pinch-zoom-target назначается при генерации HTML в _buildArchiveHtml)
 
     // flowmeterRenderDetailInPanel — рендер детальной карточки расходомера
     // в правую панель (#detailPanel) на десктопе
@@ -32222,6 +34038,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             if (container) {
                 container.className = '';
                 container.innerHTML = FlowmeterData._buildArchiveHtml(records, m);
+                // Task 220: динамическая ширина столбцов (см. выше)
+                FlowmeterData._adjustArchiveColumnWidths(container);
             }
         });
 
@@ -32365,6 +34183,63 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             this.loadSessions();
             this.loadLogs();
             if (typeof showToast === 'function') showToast('Данные обновляются…');
+        },
+
+        // Task 236: принудительное обновление кэша правил валидации.
+        // Обнуляет _rulesCacheTs (чтобы loadValidationRules не пропустил
+        // запрос по TTL-проверке) и вызывает loadValidationRules(), который
+        // фоновым запросом тянет свежие правила с сервера и обновляет
+        // localStorage. После этого все сабмиты показаний в течение 24ч
+        // используют свежие правила (моментальная модалка аномалий).
+        // Кнопка живет в админ-панели (page-admin, .admin-footer) рядом
+        // с «Обновить данные» — видна только админу (как и вся страница).
+        refreshValidationRules: function() {
+            try {
+                if (typeof FlowmeterData === 'undefined' || !FlowmeterData) {
+                    if (typeof KipToast !== 'undefined' && KipToast.show) {
+                        KipToast.show('FlowmeterData недоступен');
+                    }
+                    return;
+                }
+                // Принудительный re-fetch: обнуляем timestamp последней
+                // синхронизации. После этого loadValidationRules не сработает
+                // TTL-пропуск (24ч) и пойдёт на сервер.
+                FlowmeterData._rulesCacheTs = 0;
+                var promise = FlowmeterData.loadValidationRules();
+                if (promise && typeof promise.then === 'function') {
+                    if (typeof KipToast !== 'undefined' && KipToast.show) {
+                        KipToast.show('Обновляем правила…');
+                    }
+                    promise.then(function(rules) {
+                        var count = (rules && typeof rules === 'object')
+                                    ? Object.keys(rules).length : 0;
+                        if (typeof KipToast !== 'undefined' && KipToast.show) {
+                            if (count > 0) {
+                                KipToast.show('Правила обновлены: ' + count + ' шт.');
+                            } else {
+                                KipToast.show('Правила не получены (сеть/сервер)');
+                            }
+                        }
+                    }).catch(function(err) {
+                        console.error('refreshValidationRules:', err);
+                        if (typeof KipToast !== 'undefined' && KipToast.show) {
+                            KipToast.show('Ошибка обновления правил: ' +
+                                          (err && err.message || 'сеть'));
+                        }
+                    });
+                } else {
+                    // loadValidationRules не вернул Promise —
+                    // странная ситуация, сообщаем.
+                    if (typeof KipToast !== 'undefined' && KipToast.show) {
+                        KipToast.show('Не удалось запустить обновление правил');
+                    }
+                }
+            } catch (e) {
+                console.error('refreshValidationRules:', e);
+                if (typeof KipToast !== 'undefined' && KipToast.show) {
+                    KipToast.show('Ошибка: ' + (e.message || 'неизвестная'));
+                }
+            }
         },
 
         // ============================================================
@@ -33080,6 +34955,8 @@ if ('serviceWorker' in navigator) {
         // updateViaCache: 'none' — браузер всегда ходит в сеть за sw.js,
         // не использует HTTP-кэш. Это критично для быстрого деплоя новых
         // версий (иначе пользователь может крутить старый SW сутками).
+        // Task 242: усиление обновления SW — вместе с skipWaiting() в sw.js
+        // и reg.update() сразу при загрузке.
         navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
             // Проверять обновления SW каждые 30 минут
             setInterval(function() { reg.update(); }, 30 * 60 * 1000);

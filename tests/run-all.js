@@ -27,6 +27,9 @@ require('./test-thermocouple.js');
 require('./test-orifice.js');
 require('./test-utils.js');
 require('./test-role-access.js');
+require('./test-minesweeper.js');
+require('./test-flowmeter-comment.js');
+require('./test-flowmeter-validation.js');
 require('./test-work-schedule.js');
 
 // Запускаем

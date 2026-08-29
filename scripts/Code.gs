@@ -36,7 +36,11 @@
  *   CableJournal.deleteRow(token, row)     → результат
  *   Flowmeter.list(payload)                → {ok, data/error}
  *   Flowmeter.updateReading(payload)       → {ok, data/error}
+ *   Flowmeter.setComment(payload)          → {ok, data/error}  // Task 195
  *   FlowmeterArchive.listArchive(payload)  → {ok, data/error}
+ *   ValidationRules.listRules(payload)     → {ok, data/error}  // Task 199
+ *   FlowmeterArchive.listRecentAllMeters(payload) → {ok, data/error}  // Task 200
+ *   ValidationRules.listHelp(payload)      → {ok, data/error}  // Task 222
  * ============================================================
  */
 
@@ -139,8 +143,27 @@ function doPost(e) {
       case 'flowmeter.updateReading':
         return _json(Flowmeter.updateReading(payload));
 
+      // Task 195: комментарий к последним показаниям (только автор показаний)
+      case 'flowmeter.setComment':
+        return _json(Flowmeter.setComment(payload));
+
       case 'flowmeter.archive':
         return _json(FlowmeterArchive.listArchive(payload));
+
+      // Task 199: правила валидации показаний (для админ-панели и
+      // для клиента — preload перед открытием карточки ввода)
+      case 'flowmeter.getValidationRules':
+        return _json(ValidationRules.listRules(payload));
+
+      // Task 200: последние записи архива всех счётчиков за N дней
+      // (для клиента — WRONG_METER проверка перед показом модалки)
+      case 'flowmeter.getRecentAllMeters':
+        return _json(FlowmeterArchive.listRecentAllMeters(payload));
+
+      // Task 222: карта кодов правил аномалий → текстовые описания
+      // (для отображения в столбце «⚠ Замечания» хронологии показаний)
+      case 'flowmeter.getValidationHelp':
+        return _json(ValidationRules.listHelp(payload));
 
       // === График работы персонала (WorkSchedule, Task 201) ===
       // WorkSchedule.gs возвращает {ok, data/error} напрямую,
@@ -214,10 +237,56 @@ function _json(obj) {
 
 /**
  * Cron-функция: запускать каждый час через Time-driven trigger.
- * См. настройку триггеров в функции setupTriggers() ниже.
+ * Триггер создаётся функцией setupTriggers() ниже — запустите её один раз
+ * вручную в Apps Script Editor после первого деплоя (Editor → выберите
+ * setupTriggers в выпадающем списке функций → Run → авторизуйтесь).
+ * После этого функция идемпотентна: повторные запуски сначала удалят старые
+ * триггеры hourlyCleanup, потом создадут новый — без дубликатов.
  */
 function hourlyCleanup() {
   Utils.cleanupExpiredSessions();
   Utils.cleanupExpiredOtpCodes();
   Utils.cleanupOldAuditLogs();
+}
+
+/**
+ * setupTriggers() — разовое создание time-driven триггера.
+ *
+ * Порядок действий:
+ *   1. Открыть Apps Script Editor (там, где размешён этот Code.gs)
+ *   2. В выпадающем списке функций вверху выбрать «setupTriggers»
+ *   3. Нажать Run (▶)
+ *   4. При первом запуске Google попросит авторизацию:
+ *      Review permissions → выбрать аккаунт → Advanced →
+ *      Go to project (unsafe) → Allow
+ *   5. В Executions (Ctrl+Enter / левое меню ▶) должно появиться:
+ *      «Создан триггер hourlyCleanup (раз в час), удалено старых: N»
+ *   6. Проверить: левое меню Triggers (иконка часов) →
+ *      должен быть виден триггер hourlyCleanup, повтор «Every 1 hour»
+ *
+ * Идемпотентность: перед созданием удаляются все существующие триггеры
+ * с тем же именем handler-функции — повторные запуски безопасны.
+ */
+function setupTriggers() {
+  // 1. Удаляем старые триггеры hourlyCleanup, чтобы не дублировались
+  var triggers = ScriptApp.getProjectTriggers();
+  var removed = 0;
+  for (var i = 0; i < triggers.length; i++) {
+    var t = triggers[i];
+    if (t.getHandlerFunction() === 'hourlyCleanup') {
+      ScriptApp.deleteTrigger(t);
+      removed++;
+    }
+  }
+  if (removed > 0) {
+    console.log('Удалено старых триггеров hourlyCleanup: ' + removed);
+  }
+
+  // 2. Создаём новый — раз в час
+  ScriptApp.newTrigger('hourlyCleanup')
+    .timeBased()
+    .everyHours(1)
+    .create();
+
+  console.log('Создан триггер hourlyCleanup (раз в час)');
 }

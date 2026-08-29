@@ -8,6 +8,8 @@
 // Эндпоинты (вызываются через doPost):
 //   flowmeter.list         — прочитать все позиции расходомеров
 //   flowmeter.updateReading — обновить показания одной позиции
+//   flowmeter.setComment   — Task 195: комментарий к последним показаниям
+//                            (только для автора показаний)
 //
 // Авторизация — по тому же паттерну, что CableJournal.gs:
 //   Utils.findSessionByToken(token) → session
@@ -17,7 +19,7 @@
 //   Строка 1 — заголовки столбцов
 //   Строки 2+ — данные (12 позиций, строки 2–13)
 //
-//   Столбцы (A–N):
+//   Столбцы (A–Q; P не используется с Task 211):
 //     A: id         — номер позиции (1–12)
 //     B: hoz        — название (Хозрасчёт №1)
 //     C: param      — параметр (Расход пара в корпус 114)
@@ -32,6 +34,16 @@
 //     L: modRole    — роль пользователя, внёсшего последние изменения
 //     M: modName    — имя пользователя, внёсшего последние изменения
 //     N: modTimestamp — timestamp последнего ввода (Task 108 — для редактирования в течение 1 часа)
+//     O: comment    — активный комментарий к последним показаниям (Task 195; виден всем,
+//                     редактировать может автор показаний ИЛИ админ — до тех пор,
+//                     пока другой пользователь не внесёт новые данные)
+//     P: (не используется с Task 211; ранее archivedComment — preview для карточки.
+//                       Полная история комментариев — в hozraschet_archive.P по записям.)
+//     Q: allowNegative — флаг «допустим отрицательный расход» (Task 199). Значения:
+//                     'yes' (для счётчиков возврата конденсата, где curr<prev легитимно)
+//                     или пусто/'no' (для остальных). Читается в list() → поле meter
+//                     .allowNegative. Используется в ValidationRules.compute для
+//                     пропуска правила JUMP_NEGATIVE.
 //
 //   Данные начинаются со строки 2 (строка 1 — заголовки).
 //   Строка 2 → id=1, строка 13 → id=12.
@@ -133,8 +145,10 @@ var Flowmeter = {
       return { ok: true, data: { meters: [] } };
     }
 
-    // Читаем данные (строка DATA_START_ROW до lastRow, столбцы A–N = 14 столбцов)
-    var range = sheet.getRange(this.DATA_START_ROW, 1, lastRow - this.DATA_START_ROW + 1, 14);
+    // Читаем данные (строка DATA_START_ROW до lastRow, столбцы A–Q = 17 столбцов;
+    // O=15 — comment, Task 195; P=16 — не используется с Task 211;
+    // Q=17 — allowNegative, Task 199)
+    var range = sheet.getRange(this.DATA_START_ROW, 1, lastRow - this.DATA_START_ROW + 1, 17);
     var values = range.getValues();
 
     // Task 109: Строим кэш email → name из таблицы users (KIP8_Access)
@@ -169,7 +183,11 @@ var Flowmeter = {
         modRole:        String(row[11] || ''),
         modName:        modEmail,                   // M — email (для _canEdit, Task 108)
         modDisplayName: modDisplayName,             // Task 109 — имя для отображения
-        modTimestamp:   this._parseTimestamp(row[13])  // N=14 (Task 108)
+        modTimestamp:   this._parseTimestamp(row[13]),  // N=14 (Task 108)
+        comment:        String(row[14] || '').trim(),   // O=15 — Task 195
+        // Task 211: P=16 (archivedComment) больше не читается из meters —
+        // полная история комментариев живёт в hozraschet_archive.P
+        allowNegative:  String(row[16] || '').trim().toLowerCase()  // Q=17 — Task 199
       };
       meters.push(meter);
     }
@@ -194,6 +212,23 @@ var Flowmeter = {
     var id = parseInt(payload.id, 10);
     if (!id || id < 1) {
       return { ok: false, error: 'Некорректный id позиции' };
+    }
+
+    // Task 205: Хозрасчёт №1 (id=1) — особый режим «расход за предыдущие сутки».
+    // Данные приходят уже сформированными из Тэкон-19 (расход за сутки в т и Гкал).
+    // Поэтому:
+    //   • prev всегда 0 (нет накопительных показаний);
+    //   • datePrev = dateCurr (нет «предыдущей даты»);
+    //   • temp игнорируется (Тэкон-19 не отдаёт температуру);
+    //   • gcal — необязательное поле (если Тэкон-19 отдаёт расход в Гкал,
+    //     пользователь заполняет; если нет — поле остаётся пустым).
+    // consumption в архиве = curr - 0 = curr — то есть равно введённому значению,
+    // что и требуется для графика по введённым данным, а не по вычисленному расходу.
+    if (id === 1) {
+      payload.prev = 0;
+      payload.datePrev = payload.dateCurr || '';
+      payload.temp = null;
+      // gcal — необязательное поле (Task 206: убрано требование обязательности).
     }
 
     var sheet = this._getSheet();
@@ -241,6 +276,82 @@ var Flowmeter = {
       }
     }
 
+    // Task 199: Валидация показаний перед записью. Считываем meter из строки
+    // (нужен для allowNegative из Q=17), берём правила из flowmeter_validation_rules
+    // и последнюю запись архива для проверки DUPLICATE.
+    // Hard-block (SIGN_NEG, DATE_INCONSISTENT) — возвращаем ошибку, не пишем.
+    // Soft-confirm правила — записываем показания, но в archive.Q пишем строку
+    // с кодами и детализацией (пример: «JUMP_HIGH: расход 50.50 > max×3=15.00; ...»).
+    var meterForValidation = {
+      id: id,
+      hoz: String(sheet.getRange(rowNum, 2).getValue() || ''),
+      param: String(sheet.getRange(rowNum, 3).getValue() || ''),
+      unit: String(sheet.getRange(rowNum, 8).getValue() || ''),
+      period: String(sheet.getRange(rowNum, 11).getValue() || ''),
+      modRole: String(sheet.getRange(rowNum, 12).getValue() || ''),
+      modName: String(sheet.getRange(rowNum, 13).getValue() || ''),
+      allowNegative: String(sheet.getRange(rowNum, 17).getValue() || '').toLowerCase().trim()  // Q=17
+    };
+    var rulesForMeter = null;
+    var lastArchiveRecord = null;
+    try {
+      rulesForMeter = ValidationRules.getRulesForMeter(id);
+    } catch (e) {
+      Logger.log('ValidationRules.getRulesForMeter failed: ' + e.message);
+    }
+    try {
+      var archSheet = SpreadsheetApp.openById(this.SPREADSHEET_ID)
+                       .getSheetByName('hozraschet_archive');
+      if (archSheet) {
+        var archLast = archSheet.getLastRow();
+        if (archLast >= 2) {
+          // Читаем все строки, ищем последнюю для этого meterId (колонка A=1)
+          var archRange = archSheet.getRange(2, 1, archLast - 1, 16);
+          var archVals = archRange.getValues();
+          for (var av = archVals.length - 1; av >= 0; av--) {
+            if (parseInt(archVals[av][0], 10) === id) {
+              lastArchiveRecord = {
+                meterId: parseInt(archVals[av][0], 10),
+                prev: parseFloat(archVals[av][2]) || 0,
+                curr: parseFloat(archVals[av][3]) || 0,
+                modName: String(archVals[av][13] || ''),
+                timestamp: (archVals[av][14] instanceof Date)
+                            ? archVals[av][14].toISOString() : String(archVals[av][14] || '')
+              };
+              break;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      Logger.log('Reading last archive record failed (non-critical): ' + e.message);
+    }
+
+    // Task 200: последние записи ВСЕХ счётчиков за 7 дней для WRONG_METER
+    var recentAllMeters = null;
+    try {
+      recentAllMeters = FlowmeterArchive.getRecentAllMeters(
+        ValidationRules.WRONG_METER_PARAMS.LOOKBACK_DAYS
+      );
+    } catch (e) {
+      Logger.log('getRecentAllMeters failed (non-critical): ' + e.message);
+    }
+
+    var validationResult = ValidationRules.compute(
+      meterForValidation, payload, rulesForMeter, lastArchiveRecord, recentAllMeters
+    );
+    if (validationResult.hardBlock) {
+      // Hard-block: возвращаем ошибку, ничего не пишем в таблицу
+      try {
+        Utils.audit(user.email, 'FLOWMETER_VALIDATION_BLOCK', '', '',
+          'Расходомер id=' + id + ': ' + validationResult.hardBlock.code +
+          ' — ' + validationResult.hardBlock.message);
+      } catch (e) { /* audit — не критично */ }
+      return { ok: false, error: validationResult.hardBlock.code.toLowerCase(),
+               message: validationResult.hardBlock.message };
+    }
+    var anomalyDetail = validationResult.detail || '';
+
     // Обновляем ячейки:
     // D=4 (datePrev), E=5 (dateCurr), F=6 (prev), G=7 (curr), I=9 (temp)
     if (datePrevObj) {
@@ -276,8 +387,35 @@ var Flowmeter = {
 
     // Кто внёс изменения: L=12 (modRole), M=13 (modName)
     // Task 108: пишем email (не user.name) — чтобы клиент мог сравнить с KipAuth._cachedEmail
+    // Task 237: при новом вводе показаний meters.O ВСЕГДА очищается
+    // (независимо от смены автора) — комментарий к только что введённым
+    // показаниям пока не введён, ждём вызова setComment от автора. Прежний
+    // комментарий остаётся в archive.P своей строки (он был записан туда
+    // одновременно с meters.O в setComment — см. Task 237). Для случая
+    // миграции старых комментариев (setComment был вызван ДО развёртывания
+    // этого патча и не записал в archive.P) — дублируем старый meters.O
+    // в archive.P самой свежей записи ПЕРЕД сбросом O. Idempotent: если
+    // setComment уже записал то же значение, перезапись не меняет данных.
+    var oldCommentForArchive = String(sheet.getRange(rowNum, 15).getValue() || '').trim();  // O=15
+
     sheet.getRange(rowNum, 12).setValue(user.role || '');
     sheet.getRange(rowNum, 13).setValue(user.email || '');
+
+    if (oldCommentForArchive !== '') {
+      // Task 237: миграция — продублировать старый meters.O в archive.P
+      // самой свежей записи этого счётчика (если ещё не там). Для новых
+      // комментариев (setComment уже записал) — no-op (то же значение).
+      try {
+        FlowmeterArchive.updateLatestComment(id, oldCommentForArchive);
+      } catch (e) {
+        Logger.log('updateLatestComment (migration) failed (non-critical): ' + e.message);
+      }
+      // Очистить активный комментарий O — ждёт нового комментария для
+      // только что введённых показаний (его внесёт setComment автора).
+      try {
+        sheet.getRange(rowNum, 15).setValue('');  // O=15 — сброс
+      } catch (e) { /* не критично */ }
+    }
 
     // Task 108: Записываем timestamp текущего ввода в N=14 (modTimestamp)
     sheet.getRange(rowNum, 14).setValue(new Date());
@@ -290,6 +428,11 @@ var Flowmeter = {
 
     // Архив: добавить запись в лист hozraschet_archive
     // (не блокирует основной ответ — ошибка архива тихо логируется)
+    // Task 237: новая архивная запись ВСЕГДА создаётся с пустым comment
+    // (P=''), т.к. комментарий к только что введённым показаниям ещё не
+    // внесён — его добавит setComment (который одновременно пишет в
+    // meters.O И в archive.P этой новой записи). Прежний комментарий
+    // остаётся в archive.P своей (предыдущей) строки — не трогаем.
     try {
       var hozName = String(sheet.getRange(rowNum, 2).getValue() || '');
       var unitVal = String(sheet.getRange(rowNum, 8).getValue() || '');
@@ -299,13 +442,104 @@ var Flowmeter = {
         prevVal, currVal,
         payload.datePrev, payload.dateCurr,
         payload.temp, payload.gcal, unitVal, periodVal,
-        user.role || '', user.name || user.email || ''  // Task 109: имя (если есть) или email
+        user.role || '', user.name || user.email || '',  // Task 109: имя (если есть) или email
+        '',  // Task 237: новая запись — без комментария (ожидание setComment)
+        anomalyDetail  // Task 199: строка с кодами аномалий для archive.Q
       );
     } catch (archiveErr) {
       Logger.log('Archive write failed (non-critical): ' + archiveErr.message);
     }
 
     return { ok: true, data: { id: id } };
+  },
+
+  // ============================================================
+  // flowmeter.setComment — Task 195: комментарий к последним показаниям
+  // ============================================================
+  // payload: { token, id, comment }
+  //   comment — строка до 500 символов; пустая строка = удалить комментарий.
+  // Возвращает: { ok: true, data: { id: N, comment: '...' } }
+  //
+  // Права: пользователь с правом ввода показаний (INPUT_ROLES), который
+  // внёс ПОСЛЕДНИЕ показания (modName в M совпадает с его email).
+  // АДМИН (role === 'Админ') может комментировать любые показания —
+  // проверка авторства для него пропускается (Task 195 update).
+  // Ограничения по времени НЕТ — пока показания за этим пользователем
+  // (у админа — безусловно).
+  // Комментарий виден всем читателям раздела (list возвращает поле comment).
+  //
+  // Task 237: комментарий пишется ОДНОВРЕМЕННО в две таблицы:
+  //   • hozraschet_meters.O (активный комментарий к текущим показаниям)
+  //   • hozraschet_archive.P (в строку с самой свежей архивной записью
+  //     этого счётчика — через FlowmeterArchive.updateLatestComment)
+  // После ввода новых показаний meters.O очищается (см. updateReading),
+  // а предыдущий комментарий остаётся в archive.P своей строки (архив).
+  // ============================================================
+  setComment: function(payload) {
+    var auth = this._requireEdit(payload.token);
+    if (auth.error) return auth.error;
+    var user = auth.user;
+
+    var id = parseInt(payload.id, 10);
+    if (!id || id < 1) {
+      return { ok: false, error: 'Некорректный id позиции' };
+    }
+
+    var comment = String(payload.comment === undefined || payload.comment === null
+      ? '' : payload.comment).trim();
+    if (comment.length > 500) {
+      return { ok: false, error: 'Комментарий длиннее 500 символов' };
+    }
+
+    var sheet = this._getSheet();
+    if (!sheet) {
+      return { ok: false, error: 'Лист не найден' };
+    }
+
+    var rowNum = id + 1;
+    var lastRow = sheet.getLastRow();
+    if (rowNum > lastRow) {
+      return { ok: false, error: 'Позиция id=' + id + ' не найдена' };
+    }
+
+    // Валидация авторства: комментарий может добавить/изменить только тот,
+    // кто вводил ПОСЛЕДНИЕ показания (столбец M — email).
+    // АДМИН обходит эту проверку (Task 195 update).
+    var isAdmin = (String(user.role || '').toLowerCase() === 'админ');
+    if (!isAdmin) {
+      var existingModName = String(sheet.getRange(rowNum, 13).getValue() || '').toLowerCase().trim();  // M=13
+      var currentUser = String(user.email || '').toLowerCase().trim();
+      if (!existingModName || existingModName !== currentUser) {
+        return { ok: false, error: 'not_your_input',
+                 message: 'Комментарий доступен только тому, кто вводил последние показания' };
+      }
+    }
+
+    // Task 237: пишем комментарий одновременно в две таблицы:
+    //   1) hozraschet_meters.O — активный комментарий (текущие показания)
+    //   2) hozraschet_archive.P — в строку с самой свежей архивной записью
+    //      этого счётчика. Так после следующего ввода показаний (когда
+    //      meters.O будет очищен) комментарий останется в архиве.
+    sheet.getRange(rowNum, 15).setValue(comment);  // O=15 — meters.O
+
+    // archive.P — самая свежая запись для этого meterId.
+    // Ошибки updateLatestComment НЕ блокируют ответ (арxiv — best-effort).
+    try {
+      FlowmeterArchive.updateLatestComment(id, comment);
+    } catch (e) {
+      Logger.log('FlowmeterArchive.updateLatestComment failed (non-critical): ' + e.message);
+    }
+
+    // Аудит
+    try {
+      var actionLabel = comment ? 'FLOWMETER_SET_COMMENT' : 'FLOWMETER_DELETE_COMMENT';
+      var shortText = comment.length > 60 ? comment.substring(0, 60) + '…' : comment;
+      var who = isAdmin ? ' (админ)' : '';
+      Utils.audit(user.email, actionLabel, '', '',
+        'Расходомер id=' + id + who + ': ' + (comment ? '«' + shortText + '»' : 'комментарий удалён'));
+    } catch (e) { /* audit log — не критично */ }
+
+    return { ok: true, data: { id: id, comment: comment } };
   },
 
   // ============================================================
@@ -405,3 +639,99 @@ var Flowmeter = {
     return cache;
   }
 };
+
+// ============================================================
+// flowmeterCleanupCommentMetadata — Одноразовая миграция (Task 212)
+// ============================================================
+// Запускается один раз вручную из редактора Apps Script:
+//   1. Выбрать функцию flowmeterCleanupCommentMetadata
+//   2. Нажать ▶ Run
+//   3. Проверить лог — сколько строк исправлено
+//   4. После миграции функцию можно удалить из проекта
+//
+// Что делает:
+//   • Проходит по столбцу P (16) листа hozraschet_meters и листа
+//     hozraschet_archive.
+//   • В каждой ячейке ищет шаблон «[ISO-timestamp | email]: текст»
+//     (формат preview, который писался в meters.P до Task 211).
+//   • Если совпало — заменяет значение на чистый «текст» без метаданных.
+//   • Если не совпало — оставляет как есть (plain text уже).
+//
+// Цель: привести исторические данные к единому plain-text формату,
+// который используется после Task 211. После миграции НОВЫЕ записи
+// тоже будут plain text (см. Flowmeter.updateReading → appendToArchive
+// и отсутствие записи в meters.P).
+// ============================================================
+function flowmeterCleanupCommentMetadata() {
+  var SPREADSHEET_ID = '1enZSq7K8pwJVzaAI_tbXZtvATqARTxH0lSU4c-wc1eY';
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+
+  // Шаблон: [2026-08-27T22:51:15.659Z | email@host]: текст
+  //Capture group 1 = текст после «]: »
+  var pattern = /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z \| [^\]]+\]:\s*(.*)$/;
+  var COL = 16; // P=16
+
+  var result = { metersProcessed: 0, metersFixed: 0,
+                 archiveProcessed: 0, archiveFixed: 0 };
+
+  // 1) hozraschet_meters — столбец P, строки 2+ (до 12 позиций, но берём все)
+  try {
+    var metersSheet = ss.getSheetByName('hozraschet_meters');
+    if (metersSheet) {
+      var metersLastRow = metersSheet.getLastRow();
+      if (metersLastRow >= 2) {
+        var metersRange = metersSheet.getRange(2, COL, metersLastRow - 1, 1);
+        var metersVals = metersRange.getValues();
+        var metersChanged = false;
+        for (var i = 0; i < metersVals.length; i++) {
+          result.metersProcessed++;
+          var v = String(metersVals[i][0] || '');
+          var m = v.match(pattern);
+          if (m) {
+            metersVals[i][0] = m[1]; // только текст
+            result.metersFixed++;
+            metersChanged = true;
+          }
+        }
+        if (metersChanged) {
+          metersRange.setValues(metersVals);
+        }
+      }
+    }
+  } catch (e) {
+    Logger.log('Cleanup meters failed: ' + e.message);
+  }
+
+  // 2) hozraschet_archive — столбец P, строки 2+
+  try {
+    var archiveSheet = ss.getSheetByName('hozraschet_archive');
+    if (archiveSheet) {
+      var archiveLastRow = archiveSheet.getLastRow();
+      if (archiveLastRow >= 2) {
+        var archiveRange = archiveSheet.getRange(2, COL, archiveLastRow - 1, 1);
+        var archiveVals = archiveRange.getValues();
+        var archiveChanged = false;
+        for (var j = 0; j < archiveVals.length; j++) {
+          result.archiveProcessed++;
+          var av = String(archiveVals[j][0] || '');
+          var am = av.match(pattern);
+          if (am) {
+            archiveVals[j][0] = am[1];
+            result.archiveFixed++;
+            archiveChanged = true;
+          }
+        }
+        if (archiveChanged) {
+          archiveRange.setValues(archiveVals);
+        }
+      }
+    }
+  } catch (e) {
+    Logger.log('Cleanup archive failed: ' + e.message);
+  }
+
+  var msg = 'Cleanup done. meters: ' + result.metersFixed + '/' + result.metersProcessed +
+            ' fixed, archive: ' + result.archiveFixed + '/' + result.archiveProcessed + ' fixed.';
+  Logger.log(msg);
+  return msg;
+}

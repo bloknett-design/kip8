@@ -6240,3 +6240,151 @@ Stage Summary:
 - Перенос в kip8-desktop — автоматически через GitHub Action sync-to-desktop.yml
   при пуше в kip8/index.html. Worklog и Системный_промт обновлены отдельно.
 - Локальная дата: 2026-08-29 18:04:34 UTC+07:00 (Asia/Novosibirsk).
+
+---
+Task ID: 245 (фронтенд-синхронизация kip8 ← kip8test: Tasks 192-238 — UI улучшения расходомеров + Сапёр + комментарии)
+Agent: main (Super Z)
+Task: Пользователь сообщил: «боковое меню заработало, но весь новый функционал
+      за сегодня не перенесён в боевое приложение, в частности не обновлён
+      интерфейс раздела Расходомеры хозрасчётные». Проверить отличия интерфейсов
+      kip8test (тестовое) и kip8 (боевое) и перенести недостающий функционал.
+
+Work Log:
+- Запущен расширенный scripts/prepare_transfer_v2.py (версия оригинального
+  kip8test/scripts/prepare-kip8-transfer.py + чистка комментария про
+  isolateLocalStorage в строках 14051-14053 kip8test/index.html).
+  Результат: /tmp/kip8_index_transfer.html — kip8test/index.html, из которого
+  удалён IIFE isolateLocalStorage() и заменены префиксы 'kip8test_*' → 'kip8_*'
+  (kip8test_devices_cache → kip8_devices_cache; kip8test_phonebook_favorites
+  → kip8_phonebook_favorites; и т.д.).
+- Diff /tmp/kip8_index_transfer.html vs kip8/index.html: ~2300 изменённых строк
+  в 103 hunk'ах. Подтверждено: kip8test содержит большой блок UI-улучшений
+  (Tasks 192-238), отсутствующих в kip8.
+- Стратегия переноса: ПОЛНАЯ ЗАМЕНА kip8/index.html подготовленной версией
+  + точечное применение трёх ранее сделанных в kip8 фиксов (Tasks 242-244),
+  отсутствующих в kip8test:
+  1) Task 242 (updateViaCache: 'none' + reg.update() сразу при загрузке)
+     — в kip8test регистрация SW без опций. Применён Edit к строке
+     navigator.serviceWorker.register('./sw.js') →
+     navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+     + комментарий + reg.update().catch(function() {}); после setInterval.
+  2) Task 243 (!important на #sidebar.active { transform: translateX(0) }
+     в @media (max-width:1023px)) — в kip8test правило без !important.
+     Применён Edit: добавлен !important + расширенный комментарий, описывающий
+     корневую причину (Task 244 wsTrSheet) и почему !important оставлен
+     (надёжность — даже при правильно закрытом wsTrSheet).
+  3) Task 244 (закрывающий </div> для wsTrSheet) — в kip8test wsTrSheet УЖЕ
+     правильно закрыт перед <script>. Фикс не нужен — заменён файлом из
+     kip8test, где никогда не было этого бага (Task 244 фиксил баг, внесённый
+     при частичном переносе Task 241 final).
+- SW: kip8/sw.js CACHE_VERSION kipia-v398 → kipia-v399 (мажорная синхронизация
+  фронтенда — Tasks 192-238).
+- Тесты: скопированы 3 новых файла из kip8test/tests/ в kip8/tests/:
+  - test-minesweeper.js (Task 191-193 — десктоп «Сапёр», лучший счёт)
+  - test-flowmeter-comment.js (Task 195-198 — комментарий к показаниям)
+  - test-flowmeter-validation.js (Tasks 199, 222, 231-236 — валидация,
+    friendly-описания, кэш правил, кнопка «Обновить правила»)
+- tests/run-all.js: добавлено 3 require() для новых тест-файлов.
+- tests/extract-functions.js: обновлён из kip8test (новые имена функций для
+  PURE_FUNCTIONS + mock localStorage с реальным storage Map + setMockViewport
+  для тестов msCalcCellSize).
+- В test-flowmeter-validation.js блок «Task 241: SW версия v504» заменён на
+  «Task 245: SW версия v399 (kip8 production)» (kip8test-v504 → kip8-v399,
+  старая v503 → старая v398).
+- В test-minesweeper.js комментарии про isolateLocalStorage и kip8test
+  заменены на комментарии про отсутствие isolateLocalStorage в kip8.
+- Серверные файлы (scripts/):
+  - ValidationRules.gs (737 строк) — НОВЫЙ файл, скопирован целиком из
+    kip8test (Task 199, 222 — валидация показаний + friendly-описания
+    аномалий).
+  - Code.gs: добавлены 4 новых case-роута:
+    * flowmeter.setComment (Task 195)
+    * flowmeter.getValidationRules (Task 199)
+    * flowmeter.getRecentAllMeters (Task 200)
+    * flowmeter.getValidationHelp (Task 222)
+    Обновлён комментарий в шапке со списком маршрутов.
+    Сохранён production WEB_APP_URL
+    (AKfycbztmOJb_QVnjRk1GnvKe4X1TWcDgPSFVvGJiumm3y5RaGwgEiJX15PBiJVUX9mKJiWHzA/exec).
+    Добавлена функция setupTriggers() (идемпотентное создание time-driven
+    триггера hourlyCleanup) + расширенный комментарий.
+  - Flowmeter.gs (737 строк, +340): скопирован целиком из kip8test —
+    Task 195 (setComment), Task 222 (validation help sheet), и др.
+  - FlowmeterArchive.gs (467 строк, +226): скопирован целиком из kip8test —
+    Task 200 (listRecentAllMeters), Task 237 (comment saved simultaneously
+    to meters.O and archive.P), и др.
+- Валидация:
+  - node --check всех 4 <script> блоков index.html: 4/4 OK (1.16 MB JS).
+  - node --check sw.js: OK.
+  - node tests/run-all.js: 809 passed / 0 failed (было 542; +267 тестов
+    из test-minesweeper.js + test-flowmeter-comment.js +
+    test-flowmeter-validation.js).
+  - Проверка остатков: упоминаний kip8test в index.html НЕТ (только в одном
+    CSS-комментарии про Task 243/244 — пояснительный).
+
+Stage Summary:
+- В kip8 полностью синхронизирован фронтенд с kip8test@555eb20 (Tasks 192-238):
+  - Task 191-193: десктопный «Сапёр» (компактное поле 40px по центру,
+    мобильный без изменений; лучший счёт Top-3 по времени).
+  - Task 194: «Сапёр» — корневой раздел главной.
+  - Task 195-198: комментарий к последним показаниям расходомера
+    (flowCanComment, flowCommentText, flowBuildCommentBtnHtml, кнопка в
+    карточке расходомера; видна автору последних показаний ИЛИ админу).
+  - Task 199: клиентская валидация показаний (UX-зеркало серверной
+    ValidationRules.compute) + модалка аномалий (flowBuildAnomalyModalHtml).
+  - Task 200: getRecentAllMeters — WRONG_METER проверка перед показом модалки.
+  - Task 222: friendly-описания аномалий (sheet flowmeter_validation_help
+    + _anomalyHelp map; коды правил скрыты от пользователя).
+  - Tasks 219-231: улучшения таблицы хронологии показаний (4-строчный
+    wrap, динамическая ширина столбцов, единая строка «Последние
+    показания» с датой, sub-значения temp/gcal без лейблов, лейблы
+    «T среды» и «Гкал» убраны).
+  - Task 232: комментарий сразу отображается в архивных записях (fallback
+    на m.comment для новейшей записи).
+  - Tasks 233-234: коды правил скрыты из столбца «⚠ Замечания» и из
+    модалки подтверждения аномалий.
+  - Task 235: кэш правил валидации в localStorage (TTL 24ч, мгновенная
+    модалка без серверного round-trip).
+  - Task 236: кнопка «Обновить правила» в админ-панели (bypass TTL).
+  - Task 237: комментарий сохраняется одновременно в meters.O и archive.P
+    (серверная часть в FlowmeterArchive.gsappendToArchive).
+  - Task 238: состояния «Загрузка данных…» (с анимированными точками)
+    и «Нет связи с сервером» для расходомеров.
+  - Task 241 (sidebar-move + zebra): «График работы» внутри группы
+    «Документация ИОС» сайдбара (sidebarWorkScheduleBtn, оранжевый
+    rgba(200,112,72,0.9), счётчик «2»); зебра карточек расходомеров
+    контрастней (rgba(243,233,223,0.96) vs было 248,242,238).
+- Сохранены все kip8-специфичные фиксы (Tasks 242-244):
+  - Task 242: updateViaCache:'none' + reg.update() при загрузке.
+  - Task 243: !important на #sidebar.active (мобильный медиа-запрос).
+  - Task 244: wsTrSheet правильно закрыт (в kip8test никогда не было
+    этого бага — фикс пришёл автоматически с заменой файла).
+- SW: kipia-v398 → kipia-v399.
+- Тесты: 542 → 809 passed / 0 failed (+267 из трёх новых тест-файлов).
+- Файлы изменены (kip8):
+  - index.html (+2139 строк: CSS + HTML + JS для всех UI-улучшений).
+  - scripts/Code.gs (+71 строка: 4 новых маршрута + setupTriggers()).
+  - scripts/Flowmeter.gs (+340 строк: Task 195 setComment + Task 222 help).
+  - scripts/FlowmeterArchive.gs (+226 строк: Task 200 + Task 237).
+  - sw.js (CACHE_VERSION v399).
+  - tests/extract-functions.js (+76 строк: новые функции + mock storage).
+  - tests/run-all.js (+3 строки require).
+- Файлы добавлены (kip8):
+  - scripts/ValidationRules.gs (737 строк — серверный модуль валидации).
+  - tests/test-minesweeper.js (446 строк).
+  - tests/test-flowmeter-comment.js (?? строк).
+  - tests/test-flowmeter-validation.js (1863 строки).
+- Допущения / что нужно знать пользователю:
+  - Apps Script production deployment должен включать ValidationRules.gs
+    (НОВЫЙ файл) + обновлённый Code.gs + Flowmeter.gs + FlowmeterArchive.gs.
+    Если production Apps Script ещё не развёрнут с этими файлами —
+    фронтенд-функции будут возвращать unknown_action. Пользователю:
+    открыть Apps Script editor для production проекта, вставить
+    ValidationRules.gs + обновлённые Code.gs/Flowmeter.gs/FlowmeterArchive.gs,
+    Deploy → New version.
+  - SPREADSHEET_ID в WorkSchedule.gs = 1MQtW-CWCmjlu-SAeVBllKDP6NRkiOkmW-7xgOjHskWY
+    (общая таблица графика работы; не зависит от kip8/kip8test).
+  - READ_ROLES/WRITE_ROLES в WorkSchedule.gs ограничены ['Админ']
+    (Task 204) — как в kip8test.
+- Перенос в kip8-desktop — автоматически через GitHub Action sync-to-desktop.yml
+  при пуше в kip8/index.html. Worklog обновлён.
+- Локальная дата: 2026-08-29 (Asia/Novosibirsk, UTC+07:00).
