@@ -6442,3 +6442,55 @@ Stage Summary:
   деплоя GitHub Pages; пользователям нужно обновление PWA (кэш v400).
 - Серверная часть (Apps Script) не затронута — только фронтенд.
 - Локальная дата: 2026-08-30 (Asia/Novosibirsk, UTC+07:00).
+
+---
+Task ID: 248 (перенос в kip8)
+Дата: 2026-08-30 (Asia/Novosibirsk, UTC+07:00)
+
+Задача:
+Перенос Task 248 из kip8test@bfa5f04 в боевой kip8 — после подтверждения
+пользователя «Перенеси фикс в боевой kip8». Суть фикса: столбец
+«Комментарий» таблицы «Хронология показаний» (и «⚠ Замечания») — весь
+текст максимум в 4 строки; при нехватке ширины подбирается минимальная
+ширина столбца (бинарным поиском по реальной высоте ячейки), при которой
+весь текст помещается в 4 строки. Без обрезки текста.
+
+Work Log:
+- Базовая линия: kip8@3317d73, kipia-v400, 815 passed / 0 failed,
+  git status чисто. kip8test@bfa5f04 (kipia-test-v507) — источник.
+- Шаг 1: git diff ed7f623..bfa5f04 -- index.html (175 строк) применяется
+  к kip8 чисто (git apply --check OK — код после Task 247 идентичен).
+  Применён: переписан _applyOptimalWidth (MAX_LINES=4, сортировка ячеек
+  по убыванию naturalWidth, бинарный поиск минимальной ширины, при
+  которой реальная высота ≤ 4 × lineHeight; пакетное измерение
+  naturalWidth — 1 reflow; guard при скрытом контейнере), добавлен
+  helper _measureArchiveCellHeight (scrollHeight при
+  white-space:normal и фиксированной width), обновлены CSS-комментарии
+  (Task 215→221 → Task 215→248).
+- Шаг 2: sw.js — CACHE_VERSION kipia-v400 → kipia-v401.
+- Шаг 3: tests/test-flowmeter-validation.js:
+  - Task 247 SW describe (v400) → историческая заметка.
+  - +3 describes Task 248 (адаптация под kip8): алгоритм бинарного
+    поиска (8), CSS safety cap 5.2em (2), SW v401 (2) = +12 тестов.
+- Шаг 4: валидация:
+  • node tests/run-all.js → 825 passed / 0 failed (815 − 2 + 12) —
+    полный паритет с kip8test@bfa5f04.
+  • JS-синтаксис 4 inline-скриптов — OK (scripts/check-js-syntax.js).
+  • Паритет с kip8test grep-ом: «while (hi - lo > 1)» = 1/1,
+    _measureArchiveCellHeight = 3/3, «var MAX_LINES = 4;» = 1/1,
+    «if (headerNatural <= 0) return;» = 1/1, «candidate + 'px'» = 2/2;
+    старые fourLineWidth = 0/0, «ceil(maxNatural / 4)» = 0/0.
+- Шаг 5: Системный_промт kip8 обновлён: кэш v400 → v401, ожидание
+  тестов 815 → 825, версия документа post-Task 248, запись в ченджлоге.
+- Шаг 6: commit + push origin/main (PAT-протокол). Remote URL сброшен,
+  PAT-утечек нет. Автосинк kip8-desktop выполнит sync-to-desktop.yml.
+- Изменённые файлы скопированы в /home/z/my-project/download/kip8/.
+
+Stage Summary:
+- Task 248 в боевом kip8: столбцы «Комментарий» и «⚠ Замечания» таблицы
+  «Хронология показаний» — весь текст гарантированно в ≤ 4 строках,
+  ширина подбирается бинарным поиском по реальной высоте ячейки.
+- SW kipia-v400 → kipia-v401; тесты 815 → 825 passed / 0 failed.
+- Боевой сайт https://bloknett-design.github.io/kip8/ — деплой GitHub
+  Pages; пользователям нужно обновление PWA (кэш v401).
+- Серверная часть (Apps Script) не затронута — только фронтенд.
