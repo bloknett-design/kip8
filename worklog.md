@@ -6388,3 +6388,57 @@ Stage Summary:
 - Перенос в kip8-desktop — автоматически через GitHub Action sync-to-desktop.yml
   при пуше в kip8/index.html. Worklog обновлён.
 - Локальная дата: 2026-08-29 (Asia/Novosibirsk, UTC+07:00).
+
+---
+Task ID: 247 (перенос из kip8test@ed7f623 в kip8)
+Agent: main (Super Z)
+Task: Перенести в боевой kip8 фикс Task 247 (проверен пользователем в kip8test):
+      в разделе «Расходомеры хозрасчётные», в детальной карточке расходомера,
+      в строке «Последние показания» — при нехватке ширины на мобильных весь
+      блок даты «за 29.08.2026 г.» переносится на новую строку ЦЕЛИКОМ,
+      а не по отдельным словам.
+
+Work Log:
+- Шаг 1: клонирован kip8 (HEAD 7e0c66c, Task 245 post-deploy). Базовое
+  состояние проверено: CACHE_VERSION = kipia-v399, тесты 809 passed /
+  0 failed, git status чисто. Код в местах фикса — до-фиксовый
+  (идентичен kip8test до Task 247): пробел внутри span.date-inline,
+  white-space: nowrap отсутствует.
+- Шаг 2: применены 4 правки (зеркально kip8test, коммит ed7f623):
+  1) CSS: white-space: nowrap на .flow-detail-label .flow-detail-date-inline
+     (детальная карточка) + комментарий Task 247.
+  2) CSS: white-space: nowrap на .flow-summary-label .flow-summary-date-inline
+     (карточки списка) + комментарий Task 247.
+  3) JS _buildDetailHtml: пробел вынесен ЗА пределы span даты
+     ('<span ...> за ' → ' <span ...>за ') + комментарий Task 247.
+  4) JS renderList: то же для карточек списка + комментарий Task 247.
+- Шаг 3: sw.js — CACHE_VERSION kipia-v399 → kipia-v400.
+- Шаг 4: tests/test-flowmeter-validation.js:
+  - Task 245 SW describe (v399) → историческая заметка.
+  - +3 describes Task 247 (адаптация под kip8): детальная карточка (3),
+    карточки списка (3), SW v400 (2) = +8 тестов.
+- Шаг 5: валидация:
+  • node tests/run-all.js → 815 passed / 0 failed (809 − 2 + 8).
+  • JS-синтаксис извлечённых блоков — OK (node --check).
+  • Паритет с kip8test@ed7f623 подтверждён grep-ом: новые паттерны
+    «date-inline">за » = 1/1 в обоих репо; старый паттерн
+    «date-inline"> за » = 0 в обоих.
+- Шаг 6: Системный_промт kip8 обновлён (был сильно отсталым — v395/498
+  тестов с времён Task 241): версия документа → post-Task 247; кэш
+  v395 → v400 (в т.ч. строка таблицы репозиториев v393 → v400);
+  ожидание тестов 498 → 815; в ченджлог добавлены записи Task 241
+  финал + Task 245 (сводная) и Task 247; пометка «ОТЛОЖЕНО» у
+  Task 240-241 исправлена (sidebar-move применён в Task 241 финал).
+- Шаг 7: commit + push origin/main. Автосинк в kip8-desktop выполнит
+  sync-to-desktop.yml (пуш в index.html). Remote URL сброшен после
+  пуша, PAT-утечек нет.
+
+Stage Summary:
+- Task 247 перенесён в боевой kip8: коммит (см. git log), SW kipia-v399 →
+  kipia-v400, тесты 809 → 815 passed / 0 failed.
+- Дата «за ДД.ММ.ГГГГ г.» — единый неразрывный блок в детальной карточке
+  и карточках списка расходомеров (полный паритет с kip8test@ed7f623).
+- Боевой сайт https://bloknett-design.github.io/kip8/ получит фикс после
+  деплоя GitHub Pages; пользователям нужно обновление PWA (кэш v400).
+- Серверная часть (Apps Script) не затронута — только фронтенд.
+- Локальная дата: 2026-08-30 (Asia/Novosibirsk, UTC+07:00).
