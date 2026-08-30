@@ -15,6 +15,9 @@
 //   6. Настройки: регион по умолчанию 42 (Кемеровская область — Кузбасс).
 //   7. Интеграция в index.html: чип в тулбаре, шторка, вызовы в
 //      WorkSchedule, CSS, SW-версия.
+//   8. Task 264: День города Кемерово (12 июня, регион 42, вместе с
+//      Днём России), окошко календаря в тулбаре (нормы и праздники
+//      месяца), звёздочка сокращённых предпраздничных дней.
 //
 // Запуск: через tests/run-all.js (require './test-prod-calendar.js').
 
@@ -570,17 +573,19 @@ describe('Task 260: интеграция в index.html', () => {
         assertTrue(html.indexOf('thTitle = d + \' \' + dow + \' — \' + dInfo.title') !== -1,
             'тултип заголовка с названием праздника');
     });
-    test('CSS: стили чипа, праздника и шторки', () => {
+    test('CSS: стили чипа, праздника, окошка и шторки', () => {
         assertTrue(html.indexOf('.ws-cal-chip {') !== -1, 'стили чипа');
         assertTrue(html.indexOf('.ws-grid thead th.ws-day-col.ws-feast {') !== -1,
             'стили праздника в шапке');
-        assertTrue(html.indexOf('.ws-cal-day-kind') !== -1, 'стили списка праздников');
-        assertTrue(html.indexOf('.ws-cal-norms-grid') !== -1, 'стили блока норм');
+        assertTrue(html.indexOf('.ws-cp-day.k-hol') !== -1,
+            'стили чипов праздников в окошке тулбара');
+        assertTrue(html.indexOf('.ws-cal-panel {') !== -1,
+            'стили окошка календаря в тулбаре');
     });
-    test('SW: версия кэша kipia-v404 (перенос Tasks 259-262 в kip8)', () => {
+    test('SW: версия кэша kipia-v405 (перенос Tasks 264-267 в kip8)', () => {
         const sw = fs.readFileSync(path.resolve(__dirname, '..', 'sw.js'), 'utf8');
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v404'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v404');
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v405'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v405');
     });
     test('Тултип ячейки содержит название праздника', () => {
         assertTrue(html.indexOf('titleParts.splice(1, 0, cellInfo.title);') !== -1,
@@ -1028,19 +1033,191 @@ describe('Task 262: интеграция в index.html', () => {
         assertTrue(html.indexOf(': выходной перенесён на ' + String.fromCharCode(39) + ' + tTo') !== -1,
             'рабочая суббота объясняет перенос');
     });
-    test('CSS: бейджи «предварительные данные» и «официальные нормы»', () => {
+    test('CSS: бейдж «предварительные данные» (официальные нормы убраны — Task 266)', () => {
         assertTrue(html.indexOf('.ws-cal-prelim') !== -1, 'стили бейджа preliminary');
-        assertTrue(html.indexOf('.ws-cal-official') !== -1, 'стили бейджа официальных норм');
-        assertTrue(html.indexOf('.ws-cal-year-norm') !== -1, 'строка годовой нормы');
+        // Task 266: бейдж «официальные нормы» убран из окошка вместе со стилями
+        assertTrue(html.indexOf('.ws-cal-official') === -1,
+            'стили бейджа официальных норм удалены (Task 266)');
+        assertTrue(html.indexOf("На ' + y + ' год (40-час): <b>'") !== -1,
+            'строка годовой нормы — в окошке тулбара');
     });
     test('JS: шторка упоминает День шахтёра и версию календаря', () => {
-        assertTrue(html.indexOf('День шахтёра (последнее воскресенье августа)') !== -1,
+        assertTrue(html.indexOf('День шахтёра (последнее воскресенье августа, Закон') !== -1,
             'подсказка региона 42 в шторке');
         assertTrue(html.indexOf('Версия календаря:') !== -1, 'строка версии в шторке');
     });
-    test('JS: чип норм помечает официальность и предварительность', () => {
+    test('JS: окошко помечает официальность (тултип) и предварительность', () => {
         assertTrue(html.indexOf("st.normsOfficial ? ' — официальные данные' : ''") !== -1,
-            'чип: официальные данные');
-        assertTrue(html.indexOf("' *'") !== -1, 'чип: звёздочка у предварительного года');
+            'тултип норм окошка: официальные данные');
+        assertTrue(html.indexOf('>предварительно</span>') !== -1,
+            'бейдж «предварительно» в окошке');
+    });
+});
+
+// ============================================================
+// Task 264: День города Кемерово (12 июня, вместе с Днём России,
+// регион 42), звёздочка сокращённых дней, окошко календаря в тулбаре
+// ============================================================
+
+describe('Task 264: День города Кемерово (12 июня, регион 42)', () => {
+    test('dayInfo: 12.06.2026 — «День России · День города Кемерово»', () => {
+        const { PC } = makePC();
+        loadLegalic(PC, buildLegalicYear(2026, LG2026_SPECIAL), 2026);
+        const info = PC.dayInfo(2026, 6, 12);
+        assertTrue(info.off, 'нерабочий');
+        assertTrue(info.holiday, 'праздник');
+        assertEqual(info.title, 'День России · День города Кемерово');
+    });
+    test('для региона 54 День города не добавляется', () => {
+        const { PC } = makePC();
+        loadLegalic(PC, buildLegalicYear(2026, LG2026_SPECIAL), 2026);
+        PC.setSettings({ region: 54, token: '' });
+        assertEqual(PC.dayInfo(2026, 6, 12).title, 'День России');
+    });
+    test('фолбэк без данных: комбинированное название и без источника', () => {
+        const { PC } = makePC(); // регион по умолчанию 42
+        const info = PC.dayInfo(2026, 6, 12);
+        assertEqual(info.source, 'fallback');
+        assertEqual(info.title, 'День России · День города Кемерово');
+    });
+    test('фолбэк для региона 54: только День России', () => {
+        const { PC } = makePC();
+        PC.setSettings({ region: 54, token: '' });
+        assertEqual(PC.dayInfo(2026, 6, 12).title, 'День России');
+    });
+    test('monthStats: 12 июня — праздник с двойным названием', () => {
+        const { PC } = makePC();
+        loadLegalic(PC, buildLegalicYear(2026, LG2026_SPECIAL), 2026);
+        const st = PC.monthStats(2026, 6);
+        const d12 = st.specialDays.filter(function(x) { return x.d === 12; });
+        assertEqual(d12.length, 1, 'ровно одна запись');
+        assertEqual(d12[0].kind, 'праздник');
+        assertEqual(d12[0].title, 'День России · День города Кемерово');
+    });
+    test('_isCityDay: только 0612 и только регион 42', () => {
+        const { PC } = makePC();
+        assertTrue(PC._isCityDay('0612'), 'регион 42, 12 июня');
+        assertFalse(PC._isCityDay('0613'), 'другая дата');
+        PC.setSettings({ region: 54, token: '' });
+        assertFalse(PC._isCityDay('0612'), 'не Кузбасс');
+    });
+});
+
+describe('Task 264: окошко календаря в баре кнопок графика', () => {
+    test('HTML: тулбар — ряд кнопок (.ws-toolbar-main) + окошко wsCalPanel', () => {
+        assertTrue(html.indexOf('id="wsCalPanel"') !== -1, 'контейнер окошка');
+        assertTrue(html.indexOf('class="ws-toolbar-main"') !== -1,
+            'ряд кнопок .ws-toolbar-main');
+        // Task 266: мобильная база — колонка (кнопки сверху, окошко ниже);
+        // на десктопе (≥1024px) тулбар — строка: окошко слева, кнопки справа
+        assertTrue(/\.ws-toolbar \{[^}]*flex-direction:\s*column/.test(html),
+            'мобильная база тулбара — колонка');
+        assertTrue(html.indexOf('.ws-cal-panel[hidden] { display: none; }') !== -1,
+            'скрытие окошка до первых данных');
+    });
+    test('JS: ProdCalendar.renderPanel вызывается из _updateCalChip', () => {
+        assertTrue(html.indexOf('renderPanel: function') !== -1,
+            'метод renderPanel определён');
+        assertTrue(html.indexOf('ProdCalendar.renderPanel();') !== -1,
+            'вызов из WorkSchedule._updateCalChip');
+    });
+    test('JS: окошко показывает нормы 40/36/24 и годовую', () => {
+        assertTrue(html.indexOf('Рабочих: <b>') !== -1, 'рабочие дни в окошке');
+        assertTrue(html.indexOf('40-час: <b>') !== -1, 'норма 40-час в окошке');
+        assertTrue(html.indexOf('36-час: <b>') !== -1, 'норма 36-час в окошке');
+        assertTrue(html.indexOf('24-час: <b>') !== -1, 'норма 24-час в окошке');
+        assertTrue(html.indexOf("На ' + y + ' год (40-час): <b>'") !== -1,
+            'годовая норма в окошке');
+    });
+    test('JS: нормы и праздники ПЕРЕМЕЩЕНЫ из шторки в окошко', () => {
+        assertTrue(html.indexOf('.ws-cal-norms-grid') === -1,
+            'блок норм шторки (и его CSS) удалён');
+        assertTrue(html.indexOf('Нормы времени и праздники месяца — ') !== -1,
+            'подсказка о переезде в шторке');
+        assertTrue(html.indexOf('нет праздников и переносов') !== -1,
+            'пустое состояние списка в окошке');
+    });
+    test('JS: звёздочка сокращённого дня в шапке + легенда', () => {
+        assertTrue(html.indexOf('<i class="ws-short-star">*</i>') !== -1,
+            'звёздочка у числа дня в шапке шахматки');
+        assertTrue(html.indexOf('* — сокращённый предпраздничный день') !== -1,
+            'легенда звёздочки в окошке');
+        assertTrue(html.indexOf('(сокращённый день, −1 час)') !== -1,
+            'пояснение в тултипе шапки');
+    });
+});
+
+// ============================================================
+// Task 266: ревизия окошка календаря в баре кнопок графика —
+// столбики (нормы слева, праздники справа), окошко в левой части
+// бара / кнопки в правой, статическая высота бара + скролл в
+// окошке; убраны строка «источник: …» и бейдж «официальные нормы»
+// ============================================================
+
+describe('Task 266: окошко столбиками, слева в баре — кнопки справа', () => {
+    test('CSS: столбики — вертикальные списки (.ws-cp-col)', () => {
+        assertTrue(/\.ws-cp-col \{[^}]*flex-direction:\s*column/.test(html),
+            'столбик — колонка (нормы/праздники столбиком)');
+        assertTrue(/\.ws-cp-col \{[^}]*flex-shrink:\s*0/.test(html),
+            'столбик не сжимается — переносится при нехватке ширины');
+        assertTrue(html.indexOf('ws-cp-col ws-cp-norms') !== -1,
+            'столбик норм в renderPanel');
+        assertTrue(html.indexOf('ws-cp-col ws-cp-days') !== -1,
+            'столбик праздников в renderPanel');
+    });
+    test('CSS: статическая высота окошка + скролл внутри', () => {
+        assertTrue(/\.ws-cal-panel \{[^}]*height:\s*132px/.test(html),
+            'фиксированная высота окошка (мобильная база)');
+        assertTrue(/\.ws-cal-panel \{[^}]*overflow-y:\s*auto/.test(html),
+            'полоса прокрутки, если столбики не входят');
+        assertTrue(/\.ws-cal-panel \{[^}]*overscroll-behavior:\s*contain/.test(html),
+            'скролл окошка не тянет страницу');
+    });
+    test('CSS: десктоп — окошко слева, кнопки справа (≥1024px)', () => {
+        const mq = html.match(/@media \(min-width: 1024px\) \{[\s\S]*?\.ws-toolbar \{[\s\S]*?\}/);
+        assertTrue(!!mq, 'media-блок десктопного тулбара');
+        assertTrue(/\.ws-cal-panel \{[^}]*order:\s*0/.test(html),
+            'окошко — левая часть бара (order: 0)');
+        assertTrue(/\.ws-cal-panel \{[^}]*flex:\s*1 1 auto/.test(html),
+            'окошко растягивается на свободную ширину слева');
+        assertTrue(/\.ws-toolbar-main \{[^}]*margin-left:\s*auto/.test(html),
+            'кнопки прижаты в правую часть бара');
+        assertTrue(/\.ws-toolbar-main \{[^}]*flex-wrap:\s*nowrap/.test(html),
+            'ряд кнопок на десктопе — в одну строку');
+    });
+    test('CSS: высота бара на десктопе — 160px (статическая)', () => {
+        const re = /@media \(min-width: 1024px\) \{[\s\S]*?\.ws-cal-panel \{[^}]*height:\s*160px/s;
+        assertTrue(re.test(html), 'десктопная высота окошка — 160px');
+    });
+    test('JS: убраны источник и время обновления из окошка', () => {
+        // строки источника больше нет ни в JS, ни в CSS окошка
+        assertTrue(html.indexOf('ws-cp-src') === -1,
+            'класс строки источника удалён');
+        assertTrue(html.indexOf('_sourceShort') === -1,
+            'метод _sourceShort удалён (был нужен только для окошка)');
+        assertTrue(html.indexOf("', обновлено ' + this._fmtDateTime") === -1,
+            'время обновления не выводится в окошке');
+        // источник остался в шторке настроек
+        assertTrue(html.indexOf('_sourceLabel') !== -1,
+            'полная подпись источника — в шторке');
+    });
+    test('JS: бейдж «официальные нормы» не рендерится', () => {
+        assertTrue(html.indexOf('>официальные нормы</span>') === -1,
+            'бейдж удалён из renderPanel');
+        // официальность осталась тултипом столбика норм
+        assertTrue(html.indexOf("st.normsOfficial ? ' — официальные данные' : ''") !== -1,
+            'тултип столбика норм помечает официальность');
+    });
+    test('JS: легенда звёздочки — в конце столбика праздников', () => {
+        assertTrue(html.indexOf('ws-cp-legend') !== -1,
+            'класс легенды в окошке');
+        assertTrue(html.indexOf('ws-cp-legend">* — сокращённый предпраздничный день') !== -1,
+            'легенда — последний элемент столбика праздников');
+    });
+    test('JS: renderPanel — заголовки обоих столбиков', () => {
+        assertTrue(html.indexOf('ws-cp-cap">Норма, ') !== -1,
+            'заголовок столбика норм');
+        assertTrue(html.indexOf('ws-cp-cap">Праздники и переносы</span>') !== -1,
+            'заголовок столбика праздников');
     });
 });
