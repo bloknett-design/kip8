@@ -2011,18 +2011,6 @@ describe('Task 248: CSS-отсечка «4 строки» сохранена (sa
     });
 });
 
-// Task 248 (перенос в kip8): SW обновлён до v401
-describe('Task 248: SW версия v401 (kip8 production)', () => {
-    const fs = require('fs');
-    const path = require('path');
-    const swPath = path.resolve(__dirname, '..', 'sw.js');
-    const sw = fs.readFileSync(swPath, 'utf-8');
-
-    test('CACHE_VERSION = kipia-v401', () => {
-        assertTrue(sw.indexOf("kipia-v401") !== -1);
-    });
-    test('Старая версия v400 убрана', () => {
-        assertTrue(sw.indexOf("kipia-v400") === -1,
-                   'Старая v400 не должна остаться в sw.js');
-    });
-});
+// Task 248: SW-блок версии v401 удалён — версия v402 введена при переносе
+// Tasks 249-252 из kip8test@4a6da97 (SW-тест v402 находится в
+// tests/test-work-schedule.js). Историческая заметка.

@@ -6494,3 +6494,55 @@ Stage Summary:
 - Боевой сайт https://bloknett-design.github.io/kip8/ — деплой GitHub
   Pages; пользователям нужно обновление PWA (кэш v401).
 - Серверная часть (Apps Script) не затронута — только фронтенд.
+
+---
+Task ID: 253
+Agent: main (Super Z)
+Task: Перенос Tasks 249-252 из kip8test@4a6da97 в боевой kip8
+      (крошки «Графика работы», десктопная шахматка, попап ввода
+      статусов с пакетным сохранением).
+
+Work Log:
+- Чеклист: kip8@f734a29, kipia-v401, 825 passed / 0 failed;
+  источник — kip8test@4a6da97 (kipia-test-v511, 872 passed).
+- Шаг 1: index.html — git-diff kip8test bfa5f04..4a6da97 применён
+  к kip8 чисто (без конфликтов; 711 строк изменений Tasks 249-252).
+  Репо-специфика kip8 сохранена: isolateLocalStorage отсутствует,
+  production WEB_APP_URL, ключи kip8_ без префикса. Контрольный
+  diff kip8 ↔ kip8test — только репо-специфичные строки.
+- Шаг 2: sw.js — CACHE_VERSION kipia-v401 → kipia-v402 (партия
+  4 задач = один инкремент, как в Task 245; промежуточные
+  kip8test-версии v508-v510 в production не существовали).
+- Шаг 3: tests/test-work-schedule.js — перенесён из kip8test@4a6da97
+  (+532 строки: describes Tasks 249-252), SW-тест адаптирован:
+  kipia-test-v511 → kipia-v402; исторические заметки о версиях
+  v508/v509/v510 помечены как kip8test-only.
+- Шаг 4: tests/test-flowmeter-validation.js — Task 248 SW-блок
+  (v401) → историческая заметка (SW-тест v402 теперь в
+  test-work-schedule.js).
+- Шаг 5: валидация:
+  • node tests/run-all.js → 872 passed / 0 failed — полный
+    паритет с kip8test@4a6da97.
+  • JS-синтаксис 4 inline-скриптов — OK; маркеры Tasks 249-252
+    присутствуют; легенда (_renderLegend) отсутствует;
+    репо-специфика kip8 не повреждена (scripts/task253-verify.js,
+    11/11 PASS).
+- Шаг 6: Системный_промт kip8 обновлён: кэш v401 → v402,
+  kip8test v511, тесты 825 → 872, версия документа post-Task 253,
+  ченджлог-запись по всем 4 задачам.
+- Шаг 7: commit + push origin/main (PAT-протокол). Remote URL
+  сброшен, PAT-утечек нет. Автосинк kip8-desktop выполнит
+  sync-to-desktop.yml. Изменённые файлы скопированы в
+  /home/z/my-project/download/kip8/.
+
+Stage Summary:
+- Tasks 249-252 в боевом kip8: крошки «Главная / График работы»;
+  десктопная шахматка — коды статусов в ячейках, непрозрачный фон,
+  без легенды, до самого низа окна, тулбар между крошками и
+  графиком; попап ввода статусов у ячейки + накопление правок +
+  пакетное «Сохранить (N)».
+- SW kipia-v401 → v402; тесты 825 → 872 passed / 0 failed.
+- Боевой сайт https://bloknett-design.github.io/kip8/ — деплой
+  GitHub Pages; пользователям нужно обновление PWA (кэш v402).
+- Серверная часть (Apps Script) не затронута — только фронтенд.
+- Локальная дата: 2026-08-30 (Asia/Novosibirsk, UTC+07:00).

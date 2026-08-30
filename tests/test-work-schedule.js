@@ -341,4 +341,540 @@ describe('График работы — WorkSchedule', () => {
             assertTrue(html.indexOf('.ws-day-col') !== -1);
         });
     });
+
+    // ============================================================
+    // Task 249: хлебные крошки страниц Графика работы.
+    // До фикса: у work-schedule*-страниц не было записей ни в PAGE_PARENTS,
+    // ни в PAGE_LABELS → крошки показывали raw id: «Главная / work-schedule».
+    // После фикса: «Главная / График работы» (и полные пути у подразделов).
+    // ============================================================
+    describe('Task 249: крошки «Главная / График работы» вместо raw id', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+        // Извлекаем блок PAGE_LABELS (regex по всему html цепляет и PAGE_PARENTS,
+        // где 'work-schedule': 'dashboard' стоит выше по файлу)
+        const labelsMatch = html.match(/const PAGE_LABELS = \{([\s\S]*?)\n    \};/);
+        const labels = labelsMatch ? labelsMatch[1] : '';
+
+        test('PAGE_LABELS: метка «График работы» для work-schedule', () => {
+            const m = labels.match(/'work-schedule':\s+'([^']+)'/);
+            assertTrue(!!m, 'PAGE_LABELS должен содержать запись для work-schedule');
+            assertEqual(m[1], 'График работы',
+                'Метка work-schedule должна быть «График работы» (не raw id)');
+        });
+
+        test('PAGE_LABELS: метки для подразделов (сотрудники/инструктажи)', () => {
+            const mEmp = labels.match(/'work-schedule-employees':\s+'([^']+)'/);
+            const mTr = labels.match(/'work-schedule-trainings':\s+'([^']+)'/);
+            assertTrue(!!mEmp, 'PAGE_LABELS должен содержать запись для work-schedule-employees');
+            assertTrue(!!mTr, 'PAGE_LABELS должен содержать запись для work-schedule-trainings');
+            assertEqual(mEmp[1], 'Сотрудники',
+                'Метка work-schedule-employees должна совпадать с заголовком страницы');
+            assertEqual(mTr[1], 'Инструктажи и обучения',
+                'Метка work-schedule-trainings должна совпадать с заголовком страницы');
+        });
+
+        test('PAGE_LABELS: метки не дублируются (единственная запись на страницу)', () => {
+            const countMain = (labels.match(/'work-schedule':\s+'/g) || []).length;
+            const countEmp = (labels.match(/'work-schedule-employees':\s+'/g) || []).length;
+            const countTr = (labels.match(/'work-schedule-trainings':\s+'/g) || []).length;
+            assertEqual(countMain, 1, 'Ровно одна запись work-schedule в PAGE_LABELS');
+            assertEqual(countEmp, 1, 'Ровно одна запись work-schedule-employees в PAGE_LABELS');
+            assertEqual(countTr, 1, 'Ровно одна запись work-schedule-trainings в PAGE_LABELS');
+        });
+
+        test('PAGE_PARENTS: work-schedule — корневой раздел (родитель dashboard)', () => {
+            // В PAGE_PARENTS: 'work-schedule': 'dashboard' (после admin-блока)
+            const re = /'work-schedule':\s+'dashboard'/;
+            assertTrue(re.test(html),
+                'PAGE_PARENTS должен содержать work-schedule → dashboard (корневой раздел, как Сапёр/Справочник)');
+        });
+
+        test('PAGE_PARENTS: подразделы с родителем work-schedule', () => {
+            const reEmp = /'work-schedule-employees':\s+'work-schedule'/;
+            const reTr = /'work-schedule-trainings':\s+'work-schedule'/;
+            assertTrue(reEmp.test(html),
+                'PAGE_PARENTS: work-schedule-employees → work-schedule (путь «Главная / График работы / Сотрудники»)');
+            assertTrue(reTr.test(html),
+                'PAGE_PARENTS: work-schedule-trainings → work-schedule (путь «Главная / График работы / Инструктажи и обучения»)');
+        });
+
+        test('buildBreadcrumbPath: путь work-schedule = [work-schedule] (один сегмент)', () => {
+            // Симуляция buildBreadcrumbPath с PAGE_PARENTS из index.html:
+            // извлекаем карту и поднимаемся от work-schedule до dashboard.
+            const mapMatch = html.match(/const PAGE_PARENTS = \{([\s\S]*?)\n    \};/);
+            assertTrue(!!mapMatch, 'PAGE_PARENTS должен существовать в index.html');
+            const entries = {};
+            const re = /'([a-z0-9-]+)':\s+'([a-z0-9-]+)'/g;
+            let mm;
+            while ((mm = re.exec(mapMatch[1])) !== null) {
+                if (!(mm[1] in entries)) entries[mm[1]] = mm[2]; // первая запись приоритетна
+            }
+            // Путь от work-schedule вверх
+            const path = [];
+            let cur = 'work-schedule';
+            const visited = new Set();
+            while (cur && cur !== 'dashboard' && !visited.has(cur)) {
+                visited.add(cur);
+                path.unshift(cur);
+                cur = entries[cur] || null;
+            }
+            assertEqual(path.length, 1,
+                'Путь work-schedule должен быть одним сегментом (родитель — dashboard)');
+            assertEqual(path[0], 'work-schedule');
+        });
+
+        test('buildBreadcrumbPath: путь work-schedule-employees = [work-schedule, work-schedule-employees]', () => {
+            const mapMatch = html.match(/const PAGE_PARENTS = \{([\s\S]*?)\n    \};/);
+            assertTrue(!!mapMatch, 'PAGE_PARENTS должен существовать в index.html');
+            const entries = {};
+            const re = /'([a-z0-9-]+)':\s+'([a-z0-9-]+)'/g;
+            let mm;
+            while ((mm = re.exec(mapMatch[1])) !== null) {
+                if (!(mm[1] in entries)) entries[mm[1]] = mm[2];
+            }
+            const path = [];
+            let cur = 'work-schedule-employees';
+            const visited = new Set();
+            while (cur && cur !== 'dashboard' && !visited.has(cur)) {
+                visited.add(cur);
+                path.unshift(cur);
+                cur = entries[cur] || null;
+            }
+            assertEqual(path.length, 2,
+                'Путь work-schedule-employees — два сегмента через work-schedule');
+            assertEqual(path[0], 'work-schedule');
+            assertEqual(path[1], 'work-schedule-employees');
+        });
+
+        test('Метки совпадают с заголовками страниц (page-inline-header-title)', () => {
+            // Заголовок страницы — источник истины для метки крошек
+            assertTrue(html.indexOf('<div class="page-inline-header-title">График работы</div>') !== -1,
+                'Заголовок страницы work-schedule — «График работы»');
+            assertTrue(html.indexOf('<div class="page-inline-header-title">Сотрудники</div>') !== -1,
+                'Заголовок страницы work-schedule-employees — «Сотрудники»');
+            assertTrue(html.indexOf('<div class="page-inline-header-title">Инструктажи и обучения</div>') !== -1,
+                'Заголовок страницы work-schedule-trainings — «Инструктажи и обучения»');
+        });
+
+        // Task 249 (перенос в kip8): SW-тест версии v508 — только kip8test
+        // (промежуточные версии v508-v511 в kip8 не существовали; партия
+        // Tasks 249-252 вошла в kip8 с версией v402 — см. Task 252 ниже).
+        // Историческая заметка.
+    });
+
+    // ============================================================
+    // Task 250: десктопная версия «Графика работы»:
+    //   1) коды статусов убраны (из ячеек и легенды);
+    //   2) фон ячеек шахматки непрозрачный (было transparent у пустых);
+    //   3) дашборд автоматически подгоняется по ширине экрана
+    //      приложения, без горизонтальной прокрутки.
+    // ============================================================
+    describe('Task 250: коды статусов убраны из ячеек и легенды', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        // Task 252: тесты «код не выводится в ячейке» и «легенда без
+        // кодов» удалены — Task 252 вернул коды в ячейки и убрал легенду
+        // целиком (см. describe Task 252 ниже). Историческая заметка.
+
+        test('JS: tooltip показывает название статуса, а не код', () => {
+            assertTrue(html.indexOf("var statusName = status;") !== -1,
+                'Должна быть переменная statusName (поиск названия по коду)');
+            assertTrue(html.indexOf("titleParts.push('статус: ' + (statusName || '—'));") !== -1,
+                'Tooltip: «статус: <название>» вместо кода');
+        });
+
+        test('JS: переработка — класс ws-overtime (маркер-точка вместо underline)', () => {
+            assertTrue(html.indexOf("if (isOvertime) classes.push('ws-overtime');") !== -1,
+                'Переработка должна добавлять класс ws-overtime');
+            assertTrue(html.indexOf("text-decoration:underline;") === -1,
+                'Прежний underline текста кода должен быть удалён (текста в ячейке нет)');
+        });
+    });
+
+    describe('Task 250: фон ячеек шахматки непрозрачный', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('JS: inline-фон «transparent» убран из _renderCell', () => {
+            assertTrue(html.indexOf(": 'transparent'") === -1,
+                'Пустые ячейки не должны получать inline transparent-фон');
+            // Статусные ячейки — inline цвет; пустые — CSS-фон
+            assertTrue(html.indexOf("if (status) style += 'background:' + color + ';';") !== -1,
+                'Inline-фон задаётся только статусным ячейкам (цвет справочника)');
+        });
+
+        test('CSS: сплошной фон ячеек (.ws-grid tbody td.ws-cell)', () => {
+            const re = /\.ws-grid tbody td\.ws-cell \{[^}]*background:\s*var\(--bg-primary, #1a2233\);[^}]*\}/;
+            assertTrue(re.test(html),
+                'Ячейки должны иметь сплошной (непрозрачный) CSS-фон в тёмной теме');
+        });
+
+        test('CSS: сплошной фон ячеек в светлой теме', () => {
+            const re = /\[data-theme="light"\] \.ws-grid tbody td\.ws-cell \{[^}]*background:\s*#eef0f2;[^}]*\}/;
+            assertTrue(re.test(html),
+                'Светлая тема: сплошной фон пустых ячеек (#eef0f2)');
+        });
+
+        test('CSS: маркер переработки — точка ::after в углу ячейки', () => {
+            const re = /\.ws-grid tbody td\.ws-cell\.ws-overtime::after \{[^}]*border-radius:\s*50%;[^}]*\}/;
+            assertTrue(re.test(html),
+                'ws-overtime::after — круглая точка (маркер переработки)');
+        });
+    });
+
+    describe('Task 250: десктоп — вся ширина экрана, без прокрутки', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: table-layout: fixed + width: 100% для шахматки (≥1024px)', () => {
+            assertTrue(html.indexOf('#page-work-schedule .ws-grid {\n            width: 100%;') !== -1,
+                'Таблица должна занимать 100% ширины контейнера');
+            assertTrue(html.indexOf('table-layout: fixed;') !== -1,
+                'table-layout: fixed — колонки дней делят ширину поровну');
+        });
+
+        test('CSS: горизонтальная прокрутка отключена на десктопе', () => {
+            const re = /@media \(min-width: 1024px\) \{[^@]*?#page-work-schedule \.ws-grid-wrap \{\s*\n\s*overflow-x: hidden;/;
+            assertTrue(re.test(html),
+                '.ws-grid-wrap на десктопе — overflow-x: hidden (без прокрутки)');
+        });
+
+        test('CSS: колонка сотрудников фиксирована, дни делят остаток', () => {
+            assertTrue(html.indexOf('#page-work-schedule .ws-grid thead th.ws-emp-col {\n            width: 200px;') !== -1,
+                'Колонка сотрудников — фиксированная ширина (200px)');
+            const reDay = /#page-work-schedule \.ws-grid thead th\.ws-day-col \{[^}]*width:\s*auto;[^}]*min-width:\s*0;/;
+            assertTrue(reDay.test(html),
+                'Колонки дней: width auto + min-width 0 (делят остаток ширины)');
+        });
+
+        test('CSS: ФИО — эллипсис в фиксированной колонке', () => {
+            const re = /#page-work-schedule \.ws-grid tbody td\.ws-emp-col \{[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;/;
+            assertTrue(re.test(html),
+                'Длинные ФИО обрезаются эллипсисом, не растягивая таблицу');
+        });
+
+        // Task 250 (перенос в kip8): SW-тест версии v509 — только kip8test
+        // (в kip8 партия Tasks 249-252 вошла с версией v402 — см. Task 252
+        // ниже). Историческая заметка.
+    });
+
+    // ============================================================
+    // Task 251: переделанный ввод статусов в шахматке:
+    //   1) клик по ячейке → попап-табличка «код — название» рядом с ячейкой;
+    //   2) выбор статуса отображается в ячейке ЛОКАЛЬНО (накопление в
+    //      _PENDING), мгновенной передачи на сервер НЕТ;
+    //   3) кнопка «Сохранить» — пакетная отправка всех изменений на сервер
+    //      (setManualEntry/deleteEntry) с последующей синхронизацией
+    //      (loadGrid перечитывает данные из БД).
+    // ============================================================
+    describe('Task 251: попап выбора статуса рядом с ячейкой', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('HTML: элементы попапа (#wsCellPopup + #wsPopupCloser) существуют', () => {
+            assertTrue(html.indexOf('id="wsCellPopup"') !== -1,
+                'Должен быть контейнер попапа #wsCellPopup');
+            assertTrue(html.indexOf('id="wsPopupCloser"') !== -1,
+                'Должен быть прозрачный клик-ловец #wsPopupCloser (закрытие по клику мимо)');
+        });
+
+        test('JS: клик по ячейке вызывает onCellClick (не openCellForm)', () => {
+            // В HTML onclick собирается в JS-строке: onCellClick(event, \'...\')
+            assertTrue(html.indexOf("WorkSchedule.onCellClick(event, \\\''") !== -1,
+                'onclick ячейки должен открывать попап: onCellClick(event, ...)');
+            // Старый мгновенно-сохраняющий обработчик в ячейках удалён
+            assertTrue(html.indexOf("WorkSchedule.openCellForm(\\'") === -1,
+                'openCellForm не должен вызываться напрямую из onclick ячейки');
+        });
+
+        test('JS: попап рендерит строки «код + название» столбиком', () => {
+            assertTrue(html.indexOf("WorkSchedule.onPopupStatus(\\'") !== -1,
+                'Строки попапа: клик → onPopupStatus(код)');
+            assertTrue(html.indexOf('<span class="ws-popup-code">') !== -1,
+                'Код статуса в попапе (.ws-popup-code)');
+            assertTrue(html.indexOf('<span class="ws-popup-name">') !== -1,
+                'Название статуса в попапе (.ws-popup-name)');
+            assertTrue(html.indexOf('>выходной</span>') !== -1,
+                'Строка «— выходной —» для очистки ячейки');
+        });
+
+        test('JS: строка «Дополнительно…» открывает sheet расширенной правки', () => {
+            assertTrue(html.indexOf('onclick="WorkSchedule.onPopupMore()">Дополнительно…') !== -1,
+                'Попап должен содержать «Дополнительно…» → onPopupMore → openCellForm');
+        });
+
+        test('CSS: попап — фиксированное позиционирование + строки столбиком', () => {
+            const reFixed = /\.ws-cell-popup \{[^}]*position:\s*fixed;/;
+            assertTrue(reFixed.test(html),
+                '.ws-cell-popup — position: fixed (позиция у ячейки через JS)');
+            const reRow = /\.ws-popup-row \{[^}]*display:\s*flex;/;
+            assertTrue(reRow.test(html),
+                '.ws-popup-row — flex-строки (табличка код—название столбиком)');
+        });
+    });
+
+    describe('Task 251: накопление правок без мгновенной отправки', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('JS: буфер _PENDING в состоянии модуля', () => {
+            assertTrue(html.indexOf('_PENDING: {},') !== -1,
+                'Модуль должен содержать _PENDING — буфер локальных правок');
+        });
+
+        test('JS: onPopupStatus применяет статус ЛОКАЛЬНО (без _api)', () => {
+            // Извлекаем метод onPopupStatus и проверяем: _applyCellStatus +
+            // _renderGrid, и НЕТ вызова _api (мгновенной отправки нет)
+            const m = html.match(/onPopupStatus: function\(code\) \{[\s\S]*?\n        \},/);
+            assertTrue(!!m, 'Метод onPopupStatus должен существовать');
+            const body = m[0];
+            assertTrue(body.indexOf('this._applyCellStatus(') !== -1,
+                'onPopupStatus должен применять статус через _applyCellStatus');
+            assertTrue(body.indexOf('this._renderGrid();') !== -1,
+                'onPopupStatus должен перерисовывать сетку (статус сразу в ячейке)');
+            assertTrue(body.indexOf('_api(') === -1,
+                'onPopupStatus НЕ должен вызывать _api — мгновенной отправки быть не должно');
+        });
+
+        test('JS: _applyCellStatus не обращается к серверу', () => {
+            const m = html.match(/_applyCellStatus: function\(isoDate, tabNo, code\) \{[\s\S]*?\n        \},/);
+            assertTrue(!!m, 'Метод _applyCellStatus должен существовать');
+            assertTrue(m[0].indexOf('_api(') === -1,
+                '_applyCellStatus — только локальный _PENDING, без сервера');
+            assertTrue(m[0].indexOf('__delete: true') !== -1,
+                '_applyCellStatus должен уметь планировать удаление (__delete)');
+        });
+
+        test('JS: «выходной» на ручной записи → __delete; на авто — тост', () => {
+            const m = html.match(/_applyCellStatus: function\(isoDate, tabNo, code\) \{[\s\S]*?\n        \},/);
+            const body = m[0];
+            assertTrue(body.indexOf("server.источник === 'руч') {") !== -1 &&
+                       body.indexOf('__delete: true') !== -1,
+                'Очистка ручной записи → __delete (удаление при сохранении)');
+            assertTrue(body.indexOf('Нельзя очистить авто-запись') !== -1,
+                'Очистка авто-записи → тост-отказ (сервер запрещает deleteEntry для авто)');
+        });
+
+        test('JS: submitCellForm накапливает локально (без setManualEntry)', () => {
+            const m = html.match(/submitCellForm: function\(\) \{[\s\S]*?\n        \},/);
+            assertTrue(!!m, 'Метод submitCellForm должен существовать');
+            assertTrue(m[0].indexOf('_setPendingCell(') !== -1,
+                'submitCellForm должен писать в _PENDING (локально)');
+            assertTrue(m[0].indexOf('setManualEntry') === -1,
+                'submitCellForm НЕ должен вызывать setManualEntry напрямую');
+        });
+
+        test('JS: рендер ячейки учитывает pending (класс ws-pending)', () => {
+            assertTrue(html.indexOf("if (isPending) classes.push('ws-pending');") !== -1,
+                'Ячейка с несохранённой правкой — класс ws-pending');
+            const re = /\.ws-grid tbody td\.ws-cell\.ws-pending \{[^}]*outline:\s*2px dashed/;
+            assertTrue(re.test(html),
+                'CSS: ws-pending — пунктирная рамка (маркер несохранённой ячейки)');
+            assertTrue(html.indexOf("if (isPending) titleParts.push('не сохранено');") !== -1,
+                'Tooltip несохранённой ячейки — «не сохранено»');
+        });
+
+        test('JS: _renderGrid накладывает _PENDING на серверные данные', () => {
+            const re = /var pending = this\._PENDING\[key\] \|\| null;/;
+            assertTrue(re.test(html),
+                '_renderGrid должен читать _PENDING для каждой ячейки');
+            assertTrue(html.indexOf('Object.assign({}, entry || {}, pending,') !== -1,
+                'Слияние: pending перекрывает серверную запись (эффективное состояние)');
+        });
+    });
+
+    describe('Task 251: кнопка «Сохранить» — пакетная отправка и синхронизация', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('HTML: кнопка #wsSaveBtn в тулбаре', () => {
+            const re = /<button type="button" id="wsSaveBtn" class="ws-save-btn" onclick="WorkSchedule\.saveAll\(\)" hidden>Сохранить<\/button>/;
+            assertTrue(re.test(html),
+                'Кнопка «Сохранить» (saveAll) должна быть в тулбаре, скрыта по умолчанию');
+        });
+
+        test('JS: _updateSaveBtn — счётчик правок и скрытие при нуле', () => {
+            const m = html.match(/_updateSaveBtn: function\(\) \{[\s\S]*?\n        \},/);
+            assertTrue(!!m, 'Метод _updateSaveBtn должен существовать');
+            assertTrue(m[0].indexOf('btn.hidden = !this._canEdit || n === 0;') !== -1,
+                'Кнопка скрыта без прав или без правок');
+            assertTrue(m[0].indexOf("'Сохранить (' + n + ')'") !== -1,
+                'Текст кнопки — со счётчиком правок');
+        });
+
+        test('JS: saveAll отправляет setManualEntry и deleteEntry', () => {
+            const m = html.match(/saveAll: function\(\) \{[\s\S]*?\n        \},/);
+            assertTrue(!!m, 'Метод saveAll должен существовать');
+            assertTrue(m[0].indexOf("self._api('workSchedule.deleteEntry', payload)") !== -1,
+                'saveAll: pending __delete → deleteEntry');
+            assertTrue(m[0].indexOf("self._api('workSchedule.setManualEntry', payload)") !== -1,
+                'saveAll: правка статуса → setManualEntry');
+        });
+
+        test('JS: saveAll синхронизируется — loadGrid после отправки', () => {
+            const m = html.match(/saveAll: function\(\) \{[\s\S]*?\n        \},/);
+            assertTrue(m[0].indexOf('self.loadGrid();') !== -1,
+                'После пакетной отправки — loadGrid (перечитать данные из БД)');
+        });
+
+        test('JS: успешные правки удаляются из _PENDING, ошибки остаются', () => {
+            const m = html.match(/saveAll: function\(\) \{[\s\S]*?\n        \},/);
+            assertTrue(m[0].indexOf('delete self._PENDING[key];') !== -1,
+                'Успешная отправка — правка удаляется из _PENDING');
+            assertTrue(m[0].indexOf('failCount++;') !== -1,
+                'Ошибка отправки — правка остаётся в _PENDING (можно повторить)');
+        });
+
+        test('JS: защита от повторного запуска (_saving)', () => {
+            const m = html.match(/saveAll: function\(\) \{[\s\S]*?\n        \},/);
+            assertTrue(m[0].indexOf('if (this._saving) return;') !== -1,
+                'saveAll должен игнорировать повторный клик во время сохранения');
+        });
+
+        test('JS: Esc закрывает попап, beforeunload предупреждает о правках', () => {
+            assertTrue(html.indexOf("if (ev.key === 'Escape') selfOnce.closeCellPopup();") !== -1,
+                'Esc должен закрывать попап');
+            assertTrue(html.indexOf("Object.keys(selfOnce._PENDING).length > 0") !== -1,
+                'beforeunload должен предупреждать при несохранённых правках');
+        });
+
+        // Task 252 (перенос в kip8): SW-тест версии v510 — только kip8test
+        // (в kip8 партия Tasks 249-252 вошла с версией v402 — см. Task 252
+        // ниже). Историческая заметка.
+    });
+
+    // ============================================================
+    // Task 252: «График работы» — чистка десктопного дашборда:
+    //   1) легенды под шахматкой убраны совсем (HTML/CSS/JS);
+    //   2) шахматка растянута до самого низа окна (десктоп ≥1024px):
+    //      страница — flex-колонка, ws-grid-wrap flex:1 + скролл,
+    //      таблица height:100% — строки делят свободную высоту;
+    //   3) тулбар с кнопками — на всю ширину, ровно между баром
+    //      хлебных крошек (page-inline-header) и графиком;
+    //   4) коды статусов ВЕРНУТЫ в ячейки шахматки (цвет + код,
+    //      как до Task 250; непрозрачный фон Task 250 сохранён).
+    // ============================================================
+    describe('Task 252: легенда под шахматкой полностью убрана', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('HTML: элемент #wsLegend удалён со страницы', () => {
+            assertTrue(html.indexOf('id="wsLegend"') === -1,
+                'Контейнер легенды #wsLegend не должен существовать');
+            assertTrue(html.indexOf('class="ws-legend"') === -1,
+                'Элемент .ws-legend не должен существовать');
+        });
+
+        test('JS: метод _renderLegend удалён из модуля WorkSchedule', () => {
+            assertTrue(html.indexOf('_renderLegend') === -1,
+                'Ни метод, ни вызов _renderLegend не должны остаться в коде');
+        });
+
+        test('CSS: правила .ws-legend / .ws-legend-item / .ws-legend-swatch удалены', () => {
+            const reItem = /\.ws-legend-item\s*\{/;
+            const reSwatch = /\.ws-legend-swatch\s*\{/;
+            const reBlock = /\.ws-legend\s*\{/;
+            assertTrue(!reBlock.test(html) && !reItem.test(html) && !reSwatch.test(html),
+                'CSS-правила легенды должны быть удалены (вместо них — комментарий Task 252)');
+        });
+    });
+
+    describe('Task 252: коды статусов возвращены в ячейки', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('JS: в ячейке выводится код статуса (status || «·»)', () => {
+            // Реверс Task 250: снова (status || '·') — код буквой в ячейке
+            assertTrue(html.indexOf("(status || '·')") !== -1,
+                'Код статуса должен выводиться в ячейке (паттерн (status || \'·\'))');
+            assertTrue(html.indexOf("(status ? '' : '·')") === -1,
+                'Паттерн Task 250 «статусная ячейка без текста» должен быть удалён');
+        });
+
+        test('JS: непрозрачный фон Task 250 сохранён (CSS-фон + inline для статусных)', () => {
+            const re = /\.ws-grid tbody td\.ws-cell \{[^}]*background:\s*var\(--bg-primary, #1a2233\);/;
+            assertTrue(re.test(html),
+                'Сплошной CSS-фон пустых ячеек должен остаться');
+            assertTrue(html.indexOf("if (status) style += 'background:' + color + ';';") !== -1,
+                'Inline-фон задаётся только статусным ячейкам');
+        });
+
+        test('JS: tooltip и маркеры Task 250/251 не тронуты', () => {
+            assertTrue(html.indexOf("titleParts.push('статус: ' + (statusName || '—'));") !== -1,
+                'Tooltip: «статус: <название>» (Task 250) — на месте');
+            assertTrue(html.indexOf("if (isOvertime) classes.push('ws-overtime');") !== -1,
+                'Маркер переработки ws-overtime (Task 250) — на месте');
+            assertTrue(html.indexOf("if (isPending) classes.push('ws-pending');") !== -1,
+                'Маркер несохранённой правки ws-pending (Task 251) — на месте');
+        });
+    });
+
+    describe('Task 252: десктоп — график до самого низа, тулбар между крошками и графиком', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: страница — flex-колонка на всю высоту (≥1024px)', () => {
+            const re = /#contentArea > #page-work-schedule\.active \{[^}]*display:\s*flex;[^}]*flex-direction:\s*column;[^}]*\}/;
+            assertTrue(re.test(html),
+                '#page-work-schedule.active — flex-колонка (крошки → тулбар → шахматка)');
+            const rePad = /#contentArea > #page-work-schedule\.active \{[^}]*padding-bottom:\s*0;/;
+            assertTrue(rePad.test(html),
+                'Мобильный нижний отступ ~70px убран на десктопе');
+        });
+
+        test('CSS: бары (крошки + тулбар) не сжимаются — тулбар во всю ширину между ними', () => {
+            const re = /#page-work-schedule \.page-inline-header,\s*\n\s*#page-work-schedule \.ws-toolbar \{[^}]*flex-shrink:\s*0;/;
+            assertTrue(re.test(html),
+                'page-inline-header и ws-toolbar — flex-shrink: 0 (бары фиксированной высоты, тулбар между крошками и графиком)');
+        });
+
+        test('CSS: шахматка занимает остаток высоты и скроллится сама', () => {
+            const re = /#page-work-schedule \.ws-grid-wrap \{[^}]*flex:\s*1;[^}]*min-height:\s*0;[^}]*overflow-y:\s*auto;[^}]*\}/;
+            assertTrue(re.test(html),
+                '.ws-grid-wrap: flex:1 + min-height:0 + overflow-y:auto — график занимает всё место до низа');
+        });
+
+        test('CSS: таблица height:100% — строки делят высоту, график до низа окна', () => {
+            const re = /#page-work-schedule \.ws-grid \{[^}]*height:\s*100%;[^}]*\}/;
+            assertTrue(re.test(html),
+                '.ws-grid: height:100% — последняя строка у нижнего края экрана');
+        });
+
+        test('CSS: шапка таблицы компактная (не тянется вместе со строками)', () => {
+            const re = /#page-work-schedule \.ws-grid thead th \{[^}]*height:\s*32px;/;
+            assertTrue(re.test(html),
+                'thead th: height 32px — шапка не растягивается пропорционально строкам');
+        });
+
+        test('SW: CACHE_VERSION = kipia-v402 (перенос Tasks 249-252)', () => {
+            const swPath = path.resolve(__dirname, '..', 'sw.js');
+            const sw = fs.readFileSync(swPath, 'utf8');
+            assertTrue(sw.indexOf("kipia-v402") !== -1,
+                'CACHE_VERSION должен быть kipia-v402 (партия Tasks 249-252)');
+            assertTrue(sw.indexOf("kipia-v401") === -1,
+                'Старая версия v401 не должна остаться в sw.js');
+        });
+    });
 });
