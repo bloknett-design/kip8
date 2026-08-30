@@ -856,10 +856,16 @@ describe('График работы — WorkSchedule', () => {
                 '.ws-grid-wrap: flex:1 + min-height:0 + overflow-y:auto — график занимает всё место до низа');
         });
 
-        test('CSS: таблица height:100% — строки делят высоту, график до низа окна', () => {
-            const re = /#page-work-schedule \.ws-grid \{[^}]*height:\s*100%;[^}]*\}/;
-            assertTrue(re.test(html),
-                '.ws-grid: height:100% — последняя строка у нижнего края экрана');
+        test('CSS: график до низа окна — Task 256: целые высоты строк вместо height:100%', () => {
+            // Task 252 растягивал таблицу height:100% — браузер раздавал
+            // строкам ДРОБНЫЕ высоты (60.2px), из-за чего 1px границы
+            // «растворялись» антиалиасингом (Task 256). Теперь высоты
+            // строк задаёт _fitGrid целыми пикселями, таблица по-прежнему
+            // до нижнего края (сумма строк = высота области).
+            const re = /#page-work-schedule \.ws-grid \{[^}]*height:\s*auto;[^}]*\}/;
+            const reVar = /#page-work-schedule \.ws-grid tbody td \{[^}]*height:\s*var\(--ws-row-h,\s*32px\);[^}]*\}/;
+            assertTrue(re.test(html) && reVar.test(html),
+                '.ws-grid: height:auto + --ws-row-h (целые высоты строк, до низа окна)');
         });
 
         test('CSS: шапка таблицы компактная (не тянется вместе со строками)', () => {
@@ -868,13 +874,380 @@ describe('График работы — WorkSchedule', () => {
                 'thead th: height 32px — шапка не растягивается пропорционально строкам');
         });
 
-        test('SW: CACHE_VERSION = kipia-v402 (перенос Tasks 249-252)', () => {
-            const swPath = path.resolve(__dirname, '..', 'sw.js');
-            const sw = fs.readFileSync(swPath, 'utf8');
-            assertTrue(sw.indexOf("kipia-v402") !== -1,
-                'CACHE_VERSION должен быть kipia-v402 (партия Tasks 249-252)');
-            assertTrue(sw.indexOf("kipia-v401") === -1,
-                'Старая версия v401 не должна остаться в sw.js');
+        // Task 252 (перенос в kip8): SW-тест версии v402 удалён — версия
+        // v403 введена с переносом Tasks 254-258 (см. describe
+        // «Task 258: SW версия v403» ниже). Историческая заметка.
+    });
+
+    // ============================================================
+    // Task 254: визуальная разметка шахматки:
+    //   1) пустые ячейки выходных (Сб/Вс) — слабый пастельно-розовый фон;
+    //   2) красные линии-границы между колонками выходных и рабочих
+    //      дней (слева от субботы, справа от воскресенья) — непрерывные,
+    //      от шапки до последней строки;
+    //   3) под ФИО сотрудника — строка с должностью
+    //      («Слесарь КИПиА дневной» / «Слесарь КИПиА смена №1»);
+    //   4) тулбар с кнопками — непрозрачный фон, кнопки без скруглений.
+    // ============================================================
+    describe('Task 254: розовый фон пустых ячеек выходных дней', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: .ws-weekend.ws-status-empty — розовый фон (тёмная тема)', () => {
+            const re = /\.ws-grid tbody td\.ws-cell\.ws-weekend\.ws-status-empty \{[^}]*background:\s*#6e4250;[^}]*\}/;
+            assertTrue(re.test(html),
+                'Пустые ячейки выходных — сплошной пыльно-розовый фон (#6e4250)');
+        });
+
+        test('CSS: светлая тема — слабый пастельный розовый (#f7d9e3)', () => {
+            const re = /\[data-theme="light"\] \.ws-grid tbody td\.ws-cell\.ws-weekend\.ws-status-empty \{[^}]*background:\s*#f7d9e3;/;
+            assertTrue(re.test(html),
+                'Светлая тема: пастельно-розовый фон пустых ячеек выходных');
+        });
+
+        test('JS: _renderCell помечает выходные классом ws-weekend', () => {
+            assertTrue(html.indexOf("if (cellDow === 0 || cellDow === 6) classes.push('ws-weekend');") !== -1,
+                'Суббота и воскресенье должны получать класс ws-weekend');
+        });
+
+        test('CSS: розовый ТОЛЬКО у пустых ячеек (комбинация с ws-status-empty)', () => {
+            // Селектор требует ОБА класса: у статусных ячеек выходного
+            // (Д/Н/Б…) цвета справочника остаются
+            assertTrue(html.indexOf('.ws-grid tbody td.ws-cell.ws-weekend.ws-status-empty {') !== -1,
+                'Селектор розового фона — строго .ws-weekend.ws-status-empty');
+            assertTrue(html.indexOf("if (status) style += 'background:' + color + ';';") !== -1,
+                'Inline-фон статусных ячеек сохранён (Task 250/252)');
+        });
+    });
+
+    describe('Task 254 + Task 255: линии-границы выходных и рабочих дней', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: границы 1px приглушённые (#cc6e73) — только в tbody', () => {
+            // Task 255: тоньше (1px вместо 2px), приглушённее (#cc6e73
+            // вместо яркого #e53935), из шапки (thead) убраны.
+            const reL = /\.ws-grid tbody td\.ws-cell\.ws-boundary-left,\s*\n\s*\.ws-grid tbody td\.ws-cell\.ws-boundary-before \{ border-left: 1px solid #cc6e73; \}/;
+            const reR = /\.ws-grid tbody td\.ws-cell\.ws-boundary-right,\s*\n\s*\.ws-grid tbody td\.ws-cell\.ws-boundary-after \{ border-right: 1px solid #cc6e73; \}/;
+            assertTrue(reL.test(html) && reR.test(html),
+                'Линии — 1px #cc6e73, парные классы left/before + right/after (tbody)');
+            const oldBright = /\.ws-grid[^{]*\{[^}]*#e53935/;
+            assertTrue(!oldBright.test(html),
+                'Яркий #e53935 больше не используется для линий-границ');
+        });
+
+        test('CSS: специфичность границ выше светлой темы (не перекрасится)', () => {
+            // Светлая тема задаёт [data-theme="light"] .ws-grid tbody td
+            // { border-color } со специфичностью (0,2,2) НИЖЕ по файлу.
+            // Граничные селекторы обязаны быть сильнее: + .ws-cell → (0,3,2).
+            const re = /\.ws-grid tbody td\.ws-cell\.ws-boundary-after \{ border-right: 1px solid #cc6e73; \}/;
+            assertTrue(re.test(html),
+                'Селектор td.ws-cell.ws-boundary-after — красная граница переживает светлую тему');
+            const weak = /\.ws-grid tbody td\.ws-boundary-\w+ \{/;
+            assertTrue(!weak.test(html),
+                'Слабый селектор (без .ws-cell) удалён — иначе светлая тема перекрасит границу');
+        });
+
+        test('CSS: в шапке (thead) граничных селекторов больше нет', () => {
+            // Task 255: линии убраны из шапки графика — только тело таблицы.
+            const thBoundary = /\.ws-grid thead th[^{]*ws-boundary/;
+            assertTrue(!thBoundary.test(html),
+                'Граничные селекторы не должны затрагивать thead (шапка без линий)');
+        });
+
+        test('JS: обе стороны стыка — пятница+суббота, воскресенье+понедельник', () => {
+            // При 1px в border-collapse цвет общей грани равных границ
+            // браузер может взять у соседа — красной делается ОБЕ стороны.
+            assertTrue(html.indexOf("if (cellDow === 6 && day > 1) classes.push('ws-boundary-left');") !== -1,
+                'Суббота со 2-й позиции месяца — ws-boundary-left');
+            assertTrue(html.indexOf("if (cellDow === 5 && day < lastDay) classes.push('ws-boundary-after');") !== -1,
+                'Пятница (не последний день) — ws-boundary-after (border-right)');
+            assertTrue(html.indexOf("if (cellDow === 0 && day < lastDay) classes.push('ws-boundary-right');") !== -1,
+                'Воскресенье (не последний день) — ws-boundary-right');
+            assertTrue(html.indexOf("if (cellDow === 1 && day > 1) classes.push('ws-boundary-before');") !== -1,
+                'Понедельник со 2-й позиции месяца — ws-boundary-before (border-left)');
+            const reLast = /var lastDay = new Date\(this\._year, this\._month, 0\)\.getDate\(\);/;
+            assertTrue(reLast.test(html),
+                'lastDay вычисляется один раз для обеих проверок');
+        });
+
+        test('JS: шапка таблицы — граничные классы НЕ ставятся', () => {
+            // Task 255: из шапки линии убраны — thCls больше не получает
+            // ws-boundary-*, остаются только ws-day-col + ws-holiday.
+            assertTrue(html.indexOf("thCls += ' ws-boundary-left'") === -1 &&
+                       html.indexOf("thCls += ' ws-boundary-right'") === -1,
+                'Шапка: граничные классы удалены из рендера th');
+            const reTh = /var thCls = 'ws-day-col' \+ \(isHoliday \? ' ws-holiday' : ''\);/;
+            assertTrue(reTh.test(html),
+                'Шапка: thCls формируется только из ws-day-col + ws-holiday');
+        });
+    });
+
+    describe('Task 254 + Task 255: должность и режим занятости под ФИО', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('JS: _posLabel — должность + тип (столбец C) + смена №N (столбец D)', () => {
+            // Данные таблицы «Сотрудники» файла табель_КИП_ИОС: столбец C —
+            // тип (сменный/дневной), столбец D — номер смены. Формирование:
+            // «Слесарь КИПиА смена №1» / «Слесарь КИПиА дневной».
+            const re = /_posLabel: function\(emp\) \{[\s\S]*?if \(tip === 'сменный'\) \{[\s\S]*?' смена №' \+ smena[\s\S]*?\} else if \(tip === 'дневной'\) \{[\s\S]*?' дневной';[\s\S]*?\}/;
+            assertTrue(re.test(html),
+                'Хелпер _posLabel формирует «… смена №N» / «… дневной»');
+            const reRange = /smena >= 1 && smena <= 5/;
+            assertTrue(reRange.test(html),
+                'Смена выводится только при корректном номере 1..5');
+        });
+
+        test('JS: колонка сотрудника — ws-emp-pos с подписью _posLabel', () => {
+            assertTrue(html.indexOf("var empPosLabel = this._posLabel(emp);") !== -1 &&
+                       html.indexOf("'<div class=\"ws-emp-pos\">' + this._esc(empPosLabel) + '</div>'") !== -1,
+                'Подпись в .ws-emp-pos формируется через _posLabel (должность + режим)');
+            assertTrue(html.indexOf('<div class="ws-emp-name">') !== -1,
+                'ФИО переносится в блок .ws-emp-name (две строки в колонке)');
+        });
+
+        test('JS: пустая подпись — строка не рендерится', () => {
+            const re = /var empPosLabel = this\._posLabel\(emp\);\s*\n\s*var empPos = empPosLabel\s*\n\s*\? '<div class="ws-emp-pos">'/;
+            assertTrue(re.test(html),
+                'Тернарник: без должности И типа нет пустого блока .ws-emp-pos');
+        });
+
+        test('JS: справочник «Сотрудники» — смена в подписи должности (единый формат)', () => {
+            // Task 255: в карточках справочника фрагмент «· смена N» убран,
+            // смена (столбец D) входит в подпись должности справа от неё.
+            assertTrue(html.indexOf("var posLabel = this._posLabel(e);") !== -1 &&
+                       html.indexOf("(posLabel ? ' · ' + this._esc(posLabel) : '')") !== -1,
+                'Карточка: подпись _posLabel справа от тега типа');
+            assertTrue(html.indexOf("· смена ' + e.смена") === -1 &&
+                       html.indexOf('· смена не задана') === -1,
+                'Дублирующий отдельный фрагмент смены удалён');
+        });
+
+        test('CSS: .ws-emp-pos — мелкий приглушённый текст с эллипсисом', () => {
+            const re = /\.ws-grid tbody td\.ws-emp-col \.ws-emp-pos \{[^}]*text-overflow:\s*ellipsis;[^}]*font-size:\s*10px;[^}]*font-weight:\s*400;/;
+            assertTrue(re.test(html),
+                'Должность: эллипсис при переполнении, 10px/400, цвет secondary');
+        });
+
+        test('CSS: светлая тема — должность темнее (#666)', () => {
+            const re = /\[data-theme="light"\] \.ws-grid tbody td\.ws-emp-col \.ws-emp-pos \{[^}]*color:\s*#666;/;
+            assertTrue(re.test(html),
+                'Светлая тема: читаемая должность под ФИО');
+        });
+    });
+
+    describe('Task 255: селекты месяца/года без скруглений', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: .ws-month-sel/.ws-year-sel — border-radius: 0', () => {
+            const re = /\.ws-month-sel, \.ws-year-sel \{[^}]*border-radius:\s*0;/;
+            assertTrue(re.test(html),
+                'Селекты месяца и года — прямые углы (как кнопки тулбара)');
+        });
+    });
+
+    describe('Task 254: непрозрачный тулбар, кнопки без скруглений', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: .ws-toolbar — сплошной фон (#17212b, без var(--card-bg))', () => {
+            const re = /\.ws-toolbar \{[^}]*background:\s*#17212b;/;
+            assertTrue(re.test(html),
+                'Тулбар непрозрачный: сплошной аналог --header-bg тёмной темы');
+            // именно ОБЪЯВЛЕНИЕ фона, не упоминание в комментарии
+            // (комментарий внутри .ws-toolbar описывает, что было раньше)
+            const reVar = /\.ws-toolbar \{[^}]*background:\s*var\(--card-bg\)/;
+            assertTrue(!reVar.test(html),
+                'Полупрозрачный var(--card-bg) больше не задаёт фон тулбара');
+        });
+
+        test('CSS: светлая тема — тулбар сплошной #f0eee6', () => {
+            const re = /\[data-theme="light"\] \.ws-toolbar \{ background: #f0eee6; \}/;
+            assertTrue(re.test(html),
+                'Светлая тема: непрозрачный тулбар (аналог --header-bg светлой)');
+        });
+
+        test('CSS: кнопки «Сформировать» и «Сохранить» — без скруглений', () => {
+            const reGen = /\.ws-generate-btn \{[^}]*border-radius:\s*0;/;
+            const reSave = /\.ws-save-btn \{[^}]*border-radius:\s*0;/;
+            assertTrue(reGen.test(html) && reSave.test(html),
+                'Обе кнопки тулбара — border-radius: 0 (прямые углы)');
+        });
+    });
+
+    describe('Task 256: авто-подгонка шахматки под окно (целые высоты строк)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: шапка — целочисленные межстрочные интервалы (было 36.5px)', () => {
+            const reTh = /\.ws-grid thead th \{[^}]*line-height:\s*14px;/s;
+            const reDow = /\.ws-grid thead th\.ws-day-col \.ws-dow \{[^}]*line-height:\s*11px;/s;
+            assertTrue(reTh.test(html) && reDow.test(html),
+                'Числа дней lh=14px + дни недели lh=11px: шапка ровно 37.5px, ' +
+                'границы строк — на целых пикселях (антиалиасинг не стирает линии)');
+        });
+
+        test('CSS: колонка ФИО — целые интервалы (.ws-emp-name/.ws-emp-pos)', () => {
+            const reName = /\.ws-grid tbody td\.ws-emp-col \.ws-emp-name \{[^}]*line-height:\s*14px;/s;
+            const rePos = /\.ws-grid tbody td\.ws-emp-col \.ws-emp-pos \{[^}]*line-height:\s*12px;/s;
+            assertTrue(reName.test(html) && rePos.test(html),
+                'ФИО lh=14px + должность lh=12px: природная высота строки целая');
+        });
+
+        test('CSS: высота ячеек тела — var(--ws-row-h) (задаёт _fitGrid)', () => {
+            const re = /#page-work-schedule \.ws-grid tbody td \{\s*\n\s*height:\s*var\(--ws-row-h,\s*32px\);/s;
+            assertTrue(re.test(html),
+                'Высота строк через CSS-переменную, без JS — прежние 32px');
+        });
+
+        test('CSS: растяжение height:100% убрано (дробные высоты стирали границы)', () => {
+            const reBad = /#page-work-schedule \.ws-grid \{\s*\n\s*height:\s*100%;/;
+            const reOk = /#page-work-schedule \.ws-grid \{\s*\n\s*height:\s*auto;/;
+            assertTrue(!reBad.test(html) && reOk.test(html),
+                'height:100% заменён на auto: высоты строк задаёт _fitGrid целыми px');
+        });
+
+        test('CSS: компактные режимы ws-compact / ws-tight', () => {
+            const reCompact = /\.ws-grid-wrap\.ws-compact \.ws-grid tbody td\.ws-emp-col \{[^}]*padding:\s*3px 10px;/s;
+            const reTight = /\.ws-grid-wrap\.ws-tight \.ws-grid tbody td\.ws-emp-col \{[^}]*padding:\s*1px 8px;/s;
+            const reTightPos = /\.ws-grid-wrap\.ws-tight \.ws-grid tbody td\.ws-emp-col \.ws-emp-pos \{[^}]*font-size:\s*9px;[^}]*margin-top:\s*0;/s;
+            assertTrue(reCompact.test(html) && reTight.test(html) && reTightPos.test(html),
+                'Два яруса уплотнения колонки ФИО при нехватке высоты окна');
+        });
+
+        test('JS: _fitGrid — целочисленные высоты + остаток по +1px первым строкам', () => {
+            const hasFloor = html.indexOf('Math.floor(budget / n)') !== -1;
+            const hasRem = html.indexOf('h + (i < rem ? 1 : 0)') !== -1;
+            assertTrue(hasFloor && hasRem,
+                'floor((область-шапка)/строки) и раздача остатка пикселей');
+        });
+
+        test('JS: _fitGrid — подбор яруса по ЗАМЕРУ природной высоты строки', () => {
+            const reMeasure = /var measureNatural = function\(\) \{[\s\S]*?getBoundingClientRect\(\)\.height;/;
+            const hasTiers = html.indexOf("wrap.classList.add('ws-compact');") !== -1 &&
+                             html.indexOf("wrap.classList.add('ws-tight');") !== -1;
+            assertTrue(reMeasure.test(html) && hasTiers,
+                'Пороги компактности не по формуле, а по фактическому рендеру ' +
+                '(box-sizing + collapsed-границы дают +1px к расчётной высоте)');
+        });
+
+        test('JS: _fitGrid — мобильная вёрстка (<1024px) не подгоняется', () => {
+            const re = /window\.matchMedia\s*\n?\s*&&\s*window\.matchMedia\('\(min-width: 1024px\)'\)\.matches;/;
+            const hasClear = html.indexOf("wrap.classList.remove('ws-compact', 'ws-tight');") !== -1;
+            assertTrue(re.test(html) && hasClear,
+                'На мобильной — природные высоты (очистка классов и переменной)');
+        });
+
+        test('JS: _renderGrid вызывает _fitGrid после сборки таблицы', () => {
+            const re = /wrap\.innerHTML = html;\s*\n\s*\/\/ Task 256[\s\S]*?\n\s*this\._fitGrid\(\);/;
+            assertTrue(re.test(html),
+                'После каждого рендера шахматки — пересчёт высот строк');
+        });
+
+        test('JS: _attachFitResize — ResizeObserver + брейкпоинт 1024px', () => {
+            const hasRO = html.indexOf('new ResizeObserver(function() {') !== -1 ||
+                          html.indexOf('new ResizeObserver(') !== -1;
+            const hasMq = html.indexOf("window.matchMedia('(min-width: 1024px)')") !== -1;
+            assertTrue(hasRO && hasMq,
+                'Пересчёт при изменении окна/показе страницы и переходе мобильная/десктоп');
+        });
+
+        test('JS: init навешивает _attachFitResize один раз', () => {
+            const re = /this\._attachFitResize\(\);/;
+            const hasGuard = html.indexOf('if (this._fitAttached) return;') !== -1;
+            assertTrue(re.test(html) && hasGuard,
+                'Наблюдатель размера вешается однократно при инициализации модуля');
+        });
+    });
+
+    describe('Task 257: завершающая полоса внизу таблицы + скрытие скроллбара', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: .ws-grid-foot — полоса-бордюрчик 5px внизу таблицы (Task 258)', () => {
+            const re = /\.ws-grid-foot \{[^}]*height:\s*5px;[^}]*background:\s*rgba\(74,\s*143,\s*199,\s*0\.35\);[^}]*\}/s;
+            assertTrue(re.test(html),
+                'Небольшой бордюрчик (Task 258: 5px) — зрительное окончание таблицы снизу');
+        });
+
+        test('CSS: .ws-grid-foot — светлая тема', () => {
+            const re = /\[data-theme="light"\] \.ws-grid-foot \{[^}]*background:\s*rgba\(20,\s*20,\s*19,\s*0\.15\);[^}]*\}/s;
+            assertTrue(re.test(html), 'В светлой теме полоса темнее фона, но мягкая');
+        });
+
+        test('CSS: полосы прокрутки шахматки скрыты (все движки)', () => {
+            const reWrap = /\.ws-grid-wrap \{[^}]*scrollbar-width:\s*none;[^}]*-ms-overflow-style:\s*none;[^}]*\}/s;
+            const reWebkit = /\.ws-grid-wrap::-webkit-scrollbar \{[^}]*display:\s*none;[^}]*\}/s;
+            assertTrue(reWrap.test(html) && reWebkit.test(html),
+                'scrollbar-width:none (Firefox) + ::-webkit-scrollbar display:none ' +
+                '(Chrome/Edge PWA) — полосы прокрутки справа от таблицы больше нет, ' +
+                'прокрутка колесом/свайпом остаётся');
+        });
+
+        test('JS: _renderGrid добавляет .ws-grid-foot сразу после таблицы', () => {
+            const re = /html \+= '<\/tbody><\/table>';[\s\S]*?html \+= '<div class="ws-grid-foot" aria-hidden="true"><\/div>';[\s\S]*?wrap\.innerHTML = html;/;
+            assertTrue(re.test(html),
+                'Полоса-бордюрчик рендерится под последней строкой каждой шахматки');
+        });
+
+        test('JS: _fitGrid резервирует высоту полосы в бюджете строк', () => {
+            const reFoot = /var foot = wrap\.querySelector\('\.ws-grid-foot'\);[\s\S]*?var footH = foot \? Math\.round\(foot\.getBoundingClientRect\(\)\.height\) : 0;[\s\S]*?var budget = avail - headH - footH;/;
+            assertTrue(reFoot.test(html),
+                'budget = область - шапка - полоса: таблица с полосой всегда до низа');
+        });
+
+        test('JS: _fitGrid — реальная высота области вместо clientHeight', () => {
+            const re = /var avail = Math\.floor\(wrap\.getBoundingClientRect\(\)\.height \+ 0\.25\);/;
+            assertTrue(re.test(html),
+                'floor(факт+0.25): при дробном масштабе окна (Windows 125%/150%) ' +
+                'clientHeight округлялся ВВЕРХ и таблица переливалась на долю px — ' +
+                'появлялась полоса прокрутки справа');
+        });
+    });
+
+    // ============================================================
+    // Task 258: SW-версия kip8. Партия Tasks 254-258 переносится из
+    // kip8test@d695de1 одним коммитом: промежуточные версии kip8test
+    // (v512-v516) в kip8 не существовали — боевой репозиторий получает
+    // kipia-v403 (розовые выходные, красные границы, должности с режимом
+    // занятости, авто-подгонка под окно, полоса-бордюрчик 5px, скрытие
+    // полос прокрутки).
+    // ============================================================
+    describe('Task 258: SW версия v403 (перенос Tasks 254-258 в kip8)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const swPath = path.resolve(__dirname, '..', 'sw.js');
+        const sw = fs.readFileSync(swPath, 'utf8');
+
+        test('CACHE_VERSION = kipia-v403', () => {
+            assertTrue(sw.indexOf("kipia-v403") !== -1,
+                'CACHE_VERSION должен быть kipia-v403 (партия Tasks 254-258, бордюрчик 5px)');
+        });
+        test('Старая версия v402 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v402") === -1,
+                'Старая v402 не должна остаться в sw.js');
+        });
+        test('Тестовые версии v512-v516 в боевом sw.js отсутствуют', () => {
+            for (let v = 512; v <= 516; v++) {
+                assertTrue(sw.indexOf("kipia-test-v" + v) === -1 && sw.indexOf("kipia-v" + v) === -1,
+                    'kipia(-test)-v' + v + ' не должно быть в боевом sw.js (нумерация kip8 своя)');
+            }
         });
     });
 });
