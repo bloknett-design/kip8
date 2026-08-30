@@ -875,8 +875,9 @@ describe('График работы — WorkSchedule', () => {
         });
 
         // Task 252 (перенос в kip8): SW-тест версии v402 удалён — версия
-        // v403 введена с переносом Tasks 254-258 (см. describe
-        // «Task 258: SW версия v403» ниже). Историческая заметка.
+        // v403 введена с переносом Tasks 254-258, затем заменена на v404
+        // (партия Tasks 259-262 — см. describe «Task 262: SW версия v404»
+        // ниже). Историческая заметка.
     });
 
     // ============================================================
@@ -907,9 +908,11 @@ describe('График работы — WorkSchedule', () => {
                 'Светлая тема: пастельно-розовый фон пустых ячеек выходных');
         });
 
-        test('JS: _renderCell помечает выходные классом ws-weekend', () => {
-            assertTrue(html.indexOf("if (cellDow === 0 || cellDow === 6) classes.push('ws-weekend');") !== -1,
-                'Суббота и воскресенье должны получать класс ws-weekend');
+        test('JS: _renderCell помечает нерабочие дни классом ws-weekend', () => {
+            // Task 260: выходные определяются по производственному
+            // календарю (Сб/Вс + праздники + переносы, без рабочих суббот)
+            assertTrue(html.indexOf("if (dayOff) classes.push('ws-weekend');") !== -1,
+                'Нерабочие дни (Сб/Вс + праздники + переносы) — класс ws-weekend');
         });
 
         test('CSS: розовый ТОЛЬКО у пустых ячеек (комбинация с ws-status-empty)', () => {
@@ -959,17 +962,22 @@ describe('График работы — WorkSchedule', () => {
                 'Граничные селекторы не должны затрагивать thead (шапка без линий)');
         });
 
-        test('JS: обе стороны стыка — пятница+суббота, воскресенье+понедельник', () => {
+        test('JS: обе стороны стыка — по производственному календарю', () => {
+            // Task 260 (развитие Tasks 254/255): стык определяется между
+            // соседними рабочим и нерабочим днём ПО КАЛЕНДАРЮ, а не по
+            // дню недели (праздники в будни тоже дают красную границу).
             // При 1px в border-collapse цвет общей грани равных границ
             // браузер может взять у соседа — красной делается ОБЕ стороны.
-            assertTrue(html.indexOf("if (cellDow === 6 && day > 1) classes.push('ws-boundary-left');") !== -1,
-                'Суббота со 2-й позиции месяца — ws-boundary-left');
-            assertTrue(html.indexOf("if (cellDow === 5 && day < lastDay) classes.push('ws-boundary-after');") !== -1,
-                'Пятница (не последний день) — ws-boundary-after (border-right)');
-            assertTrue(html.indexOf("if (cellDow === 0 && day < lastDay) classes.push('ws-boundary-right');") !== -1,
-                'Воскресенье (не последний день) — ws-boundary-right');
-            assertTrue(html.indexOf("if (cellDow === 1 && day > 1) classes.push('ws-boundary-before');") !== -1,
-                'Понедельник со 2-й позиции месяца — ws-boundary-before (border-left)');
+            assertTrue(html.indexOf("var dayOff = this._calDayOff(day);") !== -1,
+                '_renderCell определяет нерабочий день через _calDayOff');
+            assertTrue(html.indexOf("if (dayOff && day > 1 && !this._calDayOff(day - 1)) classes.push('ws-boundary-left');") !== -1,
+                'Первый нерабочий день блока — ws-boundary-left');
+            assertTrue(html.indexOf("if (dayOff && day < lastDay && !this._calDayOff(day + 1)) classes.push('ws-boundary-right');") !== -1,
+                'Последний нерабочий день блока — ws-boundary-right');
+            assertTrue(html.indexOf("if (!dayOff && day < lastDay && this._calDayOff(day + 1)) classes.push('ws-boundary-after');") !== -1,
+                'Последний рабочий день перед блоком — ws-boundary-after');
+            assertTrue(html.indexOf("if (!dayOff && day > 1 && this._calDayOff(day - 1)) classes.push('ws-boundary-before');") !== -1,
+                'Первый рабочий день после блока — ws-boundary-before');
             const reLast = /var lastDay = new Date\(this\._year, this\._month, 0\)\.getDate\(\);/;
             assertTrue(reLast.test(html),
                 'lastDay вычисляется один раз для обеих проверок');
@@ -977,13 +985,14 @@ describe('График работы — WorkSchedule', () => {
 
         test('JS: шапка таблицы — граничные классы НЕ ставятся', () => {
             // Task 255: из шапки линии убраны — thCls больше не получает
-            // ws-boundary-*, остаются только ws-day-col + ws-holiday.
+            // ws-boundary-*, остаются ws-day-col + ws-holiday (+ ws-feast
+            // Task 260 — праздник по производственному календарю).
             assertTrue(html.indexOf("thCls += ' ws-boundary-left'") === -1 &&
                        html.indexOf("thCls += ' ws-boundary-right'") === -1,
                 'Шапка: граничные классы удалены из рендера th');
-            const reTh = /var thCls = 'ws-day-col' \+ \(isHoliday \? ' ws-holiday' : ''\);/;
+            const reTh = /var thCls = 'ws-day-col' \+ \(isOff \? ' ws-holiday' : ''\) \+/;
             assertTrue(reTh.test(html),
-                'Шапка: thCls формируется только из ws-day-col + ws-holiday');
+                'Шапка: thCls формируется из ws-day-col + ws-holiday (+ ws-feast)');
         });
     });
 
@@ -1180,15 +1189,16 @@ describe('График работы — WorkSchedule', () => {
         const indexPath = path.resolve(__dirname, '..', 'index.html');
         const html = fs.readFileSync(indexPath, 'utf8');
 
-        test('CSS: .ws-grid-foot — полоса-бордюрчик 5px внизу таблицы (Task 258)', () => {
-            const re = /\.ws-grid-foot \{[^}]*height:\s*5px;[^}]*background:\s*rgba\(74,\s*143,\s*199,\s*0\.35\);[^}]*\}/s;
+        test('CSS: .ws-grid-foot — полоса-бордюрчик 5px внизу таблицы (Task 259: непрозрачная, с эффектом выступа)', () => {
+            const re = /\.ws-grid-foot \{[^}]*height:\s*5px;[^}]*box-sizing:\s*border-box;[^}]*background:\s*#35648f;[^}]*border-top:\s*1px solid #85b7dc;[^}]*border-bottom:\s*1px solid #0f1b26;[^}]*\}/s;
             assertTrue(re.test(html),
-                'Небольшой бордюрчик (Task 258: 5px) — зрительное окончание таблицы снизу');
+                'Бордюрчик 5px: сплошной стальной фон #35648f + верхняя грань ' +
+                '#85b7dc (блик) и нижняя #0f1b26 (тень) — эффект выступа');
         });
 
-        test('CSS: .ws-grid-foot — светлая тема', () => {
-            const re = /\[data-theme="light"\] \.ws-grid-foot \{[^}]*background:\s*rgba\(20,\s*20,\s*19,\s*0\.15\);[^}]*\}/s;
-            assertTrue(re.test(html), 'В светлой теме полоса темнее фона, но мягкая');
+        test('CSS: .ws-grid-foot — светлая тема (Task 259)', () => {
+            const re = /\[data-theme="light"\] \.ws-grid-foot \{[^}]*background:\s*#b3c2ce;[^}]*border-top:\s*1px solid #ffffff;[^}]*border-bottom:\s*1px solid #84929e;[^}]*\}/s;
+            assertTrue(re.test(html), 'Светлая тема: сплошной фон + белый блик сверху, тень снизу');
         });
 
         test('CSS: полосы прокрутки шахматки скрыты (все движки)', () => {
@@ -1222,29 +1232,203 @@ describe('График работы — WorkSchedule', () => {
     });
 
     // ============================================================
-    // Task 258: SW-версия kip8. Партия Tasks 254-258 переносится из
-    // kip8test@d695de1 одним коммитом: промежуточные версии kip8test
-    // (v512-v516) в kip8 не существовали — боевой репозиторий получает
-    // kipia-v403 (розовые выходные, красные границы, должности с режимом
-    // занятости, авто-подгонка под окно, полоса-бордюрчик 5px, скрытие
-    // полос прокрутки).
+    // Task 259: бордюрчик непрозрачный с эффектом выступа;
+    // группировка/сортировка сотрудников (сменные 1-5 → дневные
+    // по алфавиту); разделитель групп сменного/дневного персонала
     // ============================================================
-    describe('Task 258: SW версия v403 (перенос Tasks 254-258 в kip8)', () => {
+
+    describe('Task 259: бордюрчик под графиком — непрозрачный, с эффектом выступа', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: полоса непрозрачная — сплошной фон без rgba-альфы', () => {
+            const reSolid = /\.ws-grid-foot \{[^}]*background:\s*#35648f;[^}]*\}/s;
+            const reLightSolid = /\[data-theme="light"\] \.ws-grid-foot \{[^}]*background:\s*#b3c2ce;[^}]*\}/s;
+            assertTrue(reSolid.test(html) && reLightSolid.test(html),
+                'Фон полосы — сплошные цвета в обеих темах (было rgba с альфой)');
+            const reOldAlpha = /\.ws-grid-foot \{[^}]*rgba\(/s;
+            assertFalse(reOldAlpha.test(html),
+                'В тёмной теме больше нет полупрозрачного rgba-фона полосы');
+        });
+
+        test('CSS: эффект выступа — верхняя грань светлее фона, нижняя темнее', () => {
+            const reDark = /\.ws-grid-foot \{[^}]*border-top:\s*1px solid #85b7dc;[^}]*border-bottom:\s*1px solid #0f1b26;[^}]*\}/s;
+            assertTrue(reDark.test(html),
+                'Блик #85b7dc сверху + тень #0f1b26 снизу на стальном фоне — bevel');
+            const reLight = /\[data-theme="light"\] \.ws-grid-foot \{[^}]*border-top:\s*1px solid #ffffff;[^}]*border-bottom:\s*1px solid #84929e;[^}]*\}/s;
+            assertTrue(reLight.test(html), 'Светлая тема: белый блик + серо-синяя тень');
+        });
+
+        test('CSS: высота полосы остаётся 5px (box-sizing: border-box)', () => {
+            const re = /\.ws-grid-foot \{[^}]*height:\s*5px;[^}]*box-sizing:\s*border-box;[^}]*\}/s;
+            assertTrue(re.test(html),
+                '1px блик + 3px фон + 1px тень = 5px, _fitGrid читает реальную ' +
+                'геометрию — подгонка строк не меняется');
+        });
+    });
+
+    describe('Task 259: группировка и сортировка сотрудников', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const vm = require('vm');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        // Извлечение метода _sortEmployees из объекта WorkSchedule
+        // (поиск по имени + балансировка фигурных скобок)
+        function extractMethod(src, name) {
+            const start = src.indexOf(name + ': function(');
+            if (start === -1) return null;
+            const braceStart = src.indexOf('{', start);
+            let depth = 0;
+            for (let i = braceStart; i < src.length; i++) {
+                if (src[i] === '{') depth++;
+                else if (src[i] === '}') {
+                    depth--;
+                    if (depth === 0) return src.slice(start, i + 1);
+                }
+            }
+            return null;
+        }
+
+        let _sortEmployees = null;
+        try {
+            const src = extractMethod(html, '_sortEmployees');
+            if (src) {
+                const ctx = {};
+                vm.createContext(ctx);
+                vm.runInContext('var WSMixin = { ' + src + ' };', ctx);
+                _sortEmployees = ctx.WSMixin._sortEmployees;
+            }
+        } catch (e) { /* метод не извлёкся — тесты ниже упадут с понятной причиной */ }
+
+        test('JS: _sortEmployees определён и подключён в _loadEmployees', () => {
+            assertTrue(html.indexOf('_sortEmployees: function(list)') !== -1,
+                'Метод _sortEmployees определён в модуле WorkSchedule');
+            const re = /self\._EMPLOYEES = self\._sortEmployees\(data\.employees \|\| \[\]\);/;
+            assertTrue(re.test(html),
+                '_loadEmployees применяет сортировку — единый порядок для ' +
+                'шахматки, справочника и селектов');
+        });
+
+        test('Функционально: сменные по сменам 1..5, затем дневные по алфавиту', () => {
+            assertTrue(typeof _sortEmployees === 'function',
+                '_sortEmployees извлечён из index.html');
+            const src = [
+                { 'ФИО': 'Ягодкин Н.Н.', 'тип': 'дневной' },
+                { 'ФИО': 'Иванов А.А.',  'тип': 'сменный', 'смена': 3 },
+                { 'ФИО': 'Сидоров К.К.', 'тип': 'сменный', 'смена': 1 },
+                { 'ФИО': 'Абрамов В.В.', 'тип': 'сменный', 'смена': 1 },
+                { 'ФИО': 'Петров Б.Б.',  'тип': 'сменный', 'смена': 2 },
+                { 'ФИО': 'Козлов Д.Д.',  'тип': 'дневной' }
+            ];
+            const out = _sortEmployees(src).map(e => e['ФИО']);
+            assertEqual(JSON.stringify(out),
+                JSON.stringify(['Абрамов В.В.', 'Сидоров К.К.', 'Петров Б.Б.',
+                                'Иванов А.А.', 'Козлов Д.Д.', 'Ягодкин Н.Н.']),
+                'Смена №1 (алфавит), смена №2, смена №3, затем дневные (алфавит)');
+        });
+
+        test('Функционально: внутри одной смены — алфавит фамилий', () => {
+            const src = [
+                { 'ФИО': 'Юдин С.С.', 'тип': 'сменный', 'смена': 2 },
+                { 'ФИО': 'Белов Р.Р.', 'тип': 'сменный', 'смена': 2 },
+                { 'ФИО': 'Мишин Л.Л.', 'тип': 'сменный', 'смена': 2 }
+            ];
+            const out = _sortEmployees(src).map(e => e['ФИО']);
+            assertEqual(JSON.stringify(out),
+                JSON.stringify(['Белов Р.Р.', 'Мишин Л.Л.', 'Юдин С.С.']),
+                'Внутри смены №2 сортировка по фамилиям');
+        });
+
+        test('Функционально: все 5 смен по порядку, сменный без номера — после них', () => {
+            const src = [
+                { 'ФИО': 'Фёдоров Ф.Ф.', 'тип': 'сменный' },          // без номера
+                { 'ФИО': 'Бобров Б.Б.', 'тип': 'сменный', 'смена': 5 },
+                { 'ФИО': 'Агафов А.А.', 'тип': 'сменный', 'смена': 4 },
+                { 'ФИО': 'Васин В.В.',  'тип': 'сменный', 'смена': 1 },
+                { 'ФИО': 'Гусев Г.Г.',  'тип': 'сменный', 'смена': 2 },
+                { 'ФИО': 'Дёмин Д.Д.',  'тип': 'сменный', 'смена': 3 },
+                { 'ФИО': 'Яшин Я.Я.',   'тип': 'дневной' }
+            ];
+            const out = _sortEmployees(src).map(e => e['смена'] || '—');
+            assertEqual(JSON.stringify(out),
+                JSON.stringify([1, 2, 3, 4, 5, '—', '—']),
+                'Смены 1-5 по порядку, сменный без номера перед дневными, дневной в конце');
+        });
+
+        test('Функционально: без типа — в конце; исходный массив не мутируется', () => {
+            const src = [
+                { 'ФИО': 'Иванов И.И.' },                        // без типа
+                { 'ФИО': 'Смирнов С.С.', 'тип': 'дневной' },
+                { 'ФИО': 'Кузнецов К.К.', 'тип': 'сменный', 'смена': 1 }
+            ];
+            const snapshot = JSON.stringify(src);
+            const out = _sortEmployees(src);
+            assertEqual(JSON.stringify(out.map(e => e['ФИО'])),
+                JSON.stringify(['Кузнецов К.К.', 'Смирнов С.С.', 'Иванов И.И.']),
+                'Сменный → дневной → без типа');
+            assertEqual(JSON.stringify(src), snapshot,
+                '_sortEmployees возвращает новый массив, не мутируя вход');
+        });
+    });
+
+    describe('Task 259: разделитель групп сменного и дневного персонала', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: усиленная верхняя граница у строки ws-group-first', () => {
+            const reDark = /\.ws-grid tbody tr\.ws-group-first td \{[^}]*border-top:\s*2px solid #4a8fc7;[^}]*\}/s;
+            assertTrue(reDark.test(html),
+                'Разделитель 2px стальной синий на первой строке дневной группы');
+            const reLight = /\[data-theme="light"\] \.ws-grid tbody tr\.ws-group-first td \{[^}]*border-top:\s*2px solid #6e8ba4;[^}]*\}/s;
+            assertTrue(reLight.test(html), 'Светлая тема — свой цвет разделителя');
+        });
+
+        test('JS: _renderGrid ставит ws-group-first на стыке сменных и дневных', () => {
+            const re = /var trCls = \(empTier === 1 && prevTier === 0\)[\s\S]*?' class="ws-group-first"' : '';[\s\S]*?html \+= '<tr' \+ trCls \+ '>';/;
+            assertTrue(re.test(html),
+                'Класс ставится только когда дневной идёт сразу после сменного');
+            const reTier = /var empTier = \(empTip === 'сменный'\) \? 0\s*: \(empTip === 'дневной'\) \? 1 : 2;/;
+            assertTrue(reTier.test(html), 'Тир сотрудника: сменный 0, дневной 1, без типа 2');
+        });
+
+        test('JS: prevTier обновляется по каждой строке (стык отслеживается)', () => {
+            const re = /var prevTier = -1;[\s\S]*?prevTier = empTier;/;
+            assertTrue(re.test(html),
+                'Группа предыдущей строки отслеживается до конца списка');
+        });
+
+        test('Инвариант: без сменных ИЛИ без дневных разделитель не ставится', () => {
+            // условие empTier === 1 && prevTier === 0 не срабатывает:
+            //  - все дневные: первая строка имеет prevTier = -1
+            //  - только сменные: empTier === 1 не встречается
+            const re = /var trCls = \(empTier === 1 && prevTier === 0\)/;
+            assertTrue(re.test(html),
+                'Строгая проверка стыка — лишних разделителей нет');
+        });
+    });
+
+    describe('Task 262: SW версия v404 (перенос Tasks 259-262 в kip8)', () => {
         const fs = require('fs');
         const path = require('path');
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v403', () => {
-            assertTrue(sw.indexOf("kipia-v403") !== -1,
-                'CACHE_VERSION должен быть kipia-v403 (партия Tasks 254-258, бордюрчик 5px)');
+        test('CACHE_VERSION = kipia-v404', () => {
+            assertTrue(sw.indexOf("kipia-v404") !== -1,
+                'CACHE_VERSION должен быть kipia-v404 (партия Tasks 259-262: бордюрчик с выступом, группировка сотрудников, производственный календарь legalic + День шахтёра)');
         });
-        test('Старая версия v402 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v402") === -1,
-                'Старая v402 не должна остаться в sw.js');
+        test('Старая версия v403 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v403") === -1,
+                'Старая v403 не должна остаться в sw.js');
         });
-        test('Тестовые версии v512-v516 в боевом sw.js отсутствуют', () => {
-            for (let v = 512; v <= 516; v++) {
+        test('Тестовые версии v517-v519 в боевом sw.js отсутствуют', () => {
+            for (let v = 517; v <= 519; v++) {
                 assertTrue(sw.indexOf("kipia-test-v" + v) === -1 && sw.indexOf("kipia-v" + v) === -1,
                     'kipia(-test)-v' + v + ' не должно быть в боевом sw.js (нумерация kip8 своя)');
             }
