@@ -1432,15 +1432,15 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v404 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v405") !== -1,
-                'Актуальная версия — kipia-v405 (перенос Tasks 264-267 в kip8)');
+            assertTrue(sw.indexOf("kipia-v406") !== -1,
+                'Актуальная версия — kipia-v406 (перенос Tasks 269-270 в kip8)');
         });
         test('Старая версия v403 убрана', () => {
             assertTrue(sw.indexOf("kipia-v403") === -1,
                 'Старая v403 не должна остаться в sw.js');
         });
-        test('Тестовые версии v517-v523 в боевом sw.js отсутствуют', () => {
-            for (let v = 517; v <= 523; v++) {
+        test('Тестовые версии v517-v525 в боевом sw.js отсутствуют', () => {
+            for (let v = 517; v <= 525; v++) {
                 assertTrue(sw.indexOf("kipia-test-v" + v) === -1 && sw.indexOf("kipia-v" + v) === -1,
                     'kipia(-test)-v' + v + ' не должно быть в боевом sw.js (нумерация kip8 своя)');
             }
@@ -1659,13 +1659,15 @@ describe('График работы — WorkSchedule', () => {
         });
 
         test('HTML: статический #wsEmpty — «Загрузка» + три анимированные точки', () => {
-            const re = /<div class="admin-empty" id="wsEmpty">Загрузка<span class="flow-loading-dots"><span>\.<\/span><span>\.<\/span><span>\.<\/span><\/span><\/div>/;
+            // Task 269: та же разметка, но на классах расходомеров
+            // .flow-loading + .flow-loading-text (шрифт как у расходомеров)
+            const re = /<div class="flow-loading" id="wsEmpty"><div class="flow-loading-text">Загрузка<span class="flow-loading-dots"><span>\.<\/span><span>\.<\/span><span>\.<\/span><\/span><\/div><\/div>/;
             assertTrue(re.test(html),
                 'плейсхолдер сетки содержит span.flow-loading-dots с тремя точками');
         });
 
         test('JS: loadGrid() ставит ту же разметку с точками', () => {
-            const re = /wrapEl\.innerHTML = '<div class="admin-empty" id="wsEmpty">Загрузка<span class="flow-loading-dots"><span>\.<\/span><span>\.<\/span><span>\.<\/span><\/span><\/div>';/;
+            const re = /wrapEl\.innerHTML = '<div class="flow-loading" id="wsEmpty"><div class="flow-loading-text">Загрузка<span class="flow-loading-dots"><span>\.<\/span><span>\.<\/span><span>\.<\/span><\/span><\/div><\/div>';/;
             assertTrue(re.test(html),
                 'loadGrid показывает «Загрузка…» с анимированными точками при каждой смене месяца');
         });
@@ -1792,19 +1794,263 @@ describe('График работы — WorkSchedule', () => {
         });
     });
 
-    describe('Task 267: SW версия v405 (перенос Tasks 264-267 в kip8)', () => {
+    describe('Task 269-270: SW версия v406 (перенос в kip8)', () => {
         const fs = require('fs');
         const path = require('path');
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v405', () => {
-            assertTrue(sw.indexOf("kipia-v405") !== -1,
-                'CACHE_VERSION должен быть kipia-v405 (партия Tasks 264-267: окошко календаря + День города + звёздочка, диалог «Сформировать», столбики норм/праздников, точки «Загрузка…», авто-размещение кнопок, закрепление на главной, полные крошки)');
+        test('CACHE_VERSION = kipia-v406', () => {
+            assertTrue(sw.indexOf("kipia-v406") !== -1,
+                'CACHE_VERSION должен быть kipia-v406 (партия Tasks 269-270: нормы двумя столбиками, окно по ширине текста справа / кнопки слева внизу, единая высота кнопок, «Загрузка…» шрифтом расходомеров; окно под 5 строк 95px, светлая тема темнее, плашки-заголовки, бар узкий 5px)');
         });
-        test('Старая версия v404 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v404") === -1,
-                'Старая v404 не должна остаться в sw.js');
+        test('Старая версия v405 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v405") === -1,
+                'Старая v405 не должна остаться в sw.js');
+        });
+    });
+
+    // ============================================================
+    // Task 269 (по заявке пользователя), 5 пунктов — бар кнопок
+    // «Графика работы» и «Загрузка…»:
+    //   1) столбик норм окна календаря разделён на ДВА столбика
+    //      (счётчики дней слева, нормы часов справа от них);
+    //   2) само окно стало УЖЕ — ширина по тексту (fit-content);
+    //   3) высота кнопок бара ВЫРАВНЕНА (34px у всех элементов);
+    //   4) кнопки — в ЛЕВОЙ НИЖНЕЙ части бара, окно с данными —
+    //      в ПРАВОЙ (десктоп ≥1024px);
+    //   5) шрифт «Загрузка…» — как у «Расходомеров хозрасчётных»
+    //      (.flow-loading + .flow-loading-text: 16px / 600).
+    // ============================================================
+    describe('Task 269: нормы двумя столбиками (.ws-cp-group/.ws-cp-cols)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: группа норм — колонка с заголовком (.ws-cp-group)', () => {
+            assertTrue(/\.ws-cp-group \{[^}]*flex-direction:\s*column/.test(html),
+                'группа норм — вертикальная: заголовок сверху, столбики под ним');
+            assertTrue(/\.ws-cp-group \{[^}]*flex-shrink:\s*0/.test(html),
+                'группа не сжимается — переносится при нехватке ширины');
+        });
+
+        test('CSS: ДВА подстолбика норм в ряд (.ws-cp-cols)', () => {
+            assertTrue(/\.ws-cp-cols \{[^}]*display:\s*flex/.test(html),
+                '.ws-cp-cols — строка из двух подстолбиков');
+            assertTrue(/\.ws-cp-cols \{[^}]*column-gap:\s*16px/.test(html),
+                'зазор между подстолбиками (второй — справа от первого)');
+            assertTrue(/\.ws-cp-cols \{[^}]*flex-wrap:\s*wrap/.test(html),
+                'на узких экранах подстолбик часов переносится под дни');
+        });
+
+        test('JS: renderPanel — дни и часы в РАЗНЫХ подстолбиках', () => {
+            // заголовок «Норма, …» живёт в группе, под ней .ws-cp-cols
+            const groupRe = /'<div class="ws-cp-group ws-cp-norms"[^>]*>'\s*\+[^;]*?'<span class="ws-cp-cap">Норма, '/;
+            assertTrue(groupRe.test(html),
+                'группа норм с заголовком «Норма, {месяц}» (тултип официальности — на группе)');
+            assertTrue(html.indexOf("'<div class=\"ws-cp-cols\">'") !== -1,
+                'контейнер двух подстолбиков .ws-cp-cols');
+            // первый подстолбик — счётчики дней, второй — нормы часов:
+            // «Рабочих» и «40-час» в разных .ws-cp-col внутри .ws-cp-cols
+            const colsStart = html.indexOf("'<div class=\"ws-cp-cols\">'");
+            const colsEnd = html.indexOf("'</div>' +\n                    '</div>';");
+            assertTrue(colsStart !== -1 && colsEnd > colsStart, 'блок .ws-cp-cols найден');
+            const colsBlock = html.slice(colsStart, colsEnd);
+            const iDays = colsBlock.indexOf('Рабочих: <b>');
+            const iFirstColEnd = colsBlock.indexOf("'</div>' +", iDays);
+            const iHours = colsBlock.indexOf('40-час: <b>');
+            assertTrue(iDays !== -1 && iHours !== -1 && iFirstColEnd !== -1,
+                'и дни, и часы есть в блоке .ws-cp-cols');
+            assertTrue(iDays < iFirstColEnd && iHours > iFirstColEnd,
+                '«Рабочих» — в первом подстолбике, «40-час» — во втором (справа)');
+        });
+    });
+
+    describe('Task 269: окно уже — ширина по тексту; Task 270: высота под 5 строк', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: базовое правило — width: fit-content', () => {
+            assertTrue(/\.ws-cal-panel \{[^}]*width:\s*fit-content/.test(html),
+                'окно не растягивается — ширина по тексту столбиков');
+            assertTrue(/\.ws-cal-panel \{[^}]*max-width:\s*100%/.test(html),
+                'окно не шире бара');
+        });
+
+        test('CSS: статическая высота 95px — ПОД ПЯТЬ СТРОК (Task 270)', () => {
+            assertTrue(/\.ws-cal-panel \{[^}]*height:\s*95px/.test(html),
+                'высота окна — 95px в базовом правиле (плашка + 4 строки часов)');
+            const re = /@media \(min-width: 1024px\) \{[\s\S]*?\.ws-cal-panel \{[^}]*height:\s*95px/s;
+            assertTrue(re.test(html), 'высота окна на десктопе — те же 95px');
+            assertFalse(/\.ws-cal-panel \{[^}]*height:\s*120px/.test(html),
+                'старая высота 120px (Task 269) заменена');
+        });
+    });
+
+    describe('Task 269: кнопки слева внизу / окно справа + высота кнопок', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: единая высота всех элементов ряда кнопок (34px)', () => {
+            const re = /\.ws-month-sel, \.ws-year-sel, \.ws-cal-chip, \.ws-generate-btn, \.ws-save-btn \{[^}]*height:\s*34px[^}]*box-sizing:\s*border-box/;
+            assertTrue(re.test(html),
+                'селекты, чип «Календарь», «Сформировать» и «Сохранить» — одного роста');
+        });
+
+        test('CSS: десктоп — кнопки в ЛЕВОЙ НИЖНЕЙ части бара', () => {
+            assertTrue(/\.ws-toolbar-main \{[^}]*order:\s*0/.test(html),
+                'ряд кнопок — левая часть бара (order: 0)');
+            assertTrue(/\.ws-toolbar-main \{[^}]*align-self:\s*flex-end/.test(html),
+                'кнопки прижаты к нижней кромке бара');
+            assertTrue(/\.ws-toolbar-main \{[^}]*margin-right:\s*auto/.test(html),
+                'окно уходит в правую часть бара');
+        });
+
+        test('CSS: десктоп — окно с данными в ПРАВОЙ части бара', () => {
+            assertTrue(/\.ws-cal-panel \{[^}]*order:\s*1/.test(html),
+                'окно календаря — правая часть бара (order: 1)');
+            assertTrue(/\.ws-cal-panel \{[^}]*flex:\s*0 1 auto/.test(html),
+                'окно не растягивается на свободную ширину');
+            assertFalse(/\.ws-cal-panel \{[^}]*flex:\s*1 1 auto/.test(html),
+                'старое растягивание (flex: 1 1 auto) удалено');
+        });
+
+        test('CSS: старое размещение Task 266 удалено', () => {
+            assertFalse(/\.ws-toolbar-main \{[^}]*margin-left:\s*auto/.test(html),
+                'кнопки больше не прижаты вправо');
+            assertFalse(/\.ws-cal-panel \{[^}]*min-width:\s*0/.test(html),
+                'min-width: 0 из старого правила удалён');
+        });
+    });
+
+    describe('Task 269: шрифт «Загрузка…» — как у расходомеров', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: .flow-loading-text — 16px / 600 / text-primary', () => {
+            assertTrue(/\.flow-loading-text \{[^}]*font-size:\s*16px/.test(html),
+                'размер шрифта «Загрузка…» — 16px (как у расходомеров)');
+            assertTrue(/\.flow-loading-text \{[^}]*font-weight:\s*600/.test(html),
+                'жирность — 600');
+            assertTrue(/\.flow-loading-text \{[^}]*color:\s*var\(--text-primary\)/.test(html),
+                'цвет — основной текст, а не приглушённый admin-empty');
+        });
+
+        test('HTML: статический #wsEmpty — .flow-loading + .flow-loading-text', () => {
+            const re = /<div class="flow-loading" id="wsEmpty"><div class="flow-loading-text">Загрузка<span class="flow-loading-dots"><span>\.<\/span><span>\.<\/span><span>\.<\/span><\/span><\/div><\/div>/;
+            assertTrue(re.test(html),
+                'плейсхолдер сетки использует классы расходомеров (шрифт 16px/600) с тремя точками');
+        });
+
+        test('JS: loadGrid() ставит ту же разметку с классами расходомеров', () => {
+            const re = /wrapEl\.innerHTML = '<div class="flow-loading" id="wsEmpty"><div class="flow-loading-text">Загрузка<span class="flow-loading-dots"><span>\.<\/span><span>\.<\/span><span>\.<\/span><\/span><\/div><\/div>';/;
+            assertTrue(re.test(html),
+                'loadGrid показывает «Загрузка…» шрифтом расходомеров при каждой смене месяца');
+        });
+
+        test('HTML: #wsEmpty больше не использует admin-empty', () => {
+            assertFalse(/<div class="admin-empty" id="wsEmpty"/.test(html),
+                'старая разметка admin-empty (14px, приглушённый цвет) удалена');
+        });
+    });
+
+    // ============================================================
+    // Task 270: окошко календаря — высота под 5 строк, светлый фон
+    // темнее, плашки-заголовки столбцов с цветным фоном и ярким
+    // текстом, узкий бар с отступами 5px
+    // ============================================================
+
+    describe('Task 270: заголовки столбцов — плашки с цветным фоном, текст ярче', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: .ws-cp-cap — плашка (inline-block + padding, обнимает текст)', () => {
+            assertTrue(/\.ws-cp-cap \{[^}]*display:\s*inline-block/.test(html),
+                'заголовок — inline-block плашка, а не растянутая строка');
+            assertTrue(/\.ws-cp-cap \{[^}]*padding:\s*1px 7px/.test(html),
+                'плашка с внутренними отступами 1px 7px');
+            assertTrue(/\.ws-cp-cap \{[^}]*align-self:\s*flex-start/.test(html),
+                'плашка не тянется на ширину столбика (align-self: flex-start)');
+            assertTrue(/\.ws-cp-cap \{[^}]*border-radius:\s*2px/.test(html),
+                'скругление 2px — как у чипов дней');
+        });
+
+        test('CSS: плашка «Норма» — синий фон, яркий текст', () => {
+            const re = /\.ws-cp-norms > \.ws-cp-cap \{[^}]*background:\s*rgba\(74, 143, 199, 0\.22\);[^}]*color:\s*#93c1ea;/s;
+            assertTrue(re.test(html),
+                'цветовое разграничение: заголовок норм — синяя плашка, текст яркий #93c1ea');
+        });
+
+        test('CSS: плашка «Праздники» — красный фон, яркий текст', () => {
+            const re = /\.ws-cp-days > \.ws-cp-cap \{[^}]*background:\s*rgba\(255, 107, 107, 0\.20\);[^}]*color:\s*#ff9c9c;/s;
+            assertTrue(re.test(html),
+                'заголовок праздников — красная плашка, текст яркий #ff9c9c');
+        });
+
+        test('CSS: плашки РАЗНЫЕ — синий ≠ красный (цветовое разграничение)', () => {
+            const norms = html.match(/\.ws-cp-norms > \.ws-cp-cap \{[^}]*\}/s);
+            const days = html.match(/\.ws-cp-days > \.ws-cp-cap \{[^}]*\}/s);
+            assertTrue(norms && days && norms[0] !== days[0],
+                'у заголовков норм и праздников — разные цвета фона');
+        });
+
+        test('CSS: светлая тема — плашки сохраняют смысловые цвета, текст ярче', () => {
+            const reN = /\[data-theme="light"\] \.ws-cp-norms > \.ws-cp-cap \{[^}]*background:\s*rgba\(74, 143, 199, 0\.16\);[^}]*color:\s*#1d5f96;/s;
+            assertTrue(reN.test(html),
+                'светлая тема: норм — синяя плашка, насыщенный текст #1d5f96 (ярче серого #999)');
+            const reD = /\[data-theme="light"\] \.ws-cp-days > \.ws-cp-cap \{[^}]*background:\s*rgba\(255, 107, 107, 0\.15\);[^}]*color:\s*#b02c2c;/s;
+            assertTrue(reD.test(html),
+                'светлая тема: праздники — красная плашка, насыщенный текст #b02c2c');
+        });
+
+        test('CSS: светлая тема — .ws-cp-cap больше НЕ перекрашивается в серый', () => {
+            assertFalse(/\[data-theme="light"\] \.ws-cp-cap,/.test(html),
+                'старое правило серого заголовка в светлой теме удалено');
+        });
+    });
+
+    describe('Task 270: светлая тема — окно темнее, бар узкий с отступами 5px', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('CSS: светлая тема — фон окна #e9e7de (темнее белого и тулбара)', () => {
+            const re = /\[data-theme="light"\] \.ws-cal-panel \{[^}]*background:\s*#e9e7de;/s;
+            assertTrue(re.test(html),
+                'окно в светлой теме — на тон темнее (#e9e7de вместо #fff): ' +
+                'углублённый блок данных, не выбеливается на баре #f0eee6');
+            assertFalse(/\[data-theme="light"\] \.ws-cal-panel \{[^}]*background:\s*#fff;/s.test(html),
+                'белый фон окна в светлой теме убран');
+        });
+
+        test('CSS: отступы бара — 5px со всех сторон (базовое правило)', () => {
+            assertTrue(/\.ws-toolbar \{[^}]*padding:\s*5px;/.test(html),
+                'внутренние отступы тулбара — 5px (было 8px 12px)');
+        });
+
+        test('CSS: десктоп — зазор между рядом кнопок и окном 5px', () => {
+            const re = /@media \(min-width: 1024px\) \{[\s\S]*?\.ws-toolbar \{[^}]*gap:\s*5px;/s;
+            assertTrue(re.test(html), 'десктопный зазор в баре — 5px (было 12px)');
+        });
+
+        test('CSS: бар узкий — высота задаётся окном 95px, без лишних мин-высот', () => {
+            // окно 95px + 2×5px отступа + рамка 1px = 106px: бар обнимает окно
+            assertTrue(/\.ws-cal-panel \{[^}]*height:\s*95px/.test(html),
+                'высота окна — 95px: бар сужается по высоте окошка');
+            assertFalse(/\.ws-toolbar \{[^}]*min-height/.test(html),
+                'у тулбара нет независимой мин-высоты — бар по содержимому');
+            assertFalse(/\.ws-toolbar \{[^}]*padding:\s*8px 12px/.test(html),
+                'старые отступы 8px 12px убраны');
         });
     });
 });
