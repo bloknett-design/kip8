@@ -6942,3 +6942,61 @@ Stage Summary:
   уже работает, Apps Script-деплой не требуется. Пользователям —
   Ctrl+Shift+R ×2 (кэш v408); APK обновится фоново.
 - Локальная дата: 2026-09-01 (Asia/Novosibirsk, UTC+07:00).
+
+---
+Task ID: 292 (перенос в kip8)
+Agent: main (Super Z)
+Task: Перенос партии Tasks 286-292 (kip8test@372530a) в боевой kip8 —
+      по указанию пользователя «название графика "Показания, т"
+      переименуй с уточнением посуточно. и переноси все изменения в
+      боевой kip8». Task 292 (переименование) выполнен в kip8test
+      перед переносом.
+
+Work Log:
+- Базовая линия kip8: HEAD 075c24d (авто-синк проектов поверх Task
+  285 431da6e), kipia-v408, 1230 passed / 0 failed.
+- Метод переноса верифицирован: де-изоляция kip8test/index.html
+  (удаление isolateLocalStorage + снятие префиксов kip8test:
+  localStorage + возврат 4 осознанно-разных комментариев
+  Task 242/243/284-URL) — на базовой линии совпадает с kip8@431da6e
+  БАЙТ-В-БАЙТ (scripts/task292-verify-transfer.py).
+- index.html: де-изоляция kip8test@372530a → kip8 (495 изменённых
+  строк = партия Tasks 286-292).
+- sw.js: kipia-v408 → v409 + комментарий партии Tasks 286-292.
+- Сервер: Flowmeter.gs и FlowmeterArchive.gs — копии из kip8test
+  (Task 286: entryType/_writePeriodEntry/R-колонка/self-heal R1/
+  18 колонок/пропуск агрегатов; Task 289: дни периода ВКЛЮЧИТЕЛЬНО);
+  Code.gs — точечно вставлен case 'flowmeter.updatePeriodReading'
+  (док-строки kip8 сохранены, как в Task 285). node --check ×3 — OK.
+- Тесты: test-flow-period-input.js (новый, SW-ассерты адаптированы
+  kipia-v409), extract-functions.js (копия: +хелперы
+  flowWeekCounterStats/flowWeekRangeLabel/…), тест заголовка Task 292
+  в test-flowmeter-validation.js, run-all.js (+require), SW-ассерты
+  v408→v409 в 5 тест-файлах. Прогон: 1230 → 1324 passed / 0 failed
+  (паритет с kip8test@372530a).
+- Browser-check Task 292-kip8: 26/26 PASS (порт 8925, мок fetch):
+  заголовок «Показания (посуточно), т», 8 суточных баров, счётчик
+  под заголовком (период + 345,6 т + 1,260 Гкал, текущая неделя
+  исключена), фоны #372e2a/#463e38/#f5f0eb/#ebe5de, блока контроля
+  нет, 2 chips без «За неделю», месяц → updatePeriodReading
+  (entryType=«месяц»), сутки → updateReading, №2 «Расход, м³» без
+  счётчика, 0 JS-ошибок, без скролла. VLM ×2 (тёмная/светлая) —
+  вёрстка без дефектов (OCR 11px «посуточно» иногда читает
+  «построчно» — артефакт распознавания, DOM-текст точен).
+- Промт kip8: post-Task 292 (строка 3), кэш v409, чеклист 1324.
+- DEPLOY-Task292-flow-batch-transfer.md: сервер — 3 файла в Apps
+  Script (Flowmeter.gs + FlowmeterArchive.gs + Code.gs один case) →
+  «Новая версия» AKfycbyt… (НЕ новое развёртывание!), затем
+  Ctrl+Shift+R ×2 (SW v409).
+
+Stage Summary:
+- Партия Tasks 286-292 перенесена в боевой kip8: ввод «за месяц»
+  (только архив, R-колонка, маршрут updatePeriodReading), дни периода
+  включительно, блок контроля и недельная форма удалены, счётчик «За
+  неделю» (полная неделя, сумма суточных т+Гкал, период, без архива,
+  под заголовком, непрозрачные фоны), заголовок графика «Показания
+  (посуточно), т». SW kipia-v409, тесты 1324/0.
+- Деплой пользователя: 3 файла в Apps Script + «Новая версия»
+  (AKfycbyt…) + Ctrl+Shift+R ×2. См.
+  scripts/DEPLOY-Task292-flow-batch-transfer.md. Следующий номер: 293.
+- Локальная дата: 2026-09-01 (Asia/Novosibirsk, UTC+07:00).
