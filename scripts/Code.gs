@@ -45,7 +45,7 @@
  */
 
 /** URL деплоя (заполните после первого деплоя). */
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyt2sjbJ8xT5UPKDlYj4q-CV-5pH_Yrv5COrg0PIpp92snpQULUNtJC__pMnQ0h6feNlA/exec';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyt2sjbJ8xT5UPKDlYj4q-CV-5pH_Yrv5COrg0PIpp92snpQULUNtJC__pMnQ0h6feNlA/exec'; // актуальное развёртывание (см. index.html, Task 284/285)
 
 /**
  * Обработка POST-запросов от PWA.
@@ -200,6 +200,17 @@ function doPost(e) {
 
       case 'workSchedule.deleteTraining':
         return _json(WorkSchedule.deleteTraining(payload));
+
+      // Task 274: отпуска — план периодов (лист «Отпуска» таблицы
+      // табель_КИП_ИОС), автоматическая расстановка «О» в шахматке
+      case 'workSchedule.listVacations':
+        return _json(WorkSchedule.listVacations(payload));
+
+      case 'workSchedule.addVacation':
+        return _json(WorkSchedule.addVacation(payload));
+
+      case 'workSchedule.deleteVacation':
+        return _json(WorkSchedule.deleteVacation(payload));
 
       default:
         return _json({ ok: false, error: 'Unknown action: ' + action });

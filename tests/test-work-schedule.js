@@ -427,6 +427,7 @@ describe('График работы — WorkSchedule', () => {
                 path.unshift(cur);
                 cur = entries[cur] || null;
             }
+            // Task 267: полная цепочка — Документация → Документация ИОС → График работы
             assertEqual(path.length, 3,
                 'Путь work-schedule — три сегмента (полная цепочка, Task 267)');
             assertEqual(path[0], 'docs');
@@ -471,10 +472,8 @@ describe('График работы — WorkSchedule', () => {
                 'Заголовок страницы work-schedule-trainings — «Инструктажи и обучения»');
         });
 
-        // Task 249 (перенос в kip8): SW-тест версии v508 — только kip8test
-        // (промежуточные версии v508-v511 в kip8 не существовали; партия
-        // Tasks 249-252 вошла в kip8 с версией v402 — см. Task 252 ниже).
-        // Историческая заметка.
+        // Task 249: SW-тест версии v508 удалён — версия v509 введена в
+        // Task 250 (см. describe ниже). Историческая заметка.
     });
 
     // ============================================================
@@ -575,9 +574,8 @@ describe('График работы — WorkSchedule', () => {
                 'Длинные ФИО обрезаются эллипсисом, не растягивая таблицу');
         });
 
-        // Task 250 (перенос в kip8): SW-тест версии v509 — только kip8test
-        // (в kip8 партия Tasks 249-252 вошла с версией v402 — см. Task 252
-        // ниже). Историческая заметка.
+        // Task 250: SW-тест версии v509 удалён — версия v510 введена в
+        // Task 251 (см. describe ниже). Историческая заметка.
     });
 
     // ============================================================
@@ -766,9 +764,8 @@ describe('График работы — WorkSchedule', () => {
                 'beforeunload должен предупреждать при несохранённых правках');
         });
 
-        // Task 252 (перенос в kip8): SW-тест версии v510 — только kip8test
-        // (в kip8 партия Tasks 249-252 вошла с версией v402 — см. Task 252
-        // ниже). Историческая заметка.
+        // Task 252: SW-тест версии v510 удалён — версия v511 введена в
+        // Task 252 (см. describe ниже). Историческая заметка.
     });
 
     // ============================================================
@@ -816,9 +813,12 @@ describe('График работы — WorkSchedule', () => {
         const html = fs.readFileSync(indexPath, 'utf8');
 
         test('JS: в ячейке выводится код статуса (status || «·»)', () => {
-            // Реверс Task 250: снова (status || '·') — код буквой в ячейке
-            assertTrue(html.indexOf("(status || '·')") !== -1,
-                'Код статуса должен выводиться в ячейке (паттерн (status || \'·\'))');
+            // Реверс Task 250: снова (status || '·') — код буквой в ячейке.
+            // Task 274: выражение расширено планом отпуска —
+            // (status || (vacPlan ? 'О' : '·')): пустая ячейка в периоде
+            // отпуска показывает «О», прочие пустые — точку.
+            assertTrue(html.indexOf("(status || (vacPlan ? 'О' : '·'))") !== -1,
+                'Код статуса в ячейке (Task 274: + план отпуска «О»)');
             assertTrue(html.indexOf("(status ? '' : '·')") === -1,
                 'Паттерн Task 250 «статусная ячейка без текста» должен быть удалён');
         });
@@ -886,10 +886,8 @@ describe('График работы — WorkSchedule', () => {
                 'thead th: height 32px — шапка не растягивается пропорционально строкам');
         });
 
-        // Task 252 (перенос в kip8): SW-тест версии v402 удалён — версия
-        // v403 введена с переносом Tasks 254-258, затем заменена на v404
-        // (партия Tasks 259-262 — см. describe «Task 262: SW версия v404»
-        // ниже). Историческая заметка.
+        // Task 252: SW-тест версии v511 удалён — версия v512 введена в
+        // Task 254 (см. describe ниже). Историческая заметка.
     });
 
     // ============================================================
@@ -1195,6 +1193,22 @@ describe('График работы — WorkSchedule', () => {
         });
     });
 
+    describe('Task 256: SW версия v514 (история)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const swPath = path.resolve(__dirname, '..', 'sw.js');
+        const sw = fs.readFileSync(swPath, 'utf8');
+
+        test('v514 заменена актуальной версией', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'Актуальная версия — kipia-v408 (Task 285 — перенос в kip8)');
+        });
+        test('Старая версия v514 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v407") === -1,
+                'Старая v514 не должна остаться в sw.js');
+        });
+    });
+
     describe('Task 257: завершающая полоса внизу таблицы + скрытие скроллбара', () => {
         const fs = require('fs');
         const path = require('path');
@@ -1240,6 +1254,41 @@ describe('График работы — WorkSchedule', () => {
                 'floor(факт+0.25): при дробном масштабе окна (Windows 125%/150%) ' +
                 'clientHeight округлялся ВВЕРХ и таблица переливалась на долю px — ' +
                 'появлялась полоса прокрутки справа');
+        });
+    });
+
+    describe('Task 258: SW версия v516 (история)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const swPath = path.resolve(__dirname, '..', 'sw.js');
+        const sw = fs.readFileSync(swPath, 'utf8');
+
+        test('v516 заменена актуальной версией', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'Актуальная версия — kipia-v408 (Task 285 — перенос в kip8)');
+        });
+    });
+
+    describe('Task 257: SW версия v515 (история)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const swPath = path.resolve(__dirname, '..', 'sw.js');
+        const sw = fs.readFileSync(swPath, 'utf8');
+
+        test('v515 заменена актуальной версией', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'Актуальная версия — kipia-v408 (Task 285 — перенос в kip8)');
+        });
+    });
+
+    describe('Task 255: SW версия v513 (история)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const swPath = path.resolve(__dirname, '..', 'sw.js');
+        const sw = fs.readFileSync(swPath, 'utf8');
+        test('v513 заменена актуальной версией', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'Актуальная версия — kipia-v408');
         });
     });
 
@@ -1425,28 +1474,37 @@ describe('График работы — WorkSchedule', () => {
         });
     });
 
-    describe('Task 262: SW версия v404 (перенос Tasks 259-262 в kip8)', () => {
+    describe('Task 259: SW версия v517 (история)', () => {
         const fs = require('fs');
         const path = require('path');
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('v404 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v407") !== -1,
-                'Актуальная версия — kipia-v407 (Task 272 — перенос в kip8)');
+        test('v517 заменена актуальной версией', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'Актуальная версия — kipia-v408 (Task 285 — перенос в kip8)');
         });
-        test('Старая версия v403 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v403") === -1,
-                'Старая v403 не должна остаться в sw.js');
-        });
-        test('Тестовые версии v517-v526 в боевом sw.js отсутствуют', () => {
-            for (let v = 517; v <= 526; v++) {
-                assertTrue(sw.indexOf("kipia-test-v" + v) === -1 && sw.indexOf("kipia-v" + v) === -1,
-                    'kipia(-test)-v' + v + ' не должно быть в боевом sw.js (нумерация kip8 своя)');
-            }
+        test('Старая версия v517 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v406") === -1,
+                'Старая v517 не должна остаться в sw.js');
         });
     });
 
+    describe('Task 260: SW версия v518', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const swPath = path.resolve(__dirname, '..', 'sw.js');
+        const sw = fs.readFileSync(swPath, 'utf8');
+
+        test('CACHE_VERSION = kipia-v408', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'CACHE_VERSION должен быть kipia-v408 (Task 285 — перенос в kip8)');
+        });
+        test('Старая версия v517 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v406") === -1,
+                'Старая v517 не должна остаться в sw.js');
+        });
+    });
 
     // ============================================================
     // Task 265: «Сформировать» — только через диалог подтверждения.
@@ -1525,24 +1583,29 @@ describe('График работы — WorkSchedule', () => {
             (sb.listeners.keydown || []).forEach(fn => fn({ key, target: target || null }));
         };
 
-        test('HTML: generateYear — kipConfirm с заголовком «Формирование шахматки» и кнопкой «Сформировать»', () => {
-            assertTrue(html.indexOf("{ title: 'Формирование шахматки', okText: 'Сформировать' }") !== -1,
-                'опции диалога: title + okText');
-            assertTrue(/kipConfirm\('Сформировать шахматку на ' \+ this\._year \+ ' год \\(все 12 месяцев\\\?\\)'/.test(html) ||
-                       html.indexOf("'Сформировать шахматку на ' + this._year + ' год (все 12 месяцев)?\\n'") !== -1,
-                'текст вопроса с ГОДОМ (все 12 месяцев)');
+        test('HTML: generateYear — kipConfirm с заголовком «Формирование шахматки» и выбором периода (Task 278)', () => {
+            assertTrue(html.indexOf("title: 'Формирование шахматки'") !== -1,
+                'заголовок диалога — «Формирование шахматки»');
+            assertTrue(html.indexOf("okText: 'Весь год'") !== -1,
+                'основная кнопка — «Весь год» (было «Сформировать» до Task 278)');
+            assertTrue(html.indexOf('altText: isCurrent') !== -1,
+                'альтернативная кнопка — выбор месяца (altText)');
+            assertTrue(html.indexOf("'Сформировать шахматку на весь ' + this._year + ' год (все 12 месяцев) '") !== -1,
+                'текст вопроса — с ГОДОМ (все 12 месяцев)');
             assertTrue(html.indexOf('Существующие ручные правки будут сохранены') !== -1,
                 'пояснение о сохранении ручных правок');
-            assertTrue(html.indexOf('if (!ok) return;') !== -1,
-                'генерация только после подтверждения (ok === true)');
+            assertTrue(html.indexOf("if (sel === 'alt') { self._doGenerateMonth(); return; }") !== -1,
+                'ветка выбора месяца — _doGenerateMonth');
+            assertTrue(html.indexOf('if (!sel) return;') !== -1,
+                'генерация только после подтверждения (sel === true)');
         });
 
-        test('HTML: кнопка «Сформировать» с подсказкой о диалоге (год)', () => {
+        test('HTML: кнопка «Сформировать» с подсказкой о диалоге (месяц или год)', () => {
             const m = html.match(/id="wsGenerateBtn"[^>]*title="([^"]*)"/);
             assertTrue(m && m[1].indexOf('диалог подтверждения') !== -1,
                 'title кнопки упоминает диалог подтверждения');
-            assertTrue(m && m[1].indexOf('весь выбранный год') !== -1,
-                'title кнопки упоминает весь год (Task 272)');
+            assertTrue(m && m[1].indexOf('выбранный месяц или весь год') !== -1,
+                'title кнопки упоминает выбор: месяц или весь год (Task 278)');
         });
 
         test('kipConfirm: дефолтные заголовок и кнопки', async () => {
@@ -1797,19 +1860,19 @@ describe('График работы — WorkSchedule', () => {
         });
     });
 
-    describe('Task 269-270: SW версия v406 (перенос в kip8)', () => {
+    describe('Task 269: SW версия v524', () => {
         const fs = require('fs');
         const path = require('path');
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v407 (актуальная после Task 272)', () => {
-            assertTrue(sw.indexOf("kipia-v407") !== -1,
-                'CACHE_VERSION должен быть kipia-v407 (партия Tasks 269-270 + Task 272: нормы двумя столбиками, окно по ширине текста справа / кнопки слева внизу, единая высота кнопок, «Загрузка…» шрифтом расходомеров; окно под 5 строк 95px, светлая тема темнее, плашки-заголовки, бар узкий 5px; «Календарь» → «Обновить» с диалогом источника, шторка настроек удалена, регион фиксирован 42, «Сформировать» — на весь год, кнопки в левом верхнем углу)');
+        test('CACHE_VERSION = kipia-v408', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'CACHE_VERSION должен быть kipia-v408 (Task 285 — перенос в kip8)');
         });
-        test('Старая версия v405 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v405") === -1,
-                'Старая v405 не должна остаться в sw.js');
+        test('Старая версия v404 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v404") === -1,
+                'Старая v404 не должна остаться в sw.js');
         });
     });
 
@@ -2150,27 +2213,582 @@ describe('График работы — WorkSchedule', () => {
                 'счётчики суммируются по всем месяцам');
         });
 
-        test('JS: диалог подтверждения — год, а не месяц', () => {
-            assertTrue(html.indexOf("'Сформировать шахматку на ' + this._year + ' год (все 12 месяцев)?\\n'") !== -1,
-                'вопрос диалога — на весь год (все 12 месяцев)');
-            assertTrue(/monthName\[this\._month\] \+ ' ' \+ this\._year/.test(html) === false,
-                'старый текст с названием месяца удалён');
+        test('JS: диалог подтверждения — выбор: месяц или весь год (Task 278)', () => {
+            assertTrue(html.indexOf("'или только на ' + (isCurrent ? 'текущий' : 'выбранный')") !== -1,
+                'вопрос диалога — на весь год ИЛИ только месяц');
+            assertTrue(html.indexOf("altText: isCurrent ? 'Текущий месяц' : 'Выбранный месяц'") !== -1,
+                'надпись альт-кнопки адаптируется: текущий/выбранный месяц');
+            assertTrue(html.indexOf("monthNames[this._month - 1]") !== -1,
+                'название выбранного месяца — в тексте диалога');
         });
     });
 
-    describe('Task 272: SW версия v407 (перенос в kip8)', () => {
+    describe('Task 272: SW версия v526', () => {
         const fs = require('fs');
         const path = require('path');
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v407', () => {
-            assertTrue(sw.indexOf("kipia-v407") !== -1,
-                'CACHE_VERSION должен быть kipia-v407 (Task 272 — перенос из kip8test@7d69528)');
+        test('CACHE_VERSION = kipia-v408', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'CACHE_VERSION должен быть kipia-v408 (Task 285 — перенос в kip8)');
         });
-        test('Старая версия v406 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v406") === -1,
-                'Старая v406 не должна остаться в sw.js');
+        test('Старая версия v405 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v405") === -1,
+                'Старая v405 не должна остаться в sw.js');
+        });
+    });
+
+    // ============================================================
+    // Task 274: автоматическая расстановка отпусков в шахматке.
+    //   Лист «Отпуска» таблицы табель_КИП_ИОС: периоды 2–3 частей
+    //   на год; серверные listVacations/addVacation/deleteVacation;
+    //   generateMonth заполняет «О» с приоритетом
+    //   руч > отпуск > инструктаж > плановая смена; устаревшие
+    //   авто-«О» удаляются (идемпотентность). Фронтенд: страница
+    //   «Отпуска», субнавигация модуля, план «О» в пустых ячейках.
+    // ============================================================
+
+    // ---- Референс-имплементация отпускной логики (как на сервере) ----
+
+    // Длительность периода в календарных днях (включительно)
+    function vacDays(startIso, endIso) {
+        const s = parseIsoDate(startIso);
+        const e = parseIsoDate(endIso) || s;
+        if (!s || !e) return 0;
+        return Math.round((e.getTime() - s.getTime()) / 86400000) + 1;
+    }
+
+    // Дни периода, попадающие в год (период через границу года)
+    function vacDaysInYear(startIso, endIso, year) {
+        const s = parseIsoDate(startIso);
+        const e = parseIsoDate(endIso) || s;
+        if (!s || !e) return 0;
+        const yStart = new Date(year, 0, 1).getTime();
+        const yEnd = new Date(year + 1, 0, 1).getTime();
+        const from = Math.max(s.getTime(), yStart);
+        const to = Math.min(e.getTime(), yEnd - 1);
+        if (to < from) return 0;
+        return Math.floor(to / 86400000) - Math.floor(from / 86400000) + 1;
+    }
+
+    // Пересечение двух периодов [s1,e1] × [s2,e2] (ISO-строки
+    // сравниваются лексикографически = хронологически)
+    function periodsOverlap(s1, e1, s2, e2) {
+        return e1 >= s2 && s1 <= e2;
+    }
+
+    // Итоговый статус дня по приоритету источников Task 274:
+    // ручная запись > отпуск > инструктаж > плановая смена
+    function dayStatusPriority(manual, vacation, training, shift) {
+        if (manual) return manual;
+        if (vacation) return 'О';
+        if (training) return training;  // И / ОБ / ПЗ
+        if (shift) return shift;        // Д / Н
+        return '';
+    }
+
+    // Устаревшая авто-«О»: запись-кандидат на удаление при
+    // повторной генерации (не покрыта текущим планом отпусков)
+    function isStaleVacationEntry(entry, coveredKeys) {
+        return entry.статус === 'О' && entry.источник === 'авто' &&
+               !coveredKeys[entry.дата + '|' + entry.таб_номер];
+    }
+
+    describe('Task 274: лист «Отпуска» — структура и серверные API', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const gs = fs.readFileSync(
+            path.resolve(__dirname, '..', 'scripts', 'WorkSchedule.gs'), 'utf8');
+        const code = fs.readFileSync(
+            path.resolve(__dirname, '..', 'scripts', 'Code.gs'), 'utf8');
+
+        test('Константа VACATIONS_SHEET = «Отпуска»', () => {
+            assertTrue(gs.indexOf("VACATIONS_SHEET:    'Отпуска'") !== -1,
+                'лист «Отпуска» объявлен в WorkSchedule.gs');
+        });
+
+        test('Структура листа задокументирована (A id … F комментарий)', () => {
+            assertTrue(gs.indexOf('Структура листа «Отпуска»') !== -1,
+                'секция структуры листа в шапке');
+            const part = gs.slice(gs.indexOf('Структура листа «Отпуска»'));
+            ['id (auto-increment)', 'таб_номер', 'часть (1..3', 'дата_начала',
+             'дата_окончания', 'комментарий'].forEach(col => {
+                assertTrue(part.indexOf(col) !== -1, 'столбец: ' + col);
+            });
+        });
+
+        test('Методы listVacations/addVacation/deleteVacation определены', () => {
+            assertTrue(gs.indexOf('listVacations: function') !== -1);
+            assertTrue(gs.indexOf('addVacation: function') !== -1);
+            assertTrue(gs.indexOf('deleteVacation: function') !== -1);
+        });
+
+        test('Code.gs: роутинг трёх экшенов отпусков', () => {
+            assertTrue(code.indexOf("case 'workSchedule.listVacations':") !== -1);
+            assertTrue(code.indexOf("case 'workSchedule.addVacation':") !== -1);
+            assertTrue(code.indexOf("case 'workSchedule.deleteVacation':") !== -1);
+        });
+
+        test('addVacation: валидация — часть 1..3, конец ≥ начала, пересечение', () => {
+            assertTrue(gs.indexOf("error: 'invalid_часть'") !== -1);
+            assertTrue(gs.indexOf("error: 'end_before_start'") !== -1);
+            assertTrue(gs.indexOf("error: 'overlap'") !== -1);
+            assertTrue(gs.indexOf("error: 'duplicate_часть'") !== -1);
+        });
+
+        test('generateMonth: отпускной проход после инструктажей (4.5)', () => {
+            assertTrue(gs.indexOf('4.5 (Task 274) Прогон по отпускам') !== -1,
+                'шаг 4.5 — отпуска перекрывают смены и инструктажи');
+        });
+
+        test('generateMonth: возвращает removed (удалённые устаревшие «О»)', () => {
+            assertTrue(gs.indexOf('removed: removeCount') !== -1);
+            assertTrue(gs.indexOf('vacationGenerated: vacationGenerated') !== -1);
+            assertTrue(gs.indexOf('vacationUpdated: vacationUpdated') !== -1);
+        });
+
+        test('Отсутствие листа «Отпуска» не ломает генерацию', () => {
+            const m = gs.match(/var vacs = this\.listVacations[\s\S]{0,200}/);
+            assertTrue(!!m, 'вызов listVacations в generateMonth');
+            assertTrue(gs.indexOf('vacs.ok && vacs.data') !== -1,
+                'сбой listVacations → vacations=[] (генерация продолжается)');
+        });
+    });
+
+    describe('Task 274: алгоритм заполнения отпусков (референс)', () => {
+        test('Длительность периода: один день → 1', () => {
+            assertEqual(vacDays('2026-06-10', '2026-06-10'), 1);
+        });
+        test('Длительность: 01.06–14.06 → 14', () => {
+            assertEqual(vacDays('2026-06-01', '2026-06-14'), 14);
+        });
+        test('Длительность: 29.12–11.01 → 14 (через границу года)', () => {
+            assertEqual(vacDays('2025-12-29', '2026-01-11'), 14);
+        });
+
+        test('Дни в году: период внутри года → полная длительность', () => {
+            assertEqual(vacDaysInYear('2026-06-01', '2026-06-14', 2026), 14);
+        });
+        test('Дни в году: 29.12.2025–11.01.2026 → 3 в 2025, 11 в 2026', () => {
+            assertEqual(vacDaysInYear('2025-12-29', '2026-01-11', 2025), 3);
+            assertEqual(vacDaysInYear('2025-12-29', '2026-01-11', 2026), 11);
+        });
+        test('Дни в году: период вне года → 0', () => {
+            assertEqual(vacDaysInYear('2024-06-01', '2024-06-14', 2026), 0);
+        });
+
+        test('Части 2–3 на год: 14 + 10 + 4 = 28 дн.', () => {
+            const total = vacDays('2026-06-01', '2026-06-14') +
+                          vacDays('2026-08-03', '2026-08-12') +
+                          vacDays('2026-10-19', '2026-10-22');
+            assertEqual(total, 28);
+        });
+
+        test('Пересечение периодов: вложенный → true', () => {
+            assertTrue(periodsOverlap('2026-06-01', '2026-06-30',
+                                      '2026-06-10', '2026-06-20'));
+        });
+        test('Пересечение: касание границы (конец = начало) → true', () => {
+            assertTrue(periodsOverlap('2026-06-01', '2026-06-10',
+                                      '2026-06-10', '2026-06-20'));
+        });
+        test('Пересечение: разрозненные периоды → false', () => {
+            assertFalse(periodsOverlap('2026-06-01', '2026-06-10',
+                                       '2026-06-11', '2026-06-20'));
+        });
+
+        test('Приоритет дня: ручная правка перекрывает отпуск', () => {
+            assertEqual(dayStatusPriority('Б', true, null, 'Д'), 'Б');
+        });
+        test('Приоритет дня: отпуск перекрывает инструктаж', () => {
+            assertEqual(dayStatusPriority(null, true, 'И', null), 'О');
+        });
+        test('Приоритет дня: отпуск перекрывает плановую смену', () => {
+            assertEqual(dayStatusPriority(null, true, null, 'Д'), 'О');
+        });
+        test('Приоритет дня: инструктаж перекрывает смену (без отпуска)', () => {
+            assertEqual(dayStatusPriority(null, false, 'И', 'Д'), 'И');
+        });
+        test('Приоритет дня: ничего нет → пусто', () => {
+            assertEqual(dayStatusPriority(null, false, null, null), '');
+        });
+
+        test('Устаревшая авто-«О» вне текущего плана → кандидат на удаление', () => {
+            const covered = { '2026-06-05|007': true };
+            const stale = { статус: 'О', источник: 'авто',
+                            дата: '2026-06-05', таб_номер: '007' };
+            const fresh = { статус: 'О', источник: 'авто',
+                            дата: '2026-06-06', таб_номер: '007' };
+            assertFalse(isStaleVacationEntry(stale, covered), 'покрытый день остаётся');
+            assertTrue(isStaleVacationEntry(fresh, covered), 'непокрытый день удаляется');
+        });
+        test('Ручная «О» никогда не удаляется', () => {
+            const manual = { статус: 'О', источник: 'руч',
+                             дата: '2026-06-06', таб_номер: '007' };
+            assertFalse(isStaleVacationEntry(manual, {}));
+        });
+        test('Авто-«И» (инструктаж) не считается устаревшим отпуском', () => {
+            const training = { статус: 'И', источник: 'авто',
+                               дата: '2026-06-06', таб_номер: '007' };
+            assertFalse(isStaleVacationEntry(training, {}));
+        });
+    });
+
+    describe('Task 274: страница «Отпуска» и план «О» (фронтенд)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const indexPath = path.resolve(__dirname, '..', 'index.html');
+        const html = fs.readFileSync(indexPath, 'utf8');
+
+        test('HTML: страница page-work-schedule-vacations с заголовком «Отпуска»', () => {
+            const m = html.match(/<div id="page-work-schedule-vacations"[^>]*>/);
+            assertTrue(!!m, 'страница «Отпуска» существует');
+            const pageChunk = html.slice(m.index,
+                html.indexOf('page-kip-ios', m.index));
+            assertTrue(pageChunk.indexOf('page-inline-header-title">Отпуска<') !== -1,
+                'заголовок — «Отпуска»');
+        });
+
+        test('HTML: страница содержит селект года и сводку', () => {
+            assertTrue(html.indexOf('id="wsVacYearSel"') !== -1, 'селект года');
+            assertTrue(html.indexOf('id="wsVacSummary"') !== -1, 'строка сводки');
+            assertTrue(html.indexOf('id="wsVacationsList"') !== -1, 'контейнер списка');
+            assertTrue(html.indexOf('id="wsAddVacationBar"') !== -1, 'кнопка «+ Добавить отпуск»');
+        });
+
+        test('HTML: форма «Новый отпуск» (таб.№, часть, даты, комментарий)', () => {
+            ['wsVacTabNo', 'wsVacPart', 'wsVacStart', 'wsVacEnd',
+             'wsVacComment', 'wsVacOverlay', 'wsVacSheet'].forEach(id => {
+                assertTrue(html.indexOf('id="' + id + '"') !== -1, 'поле ' + id);
+            });
+            assertTrue(html.indexOf('flow-input-sheet-title">Новый отпуск<') !== -1,
+                'заголовок формы');
+            assertTrue((html.match(/<option value="[123]">[123] — /g) || []).length === 3,
+                'части 1–3 в селекте');
+        });
+
+        test('HTML: подсказка про деление на части и ст. 125 ТК РФ', () => {
+            assertTrue(html.indexOf('2–3 части в год') !== -1);
+            assertTrue(html.indexOf('ст. 125 ТК РФ') !== -1);
+        });
+
+        test('HTML: субнавигация модуля — 4 полосы по 4 кнопки', () => {
+            const strips = html.match(/class="ws-subnav"/g) || [];
+            assertEqual(strips.length, 4, 'полосы ws-subnav на 4 страницах модуля');
+            ['Шахматка', 'Сотрудники', 'Инструктажи', 'Отпуска'].forEach(label => {
+                const cnt = (html.match(new RegExp('ws-subnav-btn[^>]*>' + label + '<', 'g')) || []).length;
+                assertEqual(cnt, 4, 'кнопка «' + label + '» на каждой полосе');
+            });
+        });
+
+        test('HTML: активный пункт на своей странице', () => {
+            const vacPage = html.slice(html.indexOf('id="page-work-schedule-vacations"'));
+            assertTrue(vacPage.indexOf("ws-subnav-btn active\" onclick=\"navigateTo('work-schedule-vacations')") !== -1,
+                '«Отпуска» активна на своей странице');
+            const wsPage = html.slice(html.indexOf('id="page-work-schedule"'),
+                                      html.indexOf('id="page-work-schedule-employees"'));
+            assertTrue(wsPage.indexOf("ws-subnav-btn active\" onclick=\"navigateTo('work-schedule')") !== -1,
+                '«Шахматка» активна на своей странице');
+        });
+
+        test('JS: кэш и загрузка — _VACATIONS, _loadVacations в Promise.all', () => {
+            assertTrue(html.indexOf('_loadVacations: function') !== -1);
+            assertTrue(html.indexOf('_VACATIONS: []') !== -1);
+            const lg = html.slice(html.indexOf('loadGrid: function'),
+                                  html.indexOf('_ensureCal: function'));
+            assertTrue(lg.indexOf('this._loadVacations()') !== -1,
+                'план отпусков грузится вместе с сеткой');
+            assertTrue(lg.indexOf('catch(function() {') === -1 ||
+                       lg.indexOf('_loadVacations') !== -1);
+            // сбой загрузки отпусков не ломает сетку (собственный catch)
+            const lv = html.slice(html.indexOf('_loadVacations: function'),
+                                  html.indexOf('loadGrid: function'));
+            assertTrue(lv.indexOf('catch') !== -1, 'fallback при ошибке — пустой список');
+        });
+
+        test('JS: хелперы отпусков определены', () => {
+            ['_vacationAt: function', '_vacDays: function',
+             '_vacDaysInYear: function', '_fmtDateRu: function',
+             '_plural: function', '_parseIsoLocal: function'].forEach(fn => {
+                assertTrue(html.indexOf(fn) !== -1, fn);
+            });
+        });
+
+        test('JS: план «О» в пустой ячейке — класс ws-vac-plan, записи не перекрываются', () => {
+            assertTrue(html.indexOf("classes.push('ws-vac-plan')") !== -1,
+                'класс ws-vac-plan ставится');
+            const rc = html.slice(html.indexOf('_renderCell: function'),
+                                  html.indexOf('generateYear: function'));
+            assertTrue(rc.indexOf("if (!status && !isPending)") !== -1,
+                'план только в ПУСТОЙ ячейке без локальной правки');
+            assertTrue(rc.indexOf("(status || (vacPlan ? 'О' : '·'))") !== -1,
+                'код «О» в ячейке плана');
+        });
+
+        test('CSS: ws-vac-plan — фон отпуска и пунктирная рамка', () => {
+            const rule = html.match(/\.ws-grid tbody td\.ws-cell\.ws-vac-plan\s*\{[^}]+\}/);
+            assertTrue(!!rule, 'правило .ws-vac-plan есть');
+            assertTrue(rule[0].indexOf('#ECEFF1') !== -1, 'фон цвета «О»');
+            assertTrue(rule[0].indexOf('dashed') !== -1, 'пунктирная рамка');
+            assertTrue(html.indexOf('[data-theme="light"] .ws-grid tbody td.ws-cell.ws-vac-plan') !== -1,
+                'светлая тема');
+        });
+
+        test('JS: методы страницы «Отпуска» определены', () => {
+            ['initVacationsPage: function', 'loadVacations: function',
+             '_renderVacations: function', 'openVacationForm: function',
+             'closeVacationForm: function', 'onVacEmployeeChange: function',
+             'onVacDatesChange: function', 'submitVacationForm: function',
+             'deleteVacation: function', '_doDeleteVacation: function',
+             'onVacYearChange: function'].forEach(fn => {
+                assertTrue(html.indexOf(fn) !== -1, fn);
+            });
+        });
+
+        test('JS: submitVacationForm вызывает addVacation с полями', () => {
+            const sv = html.slice(html.indexOf('submitVacationForm: function'),
+                                  html.indexOf('deleteVacation: function'));
+            assertTrue(sv.indexOf("workSchedule.addVacation") !== -1, 'эндпоинт addVacation');
+            assertTrue(sv.indexOf("'таб_номер': tabNo") !== -1);
+            assertTrue(sv.indexOf('часть: part') !== -1);
+            assertTrue(sv.indexOf('дата_начала: startDate') !== -1);
+            assertTrue(sv.indexOf('дата_окончания: endDate') !== -1);
+        });
+
+        test('JS: клиентская проверка пересечения периодов до отправки', () => {
+            const sv = html.slice(html.indexOf('submitVacationForm: function'),
+                                  html.indexOf('deleteVacation: function'));
+            assertTrue(sv.indexOf('пересекается с отпуском') !== -1,
+                'тост о пересечении');
+        });
+
+        test('JS: часть подставляется первым свободным номером', () => {
+            const ve = html.slice(html.indexOf('onVacEmployeeChange: function'),
+                                  html.indexOf('onVacDatesChange: function'));
+            assertTrue(ve.indexOf('while (free <= 3 && used[free]) free++;') !== -1,
+                'поиск свободной части 1..3');
+        });
+
+        test('JS: тосты после добавления/удаления напоминают про «Сформировать»', () => {
+            assertTrue(html.indexOf('Нажмите «Сформировать» в шахматке') !== -1);
+            assertTrue(html.indexOf('Пересформируйте шахматку') !== -1);
+        });
+
+        test('Роутинг: init-хук navigateTo для work-schedule-vacations', () => {
+            const nav = html.slice(html.indexOf("if (page === 'work-schedule-trainings')"),
+                                   html.indexOf("if (page === 'plan-114')"));
+            assertTrue(nav.indexOf("WorkSchedule.initVacationsPage()") !== -1,
+                'страница инициализируется при переходе');
+        });
+
+        test('Роутинг: PAGE_TITLES / PAGE_PARENTS / ROLE_ACCESS', () => {
+            assertTrue(html.indexOf("'work-schedule-vacations':  'Отпуска'") !== -1);
+            assertTrue(html.indexOf("'work-schedule-vacations':  'work-schedule'") !== -1);
+            assertTrue(html.indexOf("'work-schedule-trainings', 'work-schedule-vacations'") !== -1,
+                'страница в _WORK_SCHEDULE_PAGES (доступ как у модуля)');
+        });
+
+        test('Диалог «Сформировать»: отпуска упоминаются', () => {
+            assertTrue(html.indexOf('Плановые смены, инструктажи и отпуска заполнятся автоматически.') !== -1);
+        });
+
+        test('Тост итогов года: удалённые устаревшие отпуска', () => {
+            const dg = html.slice(html.indexOf('_doGenerateYear: function'),
+                                  html.indexOf('onCellClick: function'));
+            assertTrue(dg.indexOf('totalRemoved') !== -1, 'счётчик removed');
+            assertTrue(dg.indexOf('устаревших отпусков') !== -1, 'текст тоста');
+        });
+    });
+
+    describe('Task 274: SW версия v527 (история)', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const swPath = path.resolve(__dirname, '..', 'sw.js');
+        const sw = fs.readFileSync(swPath, 'utf8');
+
+        test('v527 заменена актуальной версией', () => {
+            assertTrue(sw.indexOf("kipia-v408") !== -1,
+                'Актуальная версия — kipia-v408');
+        });
+        test('Старая версия v407 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v407") === -1,
+                'Старая v407 не должна остаться в sw.js (Task 272)');
+        });
+    });
+
+    // ============================================================
+    // Task 278: выбор периода в диалоге «Сформировать» —
+    // «Текущий месяц» или «Весь год». kipConfirm расширен опцией
+    // altText (третья кнопка → резолв 'alt'); _doGenerateMonth —
+    // один вызов generateMonth для выбранного месяца.
+    // ============================================================
+    describe('Task 278: выбор «месяц или год» в диалоге «Сформировать»', () => {
+        const fs = require('fs');
+        const path = require('path');
+        const vm = require('vm');
+        const html = fs.readFileSync(
+            path.resolve(__dirname, '..', 'index.html'), 'utf8');
+
+        // ---- Песочница с функциями диалога (как Task 265, +alt) ----
+        function extractFn(src, name) {
+            const start = src.indexOf('function ' + name + '(');
+            if (start === -1) return null;
+            const braceStart = src.indexOf('{', start);
+            let depth = 0;
+            for (let i = braceStart; i < src.length; i++) {
+                if (src[i] === '{') depth++;
+                else if (src[i] === '}') { depth--; if (depth === 0) return src.slice(start, i + 1); }
+            }
+            return null;
+        }
+        const dialogSrc = ['_kipDialogOverlay', '_kipDialogClose', '_kipDialogEsc', 'kipConfirm']
+            .map(n => extractFn(html, n)).join('\n');
+        if (!dialogSrc || dialogSrc.length < 100) {
+            throw new Error('Task 278: функции диалога не извлеклись');
+        }
+
+        function makeAltSandbox() {
+            const buttons = {
+                cancel: { className: 'kip-dialog-btn kip-dialog-cancel', textContent: '', onclick: null,
+                          closest: function () { return this; } },
+                alt:     { className: 'kip-dialog-btn kip-dialog-alt', textContent: '', onclick: null,
+                          closest: function () { return this; } },
+                ok:      { className: 'kip-dialog-btn kip-dialog-ok', textContent: '', onclick: null,
+                           closest: function () { return this; } }
+            };
+            const overlay = {
+                id: '', className: '',
+                _html: '',
+                set innerHTML(v) { this._html = String(v || ''); },
+                get innerHTML() { return this._html; },
+                classList: (() => {
+                    const set = new Set();
+                    return { add: c => set.add(c), remove: c => set.delete(c), contains: c => set.has(c) };
+                })(),
+                querySelector: sel =>
+                    sel === '.kip-dialog-cancel' ? buttons.cancel :
+                    sel === '.kip-dialog-alt' ? buttons.alt :
+                    sel === '.kip-dialog-ok' ? buttons.ok : null
+            };
+            const listeners = {};
+            const documentMock = {
+                getElementById: id => (id === 'kipDialogOverlay' ? overlay : null),
+                createElement: () => overlay,
+                body: { appendChild: () => {} },
+                addEventListener: (type, fn) => { (listeners[type] = listeners[type] || []).push(fn); },
+                removeEventListener: (type, fn) => {
+                    const arr = listeners[type] || [];
+                    const i = arr.indexOf(fn);
+                    if (i !== -1) arr.splice(i, 1);
+                }
+            };
+            const sandbox = {
+                document: documentMock,
+                requestAnimationFrame: fn => { fn(); return 0; },
+                setTimeout: () => 0,
+                clearTimeout: () => {},
+                Promise
+            };
+            vm.createContext(sandbox);
+            vm.runInContext(dialogSrc, sandbox);
+            return { sandbox, overlay, buttons, listeners };
+        }
+        const fireKey = (sb, key, target) => {
+            (sb.listeners.keydown || []).forEach(fn => fn({ key, target: target || null }));
+        };
+
+        test('kipConfirm: altText — третья кнопка, клик → ' + "'alt'", async () => {
+            const sb = makeAltSandbox();
+            const p = sb.sandbox.kipConfirm('Вопрос?', { okText: 'Весь год', altText: 'Текущий месяц' });
+            await Promise.resolve();
+            assertTrue(sb.overlay.innerHTML.indexOf('>Текущий месяц<') !== -1,
+                'альт-кнопка с текстом altText');
+            assertTrue(sb.overlay.innerHTML.indexOf('kip-dialog-alt') !== -1,
+                'класс kip-dialog-alt');
+            assertTrue(sb.overlay.innerHTML.indexOf('with-alt') !== -1,
+                'ряд кнопок помечен with-alt (компактные отступы)');
+            sb.buttons.alt.onclick();
+            assertEqual(await p, 'alt', 'клик по альт-кнопке → ' + "'alt'");
+        });
+
+        test('kipConfirm: без altText — две кнопки, с altText — три', () => {
+            const sb = makeAltSandbox();
+            sb.sandbox.kipConfirm('Обычный вопрос?');
+            const plain = (sb.overlay.innerHTML.match(/kip-dialog-btn kip-/g) || []).length;
+            assertEqual(plain, 2, 'без altText — 2 кнопки (обратная совместимость)');
+            assertFalse(sb.overlay.innerHTML.indexOf('with-alt') !== -1,
+                'без altText ряд НЕ помечен with-alt');
+            sb.sandbox.kipConfirm('С выбором?', { okText: 'A', altText: 'B' });
+            const three = (sb.overlay.innerHTML.match(/kip-dialog-btn kip-/g) || []).length;
+            assertEqual(three, 3, 'с altText — 3 кнопки');
+        });
+
+        test('kipConfirm: Escape → false, Enter → true (primary OK)', async () => {
+            const sb = makeAltSandbox();
+            const p = sb.sandbox.kipConfirm('Вопрос?', { okText: 'Весь год', altText: 'Текущий месяц' });
+            await Promise.resolve();
+            fireKey(sb, 'Escape');
+            assertEqual(await p, false, 'Escape — отмена (не ' + "'alt')");
+        });
+
+        test('kipConfirm: Enter при фокусе НЕ на кнопке — primary OK (год)', async () => {
+            const sb = makeAltSandbox();
+            const p = sb.sandbox.kipConfirm('Вопрос?', { okText: 'Весь год', altText: 'Текущий месяц' });
+            await Promise.resolve();
+            fireKey(sb, 'Enter');
+            assertEqual(await p, true, 'Enter — основная кнопка (Весь год)');
+        });
+
+        test('JS: generateYear — ветка sel === ' + "'alt'" + ' ведёт в _doGenerateMonth', () => {
+            const gen = html.slice(html.indexOf('generateYear: function'),
+                                   html.indexOf('_doGenerateMonth: function'));
+            assertTrue(gen.indexOf("if (sel === 'alt')") !== -1,
+                'ветка выбора месяца');
+            assertTrue(gen.indexOf('self._doGenerateMonth()') !== -1,
+                'вызов генерации одного месяца');
+            assertTrue(gen.indexOf('self._doGenerateYear()') !== -1,
+                'вызов генерации года (sel === true)');
+        });
+
+        test('JS: _doGenerateMonth — один вызов generateMonth для выбранного месяца', () => {
+            const gm = html.slice(html.indexOf('_doGenerateMonth: function'),
+                                  html.indexOf('_doGenerateYear: function'));
+            assertTrue(gm.indexOf("{ year: this._year, month: this._month }") !== -1,
+                'вызов с ВЫБРАННЫМ месяцем (не цикл 1..12)');
+            assertFalse(gm.indexOf('nextMonth') !== -1,
+                'нет цикла по 12 месяцам');
+            assertTrue(gm.indexOf("'Формируется…'") !== -1,
+                'кнопка занята на время генерации');
+            assertTrue(gm.indexOf('сформировано') !== -1 &&
+                       gm.indexOf('обновлено') !== -1,
+                'тост с итогами месяца');
+            assertTrue(gm.indexOf('устаревших отпусков') !== -1,
+                'тост учитывает removed (Task 274)');
+            assertTrue(gm.indexOf('self.loadGrid()') !== -1,
+                'перезагрузка сетки после генерации');
+        });
+
+        test('JS: тост ошибки месяца — с названием месяца', () => {
+            const gm = html.slice(html.indexOf('_doGenerateMonth: function'),
+                                  html.indexOf('_doGenerateYear: function'));
+            assertTrue(gm.indexOf("'Ошибка (' + monthName + ' ' + self._year + ')") !== -1,
+                'тост ошибки с месяцем и годом');
+        });
+
+        test('CSS: alt-кнопка и перенос ряда (тёмная + светлая)', () => {
+            assertTrue(html.indexOf('.kip-dialog-alt {') !== -1,
+                'стили .kip-dialog-alt');
+            assertTrue(html.indexOf('[data-theme="light"] .kip-dialog-alt') !== -1,
+                'светлая тема alt-кнопки');
+            const btns = html.slice(html.indexOf('.kip-dialog-btns {'),
+                                    html.indexOf('.kip-dialog-btn {'));
+            assertTrue(btns.indexOf('flex-wrap: wrap') !== -1,
+                'ряд кнопок переносится (3 кнопки на мобильном)');
+            assertTrue(html.indexOf('.kip-dialog-btns.with-alt .kip-dialog-btn') !== -1,
+                'компактные отступы при трёх кнопках');
+            assertTrue(html.indexOf('.kip-dialog.with-alt { max-width: 360px; }') !== -1,
+                'диалог с тремя кнопками шире (одна строка на десктопе)');
         });
     });
 });
