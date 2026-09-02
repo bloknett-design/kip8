@@ -7058,3 +7058,60 @@ Stage Summary:
   См. scripts/DEPLOY-Task296-role-matrix-transfer.md.
   Следующий номер: 297.
 - Локальная дата: 2026-09-02 (Asia/Novosibirsk, UTC+07:00).
+---
+Task ID: 298
+Agent: main (Super Z)
+Task: Задача 298 (kip8) — паритет документации с kip8test/Task 297:
+      устаревшие места системного промта kip8 выровнены с фактическим
+      состоянием репозитория после переноса Tasks 293-296. Docs-only:
+      код не менялся, SW kipia-v410, тесты 1324/0 (проверено прогоном).
+
+Work Log:
+- scripts/task298-update-prompt.py (зеркало task297 по kip8-фактам,
+  ассерт на каждую замену): строка 3 — post-Task 298 (перечень всех
+  правок, «последнее изменение кода — Task 296»), старая строка 3 →
+  цепочка строки 4; кэш kipia-v410 — без изменений.
+- «Источники проекта»: Apps Script URL был СТАРЫМ (AKfycbztm… —
+  ловушка двух развёртываний Task 284; та же находка, что в Task 297
+  у kip8test) — заменён на развёртывание пользователя AKfycbyt…
+  (сверено с KipAuth.WEB_APP_URL в index.html ~строка 28 129),
+  подпись «ОДИН бэкенд на kip8 и kip8test + матрица прав»; строка
+  матрицы подписана «Матрица доступа KIP8_Access (права,
+  Task 293-296)».
+- «Источники данных»: users/sessions/audit_log → таблица KIP8_Access
+  + строка «МАТРИЦА ПРАВ» (matrix/permissions/roles, 13×12,
+  ID 1TmmNZLU…).
+- Секция Apps Script: в состав добавлены WorkSchedule /
+  ValidationRules / VacationsInit / VacationsDiagnose / RoleMatrix /
+  RoleMatrixGate / RoleMatrixInit; WEB_APP_URL ~18 630 → ~28 129;
+  эндпоинты: +getMyAccess, +adminCreateUser, flowmeter.*
+  (updatePeriodReading/setComment/getValidationRules/
+  getRecentAllMeters), +workSchedule.* (Tasks 201-275).
+- Архитектура auth: в диаграмму — гейт rmRequirePerm до модулей,
+  RoleMatrix.gs + RoleMatrixGate.gs + WorkSchedule.gs, хранилище →
+  KIP8_Access (users/sessions/audit_log/matrix/permissions/roles);
+  примечание Task 294-296 после CORS-параграфа.
+- localStorage-таблица: +kip8_my_access (кэш карты прав, Task 296).
+- «Роли и доступ»: примечания «легаси-карта» для «Полной матрицы
+  (11 фильтров)» и READ_ROLES/INPUT_ROLES (основная проверка —
+  flowmeter.view/flowmeter.input из матрицы).
+- «Перенос в kip8»: строка scripts/*.gs (справочные копии, ОДИН
+  бэкенд — «Новая версия» AKfycbyt…) + «Последняя принятая партия:
+  Tasks 293-296 из kip8test@3bf42a4 (623ffd0, v410)».
+- Актуализация счётчиков: 93 страницы («86+»/«92+»), ~39 тыс. строк
+  / ~2.4 MB («~27-30 тыс. / ~1.7 MB»), тесты 1324 («498»/«872»/
+  «292»), позиции модулей KipAuth ~28 123 / KipFav ~29 677 /
+  KipCableJournal ~31 035 / FlowmeterData ~32 885 («~18 628-19 616»
+  и др.), пример CACHE_VERSION kipia-test-v455 → kipia-v410
+  (кип8-специфичный фикс), контекст — «Email+OTP с матрицей прав
+  KIP8_Access».
+- Тесты: сьют 1324/0 (прогон перед коммитом). Деплой не нужен
+  (docs-only, Pages подхватит сам, SW v410 не менялся).
+
+Stage Summary:
+- Промт kip8 приведён в паритет с kip8test (Task 297): матрица
+  KIP8_Access как источник истины прав отражена во всех секциях,
+  счётчики и позиции соответствуют факту, старый URL Apps Script
+  устранён. Оба промта (kip8 и kip8test) теперь согласованы.
+  Следующий номер: 299.
+- Локальная дата: 2026-09-02 (Asia/Novosibirsk, UTC+07:00).
