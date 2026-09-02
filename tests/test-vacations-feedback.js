@@ -21,7 +21,7 @@
 //     5. WorkSchedule._apiErrText: serverMessage -> message -> строка
 //     6. Отпускные кэтчи (форма/удаление/страница) показывают
 //        _apiErrText — человеческое пояснение вместо кода 'overlap'
-//     7. SW-кэш v530 (в kip8 теперь v409 — Task 292-перенос)
+//     7. SW-кэш v530 (в kip8 теперь v410 — Task 296-перенос)
 //   Слой 2 — СИМУЛЯЦИЯ сервера (стенд Task 279, мок-таблицы):
 //     8. addVacation: строки БЕЗ id (ручные) участвуют в проверке
 //        пересечения — overlap отклоняется с message
@@ -158,9 +158,9 @@ describe('Task 282 — serverMessage: пояснение сервера дохо
         assertTrue(!!load, 'loadVacations (страница) не показывает _apiErrText');
     });
 
-    test('SW-кэш поднят до v409 (Task 292 — перенос партии 286-292)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v409'") !== -1,
-            'CACHE_VERSION = kipia-v409');
+    test('SW-кэш поднят до v410 (Task 296 — перенос партии 293-296)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
+            'CACHE_VERSION = kipia-v410');
     });
 });
 

@@ -7000,3 +7000,61 @@ Stage Summary:
   (AKfycbyt…) + Ctrl+Shift+R ×2. См.
   scripts/DEPLOY-Task292-flow-batch-transfer.md. Следующий номер: 293.
 - Локальная дата: 2026-09-01 (Asia/Novosibirsk, UTC+07:00).
+
+---
+Task ID: 296-перенос (kip8)
+Agent: main (Super Z)
+Task: Перенос партии Tasks 293-296 из kip8test@3bf42a4 в боевой kip8
+      одним инкрементом SW kipia-v409→v410 — СИСТЕМА ДОСТУПА ПО
+      МАТРИЦЕ KIP8_Access (Этапы 1-4). Основание: пользователь
+      проверил несколько прав в kip8test — «работает, переноси в
+      основной проект kip8 все последние изменения».
+
+Work Log:
+- Базовые линии: kip8@56c3281 (Task 292) ↔ kip8test@372530a;
+  изоляционные точки index.html = 11 фрагментов (82 строки диффа,
+  сверено с базой Task 292): isolateLocalStorage (14 строк),
+  префиксы kip8test_ localStorage (phonebook/devices_cache),
+  4 комментария Task 242/243/284, пример /kip8test/#….
+- Патч 372530a..3bf42a4 (index.html, 12 хунков) применён git apply
+  в kip8 — все хунки легли с offset -15 (изол. строки), байт-в-байт
+  верифицировано: diff(kip8test@3bf42a4, kip8-новый) == базовый
+  изоляционный дифф (только сдвиг номеров от +213 строк).
+- sw.js: v409→v410 + комментарий партии (конвенция переносов).
+- scripts: RoleMatrixInit.gs / RoleMatrix.gs / RoleMatrixGate.gs —
+  новые (копии байт-в-байт); Flowmeter.gs / WorkSchedule.gs — копии
+  (на базовой линии идентичны, дифф = ровно патч Task 295); Code.gs —
+  3 хунка вручную (док-строки kip8 сохранены: Task 199/200/222 +
+  комментарий WEB_APP_URL + позиция case updatePeriodReading);
+  добавлены GATE_ACTIONS + _gateLegacyWarn + гейт в doPost + case
+  getMyAccess.
+- Тесты: SW-ассерты kipia-v409→v410 в 6 файлах (36 замен) +
+  подписи «поднят до v409»→«v410» (5 мест, эквивалент патча
+  kip8test); node --check ×6 (.gs через временные .js — Node 24 не
+  принимает .gs напрямую) + sw.js; сьют 1324/0 (паритет).
+- Browser-check task296k (порт 8933, ROOT=kip8, localStorage БЕЗ
+  префикса): 20/20 — ИТР8 pro («График работы» в сайдбаре/на
+  дашборде, canAccess, кнопок ввода нет), ИТР ИОС (кнопка «Ввести
+  показания» в карточке, текст точен, кэш kip8_my_access), гость
+  (getMyAccess не запрашивается, калькуляторы), 0 JS-ошибок.
+  VLM ×1 — вёрстка без дефектов.
+- Промт kip8: post-Task 296 (строка 3, партия под коллапс),
+  кэш v410, таблица репо (test-v539/v410), «Карта ролей» → матрица
+  KIP8_Access (3 ссылки), примечание «источник истины прав —
+  матрица» в разделе ролей, доступ графика работы и «доработка
+  роли» переписаны под матрицу.
+- DEPLOY-Task296-role-matrix-transfer.md: деплоя Apps Script НЕТ
+  (ОДИН бэкенд с kip8test, сервер уже задеплоен в Этапе 3), только
+  Ctrl+Shift+R ×2; проверки; как менять права галочками.
+
+Stage Summary:
+- Партия Tasks 293-296 (система доступа по матрице KIP8_Access,
+  Этапы 1-4) перенесена в боевой kip8: серверный шлюз прав
+  (fail-closed, аудит RM_ACCESS_DENIED) + клиент на серверной карте
+  прав (getMyAccess). SW kipia-v410, тесты 1324/0, browser-check
+  20/20, VLM ×1.
+- Деплой пользователя: НИЧЕГО в Apps Script (общий бэкенд уже
+  задеплоен), GitHub Pages подхватит сам + Ctrl+Shift+R ×2.
+  См. scripts/DEPLOY-Task296-role-matrix-transfer.md.
+  Следующий номер: 297.
+- Локальная дата: 2026-09-02 (Asia/Novosibirsk, UTC+07:00).

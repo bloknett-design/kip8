@@ -361,8 +361,8 @@ describe('Task 279 — статические инварианты (фронт/i
             'лог о самолечении');
     });
 
-    test('SW-кэш поднят до v409 (Task 292 — перенос партии 286-292)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v409'") !== -1,
-            'CACHE_VERSION = kipia-v409');
+    test('SW-кэш поднят до v410 (Task 296 — перенос партии 293-296)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
+            'CACHE_VERSION = kipia-v410');
     });
 });
