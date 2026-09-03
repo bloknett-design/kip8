@@ -7181,3 +7181,41 @@ Stage Summary:
   bloknett-design.github.io/kip8 (SW v411). Листы/миграции не нужны.
   Следующий номер: 307.
 - Локальная дата: 2026-09-03 (Asia/Novosibirsk, UTC+07:00).
+---
+Task ID: 306-перенос (десктоп)
+Agent: main (Super Z)
+Task: По указанию пользователя «Так же перенеси все последние
+      изменения в боевой kip8-desktop» — доводка kip8-desktop до
+      полного паритета с kip8@f43012f и расширение автосинка.
+
+Work Log:
+- Проверено: пуш kip8@f43012f уже автосинхронизировал контент в
+  kip8-desktop (ba23818 «auto: sync index.html from kip8@f43012f»;
+  index.html + charts/devices-desktop.js байт-в-байт; все 4
+  workflow — success).
+- Проблема: CI Tests kip8-desktop падал 3 пуша подряд — тесты
+  уровня Task 190 (498) не знали новые страницы. Устранено
+  коммитом kip8-desktop@d1737a5: tests/ 27 файлов байт-в-байт из
+  kip8 (+15 новых), фикстуры полного прогона sw.js + scripts/
+  8×.gs (в Electron-сборку НЕ попадают), data/ офлайн-fallback
+  (devices/lockouts/projects), промт post-Task 306, README,
+  .gitignore +.gscheck-code.js. Локально: 1433 passed / 0 failed.
+- sync-to-desktop.yml РАСШИРЕН: paths + sw.js, scripts/*.gs,
+  tests/**; копирование фикстур в шаге «Скопировать контент»;
+  commit-msg «auto: sync content from kip8@…»; git add расширен.
+  data/ и images/ остаются ручными (ежедневные Google Sheets
+  авто-коммиты не должны гонять десктоп-сборки).
+- Промт kip8: 2 строки про автосинк актуализированы (состав
+  синка + фиксстуры вне Electron-сборки + 1433/0 в CI десктопа).
+- YAML провалидирован; коммит + push (PAT-протокол, URL сброшен);
+  workflow_dispatch sync-to-desktop → «нет изменений» (ожидаемо —
+  всё уже синхронизировано вручную).
+
+Stage Summary:
+- kip8-desktop полностью синхронен с kip8@f43012f и будет
+  оставаться таковым автоматически: теперь автосинк покрывает
+  весь контент + тесты + фикстуры. CI десктопа: 1433/0.
+  Пользователю ничего делать не нужно (релиз не требуется:
+  electron/main.js и package.json не менялись; контент приходит
+  с GitHub Pages при перезапуске приложения). Следующий номер: 307.
+- Локальная дата: 2026-09-03 (Asia/Novosibirsk, UTC+07:00).

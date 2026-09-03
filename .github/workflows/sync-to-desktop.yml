@@ -1,15 +1,19 @@
-name: Sync index.html to kip8-desktop
+name: Sync content to kip8-desktop
 
-# Автосинхронизация index.html + десктоп-модулей (charts-desktop.js,
-# devices-table-desktop.js) из kip8 в kip8-desktop (боевая десктоп-сборка).
-# При пуше в main, меняющем index.html, этот workflow:
-#   1. Скачивает свежий index.html из текущего репозитория
-#   2. Создаёт коммит в kip8-desktop/index.html с тем же содержимым
-#   3. Пушит через PAT (секрет DESKTOP_SYNC_TOKEN)
+# Автосинхронизация контента из kip8 в kip8-desktop (боевая десктоп-сборка).
+# Синхронизируются:
+#   - index.html + десктоп-модули (charts-desktop.js, devices-table-desktop.js)
+#     — офлайн-fallback app://
+#   - sw.js + scripts/*.gs (8 файлов) + tests/ — фикстуры полного
+#     тестового прогона (1433 теста, CI kip8-desktop); в Electron-сборку
+#     НЕ попадают (files в package.json: index.html/images/data/electron)
+# При пуше в main, меняющем эти файлы, workflow:
+#   1. Копирует их в kip8-desktop
+#   2. Коммитит через PAT (секрет DESKTOP_SYNC_TOKEN)
 #
-# Это позволяет держать index.html синхронным между mobile (kip8) и desktop
-# (kip8-desktop) без ручного копирования. data/ и images/ синхронизируются
-# вручную при релизе.
+# Это держит kip8-desktop синхронным с kip8 без ручного копирования.
+# data/ и images/ синхронизируются вручную при переносе/релизе
+# (ежедневные авто-коммиты Google Sheets не гоняют десктоп-сборку).
 # Аналог механизма kip8test -> kip8test-desktop (sync-to-desktop.yml в kip8test).
 
 on:
@@ -19,6 +23,9 @@ on:
       - 'index.html'
       - 'charts-desktop.js'
       - 'devices-table-desktop.js'
+      - 'sw.js'
+      - 'scripts/*.gs'
+      - 'tests/**'
   workflow_dispatch:
 
 permissions:
@@ -46,13 +53,24 @@ jobs:
         run: |
           git clone --depth 1 "https://x-access-token:${DESKTOP_SYNC_TOKEN}@github.com/bloknett-design/kip8-desktop.git" /tmp/kip8-desktop
 
-      - name: Скопировать index.html и десктоп-модули
+      - name: Скопировать контент и фикстуры тестов
         run: |
           cp index.html /tmp/kip8-desktop/index.html
           # Task 147: модуль графиков (только десктоп) — нужен для офлайн-fallback app://
           cp charts-desktop.js /tmp/kip8-desktop/charts-desktop.js
           # Task 148: таблица приборов (только десктоп)
           cp devices-table-desktop.js /tmp/kip8-desktop/devices-table-desktop.js
+          # Task 306-перенос (десктоп): фикстуры полного прогона тестов в kip8-desktop
+          cp sw.js /tmp/kip8-desktop/sw.js
+          mkdir -p /tmp/kip8-desktop/scripts
+          for gs in Code.gs Flowmeter.gs FlowmeterArchive.gs TabNumbersFix.gs \
+                     VacationsDiagnose.gs VacationsInit.gs ValidationRules.gs WorkSchedule.gs; do
+            cp "scripts/$gs" "/tmp/kip8-desktop/scripts/$gs"
+          done
+          mkdir -p /tmp/kip8-desktop/tests
+          cp tests/*.js tests/README.md /tmp/kip8-desktop/tests/
+          # временный файл test-deploy-url.js (node --check Code.gs) не синхронизируем
+          rm -f /tmp/kip8-desktop/scripts/.gscheck-code.js
 
       - name: Проверить, есть ли изменения
         id: changes
@@ -76,16 +94,16 @@ jobs:
           cd /tmp/kip8-desktop
           git config user.email "bot@kip8.local"
           git config user.name "kip-bot"
-          git add index.html charts-desktop.js devices-table-desktop.js
+          git add index.html charts-desktop.js devices-table-desktop.js sw.js scripts/*.gs tests/
           # Коммит-сообщение: показываем, что это автосинхронизация и из какого SHA
-          git commit -m "auto: sync index.html from kip8@${SOURCE_SHA}
+          git commit -m "auto: sync content from kip8@${SOURCE_SHA}
 
           Source commit: ${SOURCE_SHA}
           Source message: ${SOURCE_MSG}
 
           Автоматически синхронизировано через GitHub Action sync-to-desktop.yml"
           git push origin main
-          echo "✓ index.html синхронизирован в kip8-desktop"
+          echo "✓ контент синхронизирован в kip8-desktop"
 
       - name: Summary
         if: always()
@@ -93,7 +111,7 @@ jobs:
           echo "## Sync summary"
           echo ""
           if [ "${{ steps.changes.outputs.changed }}" = "true" ]; then
-            echo "✅ index.html обновлён в kip8-desktop (source: kip8@${{ steps.commit_info.outputs.sha }})"
+            echo "✅ контент обновлён в kip8-desktop (source: kip8@${{ steps.commit_info.outputs.sha }})"
           else
-            echo "ℹ️ index.html уже был актуален в kip8-desktop"
+            echo "ℹ️ контент уже был актуален в kip8-desktop"
           fi
