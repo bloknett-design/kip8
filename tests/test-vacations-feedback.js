@@ -21,7 +21,7 @@
 //     5. WorkSchedule._apiErrText: serverMessage -> message -> строка
 //     6. Отпускные кэтчи (форма/удаление/страница) показывают
 //        _apiErrText — человеческое пояснение вместо кода 'overlap'
-//     7. SW-кэш v530 (в kip8 теперь v410 — Task 296-перенос)
+//     7. SW-кэш v530
 //   Слой 2 — СИМУЛЯЦИЯ сервера (стенд Task 279, мок-таблицы):
 //     8. addVacation: строки БЕЗ id (ручные) участвуют в проверке
 //        пересечения — overlap отклоняется с message
@@ -158,9 +158,9 @@ describe('Task 282 — serverMessage: пояснение сервера дохо
         assertTrue(!!load, 'loadVacations (страница) не показывает _apiErrText');
     });
 
-    test('SW-кэш поднят до v410 (Task 296 — перенос партии 293-296)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
-            'CACHE_VERSION = kipia-v410');
+    test('SW-кэш поднят до v539 (Task 296 — фронтенд менялся)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v411'") !== -1,
+            'CACHE_VERSION = kipia-v411');
     });
 });
 
@@ -168,7 +168,10 @@ describe('Task 282 — serverMessage: пояснение сервера дохо
 // Слой 2: симуляция сервера — addVacation и строки без id
 // ============================================================
 class MockSheet {
-    constructor(rows) { this.rows = rows || []; }
+    constructor(rows) {
+        this.rows = rows || [];
+        this.fmtCalls = [];   // Task 304: вызовы setNumberFormat
+    }
     getLastRow() { return this.rows.length; }
     getRange(row, col, numRows, numCols) {
         numRows = numRows || 1; numCols = numCols || 1;
@@ -185,6 +188,26 @@ class MockSheet {
                     out.push(line);
                 }
                 return out;
+            },
+            // Task 304: реальный Sheets применяет формат к ячейке;
+            // мок протоколирует вызов (WorkSchedule.gs ставит «@»
+            // таб-ячейкам ДО записи значений — «0871» не число 871)
+            setNumberFormat(fmt) {
+                self.fmtCalls.push({ row: row, col: col,
+                                     numRows: numRows, numCols: numCols, fmt: fmt });
+            },
+            setValues(vals) {
+                for (let i = 0; i < vals.length; i++) {
+                    const r = row + i;
+                    while (self.rows.length < r) self.rows.push([]);
+                    for (let c = 0; c < vals[i].length; c++) {
+                        self.rows[r - 1][col - 1 + c] = vals[i][c];
+                    }
+                }
+            },
+            setValue(v) {
+                while (self.rows.length < row) self.rows.push([]);
+                self.rows[row - 1][col - 1] = v;
             }
         };
     }

@@ -1,6 +1,4 @@
 // tests/test-flow-period-input.js
-// (kip8: перенесён из kip8test@372530a задачей 292-перенос, партия
-//  Tasks 286-292; SW-ассерты адаптированы под kipia-v410)
 // Task 286: ввод «расход за неделю/месяц» для Хозрасчёта №1.
 // Task 287 (историческая заметка): счётчик переданных показаний
 //   переделан — календарная неделя (пн–вс), предыдущий месяц
@@ -46,11 +44,7 @@
 //      Task 289 — форма недели убрана,
 //      Task 288 — счётчик контроля удалён, бейджи «нед»/«мес»,
 //      график — только суточные записи,
-//      Task 292 — заголовок dailyMode «Показания (посуточно)»
-//      (перенос партии Tasks 286-292 в kip8 — один инкремент),
-//      Task 296 — клиент на серверной карте прав из матрицы
-//      KIP8_Access (getMyAccess), SW v410 (перенос партии
-//      Tasks 293-296 — один инкремент, сервер уже задеплоен).
+//      Task 292 — заголовок dailyMode «Показания (посуточно)»; SW → v543 (Task 298).
 //   C. Серверные справочные копии (.gs): ветка entryType в
 //      updateReading, _writePeriodEntry (только архив, prev=0,
 //      hard-проверки), колонка R (entryType) в архиве,
@@ -387,11 +381,11 @@ describe('Task 286 — клиент: CSS и SW', () => {
             'светлая тема');
     });
 
-    test('SW-кэш поднят до v410 (Task 296 — перенос партии 293-296, один инкремент)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
-            'CACHE_VERSION = kipia-v410');
-        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v408'") !== -1,
-            'старой версии v408 нет');
+    test('SW-кэш поднят до v544 (Task 298 — фронтенд менялся)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v411'") !== -1,
+            'CACHE_VERSION = kipia-v411');
+        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
+            'старой версии v534 нет');
     });
 
     test('Регрессия: WEB_APP_URL не тронут (AKfycbyt…, Task 284)', () => {
@@ -708,11 +702,11 @@ describe('Task 292 — заголовок графика: «Показания (
             'график — только суточные записи');
     });
 
-    test('SW-кэш: v409 → v410 (Task 296 — перенос партии 293-296, сервер уже задеплоен в Этапе 3)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
-            'CACHE_VERSION = kipia-v410');
-        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v408'") !== -1,
-            'старой версии v408 нет');
+    test('SW-кэш: v538 → v539 (Task 296 — только фронтенд, сервер не менялся)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v411'") !== -1,
+            'CACHE_VERSION = kipia-v411');
+        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
+            'старой версии v537 нет');
     });
 });
 

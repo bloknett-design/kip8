@@ -1,5 +1,5 @@
 // tests/test-deploy-url.js
-// Task 285: «Я развёртываю с этой ссылкой
+// Task 284: «Я развёртываю с этой ссылкой
 // https://script.google.com/macros/s/AKfycbyt…/exec» — а приложение
 // с Task 202 вызывало ДРУГОЕ развёртывание (AKfycbzg…), чей
 // работающий снимок кода старше Task 274 (роутинга отпусков нет —
@@ -21,7 +21,7 @@
 //   5. Конкатенация запроса не тронута: '?action=' + encodeURIComponent
 //   6. Справочная константа WEB_APP_URL в Code.gs синхронна
 //      (информационная — на работу сервера не влияет)
-//   7. SW-кэш поднят до kipia-v410 (фронтенд менялся)
+//   7. SW-кэш поднят до kipia-v411 (фронтенд менялся)
 //   8. VacationsDiagnose.gs подсказывает верный URL (AKfycbyt…)
 //   9. node --check Code.gs — синтаксис валиден после правки
 
@@ -38,7 +38,7 @@ const DIAGNOSE_GS = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'Vacat
 const NEW_URL = 'https://script.google.com/macros/s/AKfycbyt2sjbJ8xT5UPKDlYj4q-CV-5pH_Yrv5COrg0PIpp92snpQULUNtJC__pMnQ0h6feNlA/exec';
 const OLD_URL = 'AKfycbzgPtyya6eMCq';
 
-describe('Task 285 — URL развёртывания в KipAuth', () => {
+describe('Task 284 — URL развёртывания в KipAuth', () => {
 
     test('WEB_APP_URL = развёртывание пользователя (AKfycbyt…)', () => {
         const m = INDEX_SRC.match(/WEB_APP_URL:\s*'([^']+)'/);
@@ -83,9 +83,9 @@ describe('Task 285 — URL развёртывания в KipAuth', () => {
             'старый URL из подсказки убран');
     });
 
-    test('SW-кэш поднят до v410 (Task 296 — перенос партии 293-296)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
-            'CACHE_VERSION = kipia-v410');
+    test('SW-кэш поднят до v411 (Task 306 — перенос партии 298-306)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v411'") !== -1,
+            'CACHE_VERSION = kipia-v411');
     });
 
     test('node --check: Code.gs синтаксически валиден', () => {

@@ -19,11 +19,13 @@ const { test, describe, assertEqual, assertTrue, assertFalse } = require('./test
 // Используются как референс-имплементация для тестов.
 // ============================================================
 
-// Соответствие тип мероприятия → код статуса
+// Соответствие тип мероприятия → код статуса (Task 306: + прогул/примечание)
 const TRAINING_TYPE_TO_STATUS = {
     'инструктаж':      'И',
     'обучение':        'ОБ',
-    'проверка_знаний': 'ПЗ'
+    'проверка_знаний': 'ПЗ',
+    'прогул':          'ПР',
+    'примечание':      '*'
 };
 
 // Конвертация ISO YYYY-MM-DD → Date (без timezone-сдвига)
@@ -269,10 +271,14 @@ describe('График работы — WorkSchedule', () => {
             assertTrue(gsContent.indexOf("WRITE_ROLES: ['Админ']") !== -1);
         });
 
-        test('TRAINING_TYPE_TO_STATUS: 3 типа → И/ОБ/ПЗ', () => {
+        test('TRAINING_TYPE_TO_STATUS: 5 типов → И/ОБ/ПЗ/ПР/* (Task 306)', () => {
             assertTrue(gsContent.indexOf("'инструктаж':       'И'") !== -1);
             assertTrue(gsContent.indexOf("'обучение':         'ОБ'") !== -1);
             assertTrue(gsContent.indexOf("'проверка_знаний':  'ПЗ'") !== -1);
+            assertTrue(gsContent.indexOf("'прогул':           'ПР'") !== -1,
+                'прогул → ПР (Task 306)');
+            assertTrue(gsContent.indexOf("'примечание':       '*'") !== -1,
+                'примечание → * (Task 306)');
         });
 
         test('все 11 endpoint-ов зарегистрированы в Code.gs', () => {
@@ -815,10 +821,11 @@ describe('График работы — WorkSchedule', () => {
         test('JS: в ячейке выводится код статуса (status || «·»)', () => {
             // Реверс Task 250: снова (status || '·') — код буквой в ячейке.
             // Task 274: выражение расширено планом отпуска —
-            // (status || (vacPlan ? 'О' : '·')): пустая ячейка в периоде
-            // отпуска показывает «О», прочие пустые — точку.
-            assertTrue(html.indexOf("(status || (vacPlan ? 'О' : '·'))") !== -1,
-                'Код статуса в ячейке (Task 274: + план отпуска «О»)');
+            // (status || (vacPlan ? 'ОТ' : '·')): пустая ячейка в периоде
+            // отпуска показывает «ОТ», прочие пустые — точку.
+            // Task 298: код отпуска «О» → «ОТ» (Т-12/Т-13).
+            assertTrue(html.indexOf("(status || (vacPlan ? 'ОТ' : '·'))") !== -1,
+                'Код статуса в ячейке (Task 274/298: + план отпуска «ОТ»)');
             assertTrue(html.indexOf("(status ? '' : '·')") === -1,
                 'Паттерн Task 250 «статусная ячейка без текста» должен быть удалён');
         });
@@ -1200,11 +1207,11 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v514 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'Актуальная версия — kipia-v410 (Task 292 — перенос в kip8)');
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'Актуальная версия — kipia-v411 (Task 291)');
         });
         test('Старая версия v514 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v407") === -1,
+            assertTrue(sw.indexOf("kipia-v410") === -1,
                 'Старая v514 не должна остаться в sw.js');
         });
     });
@@ -1264,8 +1271,8 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v516 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'Актуальная версия — kipia-v410 (Task 292 — перенос в kip8)');
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'Актуальная версия — kipia-v411 (Task 291)');
         });
     });
 
@@ -1276,8 +1283,8 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v515 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'Актуальная версия — kipia-v410 (Task 292 — перенос в kip8)');
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'Актуальная версия — kipia-v411 (Task 291)');
         });
     });
 
@@ -1287,8 +1294,8 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
         test('v513 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'Актуальная версия — kipia-v410');
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'Актуальная версия — kipia-v411');
         });
     });
 
@@ -1481,11 +1488,11 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v517 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'Актуальная версия — kipia-v410 (Task 292 — перенос в kip8)');
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'Актуальная версия — kipia-v411 (Task 291)');
         });
         test('Старая версия v517 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v406") === -1,
+            assertTrue(sw.indexOf("kipia-v410") === -1,
                 'Старая v517 не должна остаться в sw.js');
         });
     });
@@ -1496,12 +1503,12 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v410', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'CACHE_VERSION должен быть kipia-v410 (Task 292 — перенос в kip8)');
+        test('CACHE_VERSION = kipia-v411', () => {
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'CACHE_VERSION должен быть kipia-v411 (Task 290)');
         });
         test('Старая версия v517 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v406") === -1,
+            assertTrue(sw.indexOf("kipia-v410") === -1,
                 'Старая v517 не должна остаться в sw.js');
         });
     });
@@ -1866,13 +1873,13 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v410', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'CACHE_VERSION должен быть kipia-v410 (Task 292 — перенос в kip8)');
+        test('CACHE_VERSION = kipia-v411', () => {
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'CACHE_VERSION должен быть kipia-v411 (Task 290)');
         });
-        test('Старая версия v404 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v404") === -1,
-                'Старая v404 не должна остаться в sw.js');
+        test('Старая версия v523 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v410") === -1,
+                'Старая v523 не должна остаться в sw.js');
         });
     });
 
@@ -1963,9 +1970,13 @@ describe('График работы — WorkSchedule', () => {
         const html = fs.readFileSync(indexPath, 'utf8');
 
         test('CSS: единая высота всех элементов ряда кнопок (34px)', () => {
-            const re = /\.ws-month-sel, \.ws-year-sel, \.ws-cal-chip, \.ws-generate-btn, \.ws-save-btn \{[^}]*height:\s*34px[^}]*box-sizing:\s*border-box/;
+            // Task 306: .ws-cal-chip убран из списка — кнопка «Обновить» удалена
+            const re = /\.ws-month-sel, \.ws-year-sel, \.ws-generate-btn, \.ws-save-btn \{[^}]*height:\s*34px[^}]*box-sizing:\s*border-box/;
             assertTrue(re.test(html),
-                'селекты, чип «Календарь», «Сформировать» и «Сохранить» — одного роста');
+                'селекты, «Сформировать» и «Сохранить» — одного роста');
+            assertTrue(html.indexOf('.ws-cal-chip {') === -1 &&
+                       html.indexOf('.ws-cal-chip:') === -1,
+                'мёртвые стили удалённой кнопки не остались (упоминания в комментариях не в счёт)');
         });
 
         test('CSS: десктоп — кнопки в ЛЕВОМ ВЕРХНЕМ углу бара (Task 272)', () => {
@@ -2121,42 +2132,48 @@ describe('График работы — WorkSchedule', () => {
     });
 
     // ============================================================
-    // Task 272 (по заявке пользователя):
-    //   1) кнопка «Календарь» переделана в «Обновить» — клик
-    //      открывает диалог с источником (calendar.legalic.ru,
-    //      федеральный, официальные нормы) и кнопкой подтверждения;
-    //   2) шторка настроек УДАЛЕНА: выбор регионов, поле ввода
-    //      токена production-calendar.ru и прочее убраны — регион
-    //      один (42 — Кемеровская область - Кузбасс);
+    // Task 272 → Task 306 (по заявке пользователя):
+    //   1) кнопка «Календарь» (Task 272) стала «Обновить», а в
+    //      Task 306 УДАЛЕНА — «Обновить» и «Сформировать»
+    //      объединены в одну кнопку «Сформировать»: подтверждённое
+    //      формирование ТИХО обновляет производственный календарь
+    //      (WorkSchedule._refreshProdCalendarQuiet →
+    //      ProdCalendar.refreshNow(true));
+    //   2) шторка настроек УДАЛЕНА (Task 272): регион один (42 —
+    //      Кемеровская область - Кузбасс);
     //   3) «Сформировать» строит шахматку на ВЕСЬ ГОД (12 месяцев
     //      последовательными вызовами workSchedule.generateMonth);
-    //   4) обе кнопки («Обновить» + «Сформировать») — в ЛЕВОМ
-    //      ВЕРХНЕМ углу бара.
+    //   4) кнопка «Сформировать» — в ЛЕВОМ ВЕРХНЕМ углу бара.
     // ============================================================
-    describe('Task 272: кнопка «Обновить» вместо «Календарь»', () => {
+    describe('Task 306: кнопка «Обновить» объединена с «Сформировать»', () => {
         const fs = require('fs');
         const path = require('path');
         const indexPath = path.resolve(__dirname, '..', 'index.html');
         const html = fs.readFileSync(indexPath, 'utf8');
 
-        test('HTML: кнопка wsCalChip — надпись «Обновить» и confirmRefresh', () => {
-            const m = html.match(/<button[^>]*id="wsCalChip"[^>]*>/);
-            assertTrue(!!m, 'кнопка wsCalChip в тулбаре');
-            assertTrue(m[0].indexOf('onclick="ProdCalendar.confirmRefresh()"') !== -1,
-                'onclick — ProdCalendar.confirmRefresh()');
-            assertTrue(html.indexOf('<span id="wsCalChipText">Обновить</span>') !== -1,
-                'надпись — «Обновить»');
+        test('HTML: кнопка wsCalChip УДАЛЕНА, wsGenerateBtn осталась', () => {
+            assertTrue(html.indexOf('id="wsCalChip"') === -1,
+                'кнопка wsCalChip удалена из тулбара');
+            assertTrue(html.indexOf('onclick="ProdCalendar.confirmRefresh()"') === -1,
+                'онклик confirmRefresh удалён');
+            const m = html.match(/<button[^>]*id="wsGenerateBtn"[^>]*>/);
+            assertTrue(!!m, 'кнопка wsGenerateBtn в тулбаре');
+            assertTrue(html.indexOf('<span id="wsCalChipText">Обновить</span>') === -1,
+                'надпись «Обновить» удалена вместе с кнопкой');
             assertTrue(html.indexOf('<span id="wsCalChipText">Календарь</span>') === -1,
                 'старая надпись «Календарь» удалена');
         });
 
-        test('JS: _updateCalChip ставит «Обновить» и новый тултип', () => {
-            assertTrue(html.indexOf("textEl.textContent = 'Обновить';") !== -1,
-                'текст кнопки — «Обновить»');
+        test('JS: _updateCalChip — только перерисовка окошка норм', () => {
+            assertTrue(html.indexOf("textEl.textContent = 'Обновить';") === -1,
+                'старая синхронизация текста кнопки удалена');
             assertTrue(html.indexOf("textEl.textContent = 'Календарь';") === -1,
                 'старый текст удалён');
-            assertTrue(html.indexOf('calendar.legalic.ru, федеральный') !== -1,
-                'тултип упоминает источник legalic');
+            const chip = html.match(/_updateCalChip: function\(\) \{[\s\S]{0,200}?\}/);
+            assertTrue(chip && chip[0].indexOf('ProdCalendar.renderPanel()') !== -1,
+                'хелпер остаётся перерисовкой wsCalPanel');
+            assertTrue(html.indexOf('_refreshProdCalendarQuiet: function') !== -1,
+                'хелпер тихого обновления календаря определён');
         });
 
         test('HTML: шторка настроек и токен полностью удалены', () => {
@@ -2229,13 +2246,13 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v410', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'CACHE_VERSION должен быть kipia-v410 (Task 292 — перенос в kip8)');
+        test('CACHE_VERSION = kipia-v411', () => {
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'CACHE_VERSION должен быть kipia-v411 (Task 290)');
         });
-        test('Старая версия v405 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v405") === -1,
-                'Старая v405 не должна остаться в sw.js');
+        test('Старая версия v525 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v410") === -1,
+                'Старая v525 не должна остаться в sw.js');
         });
     });
 
@@ -2243,10 +2260,11 @@ describe('График работы — WorkSchedule', () => {
     // Task 274: автоматическая расстановка отпусков в шахматке.
     //   Лист «Отпуска» таблицы табель_КИП_ИОС: периоды 2–3 частей
     //   на год; серверные listVacations/addVacation/deleteVacation;
-    //   generateMonth заполняет «О» с приоритетом
-    //   руч > отпуск > инструктаж > плановая смена; устаревшие
-    //   авто-«О» удаляются (идемпотентность). Фронтенд: страница
-    //   «Отпуска», субнавигация модуля, план «О» в пустых ячейках.
+    //   generateMonth заполняет «О» с приоритетом (Task 303:
+    //   руч > отпуск > плановая смена > мероприятие — И/ОБ/ПЗ только
+    //   на день без смены); устаревшие авто-«О» удаляются
+    //   (идемпотентность). Фронтенд: страница «Отпуска»,
+    //   субнавигация модуля, план «О» в пустых ячейках.
     // ============================================================
 
     // ---- Референс-имплементация отпускной логики (как на сервере) ----
@@ -2278,20 +2296,22 @@ describe('График работы — WorkSchedule', () => {
         return e1 >= s2 && s1 <= e2;
     }
 
-    // Итоговый статус дня по приоритету источников Task 274:
-    // ручная запись > отпуск > инструктаж > плановая смена
+    // Итоговый статус дня по приоритету источников (Task 274 + Task 303):
+    // ручная запись > отпуск > плановая смена > мероприятие (И/ОБ/ПЗ —
+    // только на день БЕЗ плановой смены; Task 303: на сменных днях
+    // мероприятие НЕ затирает смену — остаётся бейджем на клиенте)
     function dayStatusPriority(manual, vacation, training, shift) {
         if (manual) return manual;
-        if (vacation) return 'О';
-        if (training) return training;  // И / ОБ / ПЗ
-        if (shift) return shift;        // Д / Н
+        if (vacation) return 'ОТ';
+        if (shift) return shift;        // Task 303: смена > мероприятие
+        if (training) return training;  // И / ОБ / ПЗ (день без смены)
         return '';
     }
 
-    // Устаревшая авто-«О»: запись-кандидат на удаление при
+    // Устаревшая авто-«ОТ»: запись-кандидат на удаление при
     // повторной генерации (не покрыта текущим планом отпусков)
     function isStaleVacationEntry(entry, coveredKeys) {
-        return entry.статус === 'О' && entry.источник === 'авто' &&
+        return entry.статус === 'ОТ' && entry.источник === 'авто' &&
                !coveredKeys[entry.дата + '|' + entry.таб_номер];
     }
 
@@ -2402,31 +2422,42 @@ describe('График работы — WorkSchedule', () => {
             assertEqual(dayStatusPriority('Б', true, null, 'Д'), 'Б');
         });
         test('Приоритет дня: отпуск перекрывает инструктаж', () => {
-            assertEqual(dayStatusPriority(null, true, 'И', null), 'О');
+            assertEqual(dayStatusPriority(null, true, 'И', null), 'ОТ');
         });
         test('Приоритет дня: отпуск перекрывает плановую смену', () => {
-            assertEqual(dayStatusPriority(null, true, null, 'Д'), 'О');
+            assertEqual(dayStatusPriority(null, true, null, 'Д'), 'ОТ');
         });
-        test('Приоритет дня: инструктаж перекрывает смену (без отпуска)', () => {
-            assertEqual(dayStatusPriority(null, false, 'И', 'Д'), 'И');
+        test('Приоритет дня: смена перекрывает инструктаж (Task 303)', () => {
+            assertEqual(dayStatusPriority(null, false, 'И', 'Д'), 'Д',
+                'Task 303: мероприятие НЕ затирает смену — бейдж на клиенте');
+        });
+        test('Приоритет дня: мероприятие на дне без смены → код (Task 303)', () => {
+            assertEqual(dayStatusPriority(null, false, 'И', null), 'И',
+                'мероприятие в выходной — код в Записи_графика');
         });
         test('Приоритет дня: ничего нет → пусто', () => {
             assertEqual(dayStatusPriority(null, false, null, null), '');
         });
 
-        test('Устаревшая авто-«О» вне текущего плана → кандидат на удаление', () => {
+        test('Устаревшая авто-«ОТ» вне текущего плана → кандидат на удаление', () => {
             const covered = { '2026-06-05|007': true };
-            const stale = { статус: 'О', источник: 'авто',
+            const stale = { статус: 'ОТ', источник: 'авто',
                             дата: '2026-06-05', таб_номер: '007' };
-            const fresh = { статус: 'О', источник: 'авто',
+            const fresh = { статус: 'ОТ', источник: 'авто',
                             дата: '2026-06-06', таб_номер: '007' };
             assertFalse(isStaleVacationEntry(stale, covered), 'покрытый день остаётся');
             assertTrue(isStaleVacationEntry(fresh, covered), 'непокрытый день удаляется');
         });
-        test('Ручная «О» никогда не удаляется', () => {
-            const manual = { статус: 'О', источник: 'руч',
+        test('Ручная «ОТ» никогда не удаляется', () => {
+            const manual = { статус: 'ОТ', источник: 'руч',
                              дата: '2026-06-06', таб_номер: '007' };
             assertFalse(isStaleVacationEntry(manual, {}));
+        });
+        test('Легаси-«О» (Task 298, до миграции) не считается устаревшим отпуском — не удаляется', () => {
+            const legacy = { статус: 'О', источник: 'авто',
+                             дата: '2026-06-06', таб_номер: '007' };
+            assertFalse(isStaleVacationEntry(legacy, {}),
+                'легаси-«О» не трогается генератором (только миграцией/перекрытием)');
         });
         test('Авто-«И» (инструктаж) не считается устаревшим отпуском', () => {
             const training = { статус: 'И', источник: 'авто',
@@ -2515,15 +2546,15 @@ describe('График работы — WorkSchedule', () => {
             });
         });
 
-        test('JS: план «О» в пустой ячейке — класс ws-vac-plan, записи не перекрываются', () => {
+        test('JS: план «ОТ» в пустой ячейке — класс ws-vac-plan, записи не перекрываются', () => {
             assertTrue(html.indexOf("classes.push('ws-vac-plan')") !== -1,
                 'класс ws-vac-plan ставится');
             const rc = html.slice(html.indexOf('_renderCell: function'),
                                   html.indexOf('generateYear: function'));
             assertTrue(rc.indexOf("if (!status && !isPending)") !== -1,
                 'план только в ПУСТОЙ ячейке без локальной правки');
-            assertTrue(rc.indexOf("(status || (vacPlan ? 'О' : '·'))") !== -1,
-                'код «О» в ячейке плана');
+            assertTrue(rc.indexOf("(status || (vacPlan ? 'ОТ' : '·'))") !== -1,
+                'код «ОТ» в ячейке плана (Task 298)');
         });
 
         test('CSS: ws-vac-plan — фон отпуска и пунктирная рамка', () => {
@@ -2608,12 +2639,12 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v527 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v410") !== -1,
-                'Актуальная версия — kipia-v410');
+            assertTrue(sw.indexOf("kipia-v411") !== -1,
+                'Актуальная версия — kipia-v411');
         });
-        test('Старая версия v407 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v407") === -1,
-                'Старая v407 не должна остаться в sw.js (Task 272)');
+        test('Старая версия v527 убрана', () => {
+            assertTrue(sw.indexOf("kipia-v410") === -1,
+                'Старая v527 не должна остаться в sw.js (Task 278)');
         });
     });
 
@@ -2790,5 +2821,107 @@ describe('График работы — WorkSchedule', () => {
             assertTrue(html.indexOf('.kip-dialog.with-alt { max-width: 360px; }') !== -1,
                 'диалог с тремя кнопками шире (одна строка на десктопе)');
         });
+    });
+});
+
+// ============================================================
+// Task 298 — новый состав кодов статусов (Т-12/Т-13) — клиент
+// ============================================================
+describe('Task 298 — коды статусов Т-12/Т-13: клиентские инварианты', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+    const gs = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'WorkSchedule.gs'), 'utf8');
+
+    test('JS: fallback-набор _loadStatusCodes = 16 новых кодов', () => {
+        // все новые коды должны быть в fallback (офлайн/старый сервер)
+        const codes = ['Д8', 'Д7,2', 'д', 'н', 'ОТ', 'У', 'ОВ', 'ПР', '.'];
+        codes.forEach(c => {
+            assertTrue(html.indexOf("{code:'" + c + "'") !== -1,
+                'fallback содержит код «' + c + '»');
+        });
+    });
+
+    test('JS: в fallback НЕТ старых кодов «О» (отпуск) и «П» (прогул)', () => {
+        // точный матч {code:'О'} / {code:'П'} — не подстрока «ОТ»/«ПЗ»/«ПР»
+        assertFalse(html.indexOf("{code:'О',") !== -1, 'старого кода «О» нет');
+        assertFalse(html.indexOf("{code:'П',") !== -1, 'старого кода «П» нет');
+    });
+
+    test('JS: _fillStatusSelect определён и вызывается при загрузке кодов', () => {
+        assertTrue(html.indexOf('_fillStatusSelect: function') !== -1,
+            'метод _fillStatusSelect существует');
+        const lsc = html.slice(html.indexOf('_loadStatusCodes: function'),
+                               html.indexOf('_loadPatterns: function'));
+        assertTrue(lsc.indexOf('self._fillStatusSelect()') !== -1,
+            'вызов при успехе загрузки');
+        // fallback-ветка тоже заполняет select
+        assertTrue((lsc.match(/self\._fillStatusSelect\(\)/g) || []).length >= 2,
+            'вызов и в fallback (catch)');
+    });
+
+    test('HTML: статический select статусов больше НЕ содержит захардкоженных кодов', () => {
+        const sel = html.slice(html.indexOf('id="wsCellStatus"'),
+                               html.indexOf('id="wsCellOvertime"'));
+        assertTrue(sel.indexOf('<option value="Д">') === -1,
+            'старой статической опции «Д» нет');
+        assertTrue(sel.indexOf('<option value="О">') === -1,
+            'старой статической опции «О» нет');
+        assertTrue(sel.indexOf('<option value="">— выходной —</option>') !== -1,
+            'заглушка «— выходной —» осталась (до загрузки кодов)');
+    });
+
+    test('JS: openCellForm строит опции из справочника с сохранением value', () => {
+        const ocf = html.slice(html.indexOf('openCellForm: function'),
+                               html.indexOf('closeCellForm: function'));
+        assertTrue(ocf.indexOf('this._fillStatusSelect(curStatus)') !== -1,
+            'опции строятся при каждом открытии шита');
+        const fss = html.slice(html.indexOf('_fillStatusSelect: function'),
+                                html.indexOf('generateYear: function'));
+        assertTrue(fss.indexOf('(нет в справочнике)') !== -1,
+            'легаси-код добавляется временной опцией');
+    });
+
+    test('JS: тултип плана отпуска — «заполнится кодом «ОТ»»', () => {
+        assertTrue(html.indexOf("заполнится кодом «ОТ» при «Сформировать»") !== -1,
+            'текст тултипа обновлён на «ОТ»');
+        assertFalse(html.indexOf("заполнится кодом «О» при") !== -1,
+            'старого текста с «О» нет');
+    });
+
+    test('GS: _validateStatusCode определён и вызывается из setManualEntry', () => {
+        assertTrue(gs.indexOf('_validateStatusCode: function') !== -1,
+            'функция валидации существует');
+        const sme = gs.slice(gs.indexOf('setManualEntry: function'),
+                             gs.indexOf('deleteEntry: function'));
+        assertTrue(sme.indexOf('this._validateStatusCode(status)') !== -1,
+            'setManualEntry валидирует статус');
+        assertTrue(sme.indexOf("error: 'unknown_статус'") === -1,
+            'текст ошибки строится в _validateStatusCode (не захардкожен)');
+    });
+
+    test('GS: генерация отпусков пишет «ОТ» — grep-инварианты', () => {
+        assertTrue(gs.indexOf("status: 'ОТ'") !== -1, "toUpdate: status: 'ОТ'");
+        assertTrue(gs.indexOf("статус: 'ОТ'") !== -1, 'entryIndex: статус: «ОТ»');
+        assertTrue(gs.indexOf("rv[2] = 'ОТ'") !== -1, 'toInsert: rv[2] = «ОТ»');
+        // старых одиночных «О» в коде генерации быть не должно
+        const gm = gs.slice(gs.indexOf('generateMonth: function'),
+                            gs.indexOf('Сводка_по_месяцам:'));
+        assertFalse(gm.indexOf("'О'") !== -1, 'в generateMonth не осталось литералов «О»');
+    });
+
+    test('GS: комментарий структуры листа кодов обновлён (16 кодов)', () => {
+        assertTrue(gs.indexOf('Д/Д8/Д7,2/Н/д/н/ОТ/У/ОВ/Б/ПР/И/ОБ/ПЗ*/.)'.replace('*/', '/*/')) !== -1,
+            'перечень кодов в комментарии структуры листа');
+        assertTrue(gs.indexOf('легенда кодов (16 шт., Task 298)') !== -1,
+            'счётчик 16 в заголовке эндпоинтов');
+    });
+
+    test('SW: кэш поднят до kipia-v411 (Task 298)', () => {
+        const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v411'") !== -1,
+            'CACHE_VERSION = kipia-v411');
+        assertFalse(sw.indexOf("CACHE_VERSION = 'kipia-v410'") !== -1,
+            'старой версии v539 нет');
     });
 });

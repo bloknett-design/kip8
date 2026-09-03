@@ -5,7 +5,7 @@
 //   Code.gs, Utils.gs, Flowmeter.gs, CableJournal.gs.
 //
 // Эндпоинты (вызываются через doPost в Code.gs):
-//   workSchedule.getStatusCodes  — легенда кодов (10 шт.)
+//   workSchedule.getStatusCodes  — легенда кодов (16 шт., Task 298)
 //   workSchedule.getPatterns     — шаблоны ротации + дни цикла
 //   workSchedule.listEmployees   — справочник сотрудников
 //   workSchedule.listEntries     — записи графика за месяц
@@ -32,6 +32,17 @@
 //   Дни_цикла, Инструктажи, Записи_графика, Сводка_по_месяцам,
 //   Отпуска (Task 274)
 //
+// Task 304: таб_№ во ВСЕХ листах хранится ТЕКСТОМ. appendRow/
+//   setValues пишут значения по USER_ENTERED-семантике Google
+//   Sheets — числоподобная строка «0871» становится ЧИСЛОМ 871
+//   (ведущий ноль теряется, таб перестаёт сопоставляться со
+//   справочником «Сотрудники»: бейдж мероприятия молча пропадал).
+//   Теперь перед записью таб-ячейкам ставится текстовый формат '@'
+//   (см. _appendRowKeepText), а generateMonth возвращает warnings —
+//   мероприятия/отпуска с таб_номер не из справочника видны в тосте
+//   «Сформировать» (раньше это была тихая ошибка). Починка уже
+//   испорченных ячеек — scripts/TabNumbersFix.gs (fixTabNumbers).
+//
 // Структура листа «Сотрудники» (заголовки в строке 1, данные со строки 2):
 //   A: таб_номер              — табельный номер (строка, PK)
 //   B: ФИО
@@ -45,10 +56,15 @@
 //   J: должность
 //   K: комментарий
 //
-// Структура листа «Коды_статусов»:
-//   A: код (Д/Н/О/Б/ОТ/П/*/И/ОБ/ПЗ)
+// Структура листа «Коды_статусов» (Task 298 — состав по Т-12/Т-13):
+//   A: код (Д/Д8/Д7,2/Н/д/н/ОТ/У/ОВ/Б/ПР/И/ОБ/ПЗ/*/.)
 //   B: название
 //   C: цвет_заливки (HEX)
+//   «.» — плановый выходной день (явная запись). «Д8» — дневная
+//   8-часовая, «Д7,2» — сокращённая (пятница/предпраздничный).
+//   Строчные «д»/«н» — работа в выходные/праздники (коды
+//   регистрозависимы!). setManualEntry валидирует код по этому
+//   листу (Task 298) — см. _validateStatusCode.
 //
 // Структура листа «Шаблоны_ротации»:
 //   A: id_шаблона (1..N)
@@ -64,7 +80,8 @@
 // Структура листа «Инструктажи»:
 //   A: id (auto-increment)
 //   B: таб_номер (FK на Сотрудники)
-//   C: тип (инструктаж/обучение/проверка_знаний)
+//   C: тип (инструктаж/обучение/проверка_знаний/прогул/примечание —
+//      Task 306: два последних отображаются кодами ПР и *)
 //   D: тема
 //   E: дата_начала (Date)
 //   F: дата_окончания (Date)
@@ -92,7 +109,12 @@
 //   F: комментарий
 //   Период задаёт автоматическую расстановку «О» (Отпуск) в
 //   Записи_графика при «Сформировать» (generateMonth, шаг 4.5):
-//   приоритет — ручная правка > отпуск > инструктаж > плановая смена.
+//   приоритет статуса дня — ручная правка > отпуск > плановая смена >
+//   мероприятие (И/ОБ/ПЗ — только на день БЕЗ плановой смены).
+//   Task 303: мероприятие больше НЕ затирает плановую смену — на
+//   сменных днях смена остаётся кодом ячейки, а мероприятие (И/ОБ/ПЗ)
+//   показывается бейджем на клиенте (данные — лист «Инструктажи»,
+//   связка — колонка I «инструкция»).
 // ============================================================
 
 var WorkSchedule = {
@@ -131,11 +153,31 @@ var WorkSchedule = {
   // Task 295: флаг однократного предупреждения о legacy-режиме
   _rmgLegacyWarned: false,
 
-  // Соответствие тип мероприятия → код статуса в Записи_графика
+  // Соответствие тип мероприятия → код статуса в Записи_графика.
+  // Task 306 (заявка): к И/ОБ/ПЗ добавлены «прогул» → ПР и
+  // «примечание» → * — новые типы в форме «Новое мероприятие»
+  // клиента. Оба кода уже есть в листе «Коды_статусов», так что
+  // цвета/названия подтягиваются без правок справочника.
   TRAINING_TYPE_TO_STATUS: {
     'инструктаж':       'И',
     'обучение':         'ОБ',
-    'проверка_знаний':  'ПЗ'
+    'проверка_знаний':  'ПЗ',
+    'прогул':           'ПР',
+    'примечание':       '*'
+  },
+
+  // Task 303: код слоя мероприятий (И/ОБ/ПЗ, Task 306: + ПР и *).
+  // Такой код записывается в Записи_графика ТОЛЬКО на дни без
+  // плановой смены (мероприятие в выходной по циклу). На сменных
+  // днях мероприятие не затирает смену: смена — основной код
+  // ячейки, мероприятие показывается на клиенте бейджем (данные —
+  // лист «Инструктажи», связка — колонка I). ПР и * — такие же
+  // авто-коды: шаг 4.6 снимает их строки при удалении/переносе
+  // мероприятия; РУЧНЫЕ строки с ПР/* (прогул/примечание,
+  // поставленные через попап ячейки) не трогаются — как и ручные И.
+  _isEventStatusCode: function(status) {
+    return status === 'И' || status === 'ОБ' || status === 'ПЗ' ||
+           status === 'ПР' || status === '*';
   },
 
   // ============================================================
@@ -146,6 +188,25 @@ var WorkSchedule = {
     var ss = SpreadsheetApp.openById(this.SPREADSHEET_ID);
     var sheet = ss.getSheetByName(name);
     return sheet;
+  },
+
+  // Task 304: дописать строку в ЛИСТ с текстовым форматом таб-колонок.
+  // ЗАЧЕМ: appendRow/setValues применяют USER_ENTERED-семантику
+  // Google Sheets — числоподобная строка «0871» становится ЧИСЛОМ
+  // 871, ведущий ноль теряется. Таб_№ хранится текстом во всех
+  // листах (как в справочнике «Сотрудники»): до записи значения
+  // нужным ячейкам ставится формат '@' (plain text), затем строка
+  // пишется одним setValues (позиция = getLastRow()+1 — та же, куда
+  // писал бы appendRow). textCols — 1-based номера текстовых колонок.
+  _appendRowKeepText: function(sheet, rowValues, textCols) {
+    var newRow = sheet.getLastRow() + 1;
+    if (textCols && textCols.length) {
+      for (var i = 0; i < textCols.length; i++) {
+        sheet.getRange(newRow, textCols[i]).setNumberFormat('@');
+      }
+    }
+    sheet.getRange(newRow, 1, 1, rowValues.length).setValues([rowValues]);
+    return newRow;
   },
 
   _requireRead: function(token) {
@@ -552,21 +613,35 @@ var WorkSchedule = {
   //   3. Для каждого сотрудника с шаблоном:
   //        для каждого дня месяца → статус = pattern_day[day_of_cycle]
   //        если статус есть и в индексе НЕТ записи → вставить source=авто
-  //   4. Для каждого инструктажа, пересекающего месяц:
+  //   4. (Task 303) Прогон по инструктажам, пересекающим месяц:
   //        для каждого дня мероприятия в этом месяце:
   //          если есть ручная запись → пропустить (manual priority)
-  //          если есть авто-запись → ОБНОВИТЬ: статус=И/ОБ/ПЗ, инструкция=id
-  //          иначе → вставить source=авто, статус=И/ОБ/ПЗ, инструкция=id
+  //          если день со плановой сменой → смену НЕ затирать (Task 303:
+  //            «два значения в ячейке» — смена остаётся основным кодом,
+  //            мероприятие показывается бейджем на клиенте); смену
+  //            ВОССТАНОВИТЬ, если генерация до Task 303 записала сюда
+  //            И/ОБ/ПЗ; связка инструкция=id обновляется
+  //          если день БЕЗ плановой смены и записи нет → вставить
+  //            source=авто, статус=И/ОБ/ПЗ/ПР/* (Task 306),
+  //            инструкция=id (как до Task 303)
   //   4.5 (Task 274) Отпуска — лист «Отпуска», ВЫСШИЙ приоритет среди
   //        авто-источников: для каждого дня периода в этом месяце:
   //          ручная запись → не трогать; авто-запись (смена/инструктаж/
-  //          устаревший код) → статус='О', инструкция=∅; нет записи →
-  //          вставить source=авто, статус='О'. Все календарные дни
-  //          периода (включая Сб/Вс) отмечаются «О» — отпуск в
-  //          календарных днях.
-  //          Устаревшие авто-'О' записи месяца (период изменён/удалён
+  //          устаревший код) → статус='ОТ', инструкция=∅; нет записи →
+  //          вставить source=авто, статус='ОТ'. Все календарные дни
+  //          периода (включая Сб/Вс) отмечаются «ОТ» — отпуск в
+  //          календарных днях. (Task 298: код отпуска «О» → «ОТ»
+  //          по официальной семантике Т-12/Т-13.)
+  //          Устаревшие авто-'ОТ' записи месяца (период изменён/удалён
   //          в листе «Отпуска») — удаляются: повторное «Сформировать»
   //          даёт актуальную расстановку (идемпотентность).
+  //   4.6 (Task 303) Сверка устаревших строк мероприятий: авто-строки
+  //        с кодом И/ОБ/ПЗ/ПР/* (Task 306), чей день больше не покрыт
+  //        мероприятием (удалено/перенесено в листе «Инструктажи»):
+  //        день со плановой сменой → восстановить смену; день без
+  //        смены → удалить строку.
+  //        Ручные строки не трогаются. Повторная генерация сходится к
+  //        текущему состоянию листов (идемпотентность).
   //   5. Аудит, возврат {generated, updated, removed, perEmployee}
   // ============================================================
   generateMonth: function(payload) {
@@ -621,6 +696,12 @@ var WorkSchedule = {
     var perEmployee = {};
     for (var ei2 = 0; ei2 < emps.length; ei2++) perEmployee[emps[ei2]['таб_номер']] = { generated: 0, updated: 0, skipped: 0 };
 
+    // Task 303: плановая смена дня по шаблону (НЕЗАВИСИМО от наличия
+    // записи): "ISO|таб_номер" → код. Нужен шагам 4/4.6: мероприятие
+    // не должно затирать смену, а устаревший И/ОБ/ПЗ на сменном дне
+    // восстанавливается обратно в смену.
+    var plannedStatus = {};
+
     // 3. Прогон по сотрудникам + дням месяца
     for (var i = 0; i < emps.length; i++) {
       var emp = emps[i];
@@ -649,6 +730,7 @@ var WorkSchedule = {
 
         var iso = this._toIsoDate(dt);
         var key2 = iso + '|' + emp['таб_номер'];
+        plannedStatus[key2] = status;   // Task 303: план дня (для шагов 4/4.6)
         if (entryIndex[key2]) {
           perEmployee[emp['таб_номер']].skipped++;
           continue;  // запись уже есть (manual или auto) — не трогаем
@@ -659,7 +741,23 @@ var WorkSchedule = {
       }
     }
 
-    // 4. Прогон по инструктажам — приоритет над плановыми сменами
+    // 4. (Task 303) Прогон по инструктажам — «слой мероприятий».
+    // Мероприятие больше НЕ затирает плановую смену: на сменном дне
+    // в ячейке остаётся код смены (мероприятие показывается бейджем на
+    // клиенте, данные — лист «Инструктажи», связка — колонка I). Код
+    // И/ОБ/ПЗ/ПР/* (Task 306) в Записи_графика попадает только на
+    // день БЕЗ смены.
+    // coveredTr — дни месяца, покрытые мероприятиями (для сверки 4.6).
+    var coveredTr = {};         // "ISO|таб_номер": мероприятие
+    var eventGenerated = 0;     // вставлено строк мероприятий (дни без смены)
+    var eventRestored = 0;      // смен восстановлено из-под мероприятий
+    var eventRemoved = 0;       // удалено устаревших строк мероприятий
+    // Task 304: ВИДИМЫЕ предупреждения генерации. Таб_номер
+    // мероприятия/отпуска не из справочника «Сотрудники» (например,
+    // «871» вместо «0871» — потерян ведущий ноль) ДО Task 304
+    // работал ТИХО: бейдж не показывался, записи не сопоставлялись.
+    // Возвращаются в data.warnings и видны в тосте «Сформировать».
+    var warnings = [];
     for (var ti = 0; ti < trainings.length; ti++) {
       var t = trainings[ti];
       var codeFor = this.TRAINING_TYPE_TO_STATUS[t.тип];
@@ -668,6 +766,12 @@ var WorkSchedule = {
       var tEnd   = this._parseIsoDate(t.дата_окончания) || tStart;
       if (!tStart) continue;
 
+      // Task 304: таб_номер не из справочника — предупреждение
+      if (!perEmployee[t['таб_номер']]) {
+        warnings.push('Мероприятие id=' + t.id + ' (' + t.дата_начала + '): таб_номер «' +
+                      t['таб_номер'] + '» не найден в «Сотрудниках» — вероятно, потерян ведущий ноль');
+      }
+
       // Для каждого дня мероприятия в текущем месяце
       var cur = new Date(Math.max(tStart.getTime(), monthStart.getTime()));
       while (cur.getTime() <= tEnd.getTime()) {
@@ -675,41 +779,82 @@ var WorkSchedule = {
         if (cur.getMonth() + 1 === month && cur.getFullYear() === year) {
           var iso2 = this._toIsoDate(cur);
           var key3 = iso2 + '|' + t['таб_номер'];
+          coveredTr[key3] = t;
           var existingEntry = entryIndex[key3];
+          var planned = plannedStatus[key3];   // плановая смена дня (Task 303)
           if (existingEntry) {
             if (existingEntry.источник === 'руч') {
               // ручные правки приоритетнее — не трогаем
               if (perEmployee[t['таб_номер']]) perEmployee[t['таб_номер']].skipped++;
-            } else {
-              // авто-запись → обновить на код инструктажа + инструкция=id
+            } else if (planned) {
+              // (Task 303) День со плановой сменой: смена остаётся кодом
+              // ячейки, мероприятие — бейджем на клиенте. Генерация до
+              // Task 303 могла записать сюда И/ОБ/ПЗ — восстанавливаем
+              // смену. Связку с мероприятием (колонка I) обновляем.
+              var needRestore = this._isEventStatusCode(existingEntry.статус);
               if (existingEntry._rowIndex && existingEntry._rowIndex > 0) {
-                toUpdate.push({
-                  rowIndex: existingEntry._rowIndex,
-                  status: codeFor,
-                  instruction_id: t.id
-                });
-                if (perEmployee[t['таб_номер']]) perEmployee[t['таб_номер']].updated++;
-                // Обновить индекс — чтобы не обновить повторно
-                existingEntry.статус = codeFor;
-                existingEntry.инструкция = t.id;
+                if (needRestore || existingEntry.инструкция !== t.id) {
+                  toUpdate.push({
+                    rowIndex: existingEntry._rowIndex,
+                    status: needRestore ? planned : existingEntry.статус,
+                    instruction_id: t.id
+                  });
+                  if (perEmployee[t['таб_номер']]) perEmployee[t['таб_номер']].updated++;
+                  // Обновить индекс — чтобы не обновить повторно
+                  existingEntry.статус = needRestore ? planned : existingEntry.статус;
+                  existingEntry.инструкция = t.id;
+                  if (needRestore) eventRestored++;
+                }
               } else {
-                // Это строка, добавленная на шаге 3 в toInsert, но не записанная в лист ещё.
-                // Находим её в toInsert и заменяем.
+                // Строка из toInsert (шаг 3) — смена уже стоит, НЕ
+                // заменяем её кодом мероприятия: проставляем только
+                // связку с мероприятием (колонка I).
                 for (var ii = 0; ii < toInsert.length; ii++) {
                   var r = toInsert[ii];
                   if (this._toIsoDate(r[0]) === iso2 && r[1] === t['таб_номер']) {
-                    r[2] = codeFor;     // статус
                     r[8] = t.id;        // инструкция
                     break;
                   }
                 }
-                if (perEmployee[t['таб_номер']]) perEmployee[t['таб_номер']].updated++;
+              }
+            } else {
+              // (Task 303) День БЕЗ плановой смены (выходной по циклу):
+              //   статус уже И/ОБ/ПЗ → сверяем код с типом мероприятия
+              //   (тип мог измениться) и связку; в toInsert — то же;
+              //   прочие статусы (напр. авто-«ОТ») не трогаем — отпуск
+              //   приоритетнее (шаг 4.5).
+              if (this._isEventStatusCode(existingEntry.статус)) {
+                if (existingEntry.статус !== codeFor || existingEntry.инструкция !== t.id) {
+                  if (existingEntry._rowIndex && existingEntry._rowIndex > 0) {
+                    toUpdate.push({
+                      rowIndex: existingEntry._rowIndex,
+                      status: codeFor,
+                      instruction_id: t.id
+                    });
+                    if (perEmployee[t['таб_номер']]) perEmployee[t['таб_номер']].updated++;
+                    existingEntry.статус = codeFor;
+                    existingEntry.инструкция = t.id;
+                  } else {
+                    for (var ii2 = 0; ii2 < toInsert.length; ii2++) {
+                      var r2 = toInsert[ii2];
+                      if (this._toIsoDate(r2[0]) === iso2 && r2[1] === t['таб_номер']) {
+                        r2[2] = codeFor;     // статус
+                        r2[8] = t.id;        // инструкция
+                        break;
+                      }
+                    }
+                  }
+                }
               }
             }
           } else {
-            // Нет записи → вставить новую с инструктажем
+            // Нет записи и нет плановой смены → вставить строку
+            // мероприятия (мероприятие в день отдыха — как до Task 303).
+            // День со сменой сюда попасть не может: шаг 3 уже вставил
+            // её в toInsert (entryIndex).
             toInsert.push([new Date(cur), t['таб_номер'], codeFor, 0, 0, 'авто', new Date(), '', t.id, '']);
             entryIndex[key3] = { _rowIndex: -1, источник: 'авто', статус: codeFor, инструкция: t.id };
+            eventGenerated++;
             if (perEmployee[t['таб_номер']]) perEmployee[t['таб_номер']].generated++;
           }
         }
@@ -733,6 +878,13 @@ var WorkSchedule = {
       var vEnd   = this._parseIsoDate(v.дата_окончания) || vStart;
       if (!vStart) continue;
 
+      // Task 304: таб_номер не из справочника — предупреждение
+      if (!perEmployee[v['таб_номер']]) {
+        warnings.push('Отпуск id=' + (v.id === null ? '—' : v.id) + ' (' + v.дата_начала +
+                      '): таб_номер «' + v['таб_номер'] +
+                      '» не найден в «Сотрудниках» — вероятно, потерян ведущий ноль');
+      }
+
       // Для каждого календарного дня периода в текущем месяце
       // (включая Сб/Вс — отпуск в календарных днях)
       var vc = new Date(Math.max(vStart.getTime(), monthStart.getTime()));
@@ -746,24 +898,25 @@ var WorkSchedule = {
             if (exV.источник === 'руч') {
               // ручные правки приоритетнее отпуска — не трогаем
               if (perEmployee[v['таб_номер']]) perEmployee[v['таб_номер']].skipped++;
-            } else if (exV.статус === 'О' && !exV.инструкция) {
+            } else if (exV.статус === 'ОТ' && !exV.инструкция) {
               // уже отпуск (прошлая генерация) — не трогаем
               if (perEmployee[v['таб_номер']]) perEmployee[v['таб_номер']].skipped++;
             } else if (exV._rowIndex && exV._rowIndex > 0) {
               // авто-запись (смена/инструктаж) → перекрыть отпуском,
               // инструкция (I) очищается: сотрудник в отпуске
-              toUpdate.push({ rowIndex: exV._rowIndex, status: 'О', instruction_id: null });
-              exV.статус = 'О';
+              // Task 298: код отпуска «О» → «ОТ» (Т-12/Т-13)
+              toUpdate.push({ rowIndex: exV._rowIndex, status: 'ОТ', instruction_id: null });
+              exV.статус = 'ОТ';
               exV.инструкция = null;
               vacationUpdated++;
               if (perEmployee[v['таб_номер']]) perEmployee[v['таб_номер']].updated++;
             } else {
-              // строка из toInsert (шаг 3/4) — заменить статус на «О»
+              // строка из toInsert (шаг 3/4) — заменить статус на «ОТ»
               for (var vii = 0; vii < toInsert.length; vii++) {
                 var rv = toInsert[vii];
                 if (this._toIsoDate(rv[0]) === isoV && rv[1] === v['таб_номер']) {
-                  rv[2] = 'О';   // статус
-                  rv[8] = null;  // инструкция
+                  rv[2] = 'ОТ';   // статус
+                  rv[8] = null;   // инструкция
                   break;
                 }
               }
@@ -771,9 +924,9 @@ var WorkSchedule = {
               if (perEmployee[v['таб_номер']]) perEmployee[v['таб_номер']].updated++;
             }
           } else {
-            // нет записи (в т.ч. выходной по циклу) → вставить «О»
-            toInsert.push([new Date(vc), v['таб_номер'], 'О', 0, 0, 'авто', new Date(), '', null, '']);
-            entryIndex[keyV] = { _rowIndex: -1, источник: 'авто', статус: 'О', инструкция: null };
+            // нет записи (в т.ч. выходной по циклу) → вставить «ОТ»
+            toInsert.push([new Date(vc), v['таб_номер'], 'ОТ', 0, 0, 'авто', new Date(), '', null, '']);
+            entryIndex[keyV] = { _rowIndex: -1, источник: 'авто', статус: 'ОТ', инструкция: null };
             vacationGenerated++;
             if (perEmployee[v['таб_номер']]) perEmployee[v['таб_номер']].generated++;
           }
@@ -782,18 +935,54 @@ var WorkSchedule = {
       }
     }
 
-    // Устаревшие авто-«О» записи месяца: сотрудник в отпуске по
+    // Устаревшие авто-«ОТ» записи месяца: сотрудник в отпуске по
     // старому плану, текущий лист «Отпуска» день не покрывает →
     // строка под удаление (идемпотентность повторной генерации).
-    // «ручные» записи никогда не удаляются; авто-«О», превращённые
-    // шагом 4 в код инструктажа, уже не «О» в индексе — не трогаются.
+    // «ручные» записи никогда не удаляются. Task 303: шаг 4 больше не
+    // превращает «ОТ» в код мероприятия — ветка «уже отпуск» ниже
+    // (статус='ОТ' && !инструкция) просто не трогает такие строки.
+    // Task 298: ЛЕГАСИ-«О» (21 авто-запись до смены кода): дни, покрытые
+    // актуальным отпуском, перегенерация сама обновит на «ОТ» (ветка
+    // _rowIndex > 0 ниже по коду — статус в листе меняется на «ОТ»);
+    // но «О»-дни с УДАЛЁННЫМ/изменённым периодом сюда не попадают →
+    // останутся «зависшими». Миграцию «О»→«ОТ» (Ctrl+H, колонка C)
+    // пользователь выполняет вручную — см. DEPLOY-Task298.
     var toDeleteRows = [];
     for (var sv = 0; sv < existingEntries.length; sv++) {
       var se = existingEntries[sv];
-      if (se.статус === 'О' && se.источник === 'авто' &&
+      if (se.статус === 'ОТ' && se.источник === 'авто' &&
           se._rowIndex && se._rowIndex > 0 &&
           !coveredVac[se.дата + '|' + se['таб_номер']]) {
         toDeleteRows.push(se._rowIndex);
+      }
+    }
+
+    // 4.6 (Task 303) Сверка устаревших строк мероприятий (ПОСЛЕ
+    // отпускного прохода 4.5: если день покрыт отпуском, И-строка уже
+    // стала «ОТ» и сюда не попадает — отпуск приоритетнее). Авто-строки
+    // с кодом И/ОБ/ПЗ/ПР/* (Task 306), чей день больше НЕ покрыт
+    // мероприятием:
+    //   • день со плановой сменой → восстановить смену (генерация до
+    //     Task 303 затирала смену кодом мероприятия);
+    //   • день без смены → строка под удаление (мероприятие удалено из
+    //     листа «Инструктажи»; до Task 303 такая строка «висела» навсегда).
+    // Ручные строки не трогаются (приоритет ручной правки).
+    for (var sv3 = 0; sv3 < existingEntries.length; sv3++) {
+      var se3 = existingEntries[sv3];
+      if (se3.источник !== 'авто') continue;
+      if (!this._isEventStatusCode(se3.статус)) continue;
+      if (coveredTr[se3.дата + '|' + se3['таб_номер']]) continue;
+      if (!(se3._rowIndex && se3._rowIndex > 0)) continue;
+      var planned3 = plannedStatus[se3.дата + '|' + se3['таб_номер']];
+      if (planned3) {
+        toUpdate.push({ rowIndex: se3._rowIndex, status: planned3, instruction_id: null });
+        se3.статус = planned3;
+        se3.инструкция = null;
+        eventRestored++;
+        if (perEmployee[se3['таб_номер']]) perEmployee[se3['таб_номер']].updated++;
+      } else {
+        toDeleteRows.push(se3._rowIndex);
+        eventRemoved++;
       }
     }
 
@@ -801,6 +990,9 @@ var WorkSchedule = {
     var insertCount = toInsert.length;
     if (insertCount > 0) {
       var lastRow = entriesSheet.getLastRow();
+      // Task 304: колонка B (таб_№) — текстовый формат ДО записи:
+      // «0871» не должен превратиться в число 871 (USER_ENTERED)
+      entriesSheet.getRange(lastRow + 1, 2, insertCount, 1).setNumberFormat('@');
       var targetRange = entriesSheet.getRange(lastRow + 1, 1, insertCount, 10);
       targetRange.setValues(toInsert);
     }
@@ -833,11 +1025,20 @@ var WorkSchedule = {
     // vacationsFound (периодов в листе на год), vacationError
     // (например, листа нет), дней «О» = generated + updated.
     var vacationDays = vacationGenerated + vacationUpdated;
+    // Task 303: дни месяца, покрытые мероприятиями (бейджи на сменах +
+    // строки И/ОБ/ПЗ на днях без смены)
+    var trainingDays = 0;
+    for (var ck in coveredTr) trainingDays++;
     var summary = 'Сформирован график на ' + String(month).padStart(2, '0') + '.' + year +
                   ': вставлено ' + insertCount + ', обновлено ' + updateCount +
                   ', удалено устаревших отпусков ' + removeCount +
                   ', периодов отпусков ' + vacations.length +
-                  ', дней «О» ' + vacationDays;
+                  ', дней «О» ' + vacationDays +
+                  ', дней мероприятий ' + trainingDays +
+                  ' (строк И/ОБ/ПЗ/ПР/* ' + eventGenerated +
+                  ', восстановлено смен ' + eventRestored +
+                  ', удалено мероприятий ' + eventRemoved +
+                  (warnings.length ? ', предупреждений ' + warnings.length : '') + ')';
     try {
       Utils.audit(user.email, 'WORKSCHEDULE_GENERATE_MONTH', '', '', summary);
     } catch (e) { /* ignore */ }
@@ -854,6 +1055,13 @@ var WorkSchedule = {
         vacationError:     (vacs && vacs.ok) ? null :
                           String((vacs && vacs.error) || 'list_vacations_failed'),
         vacationDays:      vacationDays,
+        // Task 303: слой мероприятий (И/ОБ/ПЗ)
+        trainingDays:      trainingDays,    // дней месяца, покрытых мероприятиями
+        eventGenerated:    eventGenerated,  // вставлено строк И/ОБ/ПЗ (дни без смены)
+        eventRestored:     eventRestored,   // смен восстановлено из-под мероприятий
+        eventRemoved:      eventRemoved,    // удалено устаревших строк мероприятий
+        // Task 304: таб_номера не из справочника (потерянные нули и пр.)
+        warnings:          warnings,
         perEmployee: perEmployee,
         monthStart: this._toIsoDate(monthStart),
         daysInMonth: daysInMonth
@@ -872,6 +1080,34 @@ var WorkSchedule = {
   //   - source='руч' → обновить
   //   - source='авто' → обновить (перевести в руч)
   // Если нет → вставить с source='руч'
+  //
+  // _validateStatusCode (Task 298, Q4) — проверка кода по листу
+  // «Коды_статусов». Раньше setManualEntry сохранял ЛЮБОЙ код — опечатка
+  // регистром («Д» вместо «д») попадала в БД незаметно и «терялась» в шахматке
+  // (без цвета и названия). Теперь код обязан присутствовать в
+  // справочнике; кэша нет — лист маленький (одна колонка), чтение
+  // быстрое, а актуальность важнее (пользователь правит состав кодов
+  // прямо в таблице). Лист отсутствует/пуст → правка отклоняется
+  // (fail-closed, как у матрицы прав): лучше не пустить правку, чем
+  // записать неизвестный код. ПУСТОЙ статус сюда не доходит — валиден
+  // только путь удаления (deleteEntry; «— выходной» на клиенте).
+  _validateStatusCode: function(status) {
+    if (!status) return { ok: false, error: 'invalid_статус' };
+    var sheet = this._getSheet(this.STATUS_CODES_SHEET);
+    if (!sheet) return { ok: false, error: 'sheet_not_found: ' + this.STATUS_CODES_SHEET };
+    var lastRow = sheet.getLastRow();
+    if (lastRow < 2) return { ok: false, error: 'empty: ' + this.STATUS_CODES_SHEET };
+    // Читаем ТОЛЬКО колонку A (коды). getLastRow может быть завышен
+    // стилевым холстом (урок Task 294: getLastRow()=1000 при данных
+    // 17×15) — пустые строки просто пропускаются.
+    var values = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var i = 0; i < values.length; i++) {
+      var c = String(values[i][0] || '').trim();
+      if (c === status) return { ok: true };
+    }
+    return { ok: false, error: 'unknown_статус: ' + status };
+  },
+
   setManualEntry: function(payload) {
     var auth = this._requireWrite(payload.token);
     if (auth.error) return auth.error;
@@ -883,6 +1119,12 @@ var WorkSchedule = {
     if (!tabNo) return { ok: false, error: 'invalid_таб_номер' };
     var status = String(payload.статус || '').trim();
     if (!status) return { ok: false, error: 'invalid_статус' };
+
+    // Task 298: код должен быть в справочнике «Коды_статусов»
+    // (регистрозависимо: «д» ≠ «Д»). Ошибка unknown_статус доедет до
+    // клиента текстом тоста «Ошибка: unknown_статус: …».
+    var vstat = this._validateStatusCode(status);
+    if (!vstat.ok) return { ok: false, error: vstat.error };
 
     var sheet = this._getSheet(this.ENTRIES_SHEET);
     if (!sheet) return { ok: false, error: 'sheet_not_found: ' + this.ENTRIES_SHEET };
@@ -911,6 +1153,7 @@ var WorkSchedule = {
     if (foundRow > 0) {
       // Обновление существующей
       sheet.getRange(foundRow, 1).setValue(dateObj);
+      sheet.getRange(foundRow, 2).setNumberFormat('@');  // Task 304: таб_№ текстом
       sheet.getRange(foundRow, 2).setValue(tabNo);
       sheet.getRange(foundRow, 3).setValue(status);
       sheet.getRange(foundRow, 4).setValue(переработка);
@@ -921,9 +1164,10 @@ var WorkSchedule = {
       sheet.getRange(foundRow, 9).setValue(инструкция);
       sheet.getRange(foundRow, 10).setValue(комментарий);
     } else {
-      // Вставка новой
-      sheet.appendRow([dateObj, tabNo, status, переработка, праздник, 'руч', new Date(),
-                       замещает ? замещает : null, инструкция, комментарий]);
+      // Вставка новой (Task 304: B — таб_№ — текстовым форматом)
+      this._appendRowKeepText(sheet, [dateObj, tabNo, status, переработка, праздник,
+                       'руч', new Date(), замещает ? замещает : null, инструкция,
+                       комментарий], [2]);
     }
 
     try {
@@ -1018,12 +1262,13 @@ var WorkSchedule = {
     var position  = String(payload.должность || '').trim();
     var comment   = String(payload.комментарий || '').slice(0, 500);
 
-    sheet.appendRow([
+    // Task 304: A (таб_номер) — текст: «0871» не должен стать числом 871
+    this._appendRowKeepText(sheet, [
       tabNo, fio, tip, smena || null, patId || null,
       startCycle, hireDate, null,  // H=дата_увольнения — пусто
       0,  // в_архиве=0
       position, comment
-    ]);
+    ], [1]);
 
     try {
       Utils.audit(user.email, 'WORKSCHEDULE_ADD_EMPLOYEE', '', '',
@@ -1077,7 +1322,9 @@ var WorkSchedule = {
     }
     var newId = maxId + 1;
 
-    sheet.appendRow([newId, tabNo, tip, tema, startDate, endDate, duration, comment]);
+    // Task 304: B (таб_№) — текст, ведущие нули не теряются
+    this._appendRowKeepText(sheet,
+      [newId, tabNo, tip, tema, startDate, endDate, duration, comment], [2]);
 
     try {
       Utils.audit(user.email, 'WORKSCHEDULE_ADD_TRAINING', '', '',
@@ -1205,7 +1452,8 @@ var WorkSchedule = {
     }
     var newId = maxId + 1;
 
-    sheet.appendRow([newId, tabNo, part, startDate, endDate, comment]);
+    // Task 304: B (таб_номер) — текст, ведущие нули не теряются
+    this._appendRowKeepText(sheet, [newId, tabNo, part, startDate, endDate, comment], [2]);
 
     try {
       Utils.audit(user.email, 'WORKSCHEDULE_ADD_VACATION', '', '',

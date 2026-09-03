@@ -37,6 +37,10 @@ require('./test-vacations-init.js');
 require('./test-vacations-generate.js');
 require('./test-vacations-diagnose.js');
 require('./test-vacations-feedback.js');
+require('./test-work-events.js');
+require('./test-tab-numbers.js');
+require('./test-vacation-shift.js');
+require('./test-task306.js');
 require('./test-deploy-url.js');
 
 // Запускаем
