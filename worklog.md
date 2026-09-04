@@ -7307,3 +7307,36 @@ Stage Summary:
   приложение). Известная особенность: интерфейсного удаления
   периодов отпусков/мероприятий временно нет (методы
   deleteVacation/deleteTraining живы — сервер не менялся).
+
+---
+Task ID: 309-перенос
+Agent: main (Super Z)
+Task: Перенос Task 309 из kip8test@5640d60 в боевой kip8 (один
+      инкремент SW kipia-v413→v414, сервер не менялся).
+
+Work Log:
+- kip8@<new> «feat: Task 309 (перенос из kip8test@5640d60)…»:
+  патч index.html 780 строк (git diff 9698926..5640d60, apply чисто);
+  sw.js kipia-v413→v414.
+- tests/: test-task309.js НОВЫЙ (копия, kipia-test-v548→kipia-v414,
+  +19 тестов); test-work-schedule.js и test-work-events.js копии
+  с адаптацией версий (v548→v414, v546→v412, v539→v410, исторические
+  v514/v517/v523/v525/v527 → v386/v389/v395/v397/v399); 8 файлов бамп
+  kipia-v413→v414; run-all.js +require('./test-task309.js').
+  Сьют: 1457 → 1476/0 (ПАРИТЕТ с kip8test@5640d60).
+- scripts/: task309-browser-check.py (порт 8928) — 27/27 PASS на
+  РЕАЛЬНОМ kip8/index.html; DEPLOY-Task309-emp-card-events.md
+  (адаптирован: v413→v414); пруфы task309-proof-*.png;
+  task309-transfer-update-prompt.py + прогон (версия post-Task 309,
+  партия 298-309, запись Task 309, счётчики 1476/27 файлов);
+  task307-browser-check.py актуализирован до реальности Task 308
+  (субнав 0) — было 18/4 при переносе (скрипт не обновлялся
+  Task 308-переносом), стало 22/22.
+- Регресс в kip8: task307 22/22, task308 21/21, task309 27/27.
+
+Stage Summary:
+- Task 309 развёрнут в kip8: карточка сотрудника (hover/клик по
+  колонке ФИО) с данными убранных вкладок; правка/удаление
+  мероприятий (✎/✕, add+delete — сервер не менялся); ручные д/н —
+  рамка. Пользователю: Ctrl+Shift+R ×1–2; Apps Script и листы НЕ
+  трогать. Следующий номер: 310.
