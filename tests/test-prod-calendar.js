@@ -551,10 +551,10 @@ describe('Task 260: интеграция в index.html', () => {
         assertTrue(html.indexOf('.ws-cal-panel {') !== -1,
             'стили окошка календаря в тулбаре');
     });
-    test('SW: версия кэша kipia-v414 (Task 298)', () => {
+    test('SW: версия кэша kipia-v415 (Task 298)', () => {
         const sw = fs.readFileSync(path.resolve(__dirname, '..', 'sw.js'), 'utf8');
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v414'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v414');
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v415'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v415');
     });
     test('Тултип ячейки содержит название праздника', () => {
         assertTrue(html.indexOf('titleParts.splice(1, 0, cellInfo.title);') !== -1,
