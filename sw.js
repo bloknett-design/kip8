@@ -88,7 +88,10 @@
 // «Коды_статусов». Apps Script: WorkSchedule.gs ОБНОВИТЬ + New
 // version (Tasks 298/303/304/306), см. DEPLOY-Task306-transfer.md.
 // Партия = один инкремент.
-const CACHE_VERSION = 'kipia-v411';
+// Task 307 (перенос из kip8test@7ec7612): в «Графике работы» удалена
+// вкладка/страница «Сотрудники»; кнопка «+ Сотрудник» (добавление) —
+// в тулбаре над шахматкой; после добавления перезагружается шахматка.
+const CACHE_VERSION = 'kipia-v412';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).

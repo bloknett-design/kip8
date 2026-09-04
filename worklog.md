@@ -7219,3 +7219,49 @@ Stage Summary:
   electron/main.js и package.json не менялись; контент приходит
   с GitHub Pages при перезапуске приложения). Следующий номер: 307.
 - Локальная дата: 2026-09-03 (Asia/Novosibirsk, UTC+07:00).
+
+---
+Task ID: 307-перенос
+Agent: main (Super Z)
+Task: Перенос Task 307 из kip8test@7ec7612 в боевой kip8 одним
+      инкрементом SW kipia-v411→v412 (вкладка «Сотрудники» удалена,
+      кнопка «+ Сотрудник» в тулбаре над шахматкой).
+
+Work Log:
+- Базовая линия: kip8@6845c43 (= f43012f + Task 306-десктоп
+  расширение sync-to-desktop.yml). Клон (PAT-протокол).
+- index.html: git apply патча 2ee49f7..7ec7612 (348 строк) — чисто,
+  без конфликтов. Верификация: diff(kip8test@7ec7612, kip8-новый) ==
+- базовый изоляционный дифф 55 строк (префиксы kip8test_/isolate-
+  LocalStorage/комментарии Task 243) — зоны Task 307 не затронуты.
+- sw.js: kipia-v411 → kipia-v412 + комментарий Task 307; node --check
+  OK.
+- tests/: test-work-schedule.js — копия из kip8test@7ec7612 с
+  адаптацией версий (kipia-test-v546→kipia-v412, v545→v411,
+  v539→v410); 8 файлов — бамп kipia-v411→v412. Сьют: 1433 → 1444
+  passed / 0 failed (полный паритет с kip8test@7ec7612).
+- scripts/: НОВЫЕ task307-browser-check.py (порт 8928), пруфы
+  task307-proof-*.png, DEPLOY-Task307-subnav-employees.md (адаптирован
+  под kip8), task307-transfer-update-prompt.py.
+- Верификация браузером: scripts/task307-browser-check.py — 22/22 PASS
+  на РЕАЛЬНОМ kip8/index.html (субнав 3 кнопки; «+ Сотрудник» в
+  тулбаре до «Сформировать» 34px; шторка; submit → addEmployee(042
+  «Сидоров») → НОВАЯ СТРОКА в шахматке; «ИТР8 pro» — кнопка скрыта;
+  375px/1280px; 0 JS-ошибок; localStorage без префикса kip8test:).
+- Промт: post-Task 307 (строка 3), счётчики 92 страницы/~39.7 тыс./
+  1444 теста/26 файлов, кэш v412, строка 260 (состав модуля — ТРИ
+  страницы), «Последняя принятая партия» = Tasks 298-307, запись
+  Task 307 в секции модуля.
+- Worklog: эта запись. Коммит + push (PAT-протокол, URL сброшен).
+- kip8-desktop: синхронизируется АВТОМАТИЧЕСКИ расширенным
+  sync-to-desktop.yml (index.html + sw.js + tests) — проверка CI
+  после пуша.
+
+Stage Summary:
+- Task 307 перенесён в боевой kip8: SW kipia-v412, тесты 1444/0
+  (паритет), browser-check 22/22. Сервер WorkSchedule.gs и листы НЕ
+  менялись — Apps Script НЕ трогать. ДЕПЛОЙ ПОЛЬЗОВАТЕЛЯ: только
+  Ctrl+Shift+R ×1–2 на bloknett-design.github.io/kip8 (SW v412);
+  kip8-desktop получит всё автосинком (перезапуск приложения).
+  Следующий номер: 308.
+- Локальная дата: 2026-09-03 (Asia/Novosibirsk, UTC+07:00).
