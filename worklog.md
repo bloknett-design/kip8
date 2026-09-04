@@ -7265,3 +7265,45 @@ Stage Summary:
   kip8-desktop получит всё автосинком (перезапуск приложения).
   Следующий номер: 308.
 - Локальная дата: 2026-09-03 (Asia/Novosibirsk, UTC+07:00).
+
+---
+Task ID: 308-перенос
+Agent: main (Super Z)
+Task: Перенос Task 308 из kip8test@9698926 в боевой kip8 одним
+      инкрементом SW kipia-v412→v413 (вкладки «Инструктажи»/«Отпуска»
+      удалены, кнопка «+ Отпуск» в тулбаре над шахматкой).
+
+Work Log:
+- index.html: патч 818 строк diff(eefb85b..9698926) — git apply
+  чисто (изоляционный дифф не затронут: зоны Task 308 не пересекаются
+  с префиксами kip8test_/isolateLocalStorage).
+- sw.js: kipia-v412 → kipia-v413.
+- tests/: 4 файла копией из kip8test@9698926 с адаптацией версий
+  (kipia-test-v547→v413, v546→v412, v539→v410):
+  test-work-schedule.js (+13 Task 308, обновлены блоки Task
+  249/267/269/274/307), test-task306.js, test-vacations-feedback.js,
+  test-vacations-generate.js; 5 файлов бампом kipia-v412→v413
+  (tab-numbers/prod-calendar/vacation-shift/deploy-url/
+  flow-period-input). Сьют: 1444 → 1457 passed / 0 failed
+  (ПАРИТЕТ с kip8test@9698926).
+- scripts/: НОВЫЕ task308-browser-check.py (порт 8928) +
+  DEPLOY-Task308-subnav-trainings-vacations.md (адаптирован под
+  kip8) + пруфы task308-proof-*.png.
+- Верификация: node --check; scripts/task308-browser-check.py —
+  21/21 PASS на РЕАЛЬНОМ kip8/index.html (субнавигации нет; «+
+  Отпуск» в тулбаре между «+ Сотрудник» и «Сформировать», 34px;
+  шторка «Новый отпуск»; submit → addVacation → loadGrid → ПЛАН
+  «ОТ» в ячейке с ws-vac-plan и «часть 1»; попап «+ Мероприятие…»
+  жив; 375px/1280px; 0 JS-ошибок).
+- Промт post-Task 308: версия-строка, 90 страниц, ~39.3 тыс. строк,
+  тесты 1457, v413, «Последняя принятая партия» 298-308.
+- СЕРВЕР WorkSchedule.gs и листы НЕ менялись — Apps Script НЕ
+  трогать (единственный инкремент SW).
+
+Stage Summary:
+- Task 308 развёрнут в боевом kip8: kipia-v413, паритет 1457/0,
+  browser-check 21/21. Деплой: только GitHub Pages + Ctrl+Shift+R
+  ×1–2; kip8-desktop подтянется автосинком (перезапустить
+  приложение). Известная особенность: интерфейсного удаления
+  периодов отпусков/мероприятий временно нет (методы
+  deleteVacation/deleteTraining живы — сервер не менялся).
