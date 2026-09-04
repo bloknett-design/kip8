@@ -321,7 +321,7 @@ describe('Task 303 — клиент: бейдж мероприятия в яче
         assertTrue(INDEX_SRC.indexOf("_EVENT_CODES: ['И', 'ОБ', 'ПЗ', 'ПР', '*']") !== -1,
             '_EVENT_CODES объявлен (Task 306: + ПР и *)');
         assertTrue(INDEX_SRC.indexOf("_ABSENCE_CODES: ['ОТ', 'У', 'ОВ', 'Б', 'ПР']") !== -1,
-            '_ABSENCE_CODES объявлен (бейдж скрыт на днях отсутствия)');
+            '_ABSENCE_CODES объявлен (Task 314: бейджи видны и на днях отсутствия — константа-справочник)');
     });
 
     test('JS: хелперы слоя — _eventsAt / _trainingCodeOf / _statusMeta', () => {
@@ -335,9 +335,13 @@ describe('Task 303 — клиент: бейдж мероприятия в яче
         assertTrue(INDEX_SRC.indexOf('ws-ev-badge') !== -1, 'чип бейджа');
         assertTrue(INDEX_SRC.indexOf("classes.push('ws-has-events')") !== -1,
             'класс ячейки с мероприятиями');
-        // бейдж не дублирует основной код (день-мероприятие без смены)
-        assertTrue(INDEX_SRC.indexOf('if (events[evi].code !== status) badgeEvents.push(events[evi]);') !== -1,
-            'код-мероприятие не дублируется бейджем');
+        // Task 314: статус-мероприятие (И/ОБ/ПЗ/ПР/* как основной код
+        // от generateMonth) рисуется ТОЛЬКО бейджем — виртуальное
+        // событие из статуса, если записи в «Инструктажи» нет
+        assertTrue(INDEX_SRC.indexOf('events = events.concat([{ code: status, training: null }]);') !== -1,
+            'виртуальный бейдж из статуса-мероприятия (событие удалено — день не «слепнет»)');
+        assertTrue(INDEX_SRC.indexOf('var solidBadges = !!status;') !== -1,
+            'сплошные бейджи при любом статусе (вкл. дни отсутствия — Task 314)');
     });
 
     test('JS: пунктирный бейдж на пустой ячейке (ws-ev-pending)', () => {
@@ -358,23 +362,24 @@ describe('Task 303 — клиент: бейдж мероприятия в яче
             'светлая тема пунктирного бейджа');
     });
 
-    test('JS: Task 311 — тултип мероприятий убран; тема — в попапе клика', () => {
+    test('JS: Task 311 — тултип мероприятий убран; тема — в окне мероприятий', () => {
         // Task 311: пояснительные тултипы с ячеек убраны; мероприятия
-        // с темой показывает секция «Мероприятия в этот день» попапа
+        // с темой показывает окно «Мероприятия в этот день» (Task 313:
+        // отдельное окно НАД окном кодов, _renderEventsPopup)
         assertFalse(/titleParts\.push\(\(evtMeta\.name/.test(INDEX_SRC),
             'строка тултипа мероприятия удалена');
         const popupPart = INDEX_SRC.slice(
             INDEX_SRC.indexOf('_renderCellPopup: function'),
             INDEX_SRC.indexOf('_openCellPopup: function'));
         assertTrue(popupPart.indexOf('deT.тема') !== -1,
-            'тема мероприятия — в попапе клика (секция мероприятий)');
+            'тема мероприятия — в окне «Мероприятия в этот день»');
     });
 });
 
 describe('Task 303 — клиент: попап ячейки и быстрое добавление', () => {
 
-    test('JS: секция «Мероприятия в этот день» в попапе', () => {
-        assertTrue(INDEX_SRC.indexOf('Мероприятия в этот день') !== -1, 'заголовок секции');
+    test('JS: окно «Мероприятия в этот день» (Task 313 — отдельное окно)', () => {
+        assertTrue(INDEX_SRC.indexOf('Мероприятия в этот день') !== -1, 'заголовок окна');
         assertTrue(INDEX_SRC.indexOf('ws-popup-event') !== -1, 'класс справочной строки');
     });
 
@@ -401,11 +406,12 @@ describe('Task 303 — клиент: попап ячейки и быстрое �
 
     test('JS: после addTraining/deleteTraining шахматка перезагружается', () => {
         const addPart = INDEX_SRC.slice(INDEX_SRC.indexOf('workSchedule.addTraining'));
-        assertTrue(addPart.indexOf('self.loadGrid();') !== -1,
-            'addTraining → loadGrid (бейдж появляется сразу)');
+        // Task 314: loadGrid(true) — после правок только сеть
+        assertTrue(addPart.indexOf('self.loadGrid(true);') !== -1,
+            'addTraining → loadGrid(true) (бейдж появляется сразу)');
         const delPart = INDEX_SRC.slice(INDEX_SRC.indexOf('_doDeleteTraining: function'));
-        assertTrue(delPart.indexOf('self.loadGrid();') !== -1,
-            'deleteTraining → loadGrid (бейдж исчезает сразу)');
+        assertTrue(delPart.indexOf('self.loadGrid(true);') !== -1,
+            'deleteTraining → loadGrid(true) (бейдж исчезает сразу)');
     });
 });
 
