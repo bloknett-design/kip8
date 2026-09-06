@@ -42,7 +42,7 @@
 //   "Ошибка: self.loadTrainings is not a function"»):
 //     — вызовы удалённых страниц loadTrainings()/loadVacations()
 //       больше не встречаются; вместо них loadGrid().
-//   SW: kipia-v417.
+//   SW: kipia-v418.
 //
 // Запуск: через tests/run-all.js (require './test-task309.js').
 
@@ -147,10 +147,13 @@ describe('Task 309 — карточка сотрудника у колонки �
         assertTrue(rp.indexOf('<div class="ws-popup-sec">Мероприятия · ') !== -1,
             'секция мероприятий (бывшая вкладка «Инструктажи»)');
         // профиль: поля карточки (Task 310: «Старт цикла» убрана;
-        // Task 311: «Шаблон ротации» убрана по заявке)
-        ['Тип', 'Должность', 'Дата приёма', 'Комментарий']
+        // Task 311: «Шаблон ротации» убрана по заявке; Task 318:
+        // «Тип» переименована в «Режим работы» — заявка)
+        ['Режим работы', 'Должность', 'Дата приёма', 'Комментарий']
             .forEach(f => assertTrue(rp.indexOf("['" + f + "',") !== -1,
                 'поле профиля «' + f + '»'));
+        assertFalse(rp.indexOf("['Тип',") !== -1,
+            'Task 318: прежняя подпись «Тип» убрана');
         assertFalse(rp.indexOf("['Шаблон ротации',") !== -1,
             'поле «Шаблон ротации» убрано (Task 311)');
         // шаблон больше не ищется в _PATTERNS для карточки
@@ -378,10 +381,10 @@ describe('Task 309 — регресс-фиксы Task 308 (loadTrainings/loadVac
 
 describe('Task 309 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v417', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v417');
-        assertFalse(SW_SRC.indexOf('kipia-v414') !== -1,
-            'старой версии v414 нет');
+    test('SW: версия кэша kipia-v418', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v418');
+        assertFalse(SW_SRC.indexOf('kipia-v417') !== -1,
+            'старой версии v547 нет');
     });
 });

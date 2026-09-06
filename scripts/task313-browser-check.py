@@ -19,7 +19,7 @@ import json, sys
 from urllib.parse import unquote
 from playwright.sync_api import sync_playwright
 
-PORT = 8939
+PORT = 8981
 TODAY = datetime.date.today()          # локальная дата системы = дата браузера
 TODAY_ISO = TODAY.isoformat()
 TODAY_Y, TODAY_M, TODAY_D = TODAY.year, TODAY.month, TODAY.day
@@ -192,7 +192,7 @@ with sync_playwright() as p:
     ctx.route('**calendar.legalic.ru/**', block_external)
 
     page.goto('http://localhost:%d/index.html' % PORT)
-    page.evaluate("localStorage.setItem('kip8_session_token','browser-check-t313-k8')")
+    page.evaluate("localStorage.setItem('kip8_session_token','browser-check-t313')")
     page.reload()
     page.wait_for_timeout(2500)
     check('A: страница загрузилась', page.evaluate("!!document.querySelector('#page-dashboard') && document.title==='КИПиА'"))
@@ -375,7 +375,7 @@ with sync_playwright() as p:
     ctxm.route('**calendar.legalic.ru/**', block_external)
 
     pagem.goto('http://localhost:%d/index.html' % PORT)
-    pagem.evaluate("localStorage.setItem('kip8_session_token','browser-check-t313-k8-m')")
+    pagem.evaluate("localStorage.setItem('kip8_session_token','browser-check-t313-m')")
     pagem.reload()
     pagem.wait_for_timeout(2500)
     pagem.evaluate("navigateTo('work-schedule')")
@@ -414,7 +414,7 @@ with sync_playwright() as p:
     ctx2.route('**calendar.legalic.ru/**', block_external)
 
     page2.goto('http://localhost:%d/index.html' % PORT)
-    page2.evaluate("localStorage.setItem('kip8_session_token','browser-check-t313-k8-ro')")
+    page2.evaluate("localStorage.setItem('kip8_session_token','browser-check-t313-ro')")
     page2.reload()
     page2.wait_for_timeout(2500)
     page2.evaluate("navigateTo('work-schedule')")
@@ -429,8 +429,11 @@ with sync_playwright() as p:
         return { codes: cp ? cp.classList.contains('active') : false,
                  ev: evp ? evp.classList.contains('active') : false };
     })()""")
-    check('M: «ИТР8 pro» — клик по ячейке НЕ открывает ни окно кодов, ни окно мероприятий',
-          (not ro['codes']) and (not ro['ev']), ro)
+    # Task 319 (актуализация): зритель («График работы — просмотр») при клике
+    # по ячейке теперь получает окно «Мероприятия в этот день» (справка,
+    # заявка пользователя); окно выбора кодов по-прежнему НЕ открывается.
+    check('M: «ИТР8 pro» — окно мероприятий ОТКРЫТО, окно кодов НЕ открыто (Task 319)',
+          (not ro['codes']) and ro['ev'], ro)
     # подсветка «сегодня» видна и зрителю (не требует прав)
     today_ro = page2.evaluate("""(function(){
         var m = document.getElementById('wsMonthSel');

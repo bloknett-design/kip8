@@ -42,9 +42,8 @@
 //       (белый, как фон пустых ячеек с точкой — светлая тема
 //       --bg-primary #FAF9F5); ОСНОВНОЕ значение пользователь
 //       меняет в листе «Коды_статусов» сам (код #FAF9F5).
-//   SW: kipia-v417 (в kip8test Task 313 поднимал v551→v552 — окно
-//       мероприятий над окном кодов + подсветка сегодняшней даты;
-//       в kip8 партия 312+313+314 = один инкремент с v416).
+//   SW: kipia-v418 (Task 313: v551 → v552 — окно мероприятий
+//       над окном кодов + подсветка сегодняшней даты).
 //
 // Запуск: через tests/run-all.js (require './test-task312.js').
 
@@ -87,9 +86,10 @@ describe('Task 312 — кнопка «+ Отпуск»: тулбар → кар�
         assertFalse(/\[data-theme="light"\] \.ws-addvac-btn/.test(INDEX_SRC),
             'светлая тема «+ Отпуск» удалена');
         // ряд кнопок одного роста живёт без «+ Отпуск»
-        // Task 314: + .ws-refresh-btn («Обновить») — один рост
-        assertTrue(/\.ws-month-sel, \.ws-year-sel, \.ws-generate-btn, \.ws-save-btn, \.ws-refresh-btn \{[^}]*height:\s*34px/.test(INDEX_SRC),
-            'единая высота 34px (Task 269/314) — без .ws-addvac-btn');
+        // Task 314: + .ws-refresh-btn («Обновить») — один рост;
+        // Task 324: + .ws-totals-btn/.ws-tt-tab (Итоги учёта + вкладки)
+        assertTrue(/\.ws-month-sel, \.ws-year-sel, \.ws-generate-btn, \.ws-save-btn,\n\s*\.ws-refresh-btn, \.ws-totals-btn, \.ws-tt-tab \{[^}]*height:\s*32px/.test(INDEX_SRC),
+            'единая высота 32px (Task 269/314/324, актуализация Task 328) — без .ws-addvac-btn');
     });
 
     test('JS: init() больше не ищет wsVacBtn', () => {
@@ -309,10 +309,10 @@ describe('Task 312/314 — «.» (плановый выходной): симво
 
 describe('Task 312 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v417', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v417');
-        assertFalse(SW_SRC.indexOf('kipia-v416') !== -1,
-            'старой версии v416 нет');
+    test('SW: версия кэша kipia-v418', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v418');
+        assertFalse(SW_SRC.indexOf('kipia-v417') !== -1,
+            'старой версии v550 нет');
     });
 });

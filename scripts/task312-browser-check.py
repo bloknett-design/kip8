@@ -18,7 +18,7 @@ import json, sys
 from urllib.parse import unquote
 from playwright.sync_api import sync_playwright
 
-PORT = 8938
+PORT = 8980
 
 # Цвет «.» = #FAF9F5 — целевое состояние листа «Коды_статусов»
 # (пользователь меняет в таблице сам; клиент и fallback синхронны)
@@ -153,7 +153,7 @@ with sync_playwright() as p:
     ctx.route('**calendar.legalic.ru/**', block_external)
 
     page.goto('http://localhost:%d/index.html' % PORT)
-    page.evaluate("localStorage.setItem('kip8_session_token','browser-check-t312-k8')")
+    page.evaluate("localStorage.setItem('kip8_session_token','browser-check-t312')")
     page.reload()
     page.wait_for_timeout(2500)
     check('A: страница загрузилась', page.evaluate("!!document.querySelector('#page-dashboard') && document.title==='КИПиА'"))
@@ -376,7 +376,7 @@ with sync_playwright() as p:
     ctxm.route('**calendar.legalic.ru/**', block_external)
 
     pagem.goto('http://localhost:%d/index.html' % PORT)
-    pagem.evaluate("localStorage.setItem('kip8_session_token','browser-check-t312-k8-m')")
+    pagem.evaluate("localStorage.setItem('kip8_session_token','browser-check-t312-m')")
     pagem.reload()
     pagem.wait_for_timeout(2500)
     pagem.evaluate("navigateTo('work-schedule')")
@@ -422,7 +422,7 @@ with sync_playwright() as p:
     ctx2.route('**calendar.legalic.ru/**', block_external)
 
     page2.goto('http://localhost:%d/index.html' % PORT)
-    page2.evaluate("localStorage.setItem('kip8_session_token','browser-check-t312-k8-ro')")
+    page2.evaluate("localStorage.setItem('kip8_session_token','browser-check-t312-ro')")
     page2.reload()
     page2.wait_for_timeout(2500)
     page2.evaluate("navigateTo('work-schedule')")

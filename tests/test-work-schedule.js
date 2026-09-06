@@ -379,11 +379,13 @@ describe('График работы — WorkSchedule', () => {
         const labelsMatch = html.match(/const PAGE_LABELS = \{([\s\S]*?)\n    \};/);
         const labels = labelsMatch ? labelsMatch[1] : '';
 
-        test('PAGE_LABELS: метка «График работы» для work-schedule', () => {
+        test('PAGE_LABELS: метка «Табель учёта рабочего времени» для work-schedule', () => {
             const m = labels.match(/'work-schedule':\s+'([^']+)'/);
             assertTrue(!!m, 'PAGE_LABELS должен содержать запись для work-schedule');
-            assertEqual(m[1], 'График работы',
-                'Метка work-schedule должна быть «График работы» (не raw id)');
+            // Task 321: раздел переименован («График работы» →
+            // «Табель учёта рабочего времени»)
+            assertEqual(m[1], 'Табель учёта рабочего времени',
+                'Метка work-schedule — «Табель учёта рабочего времени» (Task 321, не raw id)');
         });
 
         test('PAGE_LABELS: подразделы удалены (Task 307/308: только шахматка)', () => {
@@ -450,9 +452,11 @@ describe('График работы — WorkSchedule', () => {
         });
 
         test('Метки совпадают с заголовками страниц (page-inline-header-title)', () => {
-            // Заголовок страницы — источник истины для метки крошек
-            assertTrue(html.indexOf('<div class="page-inline-header-title">График работы</div>') !== -1,
-                'Заголовок страницы work-schedule — «График работы»');
+            // Заголовок страницы — источник истины для метки крошек.
+            // Task 321: раздел переименован — заголовок и метка стали
+            // «Табель учёта рабочего времени»
+            assertTrue(html.indexOf('<div class="page-inline-header-title">Табель учёта рабочего времени</div>') !== -1,
+                'Заголовок страницы work-schedule — «Табель учёта рабочего времени»');
             // Task 307/308: страницы «Сотрудники»/«Инструктажи»/«Отпуска»
             // удалены — их заголовков в разметке больше нет
             assertTrue(html.indexOf('<div class="page-inline-header-title">Инструктажи и обучения</div>') === -1,
@@ -553,9 +557,11 @@ describe('График работы — WorkSchedule', () => {
                 '.ws-grid-wrap на десктопе — overflow-x: hidden (без прокрутки)');
         });
 
-        test('CSS: колонка сотрудников фиксирована, дни делят остаток', () => {
-            assertTrue(html.indexOf('#page-work-schedule .ws-grid thead th.ws-emp-col {\n            width: 200px;') !== -1,
-                'Колонка сотрудников — фиксированная ширина (200px)');
+        test('CSS: колонка сотрудников — по самому широкому тексту (Task 325)', () => {
+            assertTrue(html.indexOf('#page-work-schedule .ws-grid thead th.ws-emp-col {') !== -1,
+                'правило ширины колонки сотрудников есть');
+            const m = /#page-work-schedule \.ws-grid thead th\.ws-emp-col \{[^}]*width:\s*var\(--ws-emp-w, 200px\)/.exec(html);
+            assertTrue(!!m, 'ширина — var(--ws-emp-w, 200px): JS-замер самого широкого ФИО (_measureEmpCol), 200px — фолбэк');
             const reDay = /#page-work-schedule \.ws-grid thead th\.ws-day-col \{[^}]*width:\s*auto;[^}]*min-width:\s*0;/;
             assertTrue(reDay.test(html),
                 'Колонки дней: width auto + min-width 0 (делят остаток ширины)');
@@ -662,7 +668,7 @@ describe('График работы — WorkSchedule', () => {
         });
 
         test('JS: _applyCellStatus не обращается к серверу', () => {
-            const m = html.match(/_applyCellStatus: function\(isoDate, tabNo, code\) \{[\s\S]*?\n        \},/);
+            const m = html.match(/_applyCellStatus: function\(isoDate, tabNo, code, hours\) \{[\s\S]*?\n        \},/);
             assertTrue(!!m, 'Метод _applyCellStatus должен существовать');
             assertTrue(m[0].indexOf('_api(') === -1,
                 '_applyCellStatus — только локальный _PENDING, без сервера');
@@ -671,7 +677,7 @@ describe('График работы — WorkSchedule', () => {
         });
 
         test('JS: «выходной» на ручной записи → __delete; на авто — тост', () => {
-            const m = html.match(/_applyCellStatus: function\(isoDate, tabNo, code\) \{[\s\S]*?\n        \},/);
+            const m = html.match(/_applyCellStatus: function\(isoDate, tabNo, code, hours\) \{[\s\S]*?\n        \},/);
             const body = m[0];
             assertTrue(body.indexOf("server.источник === 'руч') {") !== -1 &&
                        body.indexOf('__delete: true') !== -1,
@@ -725,8 +731,12 @@ describe('График работы — WorkSchedule', () => {
         test('JS: _updateSaveBtn — счётчик правок и скрытие при нуле', () => {
             const m = html.match(/_updateSaveBtn: function\(\) \{[\s\S]*?\n        \},/);
             assertTrue(!!m, 'Метод _updateSaveBtn должен существовать');
-            assertTrue(m[0].indexOf('btn.hidden = !this._canEdit || n === 0;') !== -1,
-                'Кнопка скрыта без прав или без правок');
+            // Task 315: show = права && есть правки — скрывает и
+            // «Сохранить», и «Отменить», и всю строку 2 тулбара
+            assertTrue(m[0].indexOf('var show = this._canEdit && n > 0;') !== -1,
+                'видимость — права И наличие правок (Task 315)');
+            assertTrue(m[0].indexOf('btn.hidden = !show;') !== -1,
+                'кнопка скрыта без прав или без правок');
             assertTrue(m[0].indexOf("'Сохранить (' + n + ')'") !== -1,
                 'Текст кнопки — со счётчиком правок');
         });
@@ -1219,11 +1229,11 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v514 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'Актуальная версия — kipia-v417 (Task 291)');
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'Актуальная версия — kipia-v418 (Task 291)');
         });
         test('Старая версия v514 убрана', () => {
-            assertTrue(sw.indexOf("kipia-test-v514") === -1,
+            assertTrue(sw.indexOf("kipia-v417") === -1,
                 'Старая v514 не должна остаться в sw.js');
         });
     });
@@ -1262,9 +1272,9 @@ describe('График работы — WorkSchedule', () => {
         });
 
         test('JS: _fitGrid резервирует высоту полосы в бюджете строк', () => {
-            const reFoot = /var foot = wrap\.querySelector\('\.ws-grid-foot'\);[\s\S]*?var footH = foot \? Math\.round\(foot\.getBoundingClientRect\(\)\.height\) : 0;[\s\S]*?var budget = avail - headH - footH;/;
+            const reFoot = /var foot = wrap\.querySelector\('\.ws-grid-foot'\);[\s\S]*?var footH = foot \? Math\.round\(foot\.getBoundingClientRect\(\)\.height\) : 0;[\s\S]*?var budget = avail - headH - footH - ttFootH;/;
             assertTrue(reFoot.test(html),
-                'budget = область - шапка - полоса: таблица с полосой всегда до низа');
+                'budget = область - шапка - полоса (- итоговая строка панели, Task 323): таблица с полосой всегда до низа');
         });
 
         test('JS: _fitGrid — реальная высота области вместо clientHeight', () => {
@@ -1283,8 +1293,8 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v516 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'Актуальная версия — kipia-v417 (Task 291)');
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'Актуальная версия — kipia-v418 (Task 291)');
         });
     });
 
@@ -1295,8 +1305,8 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v515 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'Актуальная версия — kipia-v417 (Task 291)');
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'Актуальная версия — kipia-v418 (Task 291)');
         });
     });
 
@@ -1306,8 +1316,8 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
         test('v513 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'Актуальная версия — kipia-v417');
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'Актуальная версия — kipia-v418');
         });
     });
 
@@ -1470,9 +1480,14 @@ describe('График работы — WorkSchedule', () => {
         });
 
         test('JS: _renderGrid ставит ws-group-first на стыке сменных и дневных', () => {
-            const re = /var trCls = \(empTier === 1 && prevTier === 0\)[\s\S]*?' class="ws-group-first"' : '';[\s\S]*?html \+= '<tr' \+ trCls \+ '>';/;
-            assertTrue(re.test(html),
+            // Task 319: tr собирается из массива классов (trClsParts:
+            // ws-group-first + ws-hover-row перекрестья) — актуализация
+            const rePush = /if \(empTier === 1 && prevTier === 0\) trClsParts\.push\('ws-group-first'\);/;
+            const reJoin = /trClsParts\.join\(' '\) \+ '"'/;
+            assertTrue(rePush.test(html),
                 'Класс ставится только когда дневной идёт сразу после сменного');
+            assertTrue(reJoin.test(html),
+                'Классы строки собираются в атрибут (trClsParts.join)');
             const reTier = /var empTier = \(empTip === 'сменный'\) \? 0\s*: \(empTip === 'дневной'\) \? 1 : 2;/;
             assertTrue(reTier.test(html), 'Тир сотрудника: сменный 0, дневной 1, без типа 2');
         });
@@ -1487,7 +1502,8 @@ describe('График работы — WorkSchedule', () => {
             // условие empTier === 1 && prevTier === 0 не срабатывает:
             //  - все дневные: первая строка имеет prevTier = -1
             //  - только сменные: empTier === 1 не встречается
-            const re = /var trCls = \(empTier === 1 && prevTier === 0\)/;
+            // Task 319: актуализация под trClsParts
+            const re = /if \(empTier === 1 && prevTier === 0\) trClsParts\.push\('ws-group-first'\);/
             assertTrue(re.test(html),
                 'Строгая проверка стыка — лишних разделителей нет');
         });
@@ -1500,11 +1516,11 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v517 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'Актуальная версия — kipia-v417 (Task 291)');
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'Актуальная версия — kipia-v418 (Task 291)');
         });
         test('Старая версия v517 убрана', () => {
-            assertTrue(sw.indexOf("kipia-test-v517") === -1,
+            assertTrue(sw.indexOf("kipia-v417") === -1,
                 'Старая v517 не должна остаться в sw.js');
         });
     });
@@ -1515,12 +1531,12 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v417', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'CACHE_VERSION должен быть kipia-v417 (Task 290)');
+        test('CACHE_VERSION = kipia-v418', () => {
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'CACHE_VERSION должен быть kipia-v418 (Task 290)');
         });
         test('Старая версия v517 убрана', () => {
-            assertTrue(sw.indexOf("kipia-test-v517") === -1,
+            assertTrue(sw.indexOf("kipia-v417") === -1,
                 'Старая v517 не должна остаться в sw.js');
         });
     });
@@ -1619,12 +1635,27 @@ describe('График работы — WorkSchedule', () => {
                 'генерация только после подтверждения (sel === true)');
         });
 
-        test('HTML: кнопка «Сформировать» с подсказкой о диалоге (месяц или год)', () => {
-            const m = html.match(/id="wsGenerateBtn"[^>]*title="([^"]*)"/);
-            assertTrue(m && m[1].indexOf('диалог подтверждения') !== -1,
-                'title кнопки упоминает диалог подтверждения');
-            assertTrue(m && m[1].indexOf('выбранный месяц или весь год') !== -1,
-                'title кнопки упоминает выбор: месяц или весь год (Task 278)');
+        test('HTML: кнопка «Сформировать» — подсказка в окне #wsGenerateTip (Task 328)', () => {
+            // Task 328 (заявка): нативный title кнопки УБРАН — пояснение
+            // живёт в информационном окне #wsGenerateTip (формат кнопки
+            // «Обновить», Task 317: заголовок + описание)
+            const btn = html.match(/<button[^>]*id="wsGenerateBtn"[^>]*>/);
+            assertTrue(!!btn, 'кнопка есть');
+            assertFalse(/title="/.test(btn[0]),
+                'нативного title у кнопки «Сформировать» нет (Task 328)');
+            const iTip = html.indexOf('id="wsGenerateTip"');
+            assertTrue(iTip !== -1, 'окно #wsGenerateTip есть');
+            const tip = html.slice(iTip, iTip + 700);
+            assertTrue(tip.indexOf('class="ws-refresh-tip"') !== -1,
+                'окно — в формате #wsRefreshTip (тот же класс)');
+            assertTrue(tip.indexOf('ws-rt-date') !== -1 &&
+                       tip.indexOf('Сформировать шахматку') !== -1,
+                'строка-заголовок .ws-rt-date');
+            assertTrue(tip.indexOf('ws-rt-desc') !== -1 &&
+                       tip.indexOf('диалог подтверждения') !== -1,
+                'описание упоминает диалог подтверждения');
+            assertTrue(tip.indexOf('выбранный месяц или весь год') !== -1,
+                'описание упоминает выбор: месяц или весь год (Task 278)');
         });
 
         test('kipConfirm: дефолтные заголовок и кнопки', async () => {
@@ -1820,7 +1851,8 @@ describe('График работы — WorkSchedule', () => {
         assertTrue(!!m, 'SUBSECTIONS найден');
         // Запись work-schedule в реестре (регекс по строке реестра)
         test('SUBSECTIONS: запись work-schedule — label/sublabel/target/category', () => {
-            const re = /'work-schedule':\s*\{ label: 'График работы',\s*sublabel: 'Шахматка сменного и дневного персонала',\s*target: 'work-schedule',\s*category: 'docs' \}/;
+            // Task 321: label переименован вместе с разделом
+            const re = /'work-schedule':\s*\{ label: 'Табель учёта рабочего времени',\s*sublabel: 'Шахматка сменного и дневного персонала',\s*target: 'work-schedule',\s*category: 'docs' \}/;
             assertTrue(re.test(html),
                 'реестр содержит work-schedule (метка как у кнопки на странице, категория docs — золотистый стиль)');
         });
@@ -1869,13 +1901,13 @@ describe('График работы — WorkSchedule', () => {
                 'work-schedule и flowmeter-data — оба подразделы docs-ios (единая цепочка)');
         });
 
-        test('PAGE_LABELS: метки цепочки существуют (Документация / Документация ИОС / График работы)', () => {
+        test('PAGE_LABELS: метки цепочки существуют (Документация / Документация ИОС / Табель)', () => {
             const labelsMatch = html.match(/const PAGE_LABELS = \{([\s\S]*?)\n    \};/);
             assertTrue(!!labelsMatch, 'PAGE_LABELS найден');
             const labels = labelsMatch[1];
             assertTrue(/'docs':\s+'Документация'/.test(labels), 'метка Документация');
             assertTrue(/'docs-ios':\s+'Документация ИОС'/.test(labels), 'метка Документация ИОС');
-            assertTrue(/'work-schedule':\s+'График работы'/.test(labels), 'метка График работы');
+            assertTrue(/'work-schedule':\s+'Табель учёта рабочего времени'/.test(labels), 'метка Табель (Task 321)');
         });
     });
 
@@ -1885,12 +1917,12 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v417', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'CACHE_VERSION должен быть kipia-v417 (Task 290)');
+        test('CACHE_VERSION = kipia-v418', () => {
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'CACHE_VERSION должен быть kipia-v418 (Task 290)');
         });
         test('Старая версия v523 убрана', () => {
-            assertTrue(sw.indexOf("kipia-test-v523") === -1,
+            assertTrue(sw.indexOf("kipia-v417") === -1,
                 'Старая v523 не должна остаться в sw.js');
         });
     });
@@ -1981,7 +2013,7 @@ describe('График работы — WorkSchedule', () => {
         const indexPath = path.resolve(__dirname, '..', 'index.html');
         const html = fs.readFileSync(indexPath, 'utf8');
 
-        test('CSS: единая высота всех элементов ряда кнопок (34px)', () => {
+        test('CSS: единая высота всех элементов ряда кнопок (32px)', () => {
             // Task 306: .ws-cal-chip убран из списка — кнопка «Обновить» удалена
             // Task 307: + .ws-addemp-btn; Task 311: − .ws-addemp-btn — кнопка
             // «+ Сотрудник» удалена из тулбара (добавление — заголовок «Сотрудник»)
@@ -1989,9 +2021,11 @@ describe('График работы — WorkSchedule', () => {
             // (добавление — строка «+ Отпуск…» в карточке сотрудника)
             // Task 314: + .ws-refresh-btn — кнопка «Обновить» (данные,
             // не формирование) в ряду селектов, один рост 34px
-            const re = /\.ws-month-sel, \.ws-year-sel, \.ws-generate-btn, \.ws-save-btn, \.ws-refresh-btn \{[^}]*height:\s*34px[^}]*box-sizing:\s*border-box/;
+            // Task 324: + .ws-totals-btn и .ws-tt-tab — кнопка «Итоги учёта» и
+            // вкладки «Месяц»/«Год» в НИЖНЕМ ряду кнопок — тот же рост; Task 328: 32px (кнопки меньше)
+            const re = /\.ws-month-sel, \.ws-year-sel, \.ws-generate-btn, \.ws-save-btn,\n\s*\.ws-refresh-btn, \.ws-totals-btn, \.ws-tt-tab \{[^}]*height:\s*32px[^}]*box-sizing:\s*border-box/;
             assertTrue(re.test(html),
-                'селекты, «Сформировать» и «Сохранить» — одного роста');
+                'селекты, «Сформировать», «Сохранить», «Обновить», «Итоги учёта» и вкладки — одного роста');
             assertFalse(html.indexOf('.ws-addemp-btn') !== -1,
                 'стиль удалённой кнопки «+ Сотрудник» не остался (Task 311)');
             assertTrue(html.indexOf('.ws-cal-chip {') === -1 &&
@@ -1999,22 +2033,28 @@ describe('График работы — WorkSchedule', () => {
                 'мёртвые стили удалённой кнопки не остались (упоминания в комментариях не в счёт)');
         });
 
-        test('CSS: десктоп — кнопки в ЛЕВОМ ВЕРХНЕМ углу бара (Task 272)', () => {
-            assertTrue(/\.ws-toolbar-main \{[^}]*order:\s*0/.test(html),
-                'ряд кнопок — левая часть бара (order: 0)');
-            assertTrue(/\.ws-toolbar-main \{[^}]*align-self:\s*flex-start/.test(html),
-                'кнопки прижаты к верхней кромке бара (Task 272 — левый верхний угол)');
-            assertTrue(/\.ws-toolbar-main \{[^}]*margin-right:\s*auto/.test(html),
-                'окно уходит в правую часть бара');
+        test('CSS: десктоп — кнопки в ЛЕВОЙ равной трети бара (Task 272→315→317)', () => {
+            // Task 315: строка 1 бара — grid из ТРЁХ РАВНЫХ частей;
+            // ряд кнопок — первая (левая) треть. Task 317: колонка
+            // кнопок — ТРИ РЯДА ровно в высоту окон (95px)
+            assertTrue(/\.ws-bar-row \{[^}]*grid-template-columns:\s*1fr 1fr 1fr/.test(html),
+                'десктоп: бар — ТРИ РАВНЫЕ части (grid 1fr 1fr 1fr, Task 315)');
+            const mq = html.match(/\.ws-toolbar-main \{[^}]*height:\s*95px/);
+            assertTrue(!!mq, 'Task 317: десктопная колонка кнопок — 95px (ровно окна)');
+            assertTrue(/\.ws-toolbar-main \{[^}]*flex-direction:\s*column/.test(html) &&
+                       /\.ws-toolbar-main \{[^}]*gap:\s*3px/.test(html),
+                'Task 317: базовая колонка кнопок — column, зазор 3px');
         });
 
-        test('CSS: десктоп — окно с данными в ПРАВОЙ части бара', () => {
-            assertTrue(/\.ws-cal-panel \{[^}]*order:\s*1/.test(html),
-                'окно календаря — правая часть бара (order: 1)');
-            assertTrue(/\.ws-cal-panel \{[^}]*flex:\s*0 1 auto/.test(html),
-                'окно не растягивается на свободную ширину');
-            assertFalse(/\.ws-cal-panel \{[^}]*flex:\s*1 1 auto/.test(html),
-                'старое растягивание (flex: 1 1 auto) удалено');
+        test('CSS: десктоп — окна — ВТОРАЯ и ТРЕТЬЯ равные трети (Task 315)', () => {
+            const mq = html.match(/@media \(min-width: 1024px\) \{[\s\S]*?\.ws-events-panel,[\s\S]*?\.ws-cal-panel \{[\s\S]*?\}/);
+            assertTrue(!!mq, 'десктопное правило обоих окон бара');
+            assertTrue(mq[0].indexOf('height: 95px') !== -1,
+                'высота окон — 95px (статическая, Task 270)');
+            assertTrue(mq[0].indexOf('justify-self: stretch') !== -1,
+                'окна растягиваются на свою 1/3 (базовый fit-content календаря выключен)');
+            assertFalse(/\.ws-cal-panel \{[^}]*flex:\s*0 1 auto/.test(html),
+                'компоновка flex: 0 1 auto (Task 269) удалена — теперь grid');
         });
 
         test('CSS: старое размещение Task 266 удалено', () => {
@@ -2100,13 +2140,15 @@ describe('График работы — WorkSchedule', () => {
                 'у заголовков норм и праздников — разные цвета фона');
         });
 
-        test('CSS: светлая тема — плашки сохраняют смысловые цвета, текст ярче', () => {
-            const reN = /\[data-theme="light"\] \.ws-cp-norms > \.ws-cp-cap \{[^}]*background:\s*rgba\(74, 143, 199, 0\.16\);[^}]*color:\s*#1d5f96;/s;
+        test('CSS: светлая тема — плашки сохраняют смысловые цвета, текст ЧЁРНЫЙ (Task 330)', () => {
+            // Task 330 (заявка): ВЕСЬ текст окон бара в светлой теме —
+            // чёрный; цветные фоны плашек сохранены как подложки
+            const reN = /\[data-theme="light"\] \.ws-cp-norms > \.ws-cp-cap \{[^}]*background:\s*rgba\(74, 143, 199, 0\.16\);[^}]*color:\s*#000;/s;
             assertTrue(reN.test(html),
-                'светлая тема: норм — синяя плашка, насыщенный текст #1d5f96 (ярче серого #999)');
-            const reD = /\[data-theme="light"\] \.ws-cp-days > \.ws-cp-cap \{[^}]*background:\s*rgba\(255, 107, 107, 0\.15\);[^}]*color:\s*#b02c2c;/s;
+                'светлая тема: норм — синяя плашка, чёрный текст (Task 330)');
+            const reD = /\[data-theme="light"\] \.ws-cp-days > \.ws-cp-cap \{[^}]*background:\s*rgba\(255, 107, 107, 0\.15\);[^}]*color:\s*#000;/s;
             assertTrue(reD.test(html),
-                'светлая тема: праздники — красная плашка, насыщенный текст #b02c2c');
+                'светлая тема: праздники — красная плашка, чёрный текст (Task 330)');
         });
 
         test('CSS: светлая тема — .ws-cp-cap больше НЕ перекрашивается в серый', () => {
@@ -2266,12 +2308,12 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v417', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'CACHE_VERSION должен быть kipia-v417 (Task 290)');
+        test('CACHE_VERSION = kipia-v418', () => {
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'CACHE_VERSION должен быть kipia-v418 (Task 290)');
         });
         test('Старая версия v525 убрана', () => {
-            assertTrue(sw.indexOf("kipia-test-v525") === -1,
+            assertTrue(sw.indexOf("kipia-v417") === -1,
                 'Старая v525 не должна остаться в sw.js');
         });
     });
@@ -2661,11 +2703,11 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v527 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v417") !== -1,
-                'Актуальная версия — kipia-v417');
+            assertTrue(sw.indexOf("kipia-v418") !== -1,
+                'Актуальная версия — kipia-v418');
         });
         test('Старая версия v527 убрана', () => {
-            assertTrue(sw.indexOf("kipia-test-v527") === -1,
+            assertTrue(sw.indexOf("kipia-v417") === -1,
                 'Старая v527 не должна остаться в sw.js (Task 278)');
         });
     });
@@ -2942,11 +2984,11 @@ describe('Task 298 — коды статусов Т-12/Т-13: клиентски
             'счётчик 16 в заголовке эндпоинтов');
     });
 
-    test('SW: кэш поднят до kipia-v417 (Task 298)', () => {
+    test('SW: кэш поднят до kipia-v418 (Task 298)', () => {
         const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
-            'CACHE_VERSION = kipia-v417');
-        assertFalse(sw.indexOf("CACHE_VERSION = 'kipia-test-v539'") !== -1,
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
+            'CACHE_VERSION = kipia-v418');
+        assertFalse(sw.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
             'старой версии v539 нет');
     });
 });
@@ -3075,9 +3117,12 @@ describe('Task 307 — вкладка «Сотрудники» удалена, �
     });
 
     test('CSS: перенос ряда тулбара разрешён (flex-wrap) — кнопка не ломает мобильный', () => {
-        const re = /\.ws-toolbar-main \{[^}]*flex-wrap:\s*wrap;/;
+        // Task 317: ряд 1 (селекты + «Обновить») — .ws-toolbar-row,
+        // на узких экранах аккуратно складывается (десктоп — nowrap
+        // в media: высота ряда фиксирована)
+        const re = /\.ws-toolbar-row[\s\S]{0,200}flex-wrap:\s*wrap;/;
         assertTrue(re.test(html),
-            'на узких экранах ряд аккуратно складывается (десктоп — nowrap в media)');
+            'на узких экранах ряд 1 аккуратно складывается (wrap у .ws-toolbar-row)');
     });
 
     test('CSS: мёртвые стили страницы сотрудников удалены', () => {
@@ -3094,9 +3139,9 @@ describe('Task 307 — вкладка «Сотрудники» удалена, �
             '.ws-add-bar/.ws-add-btn удалены (Task 308: страницы больше нет)');
     });
 
-    test('SW: кэш поднят до kipia-v417 (Task 309; история: v547 — Task 308)', () => {
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
-            'CACHE_VERSION = kipia-v417');
+    test('SW: кэш поднят до kipia-v418 (Task 309; история: v547 — Task 308)', () => {
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
+            'CACHE_VERSION = kipia-v418');
     });
 });
 
@@ -3301,9 +3346,10 @@ describe('Task 308 — вкладки «Инструктажи»/«Отпуск�
             'правило .ws-addvac-btn удалено');
         assertFalse(/\[data-theme="light"\] \.ws-addvac-btn/.test(html),
             'светлая тема «+ Отпуск» удалена');
-        // Task 314: + .ws-refresh-btn («Обновить») в правиле высоты
-        const h = /\.ws-month-sel, \.ws-year-sel, \.ws-generate-btn, \.ws-save-btn, \.ws-refresh-btn \{[^}]*height:\s*34px/;
-        assertTrue(h.test(html), 'единая высота 34px живёт (правило Task 269)');
+        // Task 314: + .ws-refresh-btn («Обновить») в правиле высоты;
+        // Task 324: + .ws-totals-btn/.ws-tt-tab (кнопка «Итоги учёта» и вкладки)
+        const h = /\.ws-month-sel, \.ws-year-sel, \.ws-generate-btn, \.ws-save-btn,\n\s*\.ws-refresh-btn, \.ws-totals-btn, \.ws-tt-tab \{[^}]*height:\s*32px/;
+        assertTrue(h.test(html), 'единая высота 32px живёт (правило Task 269/324, актуализация Task 328 — кнопки меньше)');
     });
 
     test('CSS: мёртвые стили удалённых страниц убраны', () => {
@@ -3324,10 +3370,10 @@ describe('Task 308 — вкладки «Инструктажи»/«Отпуск�
             'светлая тема строки дней жива');
     });
 
-    test('SW: кэш поднят до kipia-v417 (Task 308)', () => {
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
-            'CACHE_VERSION = kipia-v417');
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-test-v546'") === -1,
+    test('SW: кэш поднят до kipia-v418 (Task 308)', () => {
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
+            'CACHE_VERSION = kipia-v418');
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v417'") === -1,
             'старой версии v546 нет');
     });
 });

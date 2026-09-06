@@ -333,11 +333,21 @@ describe('Task 306 — клиент: бейдж смены только у «с�
             'vacMain начинается с фильтра типа');
     });
 
-    test('JS: _plannedShiftAt — расчёт НЕ фильтруется по типу (паритет)', () => {
+    test('JS: _plannedShiftAt — тип учитывается ТОЛЬКО для календарного режима (Task 320, паритет с сервером)', () => {
+        // Task 306: расчёт не фильтровался по типу — фильтр «только
+        // сменный» стоял в рендере (vacMain). Task 320 (актуализация):
+        // серверный generateMonth ветвится по типу («дневной» —
+        // календарный режим 5/2 по дням недели), и _plannedShiftAt
+        // повторяет это ДЛЯ ПАРИТЕТА формул; бейдж по-прежнему
+        // рендерится только у «сменный» (vacMain выше)
         const m = INDEX_SRC.match(/_plannedShiftAt: function\(isoDate, emp\) \{([\s\S]*?)\n        \},/);
         assertTrue(!!m);
-        assertFalse(m[1].indexOf("тип") !== -1,
-            'в чистом расчёте цикла тип не участвует — фильтр только в рендере');
+        assertTrue(m[1].indexOf("=== 'дневной'") !== -1,
+            'дневной → календарный режим (как на сервере)');
+        assertTrue(m[1].indexOf('(dow === 0) ? 7 : dow') !== -1,
+            'цикл 7: Пн=1..Вс=7 по дням недели');
+        assertFalse(m[1].indexOf("=== 'сменный'") !== -1,
+            'ветки «сменный» в расчёте НЕТ — всё прочее циклом от старта');
     });
 });
 
@@ -353,8 +363,12 @@ describe('Task 306 — клиент: одна кнопка «Сформиров�
             'вызов confirmRefresh не остался');
         const btn = INDEX_SRC.match(/<button[^>]*id="wsGenerateBtn"[^>]*>/);
         assertTrue(!!btn, 'кнопка «Сформировать» есть');
-        assertTrue(btn[0].indexOf('календарь обновится автоматически') !== -1,
-            'title упоминает обновление календаря');
+        // Task 328: нативный title кнопки → информационное окно
+        // #wsGenerateTip (формат кнопки «Обновить»)
+        const iTip = INDEX_SRC.indexOf('id="wsGenerateTip"');
+        const tip = INDEX_SRC.slice(iTip, iTip + 700);
+        assertTrue(tip.indexOf('календарь обновится автоматически') !== -1,
+            'окно #wsGenerateTip упоминает обновление календаря');
     });
 
     test('JS: confirmRefresh удалён; refreshNow(silent) без тостов', () => {
@@ -394,8 +408,8 @@ describe('Task 306 — клиент: одна кнопка «Сформиров�
             'окошко календаря (нормы) осталось');
     });
 
-    test('SW: версия кэша kipia-v417 (Task 306 — клиент менялся)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
-            'CACHE_VERSION = kipia-v417');
+    test('SW: версия кэша kipia-v418 (Task 306 — клиент менялся)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
+            'CACHE_VERSION = kipia-v418');
     });
 });

@@ -554,10 +554,10 @@ describe('Task 260: интеграция в index.html', () => {
         assertTrue(html.indexOf('.ws-cal-panel {') !== -1,
             'стили окошка календаря в тулбаре');
     });
-    test('SW: версия кэша kipia-v417 (Task 298)', () => {
+    test('SW: версия кэша kipia-v418 (Task 298)', () => {
         const sw = fs.readFileSync(path.resolve(__dirname, '..', 'sw.js'), 'utf8');
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v417');
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v418');
     });
     test('Task 311: тултип ячейки убран; название праздника — в попапе клика', () => {
         // Task 311: пояснительные тултипы с ячеек шахматки убраны;
@@ -1012,9 +1012,13 @@ describe('Task 262: интеграция в index.html', () => {
         assertTrue(html.indexOf("_MINERS_DAY_TITLE: 'День шахтёра'") !== -1,
             'константа Дня шахтёра в модуле');
     });
-    test('JS: окошко помечает официальность (тултип) и предварительность', () => {
-        assertTrue(html.indexOf("st.normsOfficial ? ' — официальные данные' : ''") !== -1,
-            'тултип норм окошка: официальные данные');
+    test('JS: окошко помечает предварительность; тултипы окон УБРАНЫ (Task 328)', () => {
+        // Task 328 (заявка): всплывающие подсказки окон бара УБРАНЫ —
+        // официальность норм больше не помечается тултипом
+        assertTrue(html.indexOf("st.normsOfficial ? ' — официальные данные' : ''") === -1,
+            'тултип норм окошка удалён (Task 328)');
+        assertTrue(html.indexOf('ws-cp-norms" title=') === -1,
+            'нативного title у группы норм нет');
         assertTrue(html.indexOf('>предварительно</span>') !== -1,
             'бейдж «предварительно» в окошке');
     });
@@ -1146,17 +1150,19 @@ describe('Task 266: окошко столбиками, слева в баре �
         assertTrue(/\.ws-cal-panel \{[^}]*overscroll-behavior:\s*contain/.test(html),
             'скролл окошка не тянет страницу');
     });
-    test('CSS: десктоп — кнопки слева вверху, окно справа (≥1024px, Task 269→272)', () => {
-        const mq = html.match(/@media \(min-width: 1024px\) \{[\s\S]*?\.ws-toolbar \{[\s\S]*?\}/);
-        assertTrue(!!mq, 'media-блок десктопного тулбара');
-        assertTrue(/\.ws-toolbar-main \{[^}]*order:\s*0/.test(html),
-            'кнопки — левая часть бара (order: 0)');
-        assertTrue(/\.ws-toolbar-main \{[^}]*align-self:\s*flex-start/.test(html),
-            'кнопки прижаты к ВЕРХНЕЙ кромке бара (Task 272 — левый верхний угол)');
-        assertFalse(/\.ws-toolbar-main \{[^}]*align-self:\s*flex-end/.test(html),
-            'прижатие к нижней кромке (Task 269) удалено');
-        assertTrue(/\.ws-toolbar-main \{[^}]*flex-wrap:\s*nowrap/.test(html),
-            'ряд кнопок на десктопе — в одну строку');
+    test('CSS: десктоп — три равные части бара (≥1024px, Task 269→272→315)', () => {
+        // Task 315: строка 1 бара (.ws-bar-row) — grid из ТРЁХ РАВНЫХ
+        // частей: кнопки | окно мероприятий | окно времени и праздников
+        assertTrue(/\.ws-bar-row \{[^}]*display:\s*grid/.test(html),
+            'десктоп: строка 1 бара — grid');
+        assertTrue(/\.ws-bar-row \{[^}]*grid-template-columns:\s*1fr 1fr 1fr/.test(html),
+            'бар разделён на ТРИ РАВНЫЕ части (1fr 1fr 1fr)');
+        const mq = html.match(/\.ws-toolbar-main \{[^}]*height:\s*95px/);
+        assertTrue(!!mq, 'Task 317: десктопная колонка кнопок — 95px (ровно окна)');
+        assertFalse(/\.ws-toolbar-main \{[^}]*order:\s*0/.test(html),
+            'компоновка order (Task 269/272) удалена — теперь grid');
+        assertFalse(/\.ws-toolbar-main \{[^}]*margin-right:\s*auto/.test(html),
+            'прижатие окна вправо (margin-right: auto) удалено');
     });
     test('CSS: высота бара на десктопе — 95px (статическая, Task 270)', () => {
         const re = /@media \(min-width: 1024px\) \{[\s\S]*?\.ws-cal-panel \{[^}]*height:\s*95px/s;
@@ -1177,9 +1183,10 @@ describe('Task 266: окошко столбиками, слева в баре �
     test('JS: бейдж «официальные нормы» не рендерится', () => {
         assertTrue(html.indexOf('>официальные нормы</span>') === -1,
             'бейдж удалён из renderPanel');
-        // официальность осталась тултипом столбика норм
-        assertTrue(html.indexOf("st.normsOfficial ? ' — официальные данные' : ''") !== -1,
-            'тултип столбика норм помечает официальность');
+        // Task 328 (заявка): тултипы окон бара УБРАНЫ — официальность
+        // не помечается всплывающей подсказкой
+        assertTrue(html.indexOf("st.normsOfficial ? ' — официальные данные' : ''") === -1,
+            'тултип столбика норм удалён (Task 328)');
     });
     test('JS: легенда звёздочки — в конце столбика праздников', () => {
         assertTrue(html.indexOf('ws-cp-legend') !== -1,
@@ -1228,7 +1235,9 @@ describe('Task 272→306: кнопка «Обновить» объединена
     test('JS: _currentYM берёт год из WorkSchedule или текущей даты', () => {
         assertTrue(html.indexOf('_currentYM: function') !== -1,
             'метод _currentYM определён (замена _sy/_sm шторки)');
-        assertTrue(html.indexOf('this._sy') === -1 && html.indexOf('this._sm') === -1,
+        // Task 323: граница слова — this._syncTotalsRows не считается
+        // за поле шторки _sy
+        assertTrue(!/\bthis\._sy\b/.test(html) && !/\bthis\._sm\b/.test(html),
             'поля шторки _sy/_sm удалены');
     });
     test('JS: WorkSchedule._refreshProdCalendarQuiet — тихое обновление', () => {

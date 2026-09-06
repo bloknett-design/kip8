@@ -248,7 +248,7 @@ describe('Счёт достижений — лучшие результаты п
     test('Мусор в хранилище не ломает счёт (возврат к пустому)', () => {
         clearMockStorage();
         // пишем валидные данные, чтобы узнать фактический ключ
-        // (в kip8 ключи без префикса; в kip8test была обёртка isolateLocalStorage)
+        // (обёртка isolateLocalStorage добавляет префикс к 'msBestResults')
         fns.msSaveResults([{ won: true, time: 1, diff: 'easy', ts: 1 }]);
         const keys = getMockStorageKeys();
         assertEqual(keys.length, 1, 'в хранилище один ключ счёта');
@@ -276,9 +276,8 @@ describe('Счёт достижений — лучшие результаты п
 describe('Миграция счёта из msRecentResults → msBestResults (Task 193)', () => {
 
     // Вспомогалка: узнаём фактический физический префикс ключа —
-    // в kip8 ключи без префикса ( isolateLocalStorage нет в kip8,
-    // только в kip8test). Кратность зависит от количества выполнений
-    // extractFunctions() в процессе.
+    // обёртка isolateLocalStorage добавляет 'kip8test:', кратность
+    // зависит от количества выполнений extractFunctions() в процессе.
     function discoverPrefix() {
         clearMockStorage();
         fns.msSaveResults([]);

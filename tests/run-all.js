@@ -47,6 +47,22 @@ require('./test-task311.js');
 require('./test-task312.js');
 require('./test-task313.js');
 require('./test-task314.js');
+require('./test-task315.js');
+require('./test-task316.js');
+require('./test-task317.js');
+require('./test-task318.js');
+require('./test-task319.js');
+require('./test-task320.js');
+require('./test-task321.js');
+require('./test-task322.js');
+require('./test-task323.js');
+require('./test-task324.js');
+require('./test-task325.js');
+require('./test-task326.js');
+require('./test-task327.js');
+require('./test-task328.js');
+require('./test-task329.js');
+require('./test-task330.js');
 require('./test-deploy-url.js');
 
 // Запускаем
