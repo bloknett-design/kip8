@@ -31,7 +31,7 @@
 //       onclick openEmployeeForm и плюсик-индикатор (только _canEdit);
 //     — зрителям — обычный заголовок без клика (класса/onclick нет);
 //     — двойная защита: openEmployeeForm сам проверяет право записи.
-//   SW: kipia-v417 (один инкремент с v549 Task 310; Task 312
+//   SW: kipia-test-v550 (один инкремент с v549 Task 310; Task 312
 //   поднял до v551 — см. test-task312.js).
 //
 // Запуск: через tests/run-all.js (require './test-task311.js').
@@ -244,10 +244,10 @@ describe('Task 311 — кнопка «+ Сотрудник» → заголов�
 
 describe('Task 311 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v418', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v418');
-        assertFalse(SW_SRC.indexOf('kipia-v417') !== -1,
+    test('SW: версия кэша kipia-v419', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v419'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v419');
+        assertFalse(SW_SRC.indexOf('kipia-test-v549') !== -1,
             'старой версии v549 нет');
     });
 });

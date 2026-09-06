@@ -45,7 +45,7 @@
 //   04.11.2026 пусто (фолбэк), 05.11 рабочая; исключение UrlFetchApp —
 //   фолбэк; без UrlFetchApp — фолбэк; месяц ДО старта — ноль записей;
 //   идемпотентность повторной генерации.
-//   SW: kipia-v418 (Task 321 — бамп партии; в Task 320 был v559).
+//   SW: kipia-v419 (Task 321 — бамп партии; в Task 320 был v559).
 //
 // Запуск: через tests/run-all.js (require './test-task320.js').
 
@@ -718,9 +718,9 @@ describe('Task 320 — SW: версия кэша', () => {
     // минимум Task 320 (v559 → v560 в своё время) был сделан и что
     // v559 больше не существует
     test('SW: инкремент Task 320 состоялся (v559 ушел)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
-            'CACHE_VERSION = kipia-v418 (актуальная, Task 321)');
-        assertFalse(SW_SRC.indexOf("kipia-v417") !== -1,
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v419'") !== -1,
+            'CACHE_VERSION = kipia-v419 (актуальная, Task 321)');
+        assertFalse(SW_SRC.indexOf("kipia-test-v559") !== -1,
             'v559 больше не существует');
     });
 });

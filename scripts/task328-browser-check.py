@@ -20,7 +20,7 @@ import json, sys
 from urllib.parse import unquote
 from playwright.sync_api import sync_playwright
 
-PORT = 8995
+PORT = 8942
 TODAY = datetime.date.today()
 Y, M = TODAY.year, TODAY.month
 
@@ -157,7 +157,10 @@ with sync_playwright() as p:
     })""")
     check('C: #wsCrossBtn есть, в ряду 3 ДЕЙСТВИЙ', s0 and s0['inRow'], s0)
     check('C2: СЛЕВА от «Сформировать» (заявка)', s0 and s0['leftOfGen'], s0)
-    check('C3: порядок ряда: перекрестье ПЕРВОЕ', s0 and s0['order'][0] == 'wsCrossBtn', s0)
+    # Task 332: КНОПКА ВИДА wsViewBtn — САМАЯ ЛЕВАЯ (левее перекрестья);
+    # Task 333: у кнопки вида ПОДПИСЬ «Вид» — перекрестье ВТОРОЕ слева
+    check('C3: порядок ряда: вид → перекрестье → Сформировать',
+          s0 and s0['order'][:2] == ['wsViewBtn', 'wsCrossBtn'], s0)
     check('C4: иконка svg ~16px, БЕЗ текста', s0 and s0['hasSvg'] and s0['svgSize'] == '16x16', s0)
     check('C5: aria-pressed=true (ВКЛ по умолчанию)', s0 and s0['pressed'] == 'true', s0)
     check('C6: aria-label для скринридеров', s0 and s0['label'] and 'перекрёстная' in s0['label'].lower(), s0)

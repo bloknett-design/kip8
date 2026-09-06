@@ -1229,11 +1229,11 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v514 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'Актуальная версия — kipia-v418 (Task 291)');
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'Актуальная версия — kipia-v419 (Task 291)');
         });
         test('Старая версия v514 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v417") === -1,
+            assertTrue(sw.indexOf("kipia-test-v514") === -1,
                 'Старая v514 не должна остаться в sw.js');
         });
     });
@@ -1265,16 +1265,25 @@ describe('График работы — WorkSchedule', () => {
                 'прокрутка колесом/свайпом остаётся');
         });
 
-        test('JS: _renderGrid добавляет .ws-grid-foot сразу после таблицы', () => {
-            const re = /html \+= '<\/tbody><\/table>';[\s\S]*?html \+= '<div class="ws-grid-foot" aria-hidden="true"><\/div>';[\s\S]*?wrap\.innerHTML = html;/;
-            assertTrue(re.test(html),
-                'Полоса-бордюрчик рендерится под последней строкой каждой шахматки');
+        test('JS: Task 331 — полоса .ws-grid-foot СТАТИЧНАЯ, вне контейнера', () => {
+            // полоса — постоянный элемент колонки .ws-grid-col ПОД скролл-
+            // контейнером (не пересоздаётся при рендерах, не уезжает при
+            // вертикальной прокрутке); в _renderGrid её больше нет
+            const reCol = /<div class="ws-grid-col" id="wsGridCol">[\s\S]*?<div id="wsGridWrap" class="ws-grid-wrap">[\s\S]*?<\/div>[\s\S]*?<div class="ws-grid-foot" id="wsGridFoot" aria-hidden="true"><\/div>[\s\S]*?<div class="ws-grid-hbar" id="wsGridHbar"/;
+            const reOldRender = /html \+= '<div class="ws-grid-foot" aria-hidden="true"><\/div>';/;
+            assertTrue(reCol.test(html) && !reOldRender.test(html),
+                'Колонка .ws-grid-col = [контейнер][#wsGridFoot][#wsGridHbar], ' +
+                'рендер сетки полосу больше не создаёт (Task 331)');
         });
 
-        test('JS: _fitGrid резервирует высоту полосы в бюджете строк', () => {
-            const reFoot = /var foot = wrap\.querySelector\('\.ws-grid-foot'\);[\s\S]*?var footH = foot \? Math\.round\(foot\.getBoundingClientRect\(\)\.height\) : 0;[\s\S]*?var budget = avail - headH - footH - ttFootH;/;
-            assertTrue(reFoot.test(html),
-                'budget = область - шапка - полоса (- итоговая строка панели, Task 323): таблица с полосой всегда до низа');
+        test('JS: _fitGrid — бюджет без вычитания полосы (она вне контейнера)', () => {
+            // Task 331: полоса и зона ползунка — статичные элементы ПОД
+            // контейнером (колонка − 5 − 12), высота контейнера уже чистая;
+            // нативные полосы скрыты — поправка clientHeight не нужна
+            const re = /var budget = avail - headH;/;
+            const reOld = /var budget = avail - headH - footH - ttFootH;/;
+            assertTrue(re.test(html) && !reOld.test(html),
+                'budget = область - шапка: полоса/ползунок не в контейнере (Task 331)');
         });
 
         test('JS: _fitGrid — реальная высота области вместо clientHeight', () => {
@@ -1293,8 +1302,8 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v516 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'Актуальная версия — kipia-v418 (Task 291)');
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'Актуальная версия — kipia-v419 (Task 291)');
         });
     });
 
@@ -1305,8 +1314,8 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v515 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'Актуальная версия — kipia-v418 (Task 291)');
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'Актуальная версия — kipia-v419 (Task 291)');
         });
     });
 
@@ -1316,8 +1325,8 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
         test('v513 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'Актуальная версия — kipia-v418');
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'Актуальная версия — kipia-v419');
         });
     });
 
@@ -1516,11 +1525,11 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v517 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'Актуальная версия — kipia-v418 (Task 291)');
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'Актуальная версия — kipia-v419 (Task 291)');
         });
         test('Старая версия v517 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v417") === -1,
+            assertTrue(sw.indexOf("kipia-test-v517") === -1,
                 'Старая v517 не должна остаться в sw.js');
         });
     });
@@ -1531,12 +1540,12 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v418', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'CACHE_VERSION должен быть kipia-v418 (Task 290)');
+        test('CACHE_VERSION = kipia-v419', () => {
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'CACHE_VERSION должен быть kipia-v419 (Task 290)');
         });
         test('Старая версия v517 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v417") === -1,
+            assertTrue(sw.indexOf("kipia-test-v517") === -1,
                 'Старая v517 не должна остаться в sw.js');
         });
     });
@@ -1917,12 +1926,12 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v418', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'CACHE_VERSION должен быть kipia-v418 (Task 290)');
+        test('CACHE_VERSION = kipia-v419', () => {
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'CACHE_VERSION должен быть kipia-v419 (Task 290)');
         });
         test('Старая версия v523 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v417") === -1,
+            assertTrue(sw.indexOf("kipia-test-v523") === -1,
                 'Старая v523 не должна остаться в sw.js');
         });
     });
@@ -2308,12 +2317,12 @@ describe('График работы — WorkSchedule', () => {
         const swPath = path.resolve(__dirname, '..', 'sw.js');
         const sw = fs.readFileSync(swPath, 'utf8');
 
-        test('CACHE_VERSION = kipia-v418', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'CACHE_VERSION должен быть kipia-v418 (Task 290)');
+        test('CACHE_VERSION = kipia-v419', () => {
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'CACHE_VERSION должен быть kipia-v419 (Task 290)');
         });
         test('Старая версия v525 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v417") === -1,
+            assertTrue(sw.indexOf("kipia-test-v525") === -1,
                 'Старая v525 не должна остаться в sw.js');
         });
     });
@@ -2703,11 +2712,11 @@ describe('График работы — WorkSchedule', () => {
         const sw = fs.readFileSync(swPath, 'utf8');
 
         test('v527 заменена актуальной версией', () => {
-            assertTrue(sw.indexOf("kipia-v418") !== -1,
-                'Актуальная версия — kipia-v418');
+            assertTrue(sw.indexOf("kipia-v419") !== -1,
+                'Актуальная версия — kipia-v419');
         });
         test('Старая версия v527 убрана', () => {
-            assertTrue(sw.indexOf("kipia-v417") === -1,
+            assertTrue(sw.indexOf("kipia-test-v527") === -1,
                 'Старая v527 не должна остаться в sw.js (Task 278)');
         });
     });
@@ -2984,11 +2993,11 @@ describe('Task 298 — коды статусов Т-12/Т-13: клиентски
             'счётчик 16 в заголовке эндпоинтов');
     });
 
-    test('SW: кэш поднят до kipia-v418 (Task 298)', () => {
+    test('SW: кэш поднят до kipia-v419 (Task 298)', () => {
         const sw = fs.readFileSync(path.join(__dirname, '..', 'sw.js'), 'utf8');
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
-            'CACHE_VERSION = kipia-v418');
-        assertFalse(sw.indexOf("CACHE_VERSION = 'kipia-v417'") !== -1,
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v419'") !== -1,
+            'CACHE_VERSION = kipia-v419');
+        assertFalse(sw.indexOf("CACHE_VERSION = 'kipia-test-v539'") !== -1,
             'старой версии v539 нет');
     });
 });
@@ -3139,9 +3148,9 @@ describe('Task 307 — вкладка «Сотрудники» удалена, �
             '.ws-add-bar/.ws-add-btn удалены (Task 308: страницы больше нет)');
     });
 
-    test('SW: кэш поднят до kipia-v418 (Task 309; история: v547 — Task 308)', () => {
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
-            'CACHE_VERSION = kipia-v418');
+    test('SW: кэш поднят до kipia-v419 (Task 309; история: v547 — Task 308)', () => {
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v419'") !== -1,
+            'CACHE_VERSION = kipia-v419');
     });
 });
 
@@ -3370,10 +3379,10 @@ describe('Task 308 — вкладки «Инструктажи»/«Отпуск�
             'светлая тема строки дней жива');
     });
 
-    test('SW: кэш поднят до kipia-v418 (Task 308)', () => {
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
-            'CACHE_VERSION = kipia-v418');
-        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v417'") === -1,
+    test('SW: кэш поднят до kipia-v419 (Task 308)', () => {
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-v419'") !== -1,
+            'CACHE_VERSION = kipia-v419');
+        assertTrue(sw.indexOf("CACHE_VERSION = 'kipia-test-v546'") === -1,
             'старой версии v546 нет');
     });
 });

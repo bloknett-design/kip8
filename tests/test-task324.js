@@ -43,7 +43,7 @@
 //   актуализирует вид шапки (_updateTtHead, Task 325);
 //   _updateTtHead — сжимает пустую шапку до 16px-филлера (⚠ и
 //   «Обновить» скрыты — выравнивание строк сохраняется).
-//   SW: kipia-v418.
+//   SW: kipia-v419.
 //
 // Запуск: через tests/run-all.js (require './test-task324.js').
 
@@ -155,14 +155,17 @@ describe('Task 324→325 — HTML: ряды кнопок итогов и дей�
             'класс вертикальной ручки удалён');
     });
 
-    test('HTML: шапка шторки — ⚠ + «Обновить», БЕЗ ✕ и инфо-строки', () => {
+    test('HTML: шапка шторки — только ⚠, БЕЗ ✕/инфо/«Обновить» (Task 324 → 332)', () => {
         const iPanel = INDEX_SRC.indexOf('id="wsTotalsPanel"');
-        const chunk = INDEX_SRC.slice(iPanel, iPanel + 2400);
+        const chunk = INDEX_SRC.slice(iPanel, iPanel + 3200);
         assertTrue(chunk.indexOf('class="ws-tt-head"') !== -1, 'шапка .ws-tt-head');
         assertFalse(chunk.indexOf('id="wsTtClose"') !== -1,
             'кнопка ✕ УДАЛЕНА (заявка Task 325)');
         assertTrue(chunk.indexOf('id="wsTtWarn"') !== -1, 'аварийная строка ⚠');
-        assertTrue(chunk.indexOf('id="wsTtRefresh"') !== -1, 'кнопка «Обновить»');
+        // Task 332 (заявка): кнопка «Обновить» из шапки УДАЛЕНА —
+        // годовые данные обновляет кнопка «Обновить» тулбара
+        assertFalse(chunk.indexOf('id="wsTtRefresh"') !== -1,
+            'кнопка «Обновить» шапки удалена (Task 332)');
         assertFalse(chunk.indexOf('id="wsTtInfo"') !== -1,
             'пояснительный текст шапки УДАЛЁН (заявка)');
         assertFalse(chunk.indexOf('ws-tt-tabs') !== -1,
@@ -244,12 +247,17 @@ describe('Task 324 — CSS: кнопки и геометрия', () => {
         assertFalse(!!w, 'правила ✕ 44px больше нет (Task 325: ✕ удалён)');
     });
 
-    test('CSS: шапка шторки — .ws-tt-head-empty / .ws-tt-warn (Task 325)', () => {
+    test('CSS: шапка шторки — [hidden] при пустоте / .ws-tt-warn (Task 325 → 331)', () => {
         const head = INDEX_SRC.match(/\.ws-tt-head\s*\{[^}]*min-height:\s*28px[^}]*\}/);
         assertTrue(!!head, 'компактная шапка (28px)');
-        const empty = INDEX_SRC.match(/\.ws-tt-head\.ws-tt-head-empty\s*\{[^}]*min-height:\s*16px[^}]*\}/);
-        assertTrue(!!empty,
-            'пустая шапка СЖИМАЕТСЯ до 16px-филлера (выравнивание строк)');
+        // Task 331 (заявка: «высота шапки столбцов шторки — по высоте
+        // шапки сетки»): ПУСТАЯ шапка ПРЯЧЕТСЯ ЦЕЛИКОМ — 16px-филлер
+        // ws-tt-head-empty УДАЛЁН; шапка таблицы итогов (38px) занимает
+        // всю зону шапки сетки
+        assertFalse(/\.ws-tt-head\.ws-tt-head-empty/.test(INDEX_SRC),
+            '16px-филлер удалён (Task 331)');
+        assertTrue(/\.ws-tt-head\[hidden\]\s*\{\s*display:\s*none/.test(INDEX_SRC),
+            'пустая шапка скрыта целиком ([hidden], Task 331)');
         assertFalse(/\.ws-tt-close\s*\{/.test(INDEX_SRC),
             'правило .ws-tt-close удалено (✕ удалён по заявке)');
         const warn = INDEX_SRC.match(/\.ws-tt-warn\s*\{[^}]*\}/);
@@ -274,22 +282,28 @@ describe('Task 324 — CSS: кнопки и геометрия', () => {
             'светлая тема — вертикальные линии тоже');
     });
 
-    test('CSS: НИЖНЯЯ ГОРИЗОНТАЛЬНАЯ ПОЛОСА ПРОКРУТКИ В ШТОРКЕ (заявка)', () => {
+    test('CSS: Task 331 — БЕЗ полос прокрутки в шторке, ползунок ПОД бордюром', () => {
+        // Task 331 (заявка: «не должно быть полосок вертикальной
+        // прокрутки в шторке»; «полоску горизонтальной прокрутки
+        // сделай ПОД нижним бордюром, как под шахматкой табеля»):
+        // ВСЕ нативные полосы тела скрыты (Firefox thin рисовал
+        // вертикальную и, съедая ширину, горизонтальную);
+        // горизонтальная прокрутка — КАСТОМНЫЙ #wsTtHbar ПОД .ws-tt-foot
         const b = INDEX_SRC.match(/\.ws-tt-body\s*\{[^}]*\}/);
-        assertTrue(!!b && b[0].indexOf('scrollbar-width: thin') !== -1,
-            'Firefox: тонкая полоса');
-        assertTrue(!!b && b[0].indexOf('scrollbar-color: #4a8fc7') !== -1,
-            'Firefox: цвет бегунка');
+        assertTrue(!!b && b[0].indexOf('scrollbar-width: none') !== -1,
+            'Firefox: все нативные полосы скрыты (Task 331)');
+        assertFalse(!!b && b[0].indexOf('scrollbar-color') !== -1,
+            'нативная раскраска полос удалена (Task 331)');
         const sb = INDEX_SRC.match(/\.ws-tt-body::-webkit-scrollbar\s*\{[^}]*\}/);
-        assertTrue(!!sb && sb[0].indexOf('height: 12px') !== -1,
-            'webkit: ГОРИЗОНТАЛЬНАЯ полоса ВИДИМАЯ (12px)');
-        assertTrue(!!sb && sb[0].indexOf('width: 0') !== -1,
-            'webkit: вертикальная скрыта (скролл синхронный с сеткой)');
-        const thumb = INDEX_SRC.match(/\.ws-tt-body::-webkit-scrollbar-thumb\s*\{[^}]*\}/);
-        assertTrue(!!thumb && thumb[0].indexOf('background: #4a8fc7') !== -1,
-            'бегунок окрашен (как ползунок шахматки)');
-        assertTrue(/\[data-theme="light"\] \.ws-tt-body::-webkit-scrollbar-thumb/.test(INDEX_SRC),
-            'светлая тема полосы');
+        assertTrue(!!sb && sb[0].indexOf('display: none') !== -1,
+            'webkit: все нативные полосы скрыты (Task 331)');
+        assertFalse(/\.ws-tt-body::-webkit-scrollbar-thumb/.test(INDEX_SRC),
+            'нативный бегунок шторки удалён (Task 331)');
+        assertTrue(/id="wsTtHbar" aria-hidden="true"><div class="ws-hbar-thumb"/.test(INDEX_SRC),
+            'кастомный ползунок #wsTtHbar ПОД .ws-tt-foot');
+        const footPos = INDEX_SRC.match(/<div class="ws-tt-foot" aria-hidden="true"><\/div>\n\s*<div class="ws-tt-hbar" id="wsTtHbar"/);
+        assertTrue(!!footPos,
+            'ползунок стоит СТРОГО ПОСЛЕ бордюрчика .ws-tt-foot');
     });
 
     test('CSS: оглавления — ПЕРЕНОС на 2 строки при необходимости (Task 327)', () => {
@@ -422,31 +436,26 @@ describe('Task 324 — VM: переключатели', () => {
             'кнопка тулбара вызывает toggleTotals — единственный переключатель');
     });
 
-    test('_updateTtHead: пустая шапка — СЖИМАЕТСЯ до филлера (Task 325)', () => {
-        const head = { hidden: false,
-                       classList: { state: {}, toggle: function(c, on) { this.state[c] = !!on; },
-                                   contains: function(c) { return !!this.state[c]; } } };
+    test('_updateTtHead: пустая шапка — ПРЯЧЕТСЯ ЦЕЛИКОМ (Task 325 → 331 → 332)', () => {
+        const head = { hidden: false };
         const warn = { hidden: true };
-        const ref = { hidden: true };
         const panel = { querySelector: function(sel) {
             return sel === '.ws-tt-head' ? head : null;
         } };
         const host = wsHost(['_updateTtHead'], {},
-            mockDoc({ wsTotalsPanel: panel, wsTtWarn: warn, wsTtRefresh: ref }));
+            mockDoc({ wsTotalsPanel: panel, wsTtWarn: warn }));
         host._updateTtHead();
-        assertEqual(head.classList.contains('ws-tt-head-empty'), true,
-            'оба скрыты — шапка сжата (класс филлера)');
-        ref.hidden = false;   // год — «Обновить» виден
-        host._updateTtHead();
-        assertEqual(head.classList.contains('ws-tt-head-empty'), false,
-            'есть «Обновить» — шапка обычная');
-        ref.hidden = true;
+        assertEqual(head.hidden, true,
+            '⚠ скрыт — шапка ПРЯЧЕТСЯ ([hidden] → display:none; Task 332: кнопки «Обновить» больше нет)');
         warn.hidden = false;  // сбой года — ⚠ виден
         host._updateTtHead();
-        assertEqual(head.classList.contains('ws-tt-head-empty'), false,
+        assertEqual(head.hidden, false,
             'есть ⚠ — шапка обычная');
-        const m = methodText(WS_CLIENT, '_applyTtHeadVar');
-        assertTrue(m.indexOf('this._updateTtHead();') !== -1,
+        const m = methodText(WS_CLIENT, '_updateTtHead');
+        assertFalse(m.indexOf('wsTtRefresh') !== -1,
+            'Task 332: кнопка «Обновить» из логики шапки удалена');
+        const mv = methodText(WS_CLIENT, '_applyTtHeadVar');
+        assertTrue(mv.indexOf('this._updateTtHead();') !== -1,
             '_applyTtHeadVar актуализирует шапку ДО замера высоты');
     });
 });
@@ -576,17 +585,19 @@ describe('Task 324 — интеграция и SW', () => {
             'правки ячеек видны в итогах сразу');
     });
 
-    test('JS: _fitGrid — бюджет с tfoot панели и ползунком (не тронут)', () => {
+    test('JS: _fitGrid — бюджет = область − шапка (Task 331)', () => {
         const fg = methodText(WS_CLIENT, '_fitGrid');
-        assertTrue(fg.indexOf('ttFootH') !== -1, 'резерв tfoot панели');
-        assertTrue(fg.indexOf('clientHeight') !== -1, 'ползунок сетки в бюджете');
+        assertTrue(fg.indexOf('var budget = avail - headH;') !== -1,
+            'полоса/зона ползунка ВНЕ контейнера — не вычитаются (Task 331)');
+        assertFalse(fg.indexOf('ttFootH') !== -1,
+            'резерва tfoot больше нет (Task 327/331)');
         assertTrue(fg.indexOf('syncTT();') !== -1, 'строки итогов синхронизируются');
     });
 
-    test('SW: версия кэша kipia-v418 (Task 324)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v418'") !== -1,
-            'CACHE_VERSION = kipia-v418');
-        assertFalse(SW_SRC.indexOf('kipia-v419') !== -1,
+    test('SW: версия кэша kipia-v419 (Task 324)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v419'") !== -1,
+            'CACHE_VERSION = kipia-v419');
+        assertFalse(SW_SRC.indexOf('kipia-v420') !== -1,
             'v566 не существует (один инкремент на Task 326)');
     });
 });
