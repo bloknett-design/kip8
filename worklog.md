@@ -7661,3 +7661,77 @@ worklog. СЕРВЕРНОЙ ЧАСТИ НЕТ — Apps Script/листы НЕ т
 
 Пользователю: Ctrl+Shift+R ×1–2 (SW kipia-v420). kip8-desktop —
 автосинк. Следующий номер задачи: 335.
+
+## Task 335–338 — ПЕРЕНОС ПАРТИИ из kip8test в kip8 (4 приёма, SW kipia-v420→v424)
+
+Дата: 2026-09-07. Перенос выполнен ПОЗАДАЧНО (каждая задача — свой
+коммит и инкремент SW), все патчи index.html — git apply ЧИСТО,
+изоляция localStorage 0. Состав (детали — worklog kip8test):
+
+1. Task 335 (из kip8test@31fbdb1, пуш 90ddddf, SW v420→v421): 6
+   правок/багов — карточка прибора вплотную к бару (scrolled
+   top 40px + margin-top -16px); плавное сужение фамилий (transition
+   0.22s, порог 0, шапки «Сотрудник +»→«Сотр» в span); ФИКС
+   мобильного горизонтального скролла (touch-action: pan-x pan-y —
+   pinch-zoom-target вешался на сами таблицы); все столбцы на
+   мобильной странице итогов (extraOn от _ttPage); опечатка
+   «Мероприятия»; фильтрованные виды не растягивают сетку
+   (ws-view-filtered + _fitGrid natural).
+2. Task 336 (из kip8test@b702ae0, пуш 2305877, SW v421→v422):
+   десктоп-карточка вплотную (:has-правило padding-top:0 вместо
+   схлопывающейся маржи); сужение 0.35s cubic-bezier + ширина по
+   тексту (_measureEmpNarrowW → --ws-emp-nw/--ws-tt-emp-nw, правило
+   итогов ПОСЛЕ 42%-й доли); полоса шапки = полосам строк
+   (border-right transparent в базовом th).
+3. Task 337 (из kip8test@19d5aeb, пуш 4df6df8, SW v422→v423):
+   права «КИП ИОС дежурный» — НОВЫЙ WorkSchedule._computeCanEdit
+   (приоритет серверной матрице KIP8_Access/workschedule.edit;
+   легаси-список без дежурного); зритель не видит «Сформировать»
+   и «Вид» (CSS [hidden] — .ws-cross-btn inline-flex перебивал
+   UA-скрытие); cycleView guard; _onRoleUpdate идемпотентен.
+4. Task 338 (из kip8test@2209607, пуш 11450d9, SW v423→v424):
+   зритель — сменный вид (дневные строки скрыты, «Итоги учёта»
+   скрыта, шторка закрыта, ws-view-filtered); страница итогов
+   #page-ws-totals гейтится (vGate!=='full' → редирект); карточки
+   сотрудников — гейты onclick/onEmpCellClick/_openEmpPopup + класс
+   ws-readonly (CSS гасит hover-подсветку ФИО, зебра живёт).
+
+Верификация на kip8: тесты 2087→2170/0 (ПАРИТЕТ kip8test; тесты
+каждой задачи с адаптацией версий + бамп во всех файлах, guard
+v421→v425); node --check OK; браузер на порту 8946: task338 35/35,
+task337 24/24, task336 20/20, task335 22/22 + регресс 334 39/39,
+335 22/22, 336 20/20; 0 JS-ошибок. Пуши → Pages kipia-v421…v424
+ЖИВЫЕ; CI Tests/BuildDesktop/Sync/Pages — success; kip8-desktop
+автосинк после каждого. СЕРВЕРНОЙ ЧАСТИ НЕТ — Apps Script/листы НЕ
+трогать.
+
+Пользователю: Ctrl+Shift+R ×1–2 (SW kipia-v424). Права табеля
+читаются из матрицы KIP8_Access — смена галочки переключает
+зритель↔редактор ≤ ~10 мин (heartbeat). Следующий номер задачи: 339.
+
+## Task 339 — отдельная Win32 (ia32) сборка десктопа (конфиг)
+
+Дата: 2026-09-07. Заявка: «Нужно сделать отдельную сборку десктопной
+версии для Win32». PWA-контент НЕ тронут — только сборочная
+конфигурация (паритет с kip8-desktop@34cbc1d, ПРОДАКШН):
+
+1. package.json: electron-builder win nsis arch ["x64","ia32"] +
+   artifactName KIPiA-Setup-${version}-${arch}.${ext} → ТРИ
+   установщика (универсальный + x64 + ia32), ОДИН общий latest.yml
+   (electron-updater выбирает файл по process.arch — имена артефактов
+   обязаны содержать arch); version 1.0.0→1.1.1 (было просрочено:
+   тег v1.1.0 выходил с package.json 1.0.0).
+2. build-desktop.yml — шаг build-win «NSIS, x64 + ia32/Win32», текст
+   релиза (3 строки Windows). README — «Как выбрать установщик».
+3. Коммиты f192fd6 → 64edd1d → d70b6d8 (тег НЕ ставился — релизы
+   боевые, только kip8-desktop). CI Build Desktop App SUCCESS
+   (артефакт ~339 МБ = универсальный + x64 + ia32).
+
+РЕЛИЗ (для справки, в kip8-desktop): v2.1.8 — KIPiA-Setup-2.1.8-
+ia32.exe 82.4 МБ (Win32, PE machine 0x14c), -x64.exe 87.4 МБ,
+универсальный 169.1 МБ + latest*.yml. kip8test-desktop — тот же
+конфиг (KIPiA-Test-Setup-*, 2.1.8, без тега).
+
+Пользователю: 32-битным пользователям — KIPiA-Setup-2.1.8-ia32.exe
+из Releases kip8-desktop; 64-битным — без изменений. Сервер/листы/
+Apps Script НЕ тронуты. Следующий номер задачи: 340.
