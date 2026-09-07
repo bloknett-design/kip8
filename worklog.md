@@ -7758,3 +7758,35 @@ browser task340 38/38 на локальном kip8; пуш 5f435e1 → Pages kip
 init-скрипт матрицы → замена _requireRead в Apps Script + новое
 развёртывание → галочки (дежурному — workschedule.view.min);
 Ctrl+Shift+R ×1–2. Следующий номер задачи: 341.
+
+---
+## Task 341 — перенос из kip8test (c5e233e): функция печати графика работ
+
+**Заявка пользователя:** «нужно реализовать функцию печати графика работ».
+
+**Перенос (только клиент, сервер/листы/Apps Script НЕ тронуты — один
+бэкенд на оба сайта):** патч index.html 538 строк ЧИСТО (файлы репо
+были идентичны до Task 341 — diff показал только изменения задачи):
+кнопка «Печать» #wsPrintBtn (ряд 1 тулбара, всем уровням edit/view/min),
+WorkSchedule.printGrid()/_buildPrintHtml()/_printCell() (печатный лист
+#wsPrintSheet в <body>, эффективные записи, итоги «Дни»/«Часы» как во
+вкладке «Месяц», легенда кодов, план отпуска пунктиром, бейджи
+мероприятий, переработка точкой), CSS @media print (A4 landscape 8mm,
+приложение скрыто, print-color-adjust exact, многостраничность с
+повтором шапки).
+
+**SW:** kipia-v425 → v426 (CACHE_VERSION; ассерты v425→v426 в 39
+тест-файлах, guard v426→v427 в 21; worklog и DEPLOY-доки — история,
+не переписывались). tests/test-task341.js адаптирован (SW-секция:
+kipia-v426/kipia-v427), run-all.js подключён.
+
+**Верификация:** тесты 2250 passed / 0 failed (паритет kip8test);
+browser task341-browser-check.py 38/38 (5 контекстов, PORT 8947,
+0 JS-ошибок; подводный камень Playwright — стаб window.print через
+function-evaluate, репро scripts/debug-t341-eval2.py); скриншоты
+scripts/task341-proof-{mobile,print-emulation}.png; VLM подтвердил
+печатную форму (kip8test, файл идентичен).
+
+**Деплой:** GitHub Pages + Ctrl+Shift+R ×1–2 (kipia-v426).
+
+Следующий номер задачи: 342.
