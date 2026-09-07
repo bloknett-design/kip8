@@ -16,7 +16,7 @@ import json, sys
 from urllib.parse import unquote
 from playwright.sync_api import sync_playwright
 
-PORT = 8945
+PORT = 8944
 TODAY = datetime.date.today()
 Y, M = TODAY.year, TODAY.month
 
@@ -108,7 +108,7 @@ def setup_ctx(browser, viewport, token, theme=None, role='Админ'):
     ctx.route('**/exec?**', handle)
     ctx.route('**script.google.com/**', handle)
     def block_external(route):
-        route.fulfill(status=404, content_type='text/plain', body='not found (browser-check t334)')
+        route.fulfill(status=404, content_type='text/plain', body='not found (browser-check t334 (kip8))')
     ctx.route('**raw.githubusercontent.com/**', block_external)
     ctx.route('**calendar.legalic.ru/**', block_external)
     page.goto('http://localhost:%d/index.html' % PORT, wait_until='domcontentloaded')
