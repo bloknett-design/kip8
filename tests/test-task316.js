@@ -25,7 +25,7 @@
 //     накрывающих записей, заголовок «05.09», «нет мероприятий в
 //     этот день», охрана дня вне месяца → полный месяц);
 //     _dayColClass мягкий к мок-DOM.
-//   SW: kipia-v419.
+//   SW: kipia-v420.
 //
 // Запуск: через tests/run-all.js (require './test-task316.js').
 
@@ -374,9 +374,9 @@ describe('Task 316 — VM: окно мероприятий по выбранно
 // SW: версия кэша
 // ------------------------------------------------------------
 describe('Task 316 — SW: версия кэша', () => {
-    test('SW: kipia-v419', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v419') !== -1,
-            'CACHE_VERSION = kipia-v419');
+    test('SW: kipia-v420', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v420') !== -1,
+            'CACHE_VERSION = kipia-v420');
         assertFalse(SW_SRC.indexOf('kipia-test-v554') !== -1,
             'прежней версии нет');
     });
