@@ -1015,7 +1015,9 @@ describe('Task 321 — год: _loadYearData / _renderTotalsYear / таблиц�
         // Иванов — строкой сетки; АРХИВ — ОТДЕЛЬНЫМ БЛОКОМ ПОД
         // таблицей: подпись .ws-tt-arch-cap + таблица .ws-tt-arch
         // (Сидоров, своя колонка «Сотрудник» на любом экране)
-        assertTrue(h.indexOf('<th class="ws-tt-emp">Сотрудник</th>') !== -1,
+        // Task 335: текст шапки — в span.ws-tt-emp-head («Сотр» при сужении)
+        assertTrue(h.indexOf('<th class="ws-tt-emp"><span class="ws-tt-emp-head"') !== -1 &&
+            h.indexOf('data-full="Сотрудник"') !== -1,
             'главная таблица: шапка с «Сотрудником» (Task 333, мобайл)');
         assertTrue(h.indexOf('Иванов И.И.') !== -1,
             'активный Иванов — строка главной таблицы (Task 333)');
@@ -1088,10 +1090,10 @@ describe('Task 321 — год: _loadYearData / _renderTotalsYear / таблиц�
 // 11. SW: версия кэша
 // ============================================================
 describe('Task 321 — SW: версия кэша', () => {
-    test('SW: кэш поднят до kipia-v420 (Task 323)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v420'") !== -1,
-            'CACHE_VERSION = kipia-v420');
-        assertFalse(SW_SRC.indexOf('kipia-v421') !== -1,
+    test('SW: кэш поднят до kipia-v421 (Task 323)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v421'") !== -1,
+            'CACHE_VERSION = kipia-v421');
+        assertFalse(SW_SRC.indexOf('kipia-v422') !== -1,
             'v561 не существует (один инкремент на Task 321)');
     });
 });
