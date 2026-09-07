@@ -7735,3 +7735,26 @@ ia32.exe 82.4 МБ (Win32, PE machine 0x14c), -x64.exe 87.4 МБ,
 Пользователю: 32-битным пользователям — KIPiA-Setup-2.1.8-ia32.exe
 из Releases kip8-desktop; 64-битным — без изменений. Сервер/листы/
 Apps Script НЕ тронуты. Следующий номер задачи: 340.
+
+## Task 340 — ПЕРЕНОС из kip8test (2c40a87): трёхуровневый доступ к «Графику работы»
+
+Дата: 2026-09-07. Перенос патчем index.html (493 строк, ЧИСТО;
+isolateLocalStorage не затронут — его в kip8 нет). Заявка и детали — в
+worklog kip8test (Task 340): уровни 'edit'/'view'/'min' из матрицы
+(workschedule.edit / .view / .view.min), «Вид» — всем уровням, «Итоги
+учёта» — не уровню min, карточка по ФИО уровням edit/view (read-only у
+view), «Мастер КИПиА» скрыт у min, зритель сам переключает виды,
+замок дежурного-редактора жив; серверные справочники (WorkSchedule.gs
+_requireRead по трём правам, RoleMatrixTask340Init.gs, DEPLOY-Task340)
+и скрипты browser-check перенесены.
+
+Верификация: ПАРИТЕТ 2170 → 2216/0 (SW kipia-v424→v425, guard→v426);
+browser task340 38/38 на локальном kip8; пуш 5f435e1 → Pages kipia-v425
+ЖИВОЙ, CI success, kip8-desktop автосинк success.
+
+**SW:** kipia-v424 → **kipia-v425**.
+
+**Пользователю:** см. DEPLOY-Task340-workschedule-view-min.md (в репо):
+init-скрипт матрицы → замена _requireRead в Apps Script + новое
+развёртывание → галочки (дежурному — workschedule.view.min);
+Ctrl+Shift+R ×1–2. Следующий номер задачи: 341.
