@@ -29,7 +29,7 @@
 //     кнопкой) + проводка слушателей (наведение/фокус/scroll);
 //     тултипы ДВУХ ОКОН бара удалены (ws-ep-item без title,
 //     renderPanel без title: нормы/бейдж/чипы, monthsGen удалён).
-//   SW: kipia-v427.
+//   SW: kipia-v428.
 //
 // Запуск: через tests/run-all.js (require './test-task328.js').
 
@@ -406,10 +406,10 @@ describe('Task 328 — VM: toggleCross и окно «Сформировать»'
 // 5. Service Worker
 // ============================================================
 describe('Task 328 — Service Worker', () => {
-    test('SW: версия кэша kipia-v427', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v427'") !== -1,
-            'CACHE_VERSION = kipia-v427 (Task 328 — только фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v428') !== -1,
+    test('SW: версия кэша kipia-v428', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v428'") !== -1,
+            'CACHE_VERSION = kipia-v428 (Task 328 — только фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v429') !== -1,
             'лишний инкремент не делался');
     });
 });

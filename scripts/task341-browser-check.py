@@ -4,9 +4,9 @@
 #   • кнопка доступна ВСЕМ уровням (edit/view/min) — на мобайле тоже;
 #   • клик строит печатный лист #wsPrintSheet в <body> (заголовок
 #     с месяцем/годом/видом/нормой, шахматка дней с ФИО и цветами
-#     кодов, план отпуска пунктиром, бейджи мероприятий, колонки
-#     «Дни»/«Часы», итоговая строка, легенда кодов) и зовёт
-#     window.print() (стаб);
+#     кодов, план отпуска пунктиром, колонки «Дни»/«Часы»,
+#     легенда кодов; Task 343: бейджи мероприятий и итоговая
+#     строка УБРАНЫ из печати) и зовёт window.print() (стаб);
 #   • повторный клик ПЕРЕИСПОЛЬЗУЕТ лист (одна нода);
 #   • уровень min: в листе НЕТ «Мастер КИПиА» (фильтр _viewEmployees
 #     Task 340), «Итоги учёта» по-прежнему скрыта (регресс 340);
@@ -183,7 +183,8 @@ with sync_playwright() as p:
           sheet and sheet['nodes'] == 1, sheet and sheet['nodes'])
     check('E5: шапка дней — %d колонок' % DAYS_IN_MONTH,
           sheet['dayTh'] == DAYS_IN_MONTH, sheet['dayTh'])
-    check('E6: строки сотрудников + итоговая', sheet['rows'] == 4 and sheet['sumRow'] == 1,
+    # Task 343: итоговая строка убрана — только строки сотрудников
+    check('E6: строки сотрудников, итоговой НЕТ (Task 343)', sheet['rows'] == 3 and sheet['sumRow'] == 0,
           (sheet['rows'], sheet['sumRow']))
     # Task 342: колонок итогов теперь 3 (добавлена «Перераб.»)
     check('E7: колонки «Дни»/«Часы» в шапке', sheet['totTh'] == 3, sheet['totTh'])
@@ -196,8 +197,8 @@ with sync_playwright() as p:
     check('E11: норма месяца (фолбэк календаря)', 'Норма (40-час. неделя):' in h, True)
     check('E12: inline-цвет статуса из справочника', 'background:#FFE082' in h, True)
     check('E13: ФИО и должность в строках', ('Иванов Иван Иванович' in h) and ('Слесарь КИПиА' in h), True)
-    check('E14: статус-мероприятие «И» — бейдж (не большой код)',
-          ('wsp-ev">И</span>' in h) and ('<td class="wsp-cell" >И</td>' not in h), True)
+    check('E14: статус-мероприятие «И» — ПУСТАЯ ячейка, бейджа НЕТ (Task 343)',
+          ('wsp-ev' not in h) and ('wsp-ev">И</span>' not in h), True)
     check('E15: план отпуска — пунктир (wsp-vac)', 'wsp-vac' in h, True)
     check('E16: итоги сотрудника с записями непустые',
           ('<td class="wsp-tot">1</td>' in h), True)
@@ -242,7 +243,7 @@ with sync_playwright() as p:
           (not st['hidden']) and st['w'] > 0, st)
     calls = do_print(page)
     rows = page.evaluate("document.querySelectorAll('#wsPrintSheet .wsp-grid tbody tr').length")
-    check('V2: печать работает — window.print + 3 строки', calls == 1 and rows == 4, (calls, rows))
+    check('V2: печать работает — 3 строки (без итоговой, Task 343)', calls == 1 and rows == 3, (calls, rows))
     check('V3: «Сформировать» скрыта (регресс 340)',
           page.evaluate("document.getElementById('wsGenerateBtn').hidden"), True)
     check('V4: 0 JS-ошибок (view)', len(js_errors) == 0, js_errors[:3])
