@@ -28,7 +28,7 @@
 //      ws-view-filtered на #page-work-schedule (_applyView),
 //      CSS align-self/flex по контенту, _fitGrid капсулирует высоту
 //      строк природной, остаток раздачи ≤ n-1.
-//   SW: kipia-v423.
+//   SW: kipia-v424.
 //
 // Запуск: через tests/run-all.js (require './test-task335.js').
 
@@ -376,10 +376,10 @@ describe('Task 335 — десктоп: виды сменные/дневные б
 // SW-версия
 // ============================================================
 describe('Task 335 — версия кэша SW', () => {
-    test('SW: кэш поднят до kipia-v423', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v423'") !== -1,
-            'CACHE_VERSION = kipia-v423 (Task 335 — только фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v424') !== -1,
-            'лишний инкремент (v423) не сделан');
+    test('SW: кэш поднят до kipia-v424', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v424'") !== -1,
+            'CACHE_VERSION = kipia-v424 (Task 335 — только фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v425') !== -1,
+            'лишний инкремент (v424) не сделан');
     });
 });

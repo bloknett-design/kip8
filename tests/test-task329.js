@@ -32,7 +32,7 @@
 //     ширин ws-tt-c-*, ПЕРЕРАБОТКА В ДНЯХ (overDays), часы — в
 //     тултипе; _renderTotalsYearTable — сумма дней; min-width только
 //     на мобайле; пересечение брейкпоинта — сброс/перезамер.
-//   SW: kipia-v423.
+//   SW: kipia-v424.
 //
 // Запуск: через tests/run-all.js (require './test-task329.js').
 
@@ -472,10 +472,10 @@ describe('Task 329 — VM: закрытие и рендер', () => {
 // ============================================================
 describe('Task 329 — SW: версия кэша', () => {
 
-    test('SW: кэш поднят до kipia-v423 (Task 329)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v423') !== -1,
-            'CACHE_VERSION = kipia-v423');
-        assertFalse(SW_SRC.indexOf('kipia-v423-OLD') !== -1,
+    test('SW: кэш поднят до kipia-v424 (Task 329)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v424') !== -1,
+            'CACHE_VERSION = kipia-v424');
+        assertFalse(SW_SRC.indexOf('kipia-v424-OLD') !== -1,
             'старой версии v567 нет');
     });
 });
