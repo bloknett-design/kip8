@@ -11823,13 +11823,13 @@
             transform: translateX(-100%) !important; /* .desktop-open не действует на мобильном */
         }
         #sidebar.active {
-            transform: translateX(0) !important; /* Task 243 (бекпорт из kip8): !important бьёт десктопное правило #sidebar{transform:translateX(-100%)!important} (specificity #sidebar.active (1,1,0) > #sidebar (1,0,0)). В kip8test wsTrSheet уже правильно закрыт, но !important оставлен для надёжности и паритета с kip8 — чтобы при следующем переносе kip8test → kip8 не потерять фикс. */
+            transform: translateX(0) !important; /* Task 243: !important бьёт десктопное правило #sidebar{transform:translateX(-100%)!important} (specificity #sidebar.active (1,1,0) > #sidebar (1,0,0)) — фикс бага «hamburger не открывает sidebar на 377px viewport». Task 244: корневая причина — wsTrSheet не был закрыт, sidebar оказывался вложенным в него (position:fixed относительно wsTrSheet, имевшего transform). В kip8test wsTrSheet уже правильно закрыт, но !important оставлен для надёжности. */
         }
         #sidebarOverlay.desktop-active {
             display: none !important; /* .desktop-active не действует на мобильном */
         }
         #sidebarOverlay.active {
-            display: block !important; /* Task 243 (бекпорт): то же самое для overlay */
+            display: block !important; /* Task 243: то же самое для overlay */
         }
     }
 
@@ -17758,8 +17758,8 @@
     // результатом. Список отсортирован по времени партии (быстрее —
     // выше) и ограничен тремя записями: медленная победа, не входящая
     // в топ-3, не вытесняет более быстрые. Хранится в localStorage
-    // (в тестовом репо ключ автоматически получает префикс kip8test:
-    // через isolateLocalStorage). При первом запуске победы из старого
+    // (kip8 — основной репозиторий, ключи без префикса). При первом
+    // запуске победы из старого
     // ключа msRecentResults (Task 192) переносятся в новый ключ
     // msBestResults, старый ключ удаляется.
     const MS_RESULTS_KEY = 'msBestResults';
@@ -17973,8 +17973,8 @@
     let pbNotes = {};           // {id: "текст примечания"}
     let pbFilterFavOnly = false; // показывать только избранные
 
-    const PB_FAV_KEY = 'kip8test_phonebook_favorites';
-    const PB_NOTES_KEY = 'kip8test_phonebook_notes';
+    const PB_FAV_KEY = 'kip8_phonebook_favorites';
+    const PB_NOTES_KEY = 'kip8_phonebook_notes';
 
     function pbMakeId(item) {
         // ID строится из header + group + subgroup + position + name + phone для уникальности.
@@ -18101,7 +18101,7 @@
             pbData = await resp.json();
             // Сохраняем в localStorage как резервный кэш для офлайна
             try {
-                localStorage.setItem('kip8test_phonebook_cache', JSON.stringify(pbData));
+                localStorage.setItem('kip8_phonebook_cache', JSON.stringify(pbData));
             } catch (e) {}
             pbFlatten();
             pbLoaded = true;
@@ -18110,7 +18110,7 @@
             console.warn('Phonebook load from network failed, trying cache:', e);
             // Офлайн — берём из localStorage
             try {
-                const cached = localStorage.getItem('kip8test_phonebook_cache');
+                const cached = localStorage.getItem('kip8_phonebook_cache');
                 if (cached) {
                     pbData = JSON.parse(cached);
                     pbFlatten();
@@ -18588,7 +18588,7 @@
     let devData = null;            // распарсенный JSON
     let devLoaded = false;
     let devFilterType = null;       // выбранный тип прибора (null = все)
-    const DEV_CACHE_KEY = 'kip8test_devices_cache';
+    const DEV_CACHE_KEY = 'kip8_devices_cache';
     const DEV_CACHE_VERSION = 'v1';
     const DEV_DEFAULT_LIMIT = 50;   // сколько карточек показывать изначально
 
@@ -18959,14 +18959,14 @@
             devData = await resp.json();
             // Сохраняем в localStorage
             try {
-                localStorage.setItem('kip8test:' + DEV_CACHE_KEY, JSON.stringify(devData));
+                localStorage.setItem(DEV_CACHE_KEY, JSON.stringify(devData));
             } catch (e) {}
             devLoaded = true;
             return devData;
         } catch (e) {
             console.warn('Devices load from network failed, trying cache:', e);
             try {
-                const cached = localStorage.getItem('kip8test:' + DEV_CACHE_KEY);
+                const cached = localStorage.getItem(DEV_CACHE_KEY);
                 if (cached) {
                     devData = JSON.parse(cached);
                     devLoaded = true;
@@ -19341,7 +19341,7 @@
                         devData = fresh;
                         devLoaded = true;
                         try {
-                            localStorage.setItem('kip8test:' + DEV_CACHE_KEY, JSON.stringify(fresh));
+                            localStorage.setItem(DEV_CACHE_KEY, JSON.stringify(fresh));
                         } catch (eLS) {}
                     }
                 }
@@ -23889,20 +23889,6 @@
     let pageHistory = [];
     let isNavigating = false;
 
-    // ===== ТЕСТОВЫЙ РЕПОЗИТОРИЙ kip8test: изоляция localStorage =====
-    // localStorage общий для всего origin (bloknett-design.github.io).
-    // Чтобы настройки (тема, метод калибровки буя) из тестового репозитория
-    // не влияли на основной репозиторий kip8, добавляем префикс ко всем ключам.
-    // В основном репозитории kip8 этот блок ОТСУТСТВУЕТ — там ключи без префикса.
-    (function isolateLocalStorage() {
-        const PREFIX = 'kip8test:';
-        const origGetItem = localStorage.getItem.bind(localStorage);
-        const origSetItem = localStorage.setItem.bind(localStorage);
-        const origRemoveItem = localStorage.removeItem.bind(localStorage);
-        localStorage.getItem = function(key) { return origGetItem(PREFIX + key); };
-        localStorage.setItem = function(key, value) { return origSetItem(PREFIX + key, value); };
-        localStorage.removeItem = function(key) { return origRemoveItem(PREFIX + key); };
-    })();
     /* ========== Экзаменационные билеты ========== */
     let _ticketsData = null;
     // Уникальный параметр для cache-busting на одну сессию.
@@ -30171,7 +30157,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         if(appHeader && firstActive) appHeader.style.display = (firstActive.id === 'page-dashboard') ? 'block' : 'none';
 
         // Обработка location.hash при загрузке — для PWA shortcuts.
-        // Если URL содержит #page-id (например, /kip8test/#exam-tickets),
+        // Если URL содержит #page-id (например, /kip8/#exam-tickets),
         // открываем соответствующую страницу сразу.
         // Это позволяет manifest shortcuts работать.
         if (location.hash && location.hash.length > 1) {
@@ -30729,12 +30715,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
     // ============================================================
 
     const KipAuth = {
-        // URL Apps Script Web App.
-        // Task 284: URL развёртывания пользователя (AKfycbyt…) — пробы
-        // 2026-09-01 подтвердили: проект полный (Auth/Sessions/Admin/
-        // CableJournal/Flowmeter/ValidationRules/WorkSchedule) и код
-        // свежий (роутинг отпусков есть). Прежний URL (AKfycbzg…,
-        // Task 202) остался на старом снимке кода — до Task 274.
+        // URL Apps Script Web App (развёртывание AKfycbyt…, в kip8 с
+        // Task 245). Пробы 2026-09-01 (Task 284 в kip8test) подтвердили:
+        // проект полный (Auth/Sessions/Admin/CableJournal/Flowmeter/
+        // ValidationRules/WorkSchedule) и код свежий — роутинг отпусков
+        // (Task 274+) есть. kip8test синхронизирован с этим же URL.
         WEB_APP_URL: 'https://script.google.com/macros/s/AKfycbyt2sjbJ8xT5UPKDlYj4q-CV-5pH_Yrv5COrg0PIpp92snpQULUNtJC__pMnQ0h6feNlA/exec',
 
         // Ключ localStorage для session token.
@@ -46060,8 +46045,8 @@ if ('serviceWorker' in navigator) {
         // updateViaCache: 'none' — браузер всегда ходит в сеть за sw.js,
         // не использует HTTP-кэш. Это критично для быстрого деплоя новых
         // версий (иначе пользователь может крутить старый SW сутками).
-        // Task 242 (бекпорт из kip8): усиление обновления SW — вместе с
-        // skipWaiting() в sw.js и reg.update() сразу при загрузке.
+        // Task 242: усиление обновления SW — вместе с skipWaiting() в sw.js
+        // и reg.update() сразу при загрузке.
         navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then(function(reg) {
             // Проверять обновления SW каждые 30 минут
             setInterval(function() { reg.update(); }, 30 * 60 * 1000);
