@@ -7963,3 +7963,33 @@ Task 346, БЕЗ тестовой обёртки kip8test — урок Task 344;
 Auth.verifyOTP, «Новая версия» (НЕ «Новое развёртывание»).
 
 Следующий номер задачи: 347.
+
+## Task 347 — перенос из kip8test (синхрон): Utils.gs в репо + автосчистка «заброшенных» сессий
+
+Контекст: после закрытия бага Task 346 (мусор в листе sessions — 37
+строк-сирот у пользователя, вычищены руками) заявка: «обнови Utils.gs
+сам в репозитории… и проверь, чтобы все файлы были актуальными».
+
+- `scripts/Utils.gs` — НОВЫЙ справочник (жил только в Apps Script;
+  идентичен kip8test): живой файл пользователя 2026-09-08 (включая
+  встроенные Admin и setupTriggers) + `Utils.cleanupStaleSessions()`
+  (last_heartbeat старше STALE_SESSION_DAYS дней, дефолт 30; сброс
+  login_status юзерам без оставшихся строк — LOGIN_STATUS_AUTO_RESET;
+  `updateUserStatus(user.row, …)`; легаси без user_id — статус не
+  трогается; аудит SESSION_CLEANUP_STALE);
+- `scripts/Code.gs`: `hourlyCleanup` + вызов
+  `Utils.cleanupStaleSessions()` (синхрон с kip8test);
+- `scripts/DEPLOY-Task347-utils-stale-sessions-cleanup.md` (синхрон):
+  замена Utils.gs + 1 строка Code.gs + «Новая версия»;
+- `tests/test-task347.js` +16 (синхрон) → **2338/0** (было 2322);
+- Синхронизация десктопов: kip8-desktop/Code.gs — вдогонку применён
+  фикс роутера Task 346 (`Auth.verifyOTP(…, payload)`, файл отставал
+  на одну правку; теперь ≡ kip8) + вызов Task 347 в hourlyCleanup.
+
+**Активация:** DEPLOY-Task347-utils-stale-sessions-cleanup.md —
+заменить Utils.gs, добавить `Utils.cleanupStaleSessions();` в
+hourlyCleanup, «Новая версия» (НЕ «Новое развёртывание»).
+
+**⚠️ PAT отсутствует** — пуши в GitHub не сделаны, изменения локальные.
+
+Следующий номер задачи: 348.
