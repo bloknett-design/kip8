@@ -7993,3 +7993,49 @@ hourlyCleanup, «Новая версия» (НЕ «Новое развёртыв
 **⚠️ PAT отсутствует** — пуши в GitHub не сделаны, изменения локальные.
 
 Следующий номер задачи: 348.
+
+---
+
+## Task 348 — getUuid вместо Math.random + LockService от гонок (2026-09-09)
+
+Заявка: «теперь делай всё разом — getUuid и LockService»
+(STALE_SESSION_DAYS пользователь настроил сам: лист config).
+
+- `Utils.gs`: `generateToken`/`generateNumericCode` →
+  `Utilities.getUuid()` (криптостойкий; Math.random — предсказуем,
+  а сессии бессрочные); новый хелпер `withLock(fn, timeoutMs)`
+  (getScriptLock + tryLock 10с/30с + releaseLock в finally +
+  server_busy при таймауте); `Admin.createUser` (гонка maxId+1 →
+  дубль ID), `Admin.resetLogin`, `cleanupStaleSessions` (стрелочная
+  функция — this сохраняется лексически) — под замком, чтения
+  перенесены ВНУТРЬ;
+- `Sessions.gs`: `heartbeat`, `logout`, `getCurrentUser` — под
+  замком (чужой deleteRow сдвигает номера строк → запись/удаление в
+  ЧУЖУЮ строку); `createSession` БЕЗ замка — вызывается под замком
+  verifyOTP (замок не реентерабелен, вложенный = блокировка);
+- `Auth.gs`: `verifyOTP` — все мутации одним куском под замком
+  (markOtpUsed → самосинхронизация → Запрет → createSession →
+  sdpApplyDevicePolicy → login_status): двойной submit не
+  использует OTP дважды, параллельный вход не оставляет дубль
+  девайс-сессии; `sendOTP` БЕЗ замка — MailApp (письмо) вне
+  критической секции; роутер Code.gs НЕ менялся (сигнатуры те же);
+- Миграция НЕ нужна: старые токены валидны (меняется только
+  генерация новых, charset [0-9a-f]); новые события аудита НЕ
+  вводились — замок тихий;
+- Бонус-гард: `node --check` ВСЕХ .gs в scripts/ в тестах —
+  синтаксическую целостность справочников ловит CI (история:
+  вывод терминала однажды «проглотил» символы — проверили od -c,
+  файлы целы, но класс таких вещей должен ловиться прогоном);
+- Тесты: test-task348.js +28 (SRC-гарды getUuid/withLock/обёрток +
+  VM generateToken/generateNumericCode с моком Utilities + VM
+  withLock с моком LockService: успех/таймаут/ошибка-finally +
+  гард node --check) → **2366/0** (было 2338); актуализированы
+  test-task346 (мок Utils + withLock-прокид; SRC-regex вместо
+  точного отступа — тело logout сдвинулось внутрь withLock) и
+  test-task347 (global Utils.withLock-прокид для runInThisContext);
+- DEPLOY-Task348-uuid-lockservice.md: 3 замены файлов
+  (Utils/Sessions/Auth) + «Новая версия»; таблица гонок, правила
+  замка, проверки, откат, что осознанно НЕ закрыто (sendOTP —
+  письмо вне замка; updateRole — атомарный setValue).
+
+Следующий номер задачи: 349.
