@@ -8130,3 +8130,53 @@ hourlyCleanup, «Новая версия» (НЕ «Новое развёртыв
   клике, повторный ввод кода, скорость hourlyCleanup), откат
 
 Следующий номер задачи: 351.
+
+## Task 351 (09.09.2026) — Admin.deleteUser + кэш чтений + listLogs-хвост + config-устойчивость
+
+Аудит после Task 349: пункты 3 (🟡 deleteUser), 4 (🟡 повторные
+чтения листов), listLogs (хвост), 6 (🟢 мусор в config). Изменены
+3 файла: Utils.gs, Code.gs, Sessions.gs.
+
+- Utils.gs Admin.deleteUser: под withLock; гарды «User not found»/
+  «нельзя себя» (Number(user.ID)===Number(admin.ID)) / «нельзя
+  последнего админа»; сессии с конца по user_id ИЛИ email (легаси
+  Task 37 с пустым user_id); OTP по email — закрыта дыра «удалил →
+  пересоздал → вошёл по старому коду»; строка users последней;
+  аудит ADMIN_DELETE_USER (детали: email/id/счётчики); ответ
+  {ok, deleted, sessionsRemoved, otpsRemoved}
+- Utils.gs кэш чтений: _rowsCache на ОДНО выполнение; сброс
+  beginExecution() первой строкой в doPost и hourlyCleanup (GAS
+  может переиспользовать глобалы между запросами на инстансе —
+  без сброса второй запрос получил бы снапшот первого); getRows
+  отдаёт slice-копию (сортировки вызывающих не портят кэш);
+  инвалидация встроена в appendRow/deleteRow/НОВЫЙ deleteRows/
+  setCell/updateUserStatus/markOtpUsed/incrementOtpAttempts;
+  updateRole (users!C, sessions!D) и батчи чисток переведены на
+  хелперы; Sessions.gs: heartbeat (F) и getCurrentUser (D) →
+  Utils.setCell. Эффект: sendOTP ~6-8 чтений → 4; verifyOTP ~5-6 →
+  4; гейтованные админ-действия 4 → 2 (гейт+модуль делят кэш)
+- Utils.gs getLastRows(name, count): заголовки r4 + последние N
+  строк (2 маленьких чтения); Admin.listLogs → хвост вместо ВСЕГО
+  audit_log (90 дней); хвост сортируется по убыванию timestamp
+  (страховка от нехронологических вставок); лимит-кламп 500 прежний
+- Utils.gs getConfig: числовой дефолт → мягкий парсинг (trim+
+  parseInt: «30 дней»→30), NaN/<1 → дефолт + console.warn.
+  Закрыта дыра: '' * N = 0 → cutoff «сейчас» → cleanupStaleSessions
+  сносила бы ВСЕ сессии. Строковые ключи — прежнее поведение
+- Code.gs: Utils.beginExecution() в doPost+hourlyCleanup; роут
+  case 'adminDeleteUser' + гейт admin.panel; сигнатура в шапке
+- Тесты: test-task351.js +46 (SRC-гарды; VM: кэш — 2 getRows = 1
+  getValues, appendRow/setCell/deleteRow/beginExecution инвалидируют,
+  slice защищает кэш от сортировки; getLastRows — только хвост
+  (r905 при 1000 строк), listLogs кламп+сорт; getConfig — 11
+  табличных случаев + passthrough; deleteUser — happy path с
+  легаси-сессией по email, not found, самоудаление, последний
+  админ, счётчики в аудите); актуализированы test-task349
+  (setCell-мок + SRC-ассерты) и test-task350 (deleteRows-мок +
+  SRC-ассерты) → **2473/0** (было 2427)
+- DEPLOY-Task351-deleteuser-readcache-logtail-config.md (3 копии):
+  таблицы по пунктам, установка (3 замены + Новая версия),
+  проверки (curl adminDeleteUser, warn при мусоре в config), откат,
+  осознанные НЕ-правки (SessionsDevicePolicy, UI, withLock-поверх-кэша)
+
+Следующий номер задачи: 352.
