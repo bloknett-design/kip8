@@ -8039,3 +8039,53 @@ hourlyCleanup, «Новая версия» (НЕ «Новое развёртыв
   письмо вне замка; updateRole — атомарный setValue).
 
 Следующий номер задачи: 349.
+
+## Task 349 — чистка мёртвого IP-кода + единые имена SESSION_* + updateRole: замок и мгновенная выгонка (2026-09-09)
+
+Заявка: «1. IP-лимиты — мёртвый код, А. Удалить мёртвое. 2. Унификация
+имён SESSION_* и 3. Старый role-снапшот в sessions при updateRole,
+нужна мгновенная выгонка при „Запрет“ (п.3), 349 всё разом.»
+Один деплой-цикл, те же 3 файла что Task 348.
+
+- `Utils.gs` (п.1): удалены МЁРТВЫЕ `getClientIp()` /
+  `getClientUserAgent()` / `countRecentAuditLogsByIp()` — Apps
+  Script в doPost не видит IP/UA, хелперы всегда отдавали `''`/0;
+  на местах — комментарии-некрологи. Сигнатура
+  `Utils.audit(email, action, ip, ua, details)` НЕ менялась (40+
+  вызовов) — теперь 3-й/4-й аргументы буквально `''`; колонки
+  ip/user_agent в audit_log остаются (история), всегда пустые;
+- `Auth.gs` (п.1): из sendOTP удалена пер-IP ветка «20 неудач/час»
+  (не срабатывала никогда: счётчик с guard `if (!ip) return 0`) и
+  локальные `ip`/`ua`; ЖИВОЙ глобальный лимит 100 OTP/час
+  (RATE_LIMIT_OTP_PER_HOUR) + MAX_OTP_ATTEMPTS/OTP_BLOCK_MINUTES +
+  cooldown — сохранены; ключ RATE_LIMIT_FAILED_PER_IP исчез;
+- `Sessions.gs` (п.2): событие сироты в heartbeat
+  `SESSION_ORPHAN_REMOVED` → `SESSION_CLEANUP_ORPHAN` — ленивый и
+  крон-пути (cleanupExpiredSessions писал это имя уже) едины, всё
+  сессионное под префиксом SESSION_CLEANUP_*; старые записи
+  audit_log НЕ переписываются (в DEPLOY — таблица соответствия);
+  STALE_SESSION_DAYS не переименовывался;
+- `Utils.gs` (п.3): `Admin.updateRole` — последняя мутация без
+  замка — под `Utils.withLock` (чтение юзера и валидация роли
+  ВНУТРИ): обычная роль → users!C + синхрон role-снапшота
+  sessions!D во всех живых сессиях юзера СРАЗУ (ленивый
+  getCurrentUser больше не единственный источник правки);
+  «Запрет» → МГНОВЕННАЯ выгонка resetLogin-стилем: удалить ВСЕ
+  сессии юзера (с конца) + сброс login_status при evicted > 0 +
+  аудит FORCE_LOGOUT_ROLE (существующее имя) + ADMIN_UPDATE_ROLE с
+  «instant evict: N session(s)»; офлайн-жертва (сессий нет) — без
+  ложного FORCE_LOGOUT_ROLE; возвращает { ok, evicted };
+- Тесты: test-task349.js +28 (SRC: отсутствие определений/вызовов
+  мёртвых хелперов + RATE_LIMIT_FAILED_PER_IP исчез + живой
+  глобальный лимит + сигнатура audit + без ip/ua-переменных +
+  SESSION_CLEANUP_* ровно 2 имени + updateRole-гарды замка/снапшота/
+  выгонки; VM: audit 6 колонок кросс-realm-тег Date + falsy-гарды;
+  VM updateRole на мок-листе: обычная роль/снапшот-скип/Запрет/
+  офлайн-Запрет/Number-приведение/Invalid role/User not found)
+  → **2394/0** (было 2366);
+- DEPLOY-Task349-updaterole-evict-naming-ip-cleanup.md: 3 замены
+  файлов + «Новая версия»; таблица старое→новое имя события;
+  проверки (снапшот D сразу, Запрет — мгновенный no_session на
+  ближайшем запросе жертвы, heartbeat ≤5 мин), откат.
+
+Следующий номер задачи: 350.
