@@ -17,7 +17,7 @@
 // Счётчики переработки УЖЕ были в agg (Task 322) — новая только
 // печатная колонка; сетка/«Итоги учёта» на экране не менялись.
 //
-// SW: kipia-v431.
+// SW: kipia-v432.
 //
 // Запуск: через tests/run-all.js (require './test-task342.js').
 
@@ -208,15 +208,15 @@ describe('Task 342 — _buildPrintHtml (VM): значения «Перераб.�
 // ============================================================
 describe('Task 342 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v431', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v431'") !== -1,
-            'CACHE_VERSION = kipia-v431 (Task 342 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v432') !== -1,
+    test('SW: кэш поднят до kipia-v432', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v432'") !== -1,
+            'CACHE_VERSION = kipia-v432 (Task 342 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v433') !== -1,
             'лишний инкремент (v581) не сделан');
     });
 
     test('SW: в index.html нет захардкоженной версии кэша', () => {
-        assertFalse(INDEX_SRC.indexOf('kipia-v431') !== -1,
+        assertFalse(INDEX_SRC.indexOf('kipia-v432') !== -1,
             'клиент не знает номер кэша (версией управляет sw.js)');
     });
 });
