@@ -16,7 +16,7 @@
 //   • тест-ключи kip8test_* переименованы в прод-ключи kip8_*;
 //   • KipAuth хранит токен под РОВНО 'kip8_session_token'
 //     (VM: setToken/getToken/clearToken на моке localStorage);
-//   • SW: CACHE_VERSION = 'kipia-v432' (бамп фикс-деплоя).
+//   • SW: CACHE_VERSION = 'kipia-v433' (бамп фикс-деплоя).
 //
 // Запуск: через tests/run-all.js (require './test-task344.js').
 
@@ -112,8 +112,8 @@ describe('Task 344 — KipAuth: токен под ключом без префи
 // ============================================================
 describe('Task 344 — SW-бамп фикса', () => {
 
-    test("SW: CACHE_VERSION = 'kipia-v432' (клиенты забудут испорченный index)", () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v432'") !== -1,
+    test("SW: CACHE_VERSION = 'kipia-v433' (клиенты забудут испорченный index)", () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v433'") !== -1,
             'v429 установлен');
         assertTrue(SW_SRC.indexOf('kipia-v428') === -1,
             'v428 не остался (двойной бамп?)');

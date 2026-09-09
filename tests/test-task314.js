@@ -43,7 +43,7 @@
 //       записи, лимит 12 видов, формат даты тултипа, битый JSON;
 //     — VM-СИМУЛЯЦИЯ _renderCell: «.»/статус-мероприятие/отсутствие/
 //       пустая+событие/смена+событие/план+событие.
-//   SW: kipia-v432.
+//   SW: kipia-v433.
 //
 // Запуск: через tests/run-all.js (require './test-task314.js').
 
@@ -478,22 +478,22 @@ describe('Task 314 — VM: _renderCell (символ «·», бейджи мер
         return m ? m[1] : null;
     }
 
-    test('«.» — ячейка как ПУСТАЯ: класс ws-dot-code, без inline-фона, символ «·»', () => {
+    test('«.» — ячейка как ПУСТАЯ: класс ws-dot-code, без inline-фона, БЕЗ символа (Task 356)', () => {
         const ctx = mkRenderCtx({}, null);
         const html = cellHtml(ctx, { 'статус': '.', 'источник': 'авто', 'переработка': 0 });
         assertTrue(html.indexOf('ws-dot-code') !== -1, 'класс ws-dot-code');
         assertTrue(html.indexOf('ws-status-empty') !== -1, 'вид пустой ячейки');
         assertFalse(/style="background:/.test(html), 'inline-цвет листа НЕ ставится');
-        assertTrue(html.indexOf('>·<') !== -1 || html.indexOf('>·') !== -1,
-            'символ «·» (U+00B7), а не «.»');
+        assertEqual(mainText(html), '', 'центр ПУСТ — «·» убрана (Task 356)');
+        assertFalse(html.indexOf('·') !== -1, 'символа «·» в ячейке нет вообще');
         assertFalse(/>\.</.test(html), 'точки «.» в тексте ячейки нет');
     });
 
-    test('статус-мероприятие «И» — НЕ большой код: «·» + сплошной бейдж', () => {
+    test('статус-мероприятие «И» — НЕ большой код: ПУСТОЙ центр + сплошной бейдж', () => {
         // generateMonth пишет И днём события без смены — теперь только бейдж
         const ctx = mkRenderCtx({ '2026-09-01': [{ code: 'И', training: { id: 1 } }] }, null);
         const html = cellHtml(ctx, { 'статус': 'И', 'источник': 'авто', 'переработка': 0 });
-        assertEqual(mainText(html), '·', 'главный текст — «·», НЕ «И»');
+        assertEqual(mainText(html), '', 'центр ПУСТ — НЕ «И» и не «·» (Task 356)');
         const b = html.match(/<span class="ws-ev-badge"[^>]*>И<\/span>/);
         assertTrue(!!b, 'сплошной бейдж «И»');
         assertTrue(b && b[0].indexOf('background:#B3E5FC') !== -1,
@@ -505,7 +505,7 @@ describe('Task 314 — VM: _renderCell (символ «·», бейджи мер
         // событие удалено, строка Записей_графика осталась — день не «слепнет»
         const ctx = mkRenderCtx({}, null);
         const html = cellHtml(ctx, { 'статус': 'И', 'источник': 'авто', 'переработка': 0 });
-        assertEqual(mainText(html), '·', 'главный текст — «·», НЕ «И»');
+        assertEqual(mainText(html), '', 'центр ПУСТ — НЕ «И» и не «·» (Task 356)');
         const b = html.match(/<span class="ws-ev-badge"[^>]*>И<\/span>/);
         assertTrue(!!b, 'виртуальный бейдж из статуса');
     });
@@ -555,21 +555,22 @@ describe('Task 314 — VM: _renderCell (символ «·», бейджи мер
         assertTrue(!!b, 'бейдж мероприятия');
     });
 
-    test('обычная пустая ячейка — «·» без бейджа', () => {
+    test('обычная пустая ячейка — ПУСТАЯ, без бейджа (Task 356)', () => {
         const ctx = mkRenderCtx({}, null);
         const html = cellHtml(ctx, null);
-        assertTrue(html.indexOf('>·') !== -1, 'символ пустой ячейки');
+        assertEqual(mainText(html), '', 'центр ПУСТ — «·» больше нет');
+        assertFalse(html.indexOf('·') !== -1, 'символа «·» в ячейке нет вообще');
         assertFalse(html.indexOf('ws-ev-badge') !== -1, 'бейджа нет');
         assertFalse(html.indexOf('ws-dot-code') !== -1, 'ws-dot-code не ставится пустой');
     });
 
-    test('символ «·» в ячейке — U+00B7 (как у пустых, не «.»)', () => {
+    test('«.» — центр ПУСТ (U+00B7 из ячейки удалён, Task 356)', () => {
         const ctx = mkRenderCtx({}, null);
         const html = cellHtml(ctx, { 'статус': '.', 'источник': 'авто', 'переработка': 0 });
         const t = mainText(html);
         assertTrue(t !== null, 'текст ячейки найден');
-        assertEqual(t, '·', 'ровно один символ U+00B7');
-        assertEqual(t.charCodeAt(0), 0xB7, 'код U+00B7');
+        assertEqual(t, '', 'центр ячейки пуст');
+        assertFalse(html.indexOf('·') !== -1, 'U+00B7 в HTML ячейки отсутствует');
     });
 });
 
@@ -578,9 +579,9 @@ describe('Task 314 — VM: _renderCell (символ «·», бейджи мер
 // ------------------------------------------------------------
 describe('Task 314 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v432', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v432'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v432');
+    test('SW: версия кэша kipia-v433', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v433'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v433');
         assertFalse(SW_SRC.indexOf('kipia-test-v552') !== -1,
             'старой версии v552 нет');
     });
