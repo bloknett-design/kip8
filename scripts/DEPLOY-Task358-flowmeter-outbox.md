@@ -62,11 +62,12 @@
 |------|-----|
 | `index.html` | KipAuth.sendBeacon; блок outbox-методов FlowmeterData (13 методов: журнал, дедуп, флаш, ретраи, beacon, пере-показ модалки); write-ahead в submitInput (сутки) и _submitPeriodEntry (месяц); _sendUpdateReading возвращает промис и осведомлён об outbox; confirm/cancelAnomalyModal чистят журнал; баннер в renderList + CSS; init — флаш и слушатели; pagehide/beforeunload глобально |
 | `sw.js` | CACHE_VERSION kipia-v434→v435 |
-| `tests/test-task358.js` | +44: SRC-гарды (18), Electron-гарды, VM-журнал/классификация/доставка/beacon/дедуп, SW |
+| `electron/main.js` | перехват close → executeJavaScript(флаш) → destroy (≤1.2 с); before-quit — авто-обновление не ломается |
+| `tests/test-task358.js` | +45: SRC-гарды (18), Electron-гарды, VM-журнал/классификация/доставка/beacon/дедуп, SW (kipia-версии) |
 | `tests/test-flowmeter-validation.js` | актуализация: якорь loadArchive (первое вхождение 'flowmeter.archive' теперь во flash-коде) |
 | `tests/test-flow-period-input.js` | актуализация: окна regex расширены (outbox-блок в _submitPeriodEntry) |
 | `tests/run-all.js` | регистрация test-task358.js |
-| `scripts/task358-browser-check.py` | 25 проверок, 3 контекста, 4 пруфа |
+| `scripts/task358-browser-check.py` | 25/25, 3 контекста, 4 пруфа (порт 8955, kip8-адаптация) |
 
 ## Деплой
 
