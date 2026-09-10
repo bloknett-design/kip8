@@ -8242,3 +8242,11 @@ Task: ПЕРЕНОС из kip8test (f2d6912) + ПЕРЕНОМЕРОВКА: ло�
 Реализация (дельта-патч 151 строк index.html, урок Task 344 — 0 isolateLocalStorage, 0 'kip8test:'): prefill «вчера» в _applyEntryTypeFields + fallback submitInput; правка предзаполняется датой записи; FlowmeterData._isOverdue (ежедневно — граница 6:00, еженедельно — календарная неделя пн–вс, ежемесячно — месяц) + хелперы; renderList класс flow-summary-val-due (#e74c3c/#c0392b); минутный таймер _startOverdueTimer — цвет меняется сам на переходе 6:00/пн/1-го числа без перезагрузки; SW kipia-v433→v434 (гарды: позитив v434, «лишний инкремент»→v435); tests/test-task357.js +51 → 2609/0; браузер 37/37 (порт 8949, без префикса темы, 0 JS-ошибок, пруфы task357-*); DEPLOY-Task357-flowmeters-prevday-default-red-due.md (kip8-версия, «ПРОИСХОЖДЕНИЕ»).
 
 Следующий номер задачи: 358.
+
+---
+Task ID: 358
+Task: ПЕРЕНОС из kip8test (c0d6b75): гарантированная доставка показаний расходомеров — outbox, авто-флаш с дедупом, beacon «последнего шанса», перехват закрытия Electron (включая kip8/electron/main.js — собственная копия репо).
+
+Реализация: единый дельта-патч scripts/task358-patch.py (18 якорей, зоны идентичны kip8test — изолейты не задеты, проверено check-inline-js 0 ошибок): KipAuth.sendBeacon; outbox-блок FlowmeterData; write-ahead в submitInput/_submitPeriodEntry; _sendUpdateReading (промис + outbox-осведомлённость); confirm/cancelAnomalyModal; баннер renderList + CSS; init-флаш; pagehide/beforeunload; подавление повторного beacon 60с. SW kipia-v434→v435 (каскад версионных ссылок тестов); test-task358.js +45 → 2654/0; актуализация test-flowmeter-validation/test-flow-period-input; electron/main.js — attachCloseFlush (close → preventDefault → executeJavaScript(_outboxFlushBeacons) → destroy, 1.2с-страховка; before-quit флаг — авто-обновление не ломается). Браузер 25/25 (порт 8955, без префикса изоляции, 4 пруфа). DEPLOY-Task358-flowmeter-outbox.md (kip8-версия).
+
+Следующий номер задачи: 359.

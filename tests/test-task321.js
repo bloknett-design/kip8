@@ -1090,10 +1090,10 @@ describe('Task 321 — год: _loadYearData / _renderTotalsYear / таблиц�
 // 11. SW: версия кэша
 // ============================================================
 describe('Task 321 — SW: версия кэша', () => {
-    test('SW: кэш поднят до kipia-v434 (Task 323)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v434'") !== -1,
-            'CACHE_VERSION = kipia-v434');
-        assertFalse(SW_SRC.indexOf('kipia-v435') !== -1,
+    test('SW: кэш поднят до kipia-v435 (Task 323)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v435'") !== -1,
+            'CACHE_VERSION = kipia-v435');
+        assertFalse(SW_SRC.indexOf('kipia-v436') !== -1,
             'v561 не существует (один инкремент на Task 321)');
     });
 });
