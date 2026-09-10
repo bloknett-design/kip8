@@ -8250,3 +8250,14 @@ Task: ПЕРЕНОС из kip8test (c0d6b75): гарантированная д�
 Реализация: единый дельта-патч scripts/task358-patch.py (18 якорей, зоны идентичны kip8test — изолейты не задеты, проверено check-inline-js 0 ошибок): KipAuth.sendBeacon; outbox-блок FlowmeterData; write-ahead в submitInput/_submitPeriodEntry; _sendUpdateReading (промис + outbox-осведомлённость); confirm/cancelAnomalyModal; баннер renderList + CSS; init-флаш; pagehide/beforeunload; подавление повторного beacon 60с. SW kipia-v434→v435 (каскад версионных ссылок тестов); test-task358.js +45 → 2654/0; актуализация test-flowmeter-validation/test-flow-period-input; electron/main.js — attachCloseFlush (close → preventDefault → executeJavaScript(_outboxFlushBeacons) → destroy, 1.2с-страховка; before-quit флаг — авто-обновление не ломается). Браузер 25/25 (порт 8955, без префикса изоляции, 4 пруфа). DEPLOY-Task358-flowmeter-outbox.md (kip8-версия).
 
 Следующий номер задачи: 359.
+
+---
+Task ID: 359
+Task: Расходомеры хозрасчётные — перенос из kip8test (2097d1e): 2 замечания к Tasks 357/358. Запись восстановлена при восстановлении окружения новой сессии 2026-09-10 (коммит 8f42d89 был запушен без записи в worklog).
+
+1) КРАСНЫЙ «ПОРА ВВОДИТЬ» ЯРЧЕ + КРУПНЕЕ: тёмная #e74c3c→#ff5c47, светлая #c0392b→#e8230a, шрифт 16px/700→18px/800; зелёный не тронут.
+2) ПРАВКА В ОКНЕ 1 Ч — ЗАПИСЬ АРХИВА ОБНОВЛЯЕТСЯ НА МЕСТЕ (FlowmeterArchive.updateLatestReading: агрегаты нед/мес пропускаются, свежесть O<1 ч, P-комментарий не стирается; фолбэк — appendToArchive с переносом комментария), миграция/сброс meters.O только при новом вводе, аудит «(правка в окне 1 ч)».
+
+Серверная часть — Apps Script (Flowmeter.gs + FlowmeterArchive.gs → «Новая версия»), см. DEPLOY-Task359-flowmeter-red-brighter-edit-inplace.md (kip8-версия). SW kipia-v435→v436; тесты +34 → 2688/0 (было 2654); браузер 18/18. Автосинк kip8-desktop: 3a617ec (CI success, тесты 2716/0). Pages kip8 живой: kipia-v436.
+
+Следующий номер задачи: 360.
