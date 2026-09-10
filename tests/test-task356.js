@@ -14,7 +14,7 @@
 //       «Дополнительно…» (код «.» там по-прежнему подписан точкой);
 //     — классы-маркеры ws-dot-code / ws-status-empty ставятся,
 //       бейджи (evHtml + shiftWrap) конкатенируются к контенту;
-//     — sw.js: CACHE_VERSION = kipia-v433 (+ guard v434).
+//     — sw.js: CACHE_VERSION = kipia-v434 (+ guard v434).
 //   VM (_renderCell, моки как в test-task314.js / test-task355.js):
 //     — РАБОЧИЙ день: пустая, «.»-код, статус-мероприятие «И»
 //       (с записью и без — виртуальный бейдж), пустая + будущее
@@ -241,13 +241,13 @@ describe('Task 356 — VM: _renderCell (пустые ячейки без «·»)
 // Service Worker
 // ------------------------------------------------------------
 describe('Task 356 — Service Worker', () => {
-    test('SW: версия кэша kipia-v433', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v433'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v433');
+    test('SW: версия кэша kipia-v434', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v434'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v434');
     });
 
     test('SW: двойной бамп не случился (v586 не существует)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v434') === -1,
-            'в sw.js нет kipia-v434');
+        assertTrue(SW_SRC.indexOf('kipia-v435') === -1,
+            'в sw.js нет kipia-v435');
     });
 });
