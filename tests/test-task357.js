@@ -368,10 +368,15 @@ describe('Task 357 — клиент: красный класс в renderList + C
     });
 
     test('CSS: красный #e74c3c (тёмная) и #c0392b (светлая тема)', () => {
-        assertTrue(INDEX_SRC.indexOf('.flow-summary-val.flow-summary-val-due { color: #e74c3c; }') !== -1,
-            'тёмная тема — красный');
-        assertTrue(INDEX_SRC.indexOf('[data-theme="light"] .flow-summary-val.flow-summary-val-due { color: #c0392b; }') !== -1,
-            'светлая тема — тёмно-красный');
+        // Task 359: цвета ЯРЧЕ (#ff5c47 / #e8230a) + шрифт крупнее
+        // (18px/800) — точные новые значения проверяются в test-task359.js;
+        // здесь — что старые приглушённые ушли:
+        assertTrue(INDEX_SRC.indexOf('.flow-summary-val.flow-summary-val-due { color: #e74c3c; }') === -1,
+            'старый тёмно-красный #e74c3c убран (Task 359: ярче)');
+        assertTrue(INDEX_SRC.indexOf('[data-theme="light"] .flow-summary-val.flow-summary-val-due { color: #c0392b; }') === -1,
+            'старый кирпичный #c0392b убран (Task 359: ярче)');
+        assertTrue(INDEX_SRC.indexOf('.flow-summary-val.flow-summary-val-due {') !== -1,
+            'CSS-правило due остаётся (блок, не однострочник)');
     });
 
     test('Зелёный базовый цвет показаний не тронут', () => {
@@ -443,13 +448,13 @@ describe('Task 357 — клиент: submitInput fallback «предыдущие
 
 describe('Task 357 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v435', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v435'") !== -1,
+    test('SW: CACHE_VERSION = kipia-v436', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v436'") !== -1,
             'версия кэша поднята до v583');
     });
 
     test('SW: нет v582 (старая) и нет v584 (двойной бамп)', () => {
         assertTrue(SW_SRC.indexOf('kipia-v433') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v436') === -1, 'двойного бампа не было');
+        assertTrue(SW_SRC.indexOf('kipia-v437') === -1, 'двойного бампа не было');
     });
 });
