@@ -137,6 +137,7 @@ require('./test-task363.js');
 // Task 364 — рамка-группа выходных 2px #e57373 (спокойнее); печать:
 // коды — столбик СПРАВА от столбика мероприятий (обёртка wsp-bottom)
 require('./test-task364.js');
+require('./test-task365.js');
 require('./test-deploy-url.js');
 
 // Запускаем

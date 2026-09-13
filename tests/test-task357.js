@@ -448,13 +448,13 @@ describe('Task 357 — клиент: submitInput fallback «предыдущие
 
 describe('Task 357 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v441', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v441'") !== -1,
+    test('SW: CACHE_VERSION = kipia-v442', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v442'") !== -1,
             'версия кэша поднята до v583');
     });
 
     test('SW: нет v582 (старая) и нет v584 (двойной бамп)', () => {
         assertTrue(SW_SRC.indexOf('kipia-v433') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v442') === -1, 'двойного бампа не было');
+        assertTrue(SW_SRC.indexOf('kipia-v443') === -1, 'двойного бампа не было');
     });
 });
