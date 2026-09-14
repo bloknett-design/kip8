@@ -1,5 +1,5 @@
 // tests/test-task365.js
-// Task 365 (перенос из kip8test, коммит 4a22d39): расходомеры хозрасчётные — заявка пользователя
+// Task 365: расходомеры хозрасчётные — заявка пользователя
 // (с поправкой):
 //   1) «В разделе Расходомеры хозрасчётные, в Хозрасчёте №12 период
 //      указан еженедельно, но фактически нужно ежедневно, в
@@ -29,7 +29,7 @@
 //   D. SRC: точки применения нормализации (fallback/кэш/сервер),
 //      маркеры поправки в комментариях _isOverdue и CSS,
 //      data/flowmeters.json (№12 «Ежедневно», №3/№11 не тронуты),
-//      SW v442 (guard v443).
+//      SW v594 (guard v595).
 
 const fs = require('fs');
 const path = require('path');
@@ -60,10 +60,10 @@ function extractMethod(src, name) {
 
 let Mixin = null;
 try {
-    const parts = ['_isOverdue', '_parseMdy', '_dayKey', '_mondayOf', '_normalizeMeters']
+    const parts = ['_isOverdue', '_parseMdy', '_dayKey', '_mondayOf', '_recordCoversPeriod', '_normalizeMeters']
         .map(n => extractMethod(INDEX_SRC, n))
         .filter(Boolean);
-    if (parts.length === 5) {
+    if (parts.length === 6) {
         const ctx = {};
         vm.createContext(ctx);
         vm.runInContext('var Mixin = { ' + parts.join(',') + ' };', ctx);
@@ -189,10 +189,11 @@ describe('Task 365 — поправка: красный с 6:00 новых су�
 // ============================================================
 describe('Task 365 — №12: нормализация меняет цвет на суточный ритм', () => {
 
-    test('Без нормализации недельная логика дала бы ЗЕЛЁНЫЙ (та же неделя)', () => {
-        // 11.09.2026 — пятница; данные 9/9 (среда) — та же неделя
-        assertFalse(Mixin._isOverdue({ period: 'Еженедельно', dateCurr: '9/9/2026' }, new Date(2026, 8, 11, 7, 0)),
-            'недельный период держал бы зелёный до понедельника');
+    test('Без нормализации недельная логика дала бы КРАСНЫЙ (Task 368: закрытая неделя)', () => {
+        // 11.09.2026 — пятница; данные 9/9 (точка) не накрывают
+        // закрытую неделю 31.08–06.09 — «пора вводить»
+        assertTrue(Mixin._isOverdue({ period: 'Еженедельно', dateCurr: '9/9/2026' }, new Date(2026, 8, 11, 7, 0)),
+            'недельный ритм Task 368: закрытая неделя без данных');
     });
 
     test('После нормализации №12 — КРАСНЫЙ в 6:00 следующих суток', () => {
@@ -210,10 +211,11 @@ describe('Task 365 — №12: нормализация меняет цвет н�
             'введено сегодня за вчера — зелёный');
     });
 
-    test('№3 (настоящий недельный) НЕ нормализуется — зелёный до понедельника', () => {
-        const meters = Mixin._normalizeMeters([{ id: 3, period: 'Еженедельно', dateCurr: '9/9/2026' }]);
+    test('№3 (настоящий недельный) НЕ нормализуется — недельный ритм жив (Task 368)', () => {
+        const meters = Mixin._normalizeMeters([{ id: 3, period: 'Еженедельно', datePrev: '8/31/2026', dateCurr: '9/6/2026' }]);
+        assertEqual(meters[0].period, 'Еженедельно', 'период не нормализован');
         assertFalse(Mixin._isOverdue(meters[0], new Date(2026, 8, 11, 7, 0)),
-            'недельные расходомеры сохраняют недельный ритм');
+            'данные накрывают закрытую неделю 31.08–06.09 — зелёный');
     });
 });
 
@@ -294,13 +296,13 @@ describe('Task 365 — data/flowmeters.json: №12 «Ежедневно»', () =
 
 describe('Task 365 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v442', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v442'") !== -1,
-            'версия кэша поднята до v442');
+    test('SW: CACHE_VERSION = kipia-v446', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v446'") !== -1,
+            'версия кэша поднята до v594');
     });
 
-    test('SW: нет v441 (старая) и нет v443 (двойной бамп)', () => {
+    test('SW: нет v593 (старая) и нет v595 (двойной бамп)', () => {
         assertTrue(SW_SRC.indexOf('kipia-v441') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v443') === -1, 'двойного бампа не было');
+        assertTrue(SW_SRC.indexOf('kipia-v447') === -1, 'двойного бампа не было');
     });
 });

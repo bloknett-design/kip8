@@ -3218,21 +3218,10 @@
         color: #4a8fc7; font-size: 13px; font-weight: 600;
         text-decoration: none;
     }
-    /* Task 358: баннер «ждут отправки» — показания введены, но ещё
-       не доставлены на сервер (нет связи); уйдут автоматически */
-    .flow-outbox-banner {
-        display: flex; align-items: center; gap: 8px;
-        margin: 8px 14px 4px; padding: 10px 12px;
-        border-radius: 8px;
-        background: rgba(230,150,20,0.10);
-        border: 1px solid rgba(230,150,20,0.32);
-        font-size: 13px; line-height: 1.35;
-        color: var(--text-primary);
-    }
-    .flow-outbox-ico {
-        font-size: 16px; line-height: 1;
-        color: #e69614; flex: 0 0 auto;
-    }
+    /* Task 367: баннер недоставленных показаний УБРАН (заявка:
+       «упростить ещё — баннер вовсе»); недоставленные показания
+       видны ЦВЕТОМ ЗНАЧЕНИЯ карточки — жёлто-оранжевый
+       .flow-summary-val-pending (ниже, рядом с flow-summary-val). */
     .flow-sheet-link:hover { background: rgba(74,143,199,0.18); }
     /* Карточка расходомера — без рамки, с разделителем снизу, зебра (как приборы/блокировки/регуляторы) */
     .flow-card {
@@ -3275,13 +3264,25 @@
        значение лучше притягивает взгляд (замечание пользователя).
        Task 365 (поправка заявки): красный — НЕ час: с 6:00 новых
        суток (следующих за сутками ввода данных) показания держатся
-       красными, пока не введут новые данные; окна 6:00–7:00 нет. */
+       красными, пока не введут новые данные; окна 6:00–7:00 нет.
+       Task 367 (заявка): НЕдоставленные показания — жёлто-оранжевый
+       цвет значения (приоритет НАД красным — ввод уже состоялся);
+       после доставки сервером — снова зелёный. Недельные/месячные —
+       красный по календарной неделе пн–вс / месяцу (Task 357). */
     .flow-summary-val.flow-summary-val-due {
         color: #ff5c47;
         font-size: 18px;
         font-weight: 800;
     }
     [data-theme="light"] .flow-summary-val.flow-summary-val-due { color: #e8230a; font-size: 18px; font-weight: 800; }
+    /* Task 367: показания введены, но ещё НЕ доставлены на сервер
+       (нет связи; запись ждёт в outbox). Только ЦВЕТ — размер/вес
+       шрифта как у обычного зелёного значения. После доставки
+       (флаш/online) renderList пересчитает класс — снова зелёный. */
+    .flow-summary-val.flow-summary-val-pending {
+        color: #f5a623;
+    }
+    [data-theme="light"] .flow-summary-val.flow-summary-val-pending { color: #c96e00; }
     .flow-summary-days { font-size: 12px; font-weight: 400; color: var(--text-secondary); margin-left: 8px; }
     /* Task 231: дата — под-элемент label «Последние показания» в карточке (одна строка,
        как в детальной карточке Task 229). Меньший шрифт, нейтральный цвет. */
@@ -8612,6 +8613,31 @@
     }
     [data-theme="light"] .valve-swipe-bg {
         background: linear-gradient(135deg, rgba(40, 95, 97, 0.9), rgba(74, 138, 140, 0.8));
+    }
+    /* Task 369: карточка «Проекты» — свайп-ячейка + янтарно-коричневая
+       подложка в цвет кнопки (#b08048). Свайп в любую сторону открывает
+       «Проекты по статусу», тап — «По отделениям» (как раньше). */
+    .project-swipe-cell > #projectsEntryBtn {
+        position: relative;
+        z-index: 1;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        margin: 0;
+        touch-action: pan-y;
+    }
+    .project-swipe-cell > #projectsEntryBtn.swipe-active {
+        transition: none;
+    }
+    .project-swipe-bg {
+        background: linear-gradient(135deg, rgba(146, 98, 44, 0.95), rgba(176, 128, 72, 0.85));
+    }
+    [data-theme="light"] .project-swipe-bg {
+        background: linear-gradient(135deg, rgba(156, 108, 52, 0.9), rgba(176, 128, 72, 0.8));
+    }
+    /* Отдельно стоящая строка «Проекты»: базовый отступ .dev-swipe-cell
+       (4px снизу) не нужен — зазор между строками задаёт margin-top
+       соседних .menu-btn-row (6px), как было до обёртки в ячейку. */
+    #page-kip-ios > .menu-btn-row .dev-swipe-cell {
+        margin-bottom: 0;
     }
 
     /* ===== Телефонный справочник ===== */
@@ -14433,7 +14459,13 @@
             </div>
 
             <div class="menu-btn-row">
-                <div class="menu-btn" id="projectsEntryBtn" style="border-color:rgba(176,128,72,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#b08048;">Проекты</div><div class="menu-btn-sublabel">По отделениям</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('projects')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(176,128,72,0.4);">›</i></div>
+                <!-- Task 369: свайп-ячейка — как у «Приборы»/«Клапана»:
+                     тап → по отделениям, свайп в любую сторону → по статусу. -->
+                <div class="dev-swipe-cell project-swipe-cell" id="projectSwipeCell">
+                    <div class="dev-swipe-bg dev-swipe-bg-left project-swipe-bg"><span>По статусу</span></div>
+                    <div class="dev-swipe-bg dev-swipe-bg-right project-swipe-bg"><span>По статусу</span></div>
+                    <div class="menu-btn" id="projectsEntryBtn" style="border-color:rgba(176,128,72,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#b08048;">Проекты</div><div class="menu-btn-sublabel">По отделениям</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('projects')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(176,128,72,0.4);">›</i></div>
+                </div>
             </div>
             <div class="menu-btn-row">
                 <div class="menu-btn" id="cablesEntryBtn" style="border-color:rgba(120,144,100,0.35);"><div class="menu-btn-text"><div class="menu-btn-label" style="color:#8aa070;">Кабельный журнал</div><div class="menu-btn-sublabel">Журнал КИП пр-ва ИОС</div></div><button type="button" class="menu-btn-overflow" aria-label="Действия" onclick="event.stopPropagation(); openPinSheet('cables')"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg></button><i class="menu-btn-arrow" style="color:rgba(120,144,100,0.4);">›</i></div>
@@ -14559,6 +14591,18 @@
             <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Проекты по отделениям</div><input type="search" id="projectProdSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="projectsRenderSorted('prod')" hidden><button type="button" id="projectProdSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="projectProdSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
             <div id="projectProdInfo" class="pb-info-bar" style="padding:6px 14px;font-size:11px;color:var(--text-secondary);border-bottom:1px solid var(--border-color);">Загрузка…</div>
             <div id="projectProdList"></div>
+        </div>
+
+        <!-- ======================== ПРОЕКТЫ — ПО СТАТУСУ (Task 369) ========================
+             Открывается свайпом кнопки «Проекты» на странице КИП ИОС (в любую
+             сторону). Группы — по столбцу «Статус проекта» листа «Проекты»:
+             «Новый» → «Выполнен» → «Остановлен» → «Отменен/Отменён» →
+             неизвестные статусы по алфавиту → «(без статуса)». Тап по группе
+             открывает страницу группы (project-group) с подгруппами по годам. -->
+        <div id="page-projects-status" class="page-content">
+            <div class="page-inline-header"><div class="page-inline-header-chevron" onclick="chevronTap()" aria-label="Назад / Главная"></div><div class="page-inline-header-title">Проекты по статусу</div><input type="search" id="projectStatusSearchInput" class="dev-header-search" placeholder="Поиск…" autocomplete="off" enterkeyhint="search" oninput="projectsRenderSorted('status')" hidden><button type="button" id="projectStatusSearchInputToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="projectStatusSearchInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
+            <div id="projectStatusInfo" class="pb-info-bar" style="padding:6px 14px;font-size:11px;color:var(--text-secondary);border-bottom:1px solid var(--border-color);">Загрузка…</div>
+            <div id="projectStatusList"></div>
         </div>
 
         <!-- ======================== КАРТОЧКА ПРОЕКТА ======================== -->
@@ -17097,8 +17141,9 @@
             <label class="flow-input-label" for="flowInputDate" id="flowInputDateLabel">Дата за предыдущие сутки</label>
             <input type="date" id="flowInputDate" class="flow-input-field-small">
         </div>
-        <!-- Task 286/289: конец периода («по») — виден только для месяца;
-             для «сутки» поле скрыто (дата одна, как раньше) -->
+        <!-- Task 286/289: конец периода («по») — для №1 виден только в режиме
+             «За месяц»; Task 368: также для недельных (№3, №11) и месячных
+             (№9) расходомеров — показания вводятся за период двух дат -->
         <div class="flow-input-group" id="flowInputDateEndGroup" style="display:none;">
             <label class="flow-input-label" for="flowInputDateEnd" id="flowInputDateEndLabel">по</label>
             <input type="date" id="flowInputDateEnd" class="flow-input-field-small">
@@ -22425,6 +22470,25 @@
         if (s === 'отменен' || s === 'отменён') return 'project-card-status-cancel';
         return '';
     }
+    // Task 369: группировка проектов по столбцу «Статус проекта» (свайп
+    // кнопки «Проекты» на странице КИП ИОС). Порядок известных статусов
+    // фиксирован: активные («Новый») первыми, затем «Выполнен»,
+    // «Остановлен», «Отменен/Отменён»; незнакомые статусы — по алфавиту
+    // после известных; проекты с пустым статусом — в самом конце.
+    const PROJECT_STATUS_ORDER = ['Новый', 'Выполнен', 'Остановлен', 'Отменен', 'Отменён'];
+    function projectStatusGroupKey(status) {
+        const s = String(status || '').trim();
+        return s || '(без статуса)';
+    }
+    // Ключ сортировки группы статуса: '<приоритет>:<имя>'. Даёт
+    // детерминированный порядок групп и при одинаковых приоритетах
+    // (неизвестные статусы) — по алфавиту имён.
+    function projectStatusSortKey(status) {
+        const s = String(status || '').trim();
+        if (!s) return '9:(без статуса)';
+        const i = PROJECT_STATUS_ORDER.indexOf(s);
+        return (i === -1 ? '5:' : '0' + i + ':') + s;
+    }
 
     // Возвращает timestamp для сортировки по «Дате утв.».
     // Поддерживаемые форматы:
@@ -22488,7 +22552,7 @@
                 localStorage.setItem('projectsLastUpdate', new Date().toISOString());
             } catch (e) {
                 console.error('projectInitSorted error:', e);
-                const ids = { prod: 'projectProdList' };
+                const ids = { prod: 'projectProdList', status: 'projectStatusList' }; // Task 369
                 const el = document.getElementById(ids[mode]);
                 if (el) el.innerHTML = '<div class="pb-empty">Ошибка загрузки.<br>Проверьте соединение.</div>';
                 return;
@@ -22507,6 +22571,8 @@
     function projectsRenderSorted(mode) {
         const ids = {
             prod: { list: 'projectProdList', info: 'projectProdInfo', search: 'projectProdSearchInput', page: 'page-projects-prod' },
+            // Task 369: список проектов по статусам (свайп кнопки «Проекты»)
+            status: { list: 'projectStatusList', info: 'projectStatusInfo', search: 'projectStatusSearchInput', page: 'page-projects-status' },
         };
         const id = ids[mode];
         if (!id) return;
@@ -22528,13 +22594,24 @@
         let filtered = projectData.projects || [];
 
         // Сортировка: по «Отделению», внутри отделения — по «Дате утв.» (старые → новые).
-        const sortKey = 'Отделение';
+        // Task 369: режим 'status' — сначала по приоритету статуса
+        // (PROJECT_STATUS_ORDER / projectStatusSortKey), внутри статуса —
+        // та же «Дата утв.» от старых к новым.
+        const isStatusMode = (mode === 'status');
+        const sortKey = isStatusMode ? 'Статус проекта' : 'Отделение';
         filtered.sort((a, b) => {
-            const va = (a[sortKey] || '').toString().toLowerCase();
-            const vb = (b[sortKey] || '').toString().toLowerCase();
-            if (va < vb) return -1;
-            if (va > vb) return 1;
-            // Внутри отделения — по дате утверждения (от старых к новым).
+            if (isStatusMode) {
+                const ka = projectStatusSortKey(a['Статус проекта']);
+                const kb = projectStatusSortKey(b['Статус проекта']);
+                if (ka < kb) return -1;
+                if (ka > kb) return 1;
+            } else {
+                const va = (a[sortKey] || '').toString().toLowerCase();
+                const vb = (b[sortKey] || '').toString().toLowerCase();
+                if (va < vb) return -1;
+                if (va > vb) return 1;
+            }
+            // Внутри группы — по дате утверждения (от старых к новым).
             const da = projectDateSortValue(a['Дата утв.']);
             const db = projectDateSortValue(b['Дата утв.']);
             if (da < db) return -1;
@@ -22555,10 +22632,13 @@
         }
 
         // Группировка верхнего уровня — по «Отделению».
+        // Task 369: режим 'status' — по столбцу «Статус проекта»
+        // (пустой статус → «(без статуса)»).
         const groups = {};
         const groupOrder = [];
         for (const d of filtered) {
-            const g = d[sortKey] || '(без отделения)';
+            const g = isStatusMode ? projectStatusGroupKey(d['Статус проекта'])
+                                   : (d[sortKey] || '(без отделения)');
             if (!groups[g]) { groups[g] = []; groupOrder.push(g); }
             groups[g].push(d);
         }
@@ -22567,6 +22647,9 @@
         // подгруппа с самым старым проектом идёт первой; подгруппы, где все даты
         // пустые/невалидные ('00.00.00'), уходят в конец. При совпадении «минимальной»
         // даты добиваем по алфавиту (имя отделения).
+        // Task 369: в режиме 'status' порядок групп уже задан сортировкой
+        // элементов выше (приоритет статуса) — повторно не сортируем.
+        if (!isStatusMode) {
         groupOrder.sort((a, b) => {
             const itemsA = groups[a];
             const itemsB = groups[b];
@@ -22587,6 +22670,7 @@
             if (va > vb) return 1;
             return 0;
         });
+        } // Task 369: конец if (!isStatusMode)
 
         info.textContent = '';
 
@@ -22671,8 +22755,10 @@
         }
 
         // Фильтр по отделению (как было раньше).
+        // Task 369: режим 'status' — фильтр по группе статуса.
         const sortKey = 'Отделение';
         let items = (projectData.projects || []).filter(d => {
+            if (mode === 'status') return projectStatusGroupKey(d['Статус проекта']) === group;
             const g = d[sortKey] || '(без отделения)';
             return g === group;
         });
@@ -23954,16 +24040,142 @@
     }
 
     // ===== Кнопка Проекты на странице КИП И ОС =====
+    // Task 369: как у «Приборы»/«Клапана» — свайп-ячейка с подложками.
+    // Отличие: альтернативная группировка одна («По статусу»), поэтому
+    // свайп В ЛЮБУЮ сторону (влево или вправо) открывает её:
+    //   tap → по отделениям (projects-prod, как раньше)
+    //   swipe ← / swipe → → по статусам (projects-status, Task 369)
+    const PROJECT_SWIPE_THRESHOLD = 12;    // px до определения направления
+    const PROJECT_SWIPE_NAV_RATIO = 0.3;   // доля ширины для перехода
+    let projectSwipeState = null;
+    let projectSwipeMoved = false;
+
     function projectsInitEntryButton() {
         const btn = document.getElementById('projectsEntryBtn');
         if (!btn || btn.dataset.initialized) return;
         btn.dataset.initialized = '1';
+        btn.addEventListener('pointerdown', onProjectSwipePointerDown);
         btn.addEventListener('click', function() {
+            if (projectSwipeMoved) return;
             if (navigator.vibrate) navigator.vibrate(15);
             navigateTo('projects-prod');
         });
         // Обновить sublabel количеством проектов
         projectsUpdateEntrySublabel();
+    }
+
+    function onProjectSwipePointerDown(e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        const el = e.currentTarget;
+        const cell = document.getElementById('projectSwipeCell');
+        if (!el || !cell) return;
+        const rect = el.getBoundingClientRect();
+        projectSwipeState = {
+            el: el,
+            cell: cell,
+            startX: e.clientX,
+            startY: e.clientY,
+            width: rect.width,
+            currentDx: 0,
+            active: false,
+            moved: false
+        };
+        window.addEventListener('pointermove', onProjectSwipePointerMove);
+        window.addEventListener('pointerup', onProjectSwipePointerUp);
+        window.addEventListener('pointercancel', onProjectSwipePointerUp);
+    }
+
+    function onProjectSwipePointerMove(e) {
+        if (!projectSwipeState) return;
+        const st = projectSwipeState;
+        const dx = e.clientX - st.startX;
+        const dy = e.clientY - st.startY;
+        if (!st.active) {
+            if (Math.abs(dx) > PROJECT_SWIPE_THRESHOLD || Math.abs(dy) > PROJECT_SWIPE_THRESHOLD) {
+                if (Math.abs(dx) > Math.abs(dy) * 1.5) {
+                    st.active = true;
+                    st.el.classList.add('swipe-active');
+                    st.el.style.pointerEvents = 'none';
+                    if (navigator.vibrate) navigator.vibrate(10);
+                } else {
+                    // Вертикальное — скролл, отменяем
+                    cleanupProjectSwipe();
+                    return;
+                }
+            } else {
+                return;
+            }
+        }
+        e.preventDefault();
+        let effectiveDx = dx;
+        if (Math.abs(dx) > st.width) {
+            const overshoot = Math.abs(dx) - st.width;
+            effectiveDx = Math.sign(dx) * (st.width + overshoot * 0.3);
+        }
+        st.currentDx = effectiveDx;
+        st.el.style.transform = 'translateX(' + effectiveDx + 'px)';
+        st.cell.classList.toggle('swiping-left',  effectiveDx < 0);
+        st.cell.classList.toggle('swiping-right', effectiveDx > 0);
+    }
+
+    function onProjectSwipePointerUp(e) {
+        if (!projectSwipeState) return;
+        const st = projectSwipeState;
+        const threshold = st.width * PROJECT_SWIPE_NAV_RATIO;
+        const shouldNav = st.active && Math.abs(st.currentDx) > threshold;
+
+        if (shouldNav) {
+            if (navigator.vibrate) navigator.vibrate(20);
+            st.el.classList.remove('swipe-active');
+            st.el.style.transition = 'transform 0.2s ease-out, opacity 0.2s ease-out';
+            // Оба направления — одна цель: «По статусу» (единственная
+            // альтернативная группировка проектов, Task 369).
+            st.el.style.transform = 'translateX(' + (st.currentDx < 0 ? '-100%' : '100%') + ')';
+            st.el.style.opacity = '0';
+            const targetPage = 'projects-status';
+            setTimeout(function() {
+                navigateTo(targetPage);
+                setTimeout(function() {
+                    st.el.style.transition = '';
+                    st.el.style.opacity = '';
+                    st.el.style.transform = '';
+                    st.el.style.pointerEvents = '';
+                    st.cell.classList.remove('swiping-left', 'swiping-right');
+                }, 100);
+            }, 200);
+            projectSwipeState = null;
+            window.removeEventListener('pointermove', onProjectSwipePointerMove);
+            window.removeEventListener('pointerup', onProjectSwipePointerUp);
+            window.removeEventListener('pointercancel', onProjectSwipePointerUp);
+        } else {
+            // Возвращаем карточку на место (с анимацией)
+            st.el.classList.remove('swipe-active');
+            st.el.style.transform = '';
+            st.el.style.pointerEvents = '';
+            st.cell.classList.remove('swiping-left', 'swiping-right');
+            st.moved = st.active;
+            cleanupProjectSwipe();
+        }
+    }
+
+    function cleanupProjectSwipe() {
+        if (!projectSwipeState) return;
+        const st = projectSwipeState;
+        st.el.classList.remove('swipe-active');
+        st.el.style.pointerEvents = '';
+        st.el.style.transform = '';
+        if (st.cell) {
+            st.cell.classList.remove('swiping-left', 'swiping-right');
+        }
+        // Если был активный свайп — блокируем следующий click
+        if (st.active) {
+            projectSwipeMoved = true;
+            setTimeout(function() { projectSwipeMoved = false; }, 300);
+        }
+        projectSwipeState = null;
+        window.removeEventListener('pointermove', onProjectSwipePointerMove);
+        window.removeEventListener('pointerup', onProjectSwipePointerUp);
+        window.removeEventListener('pointercancel', onProjectSwipePointerUp);
     }
     async function projectsUpdateEntrySublabel() {
         const btn = document.getElementById('projectsEntryBtn');
@@ -24959,7 +25171,7 @@
         'valves-prod', 'valves-type', 'valves-name',
         'valve-group',
         'regulators-prod', 'regulator-group',
-        'projects-prod', 'project-group',
+        'projects-prod', 'projects-status', 'project-group', // Task 369
         'cable-journal-edit',
         'tickets-1000v', 'tickets-4', 'tickets-5', 'tickets-6',
         'flowmeter-data'
@@ -25424,6 +25636,7 @@
         if (page === 'valve-group') { setTimeout(() => { if (typeof valveRenderGroup === 'function') valveRenderGroup(); }, 30); }
         if (page === 'regulator-group') { setTimeout(() => { if (typeof regulatorRenderGroup === 'function') regulatorRenderGroup(); }, 30); }
         if (page === 'projects-prod') { setTimeout(() => { if (typeof projectInitSorted === 'function') projectInitSorted('prod'); }, 30); }
+        if (page === 'projects-status') { setTimeout(() => { if (typeof projectInitSorted === 'function') projectInitSorted('status'); }, 30); } // Task 369
         if (page === 'project-detail') { setTimeout(() => { if (typeof projectRenderDetail === 'function') projectRenderDetail(); }, 30); }
         if (page === 'project-group') { setTimeout(() => { if (typeof projectsRenderGroup === 'function') projectsRenderGroup(); }, 30); }
         if (page === 'cable-journal-edit') { setTimeout(() => { if (typeof KipCableJournal !== 'undefined') KipCableJournal.init(); }, 30); }
@@ -25868,6 +26081,7 @@
         'regulator-detail': 'regulators-prod',
         'regulator-group':  'regulators-prod',
         'projects-prod':    'kip-ios',
+        'projects-status':  'kip-ios',   // Task 369: свайп кнопки «Проекты»
         'project-detail':   'projects-prod',
         'project-group':    'projects-prod',
         'cable-journal-edit':   'kip-ios',
@@ -25922,6 +26136,7 @@
         'regulator-detail': 'Регулятор',
         'regulator-group':  'Группа регуляторов',
         'projects-prod':    'Проекты',
+        'projects-status':  'Проекты по статусу',   // Task 369
         'project-detail':   'Проект',
         'project-group':    'Группа проектов',
         'cable-journal-edit':   'Кабельный журнал',
@@ -28176,7 +28391,7 @@
                     'device-detail', 'dev-group', 'lockouts-prod', 'lockout-detail',
                     'lock-group', 'valves-prod', 'valve-detail', 'valve-group',
                     'regulators-prod', 'regulator-detail', 'regulator-group',
-                    'projects-prod', 'project-detail', 'project-group',
+                    'projects-prod', 'projects-status', 'project-detail', 'project-group', // Task 369
                     'cable-journal-edit', 'cable-journal-add', 'cable-journal-view',
                     'kip-ios', 'library-internal', 'library-electro',
                     'plan-114', 'exam-tickets', 'admin-users', 'admin-sessions',
@@ -31162,7 +31377,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                          'lockouts-prod', 'lockout-detail', 'lock-group',
                          'valves-prod', 'valves-type', 'valves-name', 'valve-detail', 'valve-group',
                          'regulators-prod', 'regulator-detail', 'regulator-group',
-                         'projects-prod', 'project-detail', 'project-group',
+                         'projects-prod', 'projects-status', 'project-detail', 'project-group', // Task 369
                          'cable-journal-edit',
                          'cable-journal-add',
                          'cable-journal-view',
@@ -35844,6 +36059,22 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         return { start: start, end: end };
     }
 
+    /** Task 368: границы ПРОШЕДШЕЙ календарной недели (пн–вс) от now.
+     *  Возвращает {start, end}: start = понедельник прошлой недели,
+     *  end = воскресенье прошлой недели. Пример: now=чт 10.09.2026 →
+     *  start=пн 31.08.2026, end=вс 06.09.2026. Ровно в понедельник
+     *  «прошлая неделя» — только что закрывшаяся (вс накануне);
+     *  годовые переходы корректны (Date(y, m, d-7) через декабрь). */
+    function flowPrevWeekRange(now) {
+        var n = (now instanceof Date) ? now : new Date();
+        var mon = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+        mon.setDate(mon.getDate() - (mon.getDay() + 6) % 7);  // пн текущей недели
+        return {
+            start: new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() - 7),
+            end: new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() - 1)
+        };
+    }
+
     /** Task 286: Date → 'YYYY-MM-DD' (значение для input type="date") */
     function flowDateToInputVal(d) {
         if (!d || !(d instanceof Date) || isNaN(d.getTime())) return '';
@@ -36171,10 +36402,14 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         //   формулировка «ровно час» отменена поправкой
         //   пользователя: зелёный возвращается только вместе
         //   с новыми показаниями).
-        //   Еженедельно — календарная неделя (пн–вс) последних
-        //                 данных уже прошла; зелёный — та же неделя.
-        //   Ежемесячно  — календарный месяц последних данных уже
-        //                 прошёл; зелёный — тот же месяц.
+        //   Task 368 (заявка): показания недельных/месячных вводятся
+        //   за ПЕРИОД двух дат; зелёный — пока период последних данных
+        //   [datePrev…dateCurr] накрывает последнюю ЗАКРЫТУЮ
+        //   календарную неделю (пн–вс) / месяц; красный — когда
+        //   закрытая неделя/месяц осталась без данных («пора вводить»),
+        //   и снова красный с закрытием следующей — пока не введут
+        //   данные за её/его период. Форма ввода по умолчанию
+        //   предлагает границы именно закрытой недели/месяца.
         // Нет данных / нечитаемая дата — «пора вводить» (красный).
         // ============================================================
         _isOverdue: function(m, now) {
@@ -36186,14 +36421,30 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     ? now : new Date();
             var d = this._parseMdy(m.dateCurr);
             if (!d) return true;  // данных нет — пора вводить
+            // Task 367 (заявка): недельные — красный по КАЛЕНДАРНОЙ
+            // неделе (пн–вс), месячные — по календарному месяцу
+            // (поведение Task 357 подтверждено пользователем).
+            // Распознавание периода укреплено: сокращения («Еженед.»,
+            // «Ежемес.») и «N раз в неделю/месяц» из таблицы попадают
+            // в свою ветку, а не считаются суточными.
             var period = String(m.period || '').toLowerCase();
-            if (period.indexOf('недел') !== -1) {
-                // Еженедельно: календарная неделя данных прошла (неделя пн–вс)
-                return this._mondayOf(d) < this._mondayOf(n);
+            // Task 368: понедельник текущей недели — база границ
+            // последней ЗАКРЫТОЙ недели (пн–вс)
+            var wMon = this._mondayOf(n);
+            if (/недел|еженед/.test(period)) {
+                // Task 368: зелёный — период данных накрывает последнюю
+                // ЗАКРЫТУЮ календарную неделю (пн–вс); красный — закрытая
+                // неделя без данных, и снова красный с закрытием следующей
+                return !this._recordCoversPeriod(m, d,
+                    new Date(wMon.getFullYear(), wMon.getMonth(), wMon.getDate() - 7),
+                    new Date(wMon.getFullYear(), wMon.getMonth(), wMon.getDate() - 1));
             }
-            if (period.indexOf('месяч') !== -1) {
-                // Ежемесячно: календарный месяц данных прошёл
-                return (d.getFullYear() * 12 + d.getMonth()) < (n.getFullYear() * 12 + n.getMonth());
+            if (/месяц|месяч|ежемес/.test(period)) {
+                // Task 368: аналогично недельным, но по календарному месяцу —
+                // последний ЗАКРЫТЫЙ месяц (1-е…последнее число)
+                return !this._recordCoversPeriod(m, d,
+                    new Date(n.getFullYear(), n.getMonth() - 1, 1),
+                    new Date(n.getFullYear(), n.getMonth(), 0));
             }
             // «Ежедневно» (и неизвестный период — как ежедневный):
             // «предыдущие сутки» текущего цикла ввода (граница 6:00)
@@ -36224,6 +36475,33 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var r = new Date(d.getFullYear(), d.getMonth(), d.getDate());
             r.setDate(r.getDate() - (r.getDay() + 6) % 7);
             return r;
+        },
+
+        // Task 368: недельный/месячный расходомер — по периоду из
+        // таблицы (регэкспы веток _isOverdue, Task 367: «Еженед.»,
+        // «Ежемес.», «N раз в неделю/месяц»). Хозрасчёт №1 исключён:
+        // у него своя форма с chips «За сутки/За месяц» (расход, не
+        // показания) и суточная логика «пора вводить».
+        _isWeeklyMeter: function(m) {
+            return !this._isDailyMode(m) &&
+                /недел|еженед/.test(String((m && m.period) || '').toLowerCase());
+        },
+        _isMonthlyMeter: function(m) {
+            return !this._isDailyMode(m) &&
+                /месяц|месяч|ежемес/.test(String((m && m.period) || '').toLowerCase());
+        },
+
+        // Task 368: накрывает ли период последних данных [datePrev …
+        // dateCurr] ЗАКРЫТЫЙ календарный период [refStart … refEnd]?
+        // Пересечения достаточно: показание, снятое в середине
+        // недели, — тоже «данные этой недели». d — разобранный
+        // dateCurr; у legacy-записей без datePrev (или с битой датой)
+        // период считается точечным [d … d].
+        _recordCoversPeriod: function(m, d, refStart, refEnd) {
+            var s = this._parseMdy(m.datePrev);
+            if (!s || this._dayKey(s) > this._dayKey(d)) s = d;
+            return this._dayKey(s) <= this._dayKey(refEnd) &&
+                   this._dayKey(d) >= this._dayKey(refStart);
         },
 
         // Task 348: сигнатура состояний «пора вводить» видимых
@@ -36375,18 +36653,22 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
 
             var html = '';
-            // Task 358: честный индикатор — N показаний ещё НЕ на
-            // сервере (нет связи в прошлой сессии); уйдут автоматически.
-            // Пользователь должен ЗНАТЬ, что введённое не доставлено.
-            var outboxN = 0;
-            try { outboxN = this._outboxCount(); } catch (e) { outboxN = 0; }
-            if (outboxN > 0) {
-                html += '<div class="flow-outbox-banner">' +
-                    '<span class="flow-outbox-ico">⟳</span>' +
-                    '<span>Показаний ждут отправки: ' + outboxN +
-                    ' — уйдут на сервер автоматически при восстановлении связи</span>' +
-                    '</div>';
-            }
+            // Task 367 (заявка: «упростить ещё — баннер убрать вовсе»):
+            // недоставленные показания видны ЦВЕТОМ ЗНАЧЕНИЯ карточки —
+            // жёлто-оранжевый .flow-summary-val-pending (вместо баннера
+            // над списком, Tasks 358/366). Собираем номера расходомеров,
+            // у которых в outbox ещё есть записи (state любой — всё,
+            // что не доставлено и не отменено пользователем).
+            var pendingIds = {};
+            try {
+                var outboxEntries = this._outboxLoad();
+                for (var oi = 0; oi < outboxEntries.length; oi++) {
+                    var pid = ((outboxEntries[oi] || {}).payload || {}).id;
+                    if (pid !== undefined && pid !== null && pid !== '') {
+                        pendingIds[String(pid)] = true;
+                    }
+                }
+            } catch (e) { /* outbox недоступен — обычные цвета */ }
 
             for (var i = 0; i < meters.length; i++) {
                 var m = meters[i];
@@ -36417,10 +36699,28 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 html += '<span class="flow-summary-item flow-summary-item-last">';
                 // Task 247: пробел вынесен ЗА пределы span даты — блок «за ДД.ММ.ГГГГ г.»
                 // неразрывен (white-space: nowrap), переносится на новую строку целиком.
-                html += '<span class="flow-summary-label">Последние показания <span class="flow-summary-date-inline">за ' + this._fmtDate(m.dateCurr) + ' г.</span></span>';
+                // Task 368: показания за период — подпись «за ДД.ММ–ДД.ММ.ГГГГ»
+                // (границы datePrev–dateCurr; точечная legacy-запись — одна дата)
+                var lastDateInline368 = 'за ' + this._fmtDate(m.dateCurr) + ' г.';
+                if (this._isWeeklyMeter(m) || this._isMonthlyMeter(m)) {
+                    var rpS = this._parseMdy(m.datePrev);
+                    var rpE = this._parseMdy(m.dateCurr);
+                    if (rpS && rpE && this._dayKey(rpS) < this._dayKey(rpE)) {
+                        lastDateInline368 = 'за ' + flowWeekRangeLabel(rpS, rpE) + ' г.';
+                    }
+                }
+                html += '<span class="flow-summary-label">Последние показания <span class="flow-summary-date-inline">' + lastDateInline368 + '</span></span>';
                 // Task 348: красный цвет показаний — «пора вводить новые
-                // данные» (6:00 / прошедшая неделя / прошедший месяц)
-                html += '<span class="flow-summary-val' + (this._isOverdue(m, null) ? ' flow-summary-val-due' : '') + '">' + this._fmtNum(m.curr) + ' ' + this._esc(m.unit) + '</span>';
+                // данные» (6:00 / прошедшая неделя / прошедший месяц).
+                // Task 367: недоставленные (outbox) — жёлто-оранжевый,
+                // приоритет НАД красным: ввод уже состоялся, «пора
+                // вводить» до доставки врало бы; после доставки цвет
+                // пересчитается (зелёный; красный вернётся лишь для
+                // действительно устаревших данных).
+                var valCls = 'flow-summary-val';
+                if (pendingIds[String(m.id)]) valCls += ' flow-summary-val-pending';
+                else if (this._isOverdue(m, null)) valCls += ' flow-summary-val-due';
+                html += '<span class="' + valCls + '">' + this._fmtNum(m.curr) + ' ' + this._esc(m.unit) + '</span>';
                 var subParts = [];
                 if (m.temp !== null && m.temp !== undefined) { subParts.push(tempStr); }
                 if (m.gcal !== null && m.gcal !== undefined) { subParts.push(gcalStr); }
@@ -36766,10 +37066,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // «за ДД.ММ.ГГГГ г.» неразрывен (white-space: nowrap в CSS), поэтому
             // при нехватке ширины он переносится на новую строку ЦЕЛИКОМ.
             var lastReadingLabel = 'Последние показания';
+            // Task 368: показания за период — подпись «за ДД.ММ–ДД.ММ.ГГГГ»
+            var lastDateInline = 'за ' + this._fmtDate(m.dateCurr) + ' г.';
+            if (this._isWeeklyMeter(m) || this._isMonthlyMeter(m)) {
+                var ldS = this._parseMdy(m.datePrev);
+                var ldE = this._parseMdy(m.dateCurr);
+                if (ldS && ldE && this._dayKey(ldS) < this._dayKey(ldE)) {
+                    lastDateInline = 'за ' + flowWeekRangeLabel(ldS, ldE) + ' г.';
+                }
+            }
             html += '<div class="flow-detail-row flow-detail-row-last">' +
                 '<div class="flow-detail-row-head">' +
                     '<span class="flow-detail-label">' + lastReadingLabel +
-                        ' <span class="flow-detail-date-inline">за ' + this._fmtDate(m.dateCurr) + ' г.</span>' +
+                        ' <span class="flow-detail-date-inline">' + lastDateInline + '</span>' +
                     '</span>' +
                     commentBtnHtml +
                 '</div>' +
@@ -37273,6 +37582,29 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var dateLabel = document.getElementById('flowInputDateLabel');
             var dateEndLabel = document.getElementById('flowInputDateEndLabel');
 
+            // Task 368: недельные (№3, №11) и месячные (№9) расходомеры —
+            // показания вводятся за ПЕРИОД из двух дат («Период с … по …»).
+            // Новый ввод — по умолчанию границы ПРОШЕДШЕЙ календарной
+            // недели (пн–вс) / прошлого календарного месяца; правка —
+            // предзаполнение датами записи (datePrev — начало её периода).
+            if (this._isWeeklyMeter(m) || this._isMonthlyMeter(m)) {
+                var defR = this._isWeeklyMeter(m)
+                    ? flowPrevWeekRange(now) : flowPrevMonthRange(now);
+                var pvS = defR.start, pvE = defR.end;
+                if (isEdit && m) {
+                    var rs = this._parseMdy(m.datePrev);
+                    var re = this._parseMdy(m.dateCurr);
+                    if (rs) pvS = rs;
+                    if (re) pvE = re;
+                }
+                if (dateLabel) dateLabel.textContent = 'Период с';
+                if (dateEndLabel) dateEndLabel.textContent = 'по';
+                if (dateEndGroup) dateEndGroup.style.display = '';
+                if (dateField) dateField.value = flowDateToInputVal(pvS);
+                if (dateEndField) dateEndField.value = flowDateToInputVal(pvE);
+                return;
+            }
+
             // Суточный ввод (а также редактирование и не-№1 расходомеры):
             // одно поле даты. Task 348: по умолчанию — ПРЕДЫДУЩИЕ сутки
             // (совпадает с подписью поля «Дата за предыдущие сутки»):
@@ -37428,6 +37760,37 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 dateStr = (prevDay.getMonth() + 1) + '/' + prevDay.getDate() + '/' + prevDay.getFullYear();
             }
 
+            // Task 368: недельные (№3, №11) и месячные (№9) — показания
+            // за ПЕРИОД из двух дат: datePrev = «Период с», dateCurr =
+            // «по» (пустые поля → границы прошедшей календарной недели
+            // пн–вс / месяца — дефолт формы). Отправка — обычным
+            // маршрутом flowmeter.updateReading: сервер пишет обе даты
+            // в meters-строку (D/E) и в архив, расход = curr − prev за
+            // выбранный период.
+            var datePrevStr = null;
+            var pmMeter = null;
+            var pmId = window._flowDetailId;
+            for (var pmi = 0; pmi < this._METERS.length; pmi++) {
+                if (this._METERS[pmi].id === pmId) { pmMeter = this._METERS[pmi]; break; }
+            }
+            if (pmMeter && (this._isWeeklyMeter(pmMeter) || this._isMonthlyMeter(pmMeter))) {
+                var pnow = new Date();
+                var pDef = this._isWeeklyMeter(pmMeter)
+                    ? flowPrevWeekRange(pnow) : flowPrevMonthRange(pnow);
+                var pEndEl = document.getElementById('flowInputDateEnd');
+                var psD = (dateField && dateField.value) ? _flowParseDate(dateField.value) : pDef.start;
+                var peD = (pEndEl && pEndEl.value) ? _flowParseDate(pEndEl.value) : pDef.end;
+                if (psD && peD && peD < psD) {
+                    // Зеркало серверной DATE_INCONSISTENT и ветки №1
+                    if (typeof KipToast !== 'undefined' && KipToast.show) {
+                        KipToast.show('Дата конца периода раньше даты начала — проверьте даты');
+                    }
+                    return;
+                }
+                datePrevStr = flowDateToMdy(psD || pDef.start);
+                dateStr = flowDateToMdy(peD || pDef.end);
+            }
+
             var id = window._flowDetailId;
             var self = this;
 
@@ -37452,6 +37815,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     }
                     meter.curr = num;
                     meter.dateCurr = dateStr;
+                    // Task 368: показания за период — дата начала из
+                    // формы («Период с»); при правке — тоже (пользователь
+                    // может поправить границы периода, prev/curr не сдвигаются)
+                    if (datePrevStr) meter.datePrev = datePrevStr;
                     if (!dailyMode && tempVal !== null) {
                         meter.temp = tempVal;
                     }
@@ -37515,6 +37882,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     ts: Date.now(),
                     state: 'pending'
                 });
+                // Task 367: значение карточки — жёлто-оранжевое, пока
+                // показание не доставлено (рендер выше успевал показать
+                // зелёный ДО записи в outbox)
+                this.renderList();
 
                 var rules = this._getRulesForMeter(id);
                 var lastArch = this._getLastArchiveForValidation(id, meter);
@@ -37825,6 +38196,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 ts: Date.now(),
                 state: 'pending'
             });
+            // Task 367: значение карточки — жёлто-оранжевое до доставки
+            this.renderList();
 
             this._api('flowmeter.updatePeriodReading', apiPayload).then(function(res) {
                 // Подстраховка: новый сервер возвращает data.entryType;
@@ -37952,10 +38325,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         //     запись НЕ удаляем; следующий запуск сверит с сервером —
         //     дубликат уберёт дедуп, дыру отправит заново).
         //
-        // Дедуп обязателен: сервер пишет архив appendRow'ом без проверки
-        // дублей — бездумный повтор создал бы дубликат в архиве. Перед
-        // повтором сверяемся с фактом: 'day' — meters-строка
+        // Дедуп обязателен: повтор может создать дубликат в архиве.
+        // Перед повтором сверяемся с фактом: 'day' — meters-строка
         // (flowmeter.list), 'period' — архив (flowmeter.archive).
+        // Task 366: СЕРВЕР тоже дедупит (FlowmeterArchive.gs — ключ
+        // meterId+prev+curr+dateCurr+entryType под Utils.withLock):
+        // ретрай, beacon «последнего шанса» рядом с живым fetch'ем и
+        // два окна приложения больше не создают дубль строки архива.
         // ============================================================
         _OUTBOX_KEY: 'kip8_flow_outbox_v1',
 
@@ -38011,6 +38387,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             return this._outboxLoad().length;
         },
 
+        // Task 367: баннер недоставленных показаний убран по заявке
+        // («упростить ещё — убрать баннер вовсе»); вместо него жёлто-
+        // оранжевый цвет ЗНАЧЕНИЙ карточек — .flow-summary-val-pending
+        // в renderList. Хелпер _outboxBannerText удалён вместе с ним.
+
         // Окончательный отказ сервера — ретраить бессмысленно (вечный
         // цикл + тост на каждом запуске). НЕ окончательные: сеть (нет
         // _kind='SERVER'), истёкшая сессия (после входа отправим),
@@ -38022,6 +38403,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var msg = String(err.message || err.error || err);
             if (/session|токен|token/i.test(msg)) return false;      // лечится входом
             if (/unknown action/i.test(msg)) return false;           // лечится апгрейдом сервера
+            if (/server_busy/i.test(msg)) return false;             // Task 366: замок архива занят — ретрай позже
             return true;  // edit_window_expired / not_your_input / sign_neg / ...
         },
 
@@ -38099,6 +38481,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             this._outboxFlushing = true;
             var finish = function(sent) {
                 self._outboxFlushing = false;
+                // Task 367: записи ушли/вычищены дедупом — цвета
+                // значений карточек пересчитать (жёлто-оранжевый →
+                // зелёный/красный)
+                try { self.renderList(); } catch (e) { /* ignore */ }
                 if (sent > 0) {
                     self._outboxRetryTries = 0;
                     try {
@@ -38422,6 +38808,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 // показываем диапазон дат + бейдж (нед/мес)
                 var rEt = String(r.entryType || '').trim().toLowerCase();
                 var isPeriodRow = (rEt === 'неделя' || rEt === 'месяц');
+                // Task 368: записи недельных/месячных расходомеров вводятся
+                // за период двух дат — показываем диапазон (без бейджа
+                // «нед/мес»: это показания, а не агрегат «расход за
+                // неделю/месяц» Хозрасчёта №1)
+                var isMeterPeriodRow = !isPeriodRow &&
+                    (this._isWeeklyMeter(meter) || this._isMonthlyMeter(meter));
                 html += '<tr>';
                 if (isPeriodRow) {
                     // Диапазон периода «ДД.ММ–ДД.ММ.ГГГГ» + бейдж «нед»/«мес»
@@ -38429,6 +38821,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     var rangeStr = this._fmtDateShort(r.datePrev) + '–' + this._fmtDate(r.dateCurr);
                     html += '<td class="flow-archive-date flow-archive-date-range">' + rangeStr +
                             ' <span class="flow-arch-period-badge" title="Расход за ' + rEt + '">' + badgeTxt + '</span></td>';
+                } else if (isMeterPeriodRow && _flowParseDate(r.datePrev) &&
+                           _flowParseDate(r.dateCurr) &&
+                           _flowParseDate(r.datePrev).getTime() < _flowParseDate(r.dateCurr).getTime()) {
+                    // Task 368: показания за период — диапазон дат записи
+                    html += '<td class="flow-archive-date flow-archive-date-range">' +
+                            this._fmtDateShort(r.datePrev) + '–' + this._fmtDate(r.dateCurr) + '</td>';
                 } else {
                     html += '<td class="flow-archive-date">' + this._fmtDate(r.dateCurr) + '</td>';
                 }
