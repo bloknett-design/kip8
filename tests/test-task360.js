@@ -28,7 +28,7 @@
 //   • CSS @media print: .wsp-mev-item/.wsp-lg — display: block
 //     (один столбик) + page-break-inside: avoid.
 //
-// SW: kipia-v446.
+// SW: kipia-v447.
 //
 // Запуск: через tests/run-all.js (require './test-task360.js').
 
@@ -572,10 +572,10 @@ describe('Task 360 — регресс прежних фич печати', () =>
 // ============================================================
 describe('Task 360 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v446', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v446'") !== -1,
-            'CACHE_VERSION = kipia-v446 (Task 360 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v447') !== -1,
-            'v447 ещё не существует (лишний инкремент)');
+    test('SW: кэш поднят до kipia-v447', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v447'") !== -1,
+            'CACHE_VERSION = kipia-v447 (Task 360 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v448') !== -1,
+            'v448 ещё не существует (лишний инкремент)');
     });
 });
