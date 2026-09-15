@@ -35,7 +35,7 @@
 //       позиционируется СТРОГО НАД ним (eTop = top - eh - 8, сдвиг
 //       окна кодов вниз при нехватке места, левые края выровнены);
 //     — closeCellPopup: закрывает ОБА окна.
-//   SW: kipia-v451.
+//   SW: kipia-v452.
 //
 // Запуск: через tests/run-all.js (require './test-task313.js').
 
@@ -241,9 +241,9 @@ describe('Task 313 — окно «Мероприятия в этот день» 
 
 describe('Task 313 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v451', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v451'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v451');
+    test('SW: версия кэша kipia-v452', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v452'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v452');
         assertFalse(SW_SRC.indexOf('kipia-test-v551') !== -1,
             'старой версии v551 нет');
     });
