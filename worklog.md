@@ -8377,3 +8377,21 @@ Stage Summary:
 - Тесты kip8 3138/0 (с первого прогона), браузер 30/30, VLM-пруфы. kip8test — источник (78412e8, kipia-test-v604, 3132/0, CI success).
 - ⚠️ ПОЛЬЗОВАТЕЛЮ: для серверного правила «окно 1 часа» — обновить FlowmeterArchive.gs в Apps Script («Новая версия»), см. DEPLOY-Task375-transfer-from-test.md; клиентские защиты работают без этого шага.
 - Следующий номер задачи: 376 (в обоих репо).
+
+---
+Task ID: 376
+Agent: Z.ai Code (главный)
+Task: kip8 Task 376 — перенос из kip8test fadcacb (заявка: потерянная строка архива расходомера №12 при записанном meters — «в чём может быть причина, проверь»).
+
+Work Log:
+- Окружение: PAT из чата проверен через API /user ДО записи (урок Task 365): 200, bloknett-design → /home/z/.kip_pat (93 символа, chmod 600; файл отсутствовал после сброса песочницы — создан заново). Оба репо синхронизированы с remote (автокоммиты данных 16c4ef6/8471325).
+- Перенос: prepare-kip8-transfer.py → /tmp/kip8_index_transfer.html; дифф 93 строки — ТОЛЬКО зоны Task 376 (ветки archive_write_failed в catch, дедуп day по архиву, finish-ретрай); cp index.html; Flowmeter.gs/FlowmeterArchive.gs — дифф только зоны 376 (проверено построчно), скопированы.
+- SW kipia-v452→v453 (scripts/task376-bump-sw.py; 65 тест-файлов, guard v454; повторный запуск упёрся в защиту — бамп не задвоен).
+- Тесты: адаптации task376-adapt-tests.py (те же 4 файла: 366 Utilities.sleep + busy 3 захвата, 375 Utilities.sleep, period-input стабильный код, 358 дедуб day с архивом); test-task376.js с маппингом kipia-test-v605→kipia-v453 / v606→v454; run-all +1 → 3164/0 С ПЕРВОГО прогона.
+- Браузер scripts/task376-browser-check.py 15/15 (порт 8980; localStorage БЕЗ префикса kip8_session_token/app-theme — урок 365): ДЫРА №12 (meters записан, архив пуст) → повторная доставка; строка есть → дубль не уходит; archive_write_failed → outbox retry + pending-цвет + тост; авто-ретрай 15 c доставил; регресс; 0 JS-ошибок.
+- DEPLOY-Task376-transfer-from-test.md (⚠️ сервер: ручная замена FlowmeterArchive.gs И Flowmeter.gs в Apps Script + «Новая версия»; инструкция закрытия существующей дыры №12: «Изменить показания» в окне 1 ч / вручную позже).
+
+Stage Summary:
+- Task 376 В ПРОДЕ kip8 (SW kipia-v453): потеря строки архива при записанном meters устранена — серверные ретраи + честный archive_write_failed, клиентские ретраи + day-дедуп по архиву + finish-ретрай.
+- kip8test: fadcacb (SW kipia-test-v605, 3158/0); kip8: ожидает пуш.
+- Следующий номер задачи: 377.

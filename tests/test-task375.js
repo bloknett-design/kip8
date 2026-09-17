@@ -388,6 +388,7 @@ function archiveVM(rows, opts) {
         Date: Date, Math: Math,
         parseInt: parseInt, parseFloat: parseFloat, String: String,
         Logger: { log: function (m) { (ctx.__logs = ctx.__logs || []).push(String(m)); } },
+        Utilities: { sleep: function () { /* Task 376: пауза между ретраями */ } },
         Flowmeter: {
             _clientToDateObj: function (val) {
                 if (!val) return null;
@@ -554,13 +555,13 @@ describe('Task 375 — SRC: сервер FlowmeterArchive.gs', () => {
 // ============================================================
 describe('Task 375 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v452', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v452'") !== -1,
+    test('SW: CACHE_VERSION = kipia-v453', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v453'") !== -1,
             'версия кэша поднята до v452');
     });
 
     test('SW: нет v451 (старая) и нет v453 (двойной бамп)', () => {
         assertTrue(SW_SRC.indexOf('kipia-v451') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v453') === -1, 'двойного бампа не было');
+        assertTrue(SW_SRC.indexOf('kipia-v454') === -1, 'двойного бампа не было');
     });
 });
