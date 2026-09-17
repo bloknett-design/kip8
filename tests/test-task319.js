@@ -43,7 +43,7 @@
 //     → под кнопкой, без бара → прежнее поведение);
 //     _openEventsOnlyPopup (рендер окна, кловер, позиция, без
 //     окна кодов).
-//   SW: kipia-v455.
+//   SW: kipia-v456.
 //
 // Запуск: через tests/run-all.js (require './test-task319.js').
 
@@ -359,8 +359,8 @@ describe('Task 319 — тёмная тема: шахматка дней как �
             'база .ws-cell — var(--bg-primary) (правка НЕ в базе)');
         assertTrue(cssRule(/\[data-theme="light"\] \.ws-grid tbody td\.ws-cell\.ws-feast\.ws-status-empty \{[^}]*#f8e2e9[^}]*\}/s),
             'светлое правило праздников #f8e2e9 — на месте (Task 363)');
-        assertTrue(cssRule(/\[data-theme="light"\] \.ws-grid tbody td\.ws-cell \{[^}]*background:\s*#eef0f2;[^}]*\}/s),
-            'светлая тема не менялась');
+        assertTrue(cssRule(/\[data-theme="light"\] \.ws-grid tbody td\.ws-cell \{[^}]*background:\s*#FFFFFF;[^}]*\}/s),
+            'светлая тема: пустые ячейки #FFFFFF (Task 379, было #eef0f2)');
     });
 });
 
@@ -512,10 +512,10 @@ describe('Task 319 — окно кодов и «Мероприятия в это
 // Service Worker
 // ------------------------------------------------------------
 describe('Task 319 — Service Worker', () => {
-    test('SW: версия кэша kipia-v455', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v455') !== -1,
-            'CACHE_VERSION = kipia-v455 (Task 319)');
-        assertFalse(SW_SRC.indexOf('kipia-v456') !== -1,
+    test('SW: версия кэша kipia-v456', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v456') !== -1,
+            'CACHE_VERSION = kipia-v456 (Task 319)');
+        assertFalse(SW_SRC.indexOf('kipia-v457') !== -1,
             'нет лишнего инкремента');
     });
 });
