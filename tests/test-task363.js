@@ -21,7 +21,7 @@
 //     праздники НЕ входят.
 // Хелперы: _calDayFeast (праздник), _calWend (обычный выходной).
 //
-// SW: kipia-v453.
+// SW: kipia-v454.
 //
 // Запуск: через tests/run-all.js (require './test-task363.js').
 
@@ -143,8 +143,9 @@ describe('Task 363 — SRC: красная рамка-группа выходн�
     test('SRC: специфичность рамки выше светлой темы (не перекрасится)', () => {
         // [data-theme="light"] .ws-grid tbody td { border-color } —
         // (0,2,2); рамочные селекторы с .ws-cell — (0,3,2) и позже
+        // (Task 377: цвет правила — rgb(64,80,102), селектор прежний)
         const iLight = INDEX_SRC.indexOf(
-            '[data-theme="light"] .ws-grid tbody td {\n        border-color: rgba(0, 0, 0, 0.30);');
+            '[data-theme="light"] .ws-grid tbody td {\n        border-color: rgb(64, 80, 102);');
         const iRed = INDEX_SRC.indexOf('.ws-grid tbody td.ws-cell.ws-wgrp-first {');
         assertTrue(iLight !== -1 && iRed !== -1,
             'оба правила в файле');
@@ -393,15 +394,15 @@ describe('Task 363 — VM: регресс соседних фич', () => {
 // ============================================================
 describe('Task 363 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v453', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v453'") !== -1,
-            'CACHE_VERSION = kipia-v453 (Task 363 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v454') !== -1,
-            'v453 ещё не существует (лишний инкремент)');
+    test('SW: кэш поднят до kipia-v454', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v454'") !== -1,
+            'CACHE_VERSION = kipia-v454 (Task 363 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v455') !== -1,
+            'v455 ещё не существует (лишний инкремент)');
     });
 
     test('SW: в index.html нет захардкоженной версии кэша', () => {
-        assertFalse(INDEX_SRC.indexOf('kipia-v44') !== -1,
+        assertFalse(INDEX_SRC.indexOf('kipia-test-v59') !== -1,
             'клиент не знает номер кэша (версией управляет sw.js)');
     });
 });

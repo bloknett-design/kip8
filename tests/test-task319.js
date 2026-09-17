@@ -43,7 +43,7 @@
 //     → под кнопкой, без бара → прежнее поведение);
 //     _openEventsOnlyPopup (рендер окна, кловер, позиция, без
 //     окна кодов).
-//   SW: kipia-v453.
+//   SW: kipia-v454.
 //
 // Запуск: через tests/run-all.js (require './test-task319.js').
 
@@ -186,8 +186,8 @@ describe('Task 319 — перекрестье: строка и столбец', 
             'ПЕРЕСЕЧЕНИЕ строки и столбца — 0.24 (насыщеннее)');
         assertTrue(cssRule(/tr\.ws-hover-row td\.ws-cell\.ws-sel \{[^}]*rgba\(74, 143, 199, 0\.24\)[^}]*\}/s),
             'выбранный кликом день в строке — выбор не затирается');
-        assertTrue(cssRule(/tr\.ws-hover-row td\.ws-cell\.ws-today \{[^}]*rgba\(74, 143, 199, 0\.20\)[^}]*\}/s),
-            '«сегодня» в наведённой строке');
+        assertTrue(cssRule(/tr\.ws-hover-row td\.ws-cell\.ws-today \{[^}]*rgba\(74, 143, 199, 0\.32\)[^}]*\}/s),
+            '«сегодня» в наведённой строке (Task 377: усилено 0.20 → 0.32)');
         assertTrue(cssRule(/tr\.ws-hover-row td\.ws-cell\.ws-source-manual \{[^}]*0\.10\),[^}]*1\.5px rgba\(255,255,255,0\.5\)[^}]*\}/s),
             'рамка ручной записи не затирается заливкой строки');
         assertTrue(cssRule(/tr\.ws-hover-row td\.ws-emp-col \{[^}]*rgba\(74, 143, 199, 0\.10\)[^}]*\}/s),
@@ -512,10 +512,10 @@ describe('Task 319 — окно кодов и «Мероприятия в это
 // Service Worker
 // ------------------------------------------------------------
 describe('Task 319 — Service Worker', () => {
-    test('SW: версия кэша kipia-v453', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v453') !== -1,
-            'CACHE_VERSION = kipia-v453 (Task 319)');
-        assertFalse(SW_SRC.indexOf('kipia-v454') !== -1,
+    test('SW: версия кэша kipia-v454', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v454') !== -1,
+            'CACHE_VERSION = kipia-v454 (Task 319)');
+        assertFalse(SW_SRC.indexOf('kipia-v455') !== -1,
             'нет лишнего инкремента');
     });
 });

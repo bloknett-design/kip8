@@ -175,6 +175,9 @@ require('./test-task375.js');
 // ретраи appendToArchive, честный archive_write_failed, day-дедуп
 // флаша подтверждается по архиву (перенос из kip8test fadcacb)
 require('./test-task376.js');
+// Task 377: шахматка табеля — усиление «сегодня» + полосы светлой
+// темы цветом тёмной
+require('./test-task377.js');
 require('./test-deploy-url.js');
 
 // Запускаем
