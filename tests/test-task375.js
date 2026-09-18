@@ -555,13 +555,13 @@ describe('Task 375 — SRC: сервер FlowmeterArchive.gs', () => {
 // ============================================================
 describe('Task 375 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v457', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v457'") !== -1,
+    test('SW: CACHE_VERSION = kipia-v458', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v458'") !== -1,
             'версия кэша поднята до v452');
     });
 
     test('SW: нет v451 (старая) и нет v453 (двойной бамп)', () => {
         assertTrue(SW_SRC.indexOf('kipia-v451') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v458') === -1, 'двойного бампа не было');
+        assertTrue(SW_SRC.indexOf('kipia-v459') === -1, 'двойного бампа не было');
     });
 });
