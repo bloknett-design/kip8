@@ -87,13 +87,13 @@ describe('Task 370 — SRC: недоставленные — ярче и бли�
 // ============================================================
 // B. SW
 // ============================================================
-describe('Task 370 — SW: kipia-v459', () => {
-    test('SW: CACHE_VERSION = kipia-v459', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v459'") !== -1,
+describe('Task 370 — SW: kipia-v460', () => {
+    test('SW: CACHE_VERSION = kipia-v460', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
             'SW-кэш инвалидируется (цвет значений в index.html)');
     });
     test('SW: нет старых/двойных версий', () => {
         assertTrue(SW_SRC.indexOf('kipia-v446') === -1, 'старая версия v446 не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v460') === -1, 'двойного бампа (v448) не было');
+        assertTrue(SW_SRC.indexOf('kipia-v461') === -1, 'двойного бампа (v448) не было');
     });
 });

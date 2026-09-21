@@ -39,7 +39,7 @@
 //   CSS мобайл: user-select:none на .ws-grid,.ws-tt-table внутри
 //     @media (max-width: 1023px); базовые правила таблиц БЕЗ
 //     user-select (десктоп жив); правило одно.
-//   SW: kipia-v459 (guard v610).
+//   SW: kipia-v460 (guard v610).
 //   Регресс: окна бара на десктопе выделяются как прежде
 //     (.ws-events-panel без user-select).
 //
@@ -307,10 +307,10 @@ describe('Task 380 — CSS: мобайл без выделения текста'
 // ============================================================
 describe('Task 380 — SW и адаптации тестов', () => {
 
-    test('SW: kipia-v459', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v459'") !== -1,
-            'версия кэша kipia-v459');
-        assertFalse(SW_SRC.indexOf('kipia-v460') !== -1,
+    test('SW: kipia-v460', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
+            'версия кэша kipia-v460');
+        assertFalse(SW_SRC.indexOf('kipia-v461') !== -1,
             'двойного бампа нет');
     });
 

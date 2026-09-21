@@ -8464,3 +8464,23 @@ Work Log:
 
 Stage Summary:
 - Промт боевого kip8 синхронизирован к post-Task 382 — готов как контекст для нового чата. Следующий номер задачи: 384.
+
+---
+Task ID: 384-transfer
+Agent: Z.ai Code (главный)
+Task: Перенос Task 384 из kip8test c0ed8d7 в боевой kip8 (заявка пользователя: «В Табеле учёта рабочего времени, в карточках сотрудников добавь функционал редактирования данных сотрудника, отпусков и мероприятий по отдельности, с возможностью добавления и удаления информации, по которой будет строиться шахматка табеля на месяц и на год»).
+
+Work Log:
+- kip8 синхронен (012ad83 = Task 383, SW kipia-v459, 3294/0, дерево чистое); фантомные mode-изменения 424 файлов (644→755, 0 контента — клоновая специфика ФС) погашены git config core.fileMode false.
+- База переноса проверена: дифф kip8test@92c170b ↔ kip8@HEAD по index.html = 82 строки репо-специфичных различий (префиксы kip8test:/isolateLocalStorage, комментарии, URL Apps Script) — зоны Task 384 идентичны; dry-run всех 28 якорей task384-patch.py против файлов kip8 — 0 несовпадений.
+- scripts/task384-patch.py (копия kip8test) → 23 правки index.html + 4 правки scripts/WorkSchedule.gs (updateEmployee после dismissEmployee / updateVacation после addVacation) + 1 правка scripts/Code.gs (2 case doPost); контроль побайтовости: дифф kip8↔kip8test index.html = 82 строки (как до патча), WorkSchedule.gs дифф 0, stat 357/+10/+157 = коммиту-источнику.
+- scripts/task384-bump-sw.py (адаптация kip8-версий): sw.js kipia-v459→v460 (guard v461); 72 тест-файла — на 1 больше, чем в kip8test (71): kip8-специфичный test-task344.js; guards v460→v461 СПЕРВА, затем ассерты v459→v460 (конвенция бампов).
+- scripts/task384-adapt-tests.py (копия kip8test) → 6 адаптаций: test-work-schedule (заголовки «flow-input-sheet-title" id="wsVacSheetTitle">Новый отпуск» ×2 — 274/308; сигнатура openVacationForm(tabNo, editVacation); окно submitEmployeeForm 2200→4200 — ветка правки ДО addEmployee отодвинула loadGrid), test-task312 (сигнатура), test-task314 (loadGrid(true) 13→15 — +2 мутации правки); диффы 79/13/12 строк = kip8test.
+- tests/test-task384.js (+52) скопирован с маппингом kipia-test-v612→kipia-v460 (×4) / v613→v461 (×1); run-all.js +1 require → 3346/0 с первого прогона (3294+52).
+- Браузер scripts/task384-browser-check.py 44/44 (порт 8995; localStorage БЕЗ префикса — kip8_session_token/app-theme, урок 365; теги/скриншоты t384k8 → /tmp): результаты идентичны kip8test 8994 — карточка («Правка данных…» до «Уволить…», ✎/✕×2 отпуска, «+ Отпуск…» регресс 312, «+ Мероприятие…», ✎/✕ мероприятия регресс 309), правка данных (префилл/readOnly 017 PK/updateEmployee таб_№ из состояния + новое ФИО/тост «Данные сотрудника обновлены»/сетка с новым ФИО), удаление отпуска (kipConfirm OK → deleteVacation id=202/тост), правка отпуска («Правка отпуска»/префилл/лимит «0 из 42» без себя/updateVacation id=201 новые даты/тост/шторка закрыта при успехе), «+ Мероприятие…» (префилл 017), «Сотрудник +» режим создания (readOnly=false), зритель без кнопок (Task 340), мобайл 375 шторки в границах; 0 JS-ошибок ×3.
+- DEPLOY-Task384-transfer-from-test.md (scripts/): ⚠️ сервер вручную — Code.gs (2 case) + WorkSchedule.gs (замена целиком) + «Новая версия»; ОДИН бэкенд на оба репо (если уже сделан для kip8test — повторно не нужно); до деплоя «Сохранить» правок данных/отпусков вернёт Unknown action в тосте; эта worklog-запись; коммит + push (PAT в URL → сброс после пуша, leak-check 0).
+
+Stage Summary:
+- Task 384 В ПРОДЕ обоих репо: kip8test c0ed8d7 (kipia-test-v612, 3340/0, браузер 44/44) и kip8 (kipia-v460, 3346/0, браузер 44/44). Карточка сотрудника табеля — ЦЕНТР ПРАВКИ по отдельности: «Правка данных…» (updateEmployee, таб. № readonly PK), ✎/✕ отпусков (updateVacation/deleteVacation; часть/пересечение/лимит 42 НЕ считают саму строку), «+ Мероприятие…» (✎/✕ Task 309 живы). Правки кормят шахматку месяц/год (loadGrid(true) + «Сформировать»). Зрители — без кнопок (Task 340 жив).
+- ⚠️ ОТКРЫТО: сервер Apps Script вручную — Code.gs (2 case) + WorkSchedule.gs (updateEmployee/updateVacation) + «Новая версия» (инструкция DEPLOY-Task384-transfer-from-test.md; ОДИН деплой на оба сайта). Задеплоенные ранее Task 375/376 (FlowmeterArchive.gs/Flowmeter.gs) остаются открытыми, если ещё не выполнены.
+- Десктоп-зеркала синхронизирует CI (sync-to-desktop). Следующий номер задачи: 385 (в обоих репо).

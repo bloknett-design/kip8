@@ -244,9 +244,9 @@ describe('Task 311 — кнопка «+ Сотрудник» → заголов�
 
 describe('Task 311 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v459', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v459'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v459');
+    test('SW: версия кэша kipia-v460', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v460');
         assertFalse(SW_SRC.indexOf('kipia-test-v549') !== -1,
             'старой версии v549 нет');
     });
