@@ -20,7 +20,7 @@
 //     экранная сетка (бейджи мероприятий на экране остаются —
 //     классы ws-ev-badge/ws-ev-wrap, Task 314).
 //
-// SW: kipia-v460.
+// SW: kipia-v465.
 //
 // Запуск: через tests/run-all.js (require './test-task343.js').
 
@@ -105,7 +105,8 @@ describe('Task 343/361 — бейджи мероприятий в печати',
         assertTrue(c.length > 0, 'метод найден');
         assertTrue(c.indexOf('wsp-ev') !== -1, 'бейджи wsp-ev строятся');
         assertTrue(c.indexOf('_eventsAt') !== -1, '_eventsAt вызывается');
-        assertTrue(c.indexOf('wsp-ev-plan') !== -1, 'пунктирные бейджи-план');
+        assertFalse(c.indexOf('wsp-ev-plan') !== -1,
+            'пунктирных бейджей-план больше нет (Task 388: заливка всегда)');
     });
 
     test('SRC: CSS-правила бейджей .wsp-ev* в @media print (Task 361)', () => {
@@ -115,8 +116,8 @@ describe('Task 343/361 — бейджи мероприятий в печати',
             'правило .wsp-ev есть');
         assertTrue(block.indexOf('wsp-ev-wrap') !== -1,
             'правило .wsp-ev-wrap есть');
-        assertTrue(block.indexOf('wsp-ev-plan') !== -1,
-            'правило .wsp-ev-plan есть');
+        assertFalse(block.indexOf('wsp-ev-plan') !== -1,
+            'правила .wsp-ev-plan нет (Task 388: пунктирные удалены)');
     });
 
     test('SRC: сноска wsp-foot упоминает значок мероприятия (Task 361)', () => {
@@ -179,11 +180,12 @@ describe('Task 343/361 — _printCell (VM)', () => {
                                       { code: 'ПР', training: 9 }] })
             ._printCell(11, '2026-09-11', EMP, null);
         assertTrue(td.indexOf('wsp-ev') !== -1, 'бейджи есть');
-        assertTrue(td.indexOf('wsp-ev-plan') !== -1, 'пунктирные (день не сформирован)');
+        assertFalse(td.indexOf('wsp-ev-plan') !== -1,
+            'пунктирных нет (Task 388: заливка всегда)');
         assertTrue(td.indexOf('>ОБ<') !== -1 && td.indexOf('>ПР<') !== -1,
             'коды мероприятий в бейджах');
-        assertTrue(td.indexOf('background:') === -1,
-            'без заливки (появится при «Сформировать»)');
+        assertTrue(td.indexOf('background:') !== -1,
+            'с заливкой цветом кода (Task 388)');
     });
 
     test('VM: регресс — код с фоном, точка переработки, план отпуска живы', () => {
@@ -300,10 +302,10 @@ describe('Task 343 — _buildPrintHtml (VM)', () => {
 // ============================================================
 describe('Task 343 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION = kipia-v460 (Task 343 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v461') !== -1,
+    test('SW: кэш поднят до kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION = kipia-v465 (Task 343 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v466') !== -1,
             'лишний инкремент (v582) не сделан');
     });
 

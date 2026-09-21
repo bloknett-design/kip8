@@ -20,7 +20,7 @@
 // display:none. Печатается ТЕКУЩИЙ вид табеля (у уровня min
 // «Мастер КИПиА» скрыт — _viewEmployees, Task 340).
 //
-// SW: kipia-v460.
+// SW: kipia-v465.
 //
 // Запуск: через tests/run-all.js (require './test-task341.js').
 
@@ -312,10 +312,10 @@ describe('Task 341 — _printCell (VM)', () => {
     test('VM: событие в ПУСТОЙ ячейке — пунктирный бейдж-план (Task 361)', () => {
         var td = cellHost({ events: [{ code: 'И', training: 7 }] })
             ._printCell(6, '2026-09-06', EMP, null);
-        assertTrue(td.indexOf('wsp-ev-plan') !== -1,
-            'пунктирный бейдж у несформированного дня');
-        assertTrue(td.indexOf('background:') === -1,
-            'у плана нет заливки (появится при «Сформировать»)');
+        assertFalse(td.indexOf('wsp-ev-plan') !== -1,
+            'пунктирного бейджа нет (Task 388)');
+        assertTrue(td.indexOf('background:') !== -1,
+            'заливка цветом кода — и у несформированного дня (Task 388)');
     });
 
     test('VM: статус-мероприятие БЕЗ строки в «Инструктажах» — ВИРТУАЛЬНЫЙ бейдж (Task 361)', () => {
@@ -417,8 +417,8 @@ describe('Task 341 — _buildPrintHtml (VM)', () => {
             'день недели под числом');
         assertTrue(html.indexOf('<th class="wsp-emp" style="width:') !== -1,
             'колонка сотрудника с inline-шириной по тексту (Task 361)');
-        assertTrue(html.indexOf('">Сотрудник</th>') !== -1,
-            'заголовок колонки сотрудника');
+        assertTrue(html.indexOf('">Работник</th>') !== -1,
+            'заголовок колонки работника (Task 385)');
     });
 
     test('VM: выходные в шапке помечены, дни недели — по календарю', () => {
@@ -508,10 +508,10 @@ describe('Task 341 — _buildPrintHtml (VM)', () => {
 // ============================================================
 describe('Task 341 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION = kipia-v460 (Task 341 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v461') !== -1,
+    test('SW: кэш поднят до kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION = kipia-v465 (Task 341 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v466') !== -1,
             'лишний инкремент (v580) не сделан');
     });
 

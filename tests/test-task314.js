@@ -15,11 +15,13 @@
 //    обновления данных графика (не формирования).»
 //
 // ЧТО ПРОВЕРЯЕТСЯ:
-//   «.» → «·» (в ячейке/попапе/select) и фон ПУСТОЙ ячейки —
-//     в test-task312.js (Describe Task 312/314) + здесь VM-рендер.
+//   «.» → «·» (в ПОПАПЕ/select) и фон ПУСТОЙ ячейки — в
+//     test-task312.js (Describe Task 312/314) + здесь VM-рендер.
+//     Task 356: центральный символ «·» из ЯЧЕЕК убран — «.» и пустые
+//     показывают чистый центр (метка «·» — только в попапе/select).
 //   Бейджи мероприятий:
 //     — статус-мероприятие (И/ОБ/ПЗ/ПР/* основной код) — НЕ большой
-//       код: ячейка «·», событие — сплошной бейдж; события нет —
+//       код: ячейка ПУСТАЯ, событие — сплошной бейдж; события нет —
 //       виртуальный бейдж из статуса;
 //     — бейджи на днях отсутствия (ОТ/Б/…) — сплошные;
 //     — пустая/план ячейка — пунктирные;
@@ -43,7 +45,7 @@
 //       записи, лимит 12 видов, формат даты тултипа, битый JSON;
 //     — VM-СИМУЛЯЦИЯ _renderCell: «.»/статус-мероприятие/отсутствие/
 //       пустая+событие/смена+событие/план+событие.
-//   SW: kipia-v460.
+//   SW: kipia-v465.
 //
 // Запуск: через tests/run-all.js (require './test-task314.js').
 
@@ -279,6 +281,23 @@ describe('Task 314 — VM: локальная копия (поведение)', 
         return { getElementById: id => (id === 'wsRefreshTipDate' ? el : null), _el: el };
     }
 
+    // Task 387: канон справочника — вырезается из index.html
+    // (_STATUS_CODES_CANON: [ … ]) скобочным балансом
+    function canonCodes() {
+        const i = INDEX_SRC.indexOf('_STATUS_CODES_CANON: [');
+        if (i === -1) return [];
+        const open = INDEX_SRC.indexOf('[', i);
+        let depth = 0;
+        for (let k = open; k < INDEX_SRC.length; k++) {
+            if (INDEX_SRC[k] === '[') depth++;
+            else if (INDEX_SRC[k] === ']') {
+                depth--;
+                if (!depth) return eval(INDEX_SRC.slice(open, k + 1));
+            }
+        }
+        return [];
+    }
+
     function mkCtx(store, doc) {
         const ctx = {
             _year: 2026, _month: 9,
@@ -287,10 +306,12 @@ describe('Task 314 — VM: локальная копия (поведение)', 
             _STATUS_CODES: [], _PATTERNS: [], _EMPLOYEES: [],
             _ENTRIES: [], _TRAININGS: [],
             _VACATIONS: [], _VAC_PAGE: [], _vacYear: null,
+            _STATUS_CODES_CANON: canonCodes(),
             _fillStatusSelectCount: 0,
             _fillStatusSelect: function () { this._fillStatusSelectCount++; }
         };
-        ['_ymKey', '_cacheRead', '_restoreCachedView', '_cacheWrite', '_updateCacheStamp']
+        ['_ymKey', '_cacheRead', '_restoreCachedView', '_cacheWrite', '_updateCacheStamp',
+         '_normalizeStatusCodes']
             .forEach(m => { ctx[m] = loadMethod(m, store, doc); });
         return ctx;
     }
@@ -330,7 +351,13 @@ describe('Task 314 — VM: локальная копия (поведение)', 
         store.setItem('kip8_ws_cache_v1', JSON.stringify(FULL_CACHE));
         const ctx = mkCtx(store, doc);
         assertTrue(ctx._restoreCachedView(), 'вид 2026-09 восстановлен');
+        // Task 387: кэш нормализован — «.» → слот «Выходного» (пустой
+        // код, каноническое имя), Д — канонический порядок/имя
         assertEqual(ctx._STATUS_CODES.length, 2, 'коды');
+        assertEqual(ctx._STATUS_CODES[0].code, 'Д', 'первый — Д (канонический порядок)');
+        assertEqual(ctx._STATUS_CODES[1].code, '', 'второй — «Выходной» (пустой код)');
+        assertTrue(ctx._STATUS_CODES[1].name.indexOf('Выходной') !== -1,
+            'имя «Выходного» каноническое');
         assertEqual(ctx._EMPLOYEES.length, 1, 'сотрудники');
         assertEqual(ctx._ENTRIES.length, 1, 'записи');
         assertEqual(ctx._TRAININGS.length, 1, 'мероприятия');
@@ -433,9 +460,9 @@ describe('Task 314 — VM: локальная копия (поведение)', 
 });
 
 // ------------------------------------------------------------
-// VM-СИМУЛЯЦИЯ _renderCell («·», бейджи)
+// VM-СИМУЛЯЦИЯ _renderCell (чистый центр Task 356, бейджи)
 // ------------------------------------------------------------
-describe('Task 314 — VM: _renderCell (символ «·», бейджи мероприятий)', () => {
+describe('Task 314 — VM: _renderCell (бейджи мероприятий; Task 356 — без «·»)', () => {
 
     const CODES = [
         { code: 'Д',  name: 'День',    color: '#FFE082' },
@@ -532,20 +559,24 @@ describe('Task 314 — VM: _renderCell (символ «·», бейджи мер
         assertFalse(html.indexOf('ws-ev-pending') !== -1, 'сплошной (не пунктир)');
     });
 
-    test('пустая ячейка + мероприятие — пунктирный бейдж-подсказка', () => {
+    test('пустая ячейка + мероприятие — СПЛОШНОЙ бейдж с цветом кода (Task 388)', () => {
         const ctx = mkRenderCtx({ '2026-09-01': [{ code: 'И', training: { id: 4 } }] }, null);
         const html = cellHtml(ctx, null);
-        assertTrue(html.indexOf('ws-ev-pending') !== -1, 'пунктирный бейдж');
-        assertFalse(/style="background:/.test(html.match(/<span class="ws-ev-badge[^>]*>/)[0]),
-            'пунктирный бейдж без заливки');
+        assertFalse(html.indexOf('ws-ev-pending') !== -1,
+            'пунктирного бейджа нет (Task 388: фон всегда цвет кода)');
+        assertTrue(/style="background:/.test(html.match(/<span class="ws-ev-badge[^>]*>/)[0]),
+            'заливка цветом кода — и на пустой ячейке');
     });
 
-    test('план отпуска + мероприятие — пунктирный бейдж рядом с «ОТ»', () => {
+    test('план отпуска + мероприятие — СПЛОШНОЙ бейдж рядом с «ОТ» (Task 388)', () => {
         const ctx = mkRenderCtx({ '2026-09-01': [{ code: 'И', training: { id: 5 } }] },
                                 { '2026-09-01': { 'таб_номер': '017' } });
         const html = cellHtml(ctx, null);
         assertTrue(html.indexOf('>ОТ') !== -1, 'код плана «ОТ»');
-        assertTrue(html.indexOf('ws-ev-pending') !== -1, 'пунктирный бейдж события');
+        assertFalse(html.indexOf('ws-ev-pending') !== -1,
+            'пунктирного бейджа нет (Task 388)');
+        assertTrue(/style="background:/.test(html.match(/<span class="ws-ev-badge[^>]*>/)[0]),
+            'заливка цветом кода — и на плане отпуска');
     });
 
     test('смена «Д» + мероприятие — код смены + сплошной бейдж (Task 303 жив)', () => {
@@ -581,9 +612,9 @@ describe('Task 314 — VM: _renderCell (символ «·», бейджи мер
 // ------------------------------------------------------------
 describe('Task 314 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v460');
+    test('SW: версия кэша kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v465');
         assertFalse(SW_SRC.indexOf('kipia-test-v552') !== -1,
             'старой версии v552 нет');
     });

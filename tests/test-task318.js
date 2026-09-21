@@ -33,7 +33,7 @@
 //     таб_№ (текст, Task 304), пишет H (дата) + I (в_архиве=1),
 //     строка НЕ удаляется; ошибки invalid/not_found; аудит;
 //     маршрут в Code.gs.
-//   SW: kipia-v460.
+//   SW: kipia-v465.
 //
 // Запуск: через tests/run-all.js (require './test-task318.js').
 
@@ -63,25 +63,17 @@ function methodText(src, name) {
 // ============================================================
 describe('Task 318 — CSS: hover заголовка «Сотрудник +»', () => {
 
-    test('CSS: hover — СПЛОШНОЙ #2a3a4c (Task 330: светлее сине-серой шапки)', () => {
+    test('CSS: hover-правило заголовка УДАЛЕНО (Task 386: надпись)', () => {
+        // Task 386: заголовок «Работники» — просто надпись; hover
+        // #2a3a4c (Task 330) жил в правиле ws-emp-head-add:hover —
+        // удалено вместе с кнопкой
         const m = INDEX_SRC.match(/th\.ws-emp-col\.ws-emp-head-add:hover \{\s*([^}]*)\}/);
-        assertTrue(!!m, 'правило hover живо');
-        // Task 330: шапка стала сине-серой #1e293b — hover #2a3a4c
-        // (прежде #15202f был светлее старого фона #0e1621 — логика
-        // «hover светлее фона» сохранена на новом цвете)
-        assertTrue(m[1].indexOf('background: #2a3a4c') !== -1,
-            'фон — сплошной #2a3a4c (светлее шапки #1e293b, Task 330)');
-        assertFalse(/rgba\(/.test(m[1]),
-            'полупрозрачного rgba в hover больше нет — фон НЕ прозрачный');
+        assertTrue(!m, 'правило hover удалено (заголовок больше не кнопка)');
     });
 
-    test('CSS: светлая тема hover — СПЛОШНОЙ #e2e8ef', () => {
-        const m = INDEX_SRC.match(/\[data-theme="light"\] th\.ws-emp-col\.ws-emp-head-add:hover \{\s*([^}]*)\}/) ||
-                  INDEX_SRC.match(/\[data-theme="light"\] \.ws-grid thead th\.ws-emp-col\.ws-emp-head-add:hover \{\s*([^}]*)\}/);
-        assertTrue(!!m, 'правило светлой темы живо');
-        assertTrue(m[1].indexOf('background: #e2e8ef') !== -1,
-            'светлая — сплошной #e2e8ef (как td.ws-emp-col:hover)');
-        assertFalse(/rgba\(/.test(m[1]), 'светлая: rgba убран');
+    test('CSS: светлая тема hover — правило УДАЛЕНО (Task 386)', () => {
+        const m = INDEX_SRC.match(/\[data-theme="light"\][^{}]*ws-emp-head-add:hover\s*\{[^}]*\}/);
+        assertTrue(!m, 'правило светлой темы удалено вместе с кнопкой');
     });
 
     test('CSS: в hover-правилах заголовка нет полупрозрачного rgba', () => {
@@ -146,12 +138,12 @@ describe('Task 318 — HTML: форма и шторка', () => {
         ['wsDismissEmp', 'wsDismissDate'].forEach(id => {
             assertTrue(sheet.indexOf('id="' + id + '"') !== -1, 'id="' + id + '"');
         });
-        assertTrue(sheet.indexOf('Увольнение сотрудника') !== -1, 'заголовок');
+        assertTrue(sheet.indexOf('Увольнение работника') !== -1, 'заголовок (Task 385: работник)');
         assertTrue(sheet.indexOf('onclick="WorkSchedule.submitDismissForm()"') !== -1,
             'кнопка «Уволить» → submitDismissForm');
         assertTrue(sheet.indexOf('onclick="WorkSchedule.closeDismissForm()"') !== -1,
             'кнопка «Отмена» → closeDismissForm');
-        assertTrue(sheet.indexOf('архиве справочника «Сотрудники»') !== -1,
+        assertTrue(sheet.indexOf('архиве справочника') !== -1,
             'пояснение: строка остаётся в архиве');
     });
 
@@ -214,19 +206,19 @@ describe('Task 318 — JS: список должностей из таблицы
 describe('Task 318 — JS: карточка — «Режим работы» + «Уволить…»', () => {
 
     test('JS: _renderEmpPopup — подпись «Режим работы» (было «Тип»)', () => {
-        const rp = methodText(INDEX_SRC, '_renderEmpPopup');
+        const rp = methodText(INDEX_SRC, '_renderWorkerCard');
         assertTrue(rp.indexOf("['Режим работы', tipVal]") !== -1,
             'поле называется «Режим работы»');
         assertFalse(rp.indexOf("['Тип',") !== -1, 'подпись «Тип» убрана');
     });
 
     test('JS: _renderEmpPopup — строка «Уволить…» (только редакторам)', () => {
-        const rp = methodText(INDEX_SRC, '_renderEmpPopup');
+        const rp = methodText(INDEX_SRC, '_renderWorkerCard');
         const i = rp.indexOf('ws-emp-dismiss');
-        assertTrue(i !== -1, 'строка «Уволить…» в карточке');
+        assertTrue(i !== -1, 'строка «Уволить…» в карточке (Task 385: страница «Работники»)');
         const seg = rp.slice(Math.max(0, i - 400), i + 400);
-        assertTrue(seg.indexOf('this._canEdit') !== -1,
-            'только ролям с правом записи');
+        assertTrue(seg.indexOf('withEdit') !== -1,
+            'только с withEdit (Task 385: страница «Работники», редакторам)');
         assertTrue(seg.indexOf('WorkSchedule.openDismissForm(') !== -1,
             'клик → openDismissForm(таб_№)');
         assertTrue(seg.indexOf('Уволить…') !== -1, 'текст строки');
@@ -246,7 +238,7 @@ describe('Task 318 — JS: методы увольнения', () => {
             'запоминает таб. №');
         assertTrue(m.indexOf("this._isoDate(new Date())") !== -1,
             'дата увольнения — сегодня по умолчанию');
-        assertTrue(m.indexOf("'Сотрудник не найден'") !== -1, 'не найден — тост');
+        assertTrue(m.indexOf("'Работник не найден'") !== -1, 'не найден — тост (Task 385: работник)');
         assertTrue(m.indexOf("getElementById('wsDismissOverlay')") !== -1,
             'оверлей активируется');
         assertTrue(m.indexOf('this.closeEmpPopup()') !== -1,
@@ -641,10 +633,10 @@ describe('Task 318 — Сервер: dismissEmployee (WorkSchedule.gs)', () => {
 // Service Worker
 // ============================================================
 describe('Task 318 — Service Worker', () => {
-    test('SW: версия кэша kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v460') !== -1,
-            'CACHE_VERSION = kipia-v460 (Task 318)');
-        assertFalse(SW_SRC.indexOf('kipia-v461') !== -1,
+    test('SW: версия кэша kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v465') !== -1,
+            'CACHE_VERSION = kipia-v465 (Task 318)');
+        assertFalse(SW_SRC.indexOf('kipia-v466') !== -1,
             'лишний инкремент не делался');
     });
 });

@@ -3,14 +3,14 @@
 //   и в боевой проекты, жёлто-оранжевые значения недоставленных вместо
 //   баннера, измени цвет чуть ярче и ближе к желтому».
 //
-// ЧТО ПРОВЕРЯЕТСЯ (kip8 — синхронно с kip8test):
+// ЧТО ПРОВЕРЯЕТСЯ:
 //   A. SRC — цвет недоставленных значений (.flow-summary-val-pending,
 //      Task 367) стал ярче и ближе к жёлтому: #ffc400 (тёмная тема) /
 //      #cc9900 (светлая); старые #f5a623 / #c96e00 не остались;
 //      соседние цвета (зелёный #5ab870, красный #ff5c47 / #e8230a)
 //      не тронуты; комментарий-маркер Task 370; приоритет pending
 //      над красным due и классы/логика не менялись.
-//   B. SW v447 (guard v448).
+//   B. SW v599 (guard v600).
 
 const fs = require('fs');
 const path = require('path');
@@ -87,13 +87,13 @@ describe('Task 370 — SRC: недоставленные — ярче и бли�
 // ============================================================
 // B. SW
 // ============================================================
-describe('Task 370 — SW: kipia-v460', () => {
-    test('SW: CACHE_VERSION = kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
+describe('Task 370 — SW: kipia-v465', () => {
+    test('SW: CACHE_VERSION = kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
             'SW-кэш инвалидируется (цвет значений в index.html)');
     });
     test('SW: нет старых/двойных версий', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v446') === -1, 'старая версия v446 не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v461') === -1, 'двойного бампа (v448) не было');
+        assertTrue(SW_SRC.indexOf('kipia-test-v598') === -1, 'старая версия v598 не осталась');
+        assertTrue(SW_SRC.indexOf('kipia-v466') === -1, 'двойного бампа (v600) не было');
     });
 });

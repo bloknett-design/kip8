@@ -31,7 +31,7 @@
 //     статус-мероприятия без строки в «Инструктажах»; CSS
 //     .wsp-ev-wrap/.wsp-ev/.wsp-ev-plan; сноска поясняет значок.
 //
-// SW: kipia-v460.
+// SW: kipia-v465.
 //
 // Запуск: через tests/run-all.js (require './test-task361.js').
 
@@ -90,8 +90,8 @@ describe('Task 361 — SRC: колонка «Сотрудник» по текс�
             'точное измерение через canvas measureText');
         assertTrue(b.indexOf('measureTxt') !== -1,
             'локальная функция измерения');
-        assertTrue(b.indexOf("empWmm + 'mm\">Сотрудник</th>'") !== -1,
-            'inline ширина на th .wsp-emp');
+        assertTrue(b.indexOf("empWmm + 'mm\">Работник</th>'") !== -1,
+            'inline ширина на th .wsp-emp (Task 385: работник)');
         assertTrue(b.indexOf('empWmm < 24') !== -1 && b.indexOf('empWmm > 48') !== -1,
             'кламп 24–48mm');
     });
@@ -216,8 +216,8 @@ describe('Task 361 — SRC: бейджи мероприятий в печати'
         const evRule = block.slice(ev, block.indexOf('}', ev) + 1);
         assertTrue(evRule.indexOf('print-color-adjust: exact') !== -1,
             'цвет бейджа печатается принудительно');
-        assertTrue(block.indexOf('.wsp-ev.wsp-ev-plan { border-style: dashed; }') !== -1,
-            'пунктирный бейдж-план');
+        assertFalse(block.indexOf('wsp-ev-plan') !== -1,
+            'пунктирного бейджа-план нет (Task 388: заливка всегда)');
     });
 
     test('SRC: _printCell — события дня, виртуальный бейдж, solid/plan', () => {
@@ -225,8 +225,9 @@ describe('Task 361 — SRC: бейджи мероприятий в печати'
         assertTrue(c.indexOf('_eventsAt') !== -1, 'источник — _eventsAt');
         assertTrue(c.indexOf('events.concat') !== -1,
             'виртуальный бейдж статус-мероприятия без строки в «Инструктажах»');
-        assertTrue(c.indexOf("wsp-ev' + (solid ? '' : ' wsp-ev-plan')") !== -1,
-            'сплошной/пунктирный по признаку сформированности дня');
+        // Task 388: бейдж печати ВСЕГДА сплошной с цветом кода
+        assertFalse(c.indexOf('wsp-ev-plan') !== -1,
+            'пунктирных бейджей нет (Task 388)');
         assertTrue(c.indexOf("evMeta.color ? ' style=\"background:' + evMeta.color") !== -1,
             'inline-цвет кода из справочника');
         assertTrue(c.indexOf("content + evHtml + '</td>'") !== -1,
@@ -237,8 +238,8 @@ describe('Task 361 — SRC: бейджи мероприятий в печати'
         const b = stripComments(methodText(WS_CLIENT, '_buildPrintHtml'));
         assertTrue(b.indexOf('значок в углу ячейки') !== -1,
             'пояснение значка мероприятия');
-        assertTrue(b.indexOf('пунктирный') !== -1,
-            'пунктирный значок = день ещё не сформирован');
+        assertFalse(b.indexOf('день ещё не сформирован') !== -1,
+            'пояснение «день ещё не сформирован» удалено (Task 388)');
     });
 });
 
@@ -273,13 +274,14 @@ describe('Task 361 — VM: _printCell бейджи', () => {
         assertTrue(td.indexOf('wsp-ev-plan') === -1, 'пунктирного нет');
     });
 
-    test('VM: пустая ячейка + 2 события — два пунктирных бейджа без заливки', () => {
+    test('VM: пустая ячейка + 2 события — два СПЛОШНЫХ бейджа с заливкой (Task 388)', () => {
         var td = cellHost({ events: [{ code: 'И', training: 1 },
                                       { code: 'ПР', training: 2 }] })
             ._printCell(6, '2026-09-06', EMP, null);
-        var n = (td.match(/class="wsp-ev wsp-ev-plan"/g) || []).length;
-        assertEqual(n, 2, 'два пунктирных бейджа');
-        assertTrue(td.indexOf('background:') === -1, 'без заливки');
+        var n = (td.match(/class="wsp-ev"/g) || []).length;
+        assertEqual(n, 2, 'два сплошных бейджа');
+        assertTrue(td.indexOf('background:') !== -1,
+            'с заливкой цветом кода (Task 388)');
     });
 
     test('VM: статус-мероприятие И покрыто событием — один бейдж (без дубля)', () => {
@@ -361,7 +363,7 @@ describe('Task 361 — VM: ширина «Сотрудник» по тексту
     }
 
     function empWidth(html) {
-        var m = html.match(/<th class="wsp-emp" style="width:(\d+(?:\.\d+)?)mm">Сотрудник<\/th>/);
+        var m = html.match(/<th class="wsp-emp" style="width:(\d+(?:\.\d+)?)mm">Работник<\/th>/);
         return m ? parseFloat(m[1]) : null;
     }
 
@@ -479,15 +481,15 @@ describe('Task 361 — VM: регресс печатного листа', () => 
 // ============================================================
 describe('Task 361 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION = kipia-v460 (Task 361 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v461') !== -1,
-            'v453 ещё не существует (лишний инкремент)');
+    test('SW: кэш поднят до kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION = kipia-v465 (Task 361 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v466') !== -1,
+            'v605 ещё не существует (лишний инкремент)');
     });
 
     test('SW: в index.html нет захардкоженной версии кэша', () => {
-        assertFalse(INDEX_SRC.indexOf('kipia-v44') !== -1,
+        assertFalse(INDEX_SRC.indexOf('kipia-test-v59') !== -1,
             'клиент не знает номер кэша (версией управляет sw.js)');
     });
 });

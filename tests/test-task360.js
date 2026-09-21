@@ -28,7 +28,7 @@
 //   • CSS @media print: .wsp-mev-item/.wsp-lg — display: block
 //     (один столбик) + page-break-inside: avoid.
 //
-// SW: kipia-v460.
+// SW: kipia-v465.
 //
 // Запуск: через tests/run-all.js (require './test-task360.js').
 
@@ -148,9 +148,11 @@ describe('Task 360 — SRC: перечень кодов месяца', () => {
 
     test('SRC: легенда фильтруется по usedCodes, порядок — справочник', () => {
         const b = stripComments(methodText(WS_CLIENT, '_buildPrintHtml'));
-        const iFilter = b.indexOf('if (!usedCodes[codes[ci].code]) continue;');
+        const iFilter = b.indexOf('if (!usedCodes[codes[ci].code]');
+        const iWykh = b.indexOf("!(codes[ci].code === '' && usedCodes['.'])");
         const iLoop = b.indexOf('for (var ci = 0; ci < codes.length; ci++)');
         assertTrue(iFilter !== -1, 'коды вне месяца пропускаются');
+        assertTrue(iWykh !== -1, 'Task 387: легаси-«.» раскрывается строкой «Выходного»');
         assertTrue(iLoop !== -1 && iFilter > iLoop,
             'фильтр внутри цикла справочника (порядок = справочник)');
     });
@@ -572,10 +574,10 @@ describe('Task 360 — регресс прежних фич печати', () =>
 // ============================================================
 describe('Task 360 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION = kipia-v460 (Task 360 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v461') !== -1,
-            'v453 ещё не существует (лишний инкремент)');
+    test('SW: кэш поднят до kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION = kipia-v465 (Task 360 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v466') !== -1,
+            'v605 ещё не существует (лишний инкремент)');
     });
 });

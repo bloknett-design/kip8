@@ -29,7 +29,7 @@
 //      entryType с ДРУГИМ prev = дубль; старше часа — не дубль;
 //      расхождения curr/date/entryType — не дубль; точный ключ
 //      (правило 1 Task 366) работает при любом возрасте строки.
-//   E. SW v452 (guard v453).
+//   E. SW v604 (guard v605).
 
 const fs = require('fs');
 const path = require('path');
@@ -555,13 +555,13 @@ describe('Task 375 — SRC: сервер FlowmeterArchive.gs', () => {
 // ============================================================
 describe('Task 375 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'версия кэша поднята до v452');
+    test('SW: CACHE_VERSION = kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'версия кэша поднята до v604');
     });
 
-    test('SW: нет v451 (старая) и нет v453 (двойной бамп)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v451') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v461') === -1, 'двойного бампа не было');
+    test('SW: нет v603 (старая) и нет v605 (двойной бамп)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-test-v603') === -1, 'старая версия не осталась');
+        assertTrue(SW_SRC.indexOf('kipia-v466') === -1, 'двойного бампа не было');
     });
 });

@@ -514,13 +514,13 @@ describe('Task 368 — форма: показания за период двух
 // ============================================================
 describe('Task 368 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
+    test('SW: CACHE_VERSION = kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
             'версия кэша поднята до v597');
     });
 
     test('SW: нет v596 (старая) и нет v598 (двойной бамп)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v445') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v461') === -1, 'двойного бампа не было');
+        assertTrue(SW_SRC.indexOf('kipia-test-v596') === -1, 'старая версия не осталась');
+        assertTrue(SW_SRC.indexOf('kipia-v466') === -1, 'двойного бампа не было');
     });
 });

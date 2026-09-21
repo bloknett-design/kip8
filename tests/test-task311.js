@@ -70,7 +70,7 @@ describe('Task 311 — карточка: строки «Шаблон ротац�
     });
 
     test('JS: _renderEmpPopup — без строки-заголовка «Сотрудник»', () => {
-        const rp = fnBody(INDEX_SRC, '_renderEmpPopup: function');
+        const rp = fnBody(INDEX_SRC, '_renderWorkerCard: function');
         assertFalse(rp.indexOf('<div class="ws-popup-sec">Сотрудник</div>') !== -1,
             'строка-заголовок «Сотрудник» не рендерится (профиль — сразу после шапки)');
         // секции отпусков и мероприятий остались (заголовками-строками)
@@ -81,7 +81,7 @@ describe('Task 311 — карточка: строки «Шаблон ротац�
     });
 
     test('JS: _renderEmpPopup — без итога года отпусков', () => {
-        const rp = fnBody(INDEX_SRC, '_renderEmpPopup: function');
+        const rp = fnBody(INDEX_SRC, '_renderWorkerCard: function');
         assertFalse(rp.indexOf('Итого в году: ') !== -1,
             'итог-строка года не рендерится');
         assertFalse(rp.indexOf('ws-emp-total') !== -1,
@@ -200,31 +200,29 @@ describe('Task 311 — кнопка «+ Сотрудник» → заголов�
             'Task 312: кнопка «+ Отпуск» из тулбара удалена');
     });
 
-    test('JS: _renderGrid — заголовок «Сотрудник» становится кнопкой (редакторам)', () => {
+    test('JS: _renderGrid — заголовок «Работники» — ПРОСТО надпись (Task 386)', () => {
         const gridPart = INDEX_SRC.slice(
             INDEX_SRC.indexOf('_renderGrid: function'),
             INDEX_SRC.indexOf('_fitGrid: function'));
-        assertTrue(gridPart.indexOf("this._canEdit ? ' ws-emp-head-add' : ''") !== -1,
-            'класс ws-emp-head-add — только ролям с правом правки');
-        assertTrue(gridPart.indexOf('onclick="WorkSchedule.openEmployeeForm()"') !== -1,
-            'клик заголовка → openEmployeeForm');
-        assertTrue(gridPart.indexOf('<i class="ws-emp-head-plus">+</i>') !== -1,
-            'плюсик-индикатор у заголовка (редакторам)');
-        // двойная защита: openEmployeeForm сам проверяет право записи
-        const oef = fnBody(INDEX_SRC, 'openEmployeeForm: function');
-        assertTrue(oef.indexOf('if (!this._canEdit) return;') !== -1,
-            'openEmployeeForm проверяет право записи (зритель — мимо)');
+        assertTrue(gridPart.indexOf('data-full="Работники" data-s4="Рабо">Работники</span>') !== -1,
+            'текст «Работники» (Task 386: «Работник +» → надпись)');
+        assertTrue(gridPart.indexOf("this._canEdit ? ' ws-emp-head-add' : ''") === -1,
+            'класс кнопки НЕ вешается (функция кнопки снята по заявке)');
+        assertTrue(gridPart.indexOf('onclick="WorkSchedule.openWorkersPage()"') === -1,
+            'клика у заголовка нет — переход только кнопкой «Работники» в баре');
+        assertTrue(gridPart.indexOf('<i class="ws-emp-head-plus">+</i>') === -1,
+            'плюсик-индикатор удалён');
+        // двойная защита: openWorkersPage сам проверяет право записи
+        const owp = fnBody(INDEX_SRC, 'openWorkersPage: function');
+        assertTrue(owp.indexOf('if (!this._canEdit) return;') !== -1,
+            'openWorkersPage проверяет право записи (зритель — мимо)');
     });
 
-    test('CSS: ws-emp-head-add — курсор-палец, подсветка, плюсик', () => {
-        assertTrue(INDEX_SRC.indexOf('.ws-grid thead th.ws-emp-col.ws-emp-head-add { cursor: pointer; }') !== -1,
-            'курсор-палец на заголовке-кнопке');
-        assertTrue(INDEX_SRC.indexOf('.ws-grid thead th.ws-emp-col.ws-emp-head-add:hover {') !== -1,
-            'подсветка при наведении');
-        assertTrue(INDEX_SRC.indexOf('.ws-grid thead th.ws-emp-col .ws-emp-head-plus {') !== -1,
-            'стиль плюсика-индикатора');
-        assertTrue(INDEX_SRC.indexOf('[data-theme="light"] .ws-grid thead th.ws-emp-col.ws-emp-head-add:hover {') !== -1,
-            'светлая тема подсветки');
+    test('CSS: ws-emp-head-add — правила УДАЛЕНЫ (Task 386: надпись)', () => {
+        assertTrue(INDEX_SRC.indexOf('.ws-grid thead th.ws-emp-col.ws-emp-head-add') === -1,
+            'курсор/hover-правила кнопки заголовка удалены');
+        assertTrue(INDEX_SRC.indexOf('.ws-grid thead th.ws-emp-col .ws-emp-head-plus {') === -1,
+            'стиль плюсика-индикатора удалён');
     });
 
     test('JS: init() больше не управляет видимостью кнопки сотрудника', () => {
@@ -244,9 +242,9 @@ describe('Task 311 — кнопка «+ Сотрудник» → заголов�
 
 describe('Task 311 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v460');
+    test('SW: версия кэша kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v465');
         assertFalse(SW_SRC.indexOf('kipia-test-v549') !== -1,
             'старой версии v549 нет');
     });

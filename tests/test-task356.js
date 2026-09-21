@@ -14,7 +14,7 @@
 //       «Дополнительно…» (код «.» там по-прежнему подписан точкой);
 //     — классы-маркеры ws-dot-code / ws-status-empty ставятся,
 //       бейджи (evHtml + shiftWrap) конкатенируются к контенту;
-//     — sw.js: CACHE_VERSION = kipia-v460 (+ guard v434).
+//     — sw.js: CACHE_VERSION = kipia-v465 (+ guard v586).
 //   VM (_renderCell, моки как в test-task314.js / test-task355.js):
 //     — РАБОЧИЙ день: пустая, «.»-код, статус-мероприятие «И»
 //       (с записью и без — виртуальный бейдж), пустая + будущее
@@ -82,13 +82,19 @@ describe('Task 356 — SRC: «·» убрана из пустых ячеек (р
             'комментарий Task 356 в _renderCell');
     });
 
-    test('метка «·» в ПОПАПЕ выбора статуса и select сохранена', () => {
-        // код «.» в попапе/списке по-прежнему подписан «·» — заявка
-        // касается только ячеек шахматки
-        assertTrue(INDEX_SRC.indexOf("this._esc(isDot ? '·' : c.code)") !== -1,
-            'попап: isDot ? «·» : код');
-        assertTrue(INDEX_SRC.indexOf("var label = (c.code === '.') ? '·' : c.code;") !== -1,
-            'select «Дополнительно…»: метка «·»');
+    test('Task 387: метка «·» убрана и в ПОПАПЕ/select — «Выходной» без кода', () => {
+        // Task 387 (заявка: «я убрал точку — теперь просто пустая
+        // ячейка белого цвета»): строка «Выходного» в попапе — БЕЗ
+        // кода-символа (свотч-пустая ячейка); в select «Выходной»
+        // представлен опцией «— выходной —»
+        assertTrue(INDEX_SRC.indexOf("this._esc(isDot ? '' : c.code)") !== -1,
+            'попап: isDot ? пусто : код (метка «·» удалена)');
+        assertFalse(INDEX_SRC.indexOf("this._esc(isDot ? '·' : c.code)") !== -1,
+            'метки «·» в попапе больше нет');
+        assertFalse(INDEX_SRC.indexOf("var label = (c.code === '.') ? '·' : c.code;") !== -1,
+            'метки «·» в select больше нет (Task 387)');
+        assertTrue(INDEX_SRC.indexOf("if (c.code === '' || c.code === '.') continue;") !== -1,
+            'select: «Выходной» — опцией «— выходной —»');
     });
 
     test('классы-маркеры и бейджи не тронуты', () => {
@@ -194,7 +200,8 @@ describe('Task 356 — VM: _renderCell (пустые ячейки без «·»)
         const html = cellHtml(ctx, null);
         assertEqual(mainText(html), '', 'центр пуст');
         assertFalse(html.indexOf('·') !== -1, 'символа «·» в ячейке нет вообще');
-        assertTrue(html.indexOf('ws-ev-pending') !== -1, 'пунктирный бейдж-подсказка жив');
+        assertFalse(html.indexOf('ws-ev-pending') !== -1,
+            'пунктирного бейджа нет (Task 388: сплошной с цветом кода)');
     });
 
     // --- РАБОЧИЙ день: заполненные ячейки не задеты ---
@@ -241,13 +248,13 @@ describe('Task 356 — VM: _renderCell (пустые ячейки без «·»)
 // Service Worker
 // ------------------------------------------------------------
 describe('Task 356 — Service Worker', () => {
-    test('SW: версия кэша kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v460');
+    test('SW: версия кэша kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v465');
     });
 
     test('SW: двойной бамп не случился (v586 не существует)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v461') === -1,
-            'в sw.js нет kipia-v460');
+        assertTrue(SW_SRC.indexOf('kipia-v466') === -1,
+            'в sw.js нет kipia-v465');
     });
 });

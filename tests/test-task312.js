@@ -42,7 +42,7 @@
 //       (белый, как фон пустых ячеек с точкой — светлая тема
 //       --bg-primary #FAF9F5); ОСНОВНОЕ значение пользователь
 //       меняет в листе «Коды_статусов» сам (код #FAF9F5).
-//   SW: kipia-v460 (Task 313: v551 → v552 — окно мероприятий
+//   SW: kipia-v465 (Task 313: v551 → v552 — окно мероприятий
 //       над окном кодов + подсветка сегодняшней даты).
 //
 // Запуск: через tests/run-all.js (require './test-task312.js').
@@ -103,7 +103,8 @@ describe('Task 312 — кнопка «+ Отпуск»: тулбар → кар�
     });
 
     test('JS: _renderEmpPopup — строка «+ Отпуск…» в блоке отпусков', () => {
-        const rp = fnBody(INDEX_SRC, '_renderEmpPopup: function');
+        // Task 385: тело — в _renderWorkerCard (страница «Работники»)
+        const rp = fnBody(INDEX_SRC, '_renderWorkerCard: function');
         assertTrue(rp.indexOf('ws-emp-addvac') !== -1,
             'класс-маркер строки добавления отпуска');
         assertTrue(rp.indexOf('+ Отпуск…</div>') !== -1,
@@ -117,13 +118,14 @@ describe('Task 312 — кнопка «+ Отпуск»: тулбар → кар�
         assertTrue(iVacSec !== -1 && iAddVac !== -1 && iTrSec !== -1 &&
                    iVacSec < iAddVac && iAddVac < iTrSec,
             'строка «+ Отпуск…» внутри блока отпусков (между секциями)');
-        // только редакторам
-        assertTrue(rp.indexOf('if (this._canEdit) {') !== -1,
-            'рендер строки обёрнут проверкой _canEdit');
+        // только редакторам (Task 385: гейт withEdit — страница
+        // «Работники»; попап шахматки зовёт с false)
+        assertTrue(rp.indexOf('if (withEdit) {') !== -1,
+            'рендер строки обёрнут гейтом withEdit');
     });
 
     test('JS: клик строки → onEmpAddVacation(таб. №) с экранированием', () => {
-        const rp = fnBody(INDEX_SRC, '_renderEmpPopup: function');
+        const rp = fnBody(INDEX_SRC, '_renderWorkerCard: function');
         assertTrue(rp.indexOf("WorkSchedule.onEmpAddVacation(\\'") !== -1,
             'onclick строки зовёт onEmpAddVacation с таб. №');
         assertTrue(rp.indexOf("this._esc(String(emp['таб_номер'] || ''))") !== -1,
@@ -222,8 +224,8 @@ describe('Task 312 — попап ячейки: «— выходной —» и 
 
     test('JS: _fillStatusSelect — мероприятия не предлагаются, текущее значение живо', () => {
         const fn = fnBody(INDEX_SRC, '_fillStatusSelect: function');
-        assertTrue(fn.indexOf('this._EVENT_CODES.indexOf(c.code) !== -1 && c.code !== current') !== -1,
-            'фильтр мероприятий с исключением текущего значения');
+        assertTrue(fn.indexOf('this._EVENT_CODES.indexOf(c.code) !== -1 && c.code !== cur') !== -1,
+            'фильтр мероприятий с исключением текущего значения (Task 387: cur)');
         // option «— выходной —» в select «Дополнительно…» жив
         // (это НЕ попап: очистка ячейки осталась в расширенной правке)
         assertTrue(fn.indexOf('<option value="">— выходной —</option>') !== -1,
@@ -248,16 +250,19 @@ describe('Task 312 — попап ячейки: «— выходной —» и 
 
 describe('Task 312/314 — «.» (плановый выходной): символ «·», фон как пустая ячейка', () => {
 
-    test('JS: fallback-цвет «.» = #EEF0F2 (фон ЯЧЕЕК сетки, светлая тема)', () => {
+    test('JS: fallback = канон Task 387 («Выходной» — пустой код, #EEF0F2)', () => {
         // Task 314: «.»-ячейка красится CSS-классом ws-dot-code —
-        // фон ПУСТОЙ ячейки в любой теме; цвет листа/фолбэка к фону
-        // ячейки НЕ применяется (значение справочное для листа:
-        // #EEF0F2 — фон ячеек светлой темы, Task 250; #FAF9F5 —
-        // это цвет СТРАНИЦЫ, ячейки чуть темнее)
+        // фон ПУСТОЙ ячейки в любой теме; цвет листа/канона к фону
+        // ячейки НЕ применяется (значение справочное; #EEF0F2 — фон
+        // ячеек светлой темы, Task 250). Task 387: fallback — КАНОН
+        // _STATUS_CODES_CANON (порядок по группам, полные наимено-
+        // вания), «Выходной» — ПУСТОЙ код (точка «·» убрана заявкой)
         const lc = fnBody(INDEX_SRC, '_loadStatusCodes: function');
-        assertTrue(lc.indexOf("{code:'.',    name:'Плановый выходной день', color:'#EEF0F2'}") !== -1,
-            'fallback «.» — #EEF0F2 (фон ячеек светлой темы)');
-        assertFalse(lc.indexOf("color:'#CFD8DC'") !== -1,
+        assertTrue(lc.indexOf('self._normalizeStatusCodes(self._STATUS_CODES_CANON)') !== -1,
+            'fallback — канон _STATUS_CODES_CANON (Task 387)');
+        assertTrue(INDEX_SRC.indexOf("{code:'',     short:'выходной', name:'Выходной, плановый выходной день', color:'#EEF0F2'}") !== -1,
+            'канон: «Выходной» — пустой код, #EEF0F2 (фон ячеек светлой темы)');
+        assertFalse(INDEX_SRC.indexOf("color:'#CFD8DC'") !== -1,
             'старый серо-голубой #CFD8DC не остался');
     });
 
@@ -275,17 +280,21 @@ describe('Task 312/314 — «.» (плановый выходной): симво
             '«.» и пустая ячейка — чистый центр (Task 356: «·» убрана везде)');
     });
 
-    test('JS: попап/select — символ «·», свотч ws-swatch-dot', () => {
+    test('JS: попап/select — «Выходной» БЕЗ кода-символа (Task 387), свотч ws-swatch-dot', () => {
         const rp = fnBody(INDEX_SRC, '_renderCellPopup: function');
-        assertTrue(rp.indexOf("var isDot = (c.code === '.');") !== -1,
-            'детектор «.» в попапе');
-        assertTrue(rp.indexOf("this._esc(isDot ? '·' : c.code)") !== -1,
-            'метка «·» в строке кода');
+        assertTrue(rp.indexOf("var isDot = (c.code === '.' || c.code === '');") !== -1,
+            'детектор «Выходного»: пустой код ИЛИ легаси-«.»');
+        assertTrue(rp.indexOf("this._esc(isDot ? '' : c.code)") !== -1,
+            'метка строки «Выходного» ПУСТА (точка «·» убрана, Task 387)');
+        assertFalse(rp.indexOf("this._esc(isDot ? '·' : c.code)") !== -1,
+            'метки «·» в попапе больше нет');
         assertTrue(rp.indexOf('ws-popup-swatch ws-swatch-dot') !== -1,
-            'свотч «.» — фон пустой ячейки (тема)');
+            'свотч «Выходного» — фон пустой ячейки (тема)');
         const fs2 = fnBody(INDEX_SRC, '_fillStatusSelect: function');
-        assertTrue(fs2.indexOf("var label = (c.code === '.') ? '·' : c.code;") !== -1,
-            'select «Дополнительно…»: метка «·», value «.»');
+        assertTrue(fs2.indexOf("if (c.code === '' || c.code === '.') continue;") !== -1,
+            'select: «Выходной» — опцией «— выходной —» (без дубля)');
+        assertTrue(fs2.indexOf("var cur = (current === '.') ? '' : current;") !== -1,
+            'select: легаси-«.» текущего значения маппится в «— выходной —»');
     });
 
     test('CSS: ws-dot-code — фон пустой ячейки, обе темы', () => {
@@ -311,9 +320,9 @@ describe('Task 312/314 — «.» (плановый выходной): симво
 
 describe('Task 312 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v460');
+    test('SW: версия кэша kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v465');
         assertFalse(SW_SRC.indexOf('kipia-test-v550') !== -1,
             'старой версии v550 нет');
     });

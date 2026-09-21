@@ -32,7 +32,7 @@
 //      запись отправляется повторно; «meters + архив» → не отправляется;
 //      _sendUpdateReading при archive_write_failed — запись в outbox,
 //      тост, ретрай; finish планирует ретрай при остатке.
-//   G. SW v453 (guard v454) — перенос из kip8test fadcacb (Task 376).
+//   G. SW v605 (guard v606).
 
 const fs = require('fs');
 const path = require('path');
@@ -657,9 +657,9 @@ describe('Task 376 — VM клиент: обработка archive_write_failed'
 // ============================================================
 describe('Task 376 — SW', () => {
     test('SW поднят до v605 (guard v606)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION = kipia-v460');
-        assertTrue(SW_SRC.indexOf('kipia-v461') === -1,
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION = kipia-v465');
+        assertTrue(SW_SRC.indexOf('kipia-v466') === -1,
             'guard-версии v606 в sw.js нет');
     });
 });

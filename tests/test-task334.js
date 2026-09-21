@@ -49,7 +49,7 @@
 //   CSS СУЖЕНИЕ: .ws-grid.ws-narrow th/td.ws-emp-col — 76px,
 //     .ws-tab-no/.ws-emp-pos скрыты; .ws-tt-table.ws-narrow
 //     th/td.ws-tt-emp — 58px, .ws-tt-tabno скрыт (media ≤1023px).
-//   SW: kipia-v460.
+//   SW: kipia-v465.
 //
 // Запуск: через tests/run-all.js (require './test-task334.js').
 
@@ -299,8 +299,8 @@ describe('Task 334 — страница «Итоги учёта»', () => {
         assertTrue(INDEX_SRC.indexOf("'ws-totals':                'Итоги учёта'") !== -1,
             'PAGE_LABELS: «Итоги учёта»');
         assertTrue(INDEX_SRC.indexOf(
-            "_WORK_SCHEDULE_PAGES: ['work-schedule', 'ws-totals']") !== -1,
-            '_WORK_SCHEDULE_PAGES: обе страницы модуля');
+            "_WORK_SCHEDULE_PAGES: ['work-schedule', 'ws-totals', 'ws-workers', 'ws-legend']") !== -1,
+            '_WORK_SCHEDULE_PAGES: страницы модуля (+ «Работники» — Task 385; + «Обозначения» — Task 386)');
     });
 
     test('VM: onTotalsPageOpen — флаг, вкладки, рендер в тело страницы', () => {
@@ -561,10 +561,10 @@ describe('Task 334 — сужение ФИО до 4 букв', () => {
 // 6. Service Worker
 // ============================================================
 describe('Task 334 — Service Worker', () => {
-    test('SW: кэш поднят до kipia-v460', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v460'") !== -1,
-            'CACHE_VERSION = kipia-v460 (Task 334 — только фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v461') !== -1,
+    test('SW: кэш поднят до kipia-v465', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v465'") !== -1,
+            'CACHE_VERSION = kipia-v465 (Task 334 — только фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v466') !== -1,
             'лишний инкремент (v577) не сделан');
     });
 });
