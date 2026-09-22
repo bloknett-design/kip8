@@ -408,8 +408,8 @@ describe('Task 306 — клиент: одна кнопка «Сформиров�
             'окошко календаря (нормы) осталось');
     });
 
-    test('SW: версия кэша kipia-v466 (Task 306 — клиент менялся)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v466'") !== -1,
-            'CACHE_VERSION = kipia-v466');
+    test('SW: версия кэша kipia-v467 (Task 306 — клиент менялся)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v467'") !== -1,
+            'CACHE_VERSION = kipia-v467');
     });
 });
