@@ -8642,3 +8642,21 @@ Work Log:
 Stage Summary:
 - Task 397 В ПРОДЕ kip8 (SW kipia-v473): ОБЩЕЕ ПРАВИЛО — универсальный проход (onclick-navigateTo → canAccess) + карта 8 JS-кнопок + калькуляторы нижнего бара по доступу + композит docs упрощён + бар скрыт без кнопок. Тесты 3707/0; браузер 35/35. Серверных шагов НЕТ.
 - Следующий номер задачи: 398.
+
+---
+Task ID: 398-transfer
+Agent: Z.ai Code (главный)
+Task: Перенос Task 398 (заявка «почему роли КИП ИОС видна кнопка "Работники" в табеле без доступа» — фикс [hidden]{display:none!important}) из kip8test@90a024c в боевой kip8.
+
+Work Log:
+- Синхронизация: локальный клон откатился к Task 396 (ae0aa12); fetched origin main → 098bcaf (Task 397-transfer), reset --hard. Task 397-код подтверждён (JS_NAV_TARGETS ×3, SW v473, test-task397.js).
+- scripts/task398-patch.py (зеркально kip8test): ОДНО универсальное CSS-правило [hidden] { display: none !important; } в начале <style> (до :root) + комментарий-диагноз; якорь <style>/:root не в зоне 82-строчного диффа kip8↔kip8test — правка идентична.
+- scripts/task398-transfer.py: tests/test-task398.js из kip8test@90a024c с маппингом версий (kipia-test-v626→v473, v627→v474 — «до-бамп» форма) + регистрация в run-all.js (после 397, перед test-deploy-url).
+- scripts/task398-bump-sw.py v473→v474 (guards v475 первыми, 88 файлов; СВОЙ тест НЕ исключён — двухшаговый бамп канонизирует до-бамп форму переноса: assert v474 + guard v475; паттерн task395/397 — первый запуск был с исключением, откат tests/+sw.js git checkout и повтор). Прогон 3718/0 (+11).
+- Браузер scripts/task398-browser-check.py (порт 9007, localStorage БЕЗ префикса kip8test:, пруфы task398k8-*): 27/27, 4 контекста — (1) КИП ИОС+min (сценарий заявки): кнопка hidden=true И rect 0×0 (ВИЗУАЛЬНО скрыта), клик по месту кнопки в неё не попадает, программный openWorkersPage не ведёт на страницу, «Обновить»/«Печать»/«Вид»/«Обозначения» видны, DOM-скан табеля 0 протечек [hidden]; (2) КИП ИОС+view: кнопка видна, КЛИК → страница «Работники» (вкладки, read-only без «Правка данных»); (3) Админ edit: кнопка+«Сформировать» видны, переход работает, в карточке «Правка данных…»; (4) мобайл 375 светлая min: кнопка rect 0×0, клик по месту не открывает. 0 JS-ошибок ×4.
+- VLM (glm-5v-turbo) ×2: task398k8-proof-min.png — РЯД1 БЕЗ «Работники»; task398k8-proof-view-toolbar.png — РЯД1 С «Работники».
+- Деплой: коммит + push; DEPLOY-Task398-transfer-from-test.md (СЕРВЕРНЫХ ШАГОВ НЕТ).
+
+Stage Summary:
+- Task 398 в проде kip8 (зеркально kip8test@90a024c): причина заявки — CSS .ws-refresh-btn{display:inline-flex} перебивал атрибут hidden у кнопки «Работники» (hidden=true при rect 107×30, клик молча отсекался при min); фикс — [hidden]{display:none!important} восстанавливает семантику атрибута по всему приложению. Тесты 3718/0; браузер 27/27; VLM ×2. Серверных шагов НЕТ.
+- Следующий номер задачи: 399 (в обоих репо).
