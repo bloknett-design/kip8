@@ -4885,28 +4885,21 @@
            красный/серый — на светлом фоне читались слабо) */
         color: #000;
     }
-    /* Task 394 (заявка): окно «Мероприятия» месяца — СЕКЦИИ «Отпуска»
-       и «СИЗ» (заполняет _renderMonthEventsPanel): заголовки — те же
-       плашки .ws-ep-cap своих цветов (мероприятия — зелёная, как
-       прежде; отпуска — серо-синяя, СИЗ — янтарная). Точки строк —
-       фиксированные читаемые тона для ОБОИХ тем: цвет «ОТ» #ECEFF1
-       (фон клеток плана отпуска) слишком светел для точки 8×8 — в
-       светлой теме почти невидим; точка отпуска — нейтральный
-       #90a4ae, точка СИЗ — янтарная #f0a830 */
-    .ws-ep-cap-vac {
-        background: rgba(144, 164, 174, 0.22);
-        color: #b0bec5;
-    }
+    /* Task 394 (заявка): окно «Мероприятия» месяца — секции
+       «Отпуска» и «СИЗ» (заполняет _renderMonthEventsPanel).
+       Task 404 (заявка: «убери информацию по отпускам»): секция и
+       плашка «Отпуска» УДАЛЕНЫ — осталась секция «СИЗ»: заголовок —
+       плашка .ws-ep-cap янтарного тона (мероприятия — зелёная, как
+       прежде), точки строк — фиксированные читаемые тона для ОБОИХ
+       тем; точка СИЗ — янтарная #f0a830 */
     .ws-ep-cap-ppe {
         background: rgba(240, 168, 48, 0.2);
         color: #f0a830;
     }
-    [data-theme="light"] .ws-ep-cap-vac,
     [data-theme="light"] .ws-ep-cap-ppe {
         /* Task 330: весь текст окон бара — ЧЁРНЫЙ в светлой теме */
         color: #000;
     }
-    .ws-ep-dot-vac { background: #90a4ae; }
     .ws-ep-dot-ppe { background: #f0a830; }
     .ws-ep-item {
         display: flex;
@@ -5244,6 +5237,11 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        /* Task 404 (заявка): имя РАСТЯНУТО (flex: 1, как тело строки
+           СИЗ .ws-ppe-body) — кнопки ✎/✕ мероприятий прижаты вправо
+           РЯДОМ друг с другом (прежде разделялись auto-маржинами) */
+        flex: 1;
+        min-width: 0;
     }
     /* Task 319 (заявка): окно ВЫБОРА КОДОВ — НАЗВАНИЕ кода чуть
        МЕЛЬЧЕ и ПЕРЕНОСИТСЯ по строкам (прежде — однострочное
@@ -5449,6 +5447,14 @@
         color: var(--text-primary, #e0e0e0);
         overflow: hidden;
         text-overflow: ellipsis;
+        /* Task 404 (заявка): значение РАСТЯНУТО (flex: 1, как тело
+           строки СИЗ .ws-ppe-body) — свободного места в строке нет,
+           кнопки ✎/✕ (.ws-popup-act margin-left: auto) прижаты
+           вправо и стоят РЯДОМ друг с другом (прежде auto-маржины
+           ДВУХ кнопок делили свободное место пополам — ✎ висел
+           посередине строки) */
+        flex: 1;
+        min-width: 0;
     }
     .ws-emp-empty {
         padding: 3px 10px 6px 8px;
@@ -5783,6 +5789,27 @@
             max-width: 60%;       /* кап: длинные таблицы — прокруткой */
             overflow: hidden;     /* клип мгновенных пререндеров ширины */
             transition: margin-right 0.28s ease;
+        }
+    }
+    /* Task 401 (заявка): вкладка «Год» — шторка итогов РАСКРЫВАЕТСЯ
+       НА ВСЮ ШИРИНУ рабочей области ПРАВЕЕ столбца ФИО шахматки,
+       полностью закрывая собой дни (ширину ставит JS _fitTtDrawer:
+       #wsWsBody − --ws-emp-w; класс ws-tt-yearfull на странице —
+       ставит/снимает тот же _fitTtDrawer):
+       · кап 60% снят — шторке разрешена полная ширина;
+       · таблица года — width: 100% (растягивается по шторке; колонка
+         ФИО не растёт — авто-раскладка делит меж месяцев/итогов;
+         мобильная СТРАНИЦА итогов и прямой заход по #hash не
+         тронуты — селектор только #wsTotalsPanel шторки).
+       Правила скрытия полосы ФИО сетки (::after) и ползунка
+       шахматки — НИЖЕ базовых правил ::after (Task 333/336),
+       в блоке Task 401 рядом с ними */
+    @media (min-width: 1024px) {
+        #page-work-schedule.ws-tt-yearfull .ws-tt-drawer {
+            max-width: none;
+        }
+        #page-work-schedule.ws-tt-yearfull #wsTotalsPanel .ws-tt-table.ws-tt-year {
+            width: 100%;
         }
     }
     /* МОБАЙЛ: шторка — fixed-оверлей (у сетки место не отбирает):
@@ -6265,7 +6292,13 @@
     }
     .ws-wtabs {
         flex: none;
-        width: 236px;
+        /* Task 403 (заявка): ширина — по ГАБАРИТАМ самого длинного
+           текста ярлыка: _fitWorkersTabs меряет и пишет переменную
+           --ws-wtabs-w (после каждого рендера страницы «Работники»);
+           236px — фолбэк до замера (скрытая страница/моки). Мобайл
+           ≤1023px — media-правило ленты ставит width:auto (переменная
+           не мешает горизонтальному скроллу) */
+        width: var(--ws-wtabs-w, 236px);
         display: flex;
         flex-direction: column;
         gap: 3px;
@@ -6317,21 +6350,26 @@
     .ws-wtab-body .ws-wcard { margin-bottom: 12px; }
     .ws-wtab-body .ws-wcard:last-child { margin-bottom: 0; }
     /* Task 395 (заявка): КОЛОНКИ-обёртки .ws-wcol (сборка —
-       _renderWorkerCardPanels: левая — профиль + отпуска +
-       мероприятия, правая .ws-wcol-ppe — СИЗ). Мобайл ≤1023px —
+       _renderWorkerCardPanels; Task 404 — ТРИ колонки: 1-я —
+       профиль + отпуска, 2-я .ws-wcol-ppe — СИЗ, 3-я .ws-wcol-tr —
+       мероприятия; блок СИЗ — СЛЕВА от блока мероприятий, три
+       верхних блока в одну линию).
+       Мобайл ≤1023px —
        колонки БЕЗ правил раскладки = блоки друг под другом; зазор
        между колонками — margin-bottom, у последней — 0 (внутри
        колонок панелям — базовые правила Task 393 выше) */
     .ws-wgrid2 .ws-wcol { margin-bottom: 12px; }
     .ws-wgrid2 .ws-wcol:last-child { margin-bottom: 0; }
-    /* Task 394 → 395 (заявка): ДЕСКТОП (≥1024px) — ДВЕ РАВНЫЕ
-       колонки НА ВСЮ ШИРИНУ окна вкладок (flex, обёртка .ws-wgrid2
-       — _renderWorkersPage, только вкладка работника; «Общая» — без
-       колонок): ЛЕВАЯ — профиль, ПОД ним ОТПУСКА, под отпусками
-       МЕРОПРИЯТИЯ (вертикальный стек окон); ПРАВАЯ — блок СИЗ в
-       ВЕРХНЕЙ ПРАВОЙ части экрана (align-items: flex-start —
-       правая колонка НЕ тянется по высоте левой). Зазоры: между
-       колонками — gap 12px; между окнами левой колонки —
+    /* Task 394 → 395 → 403 → 404 (заявка): ДЕСКТОП (≥1024px) —
+       ТРИ РАВНЫЕ колонки НА ВСЮ ШИРИНУ окна вкладок (flex, обёртка
+       .ws-wgrid2 — _renderWorkersPage, только вкладка работника;
+       «Общая» — без колонок): 1-я — ПРОФИЛЬ, ПОД ним ОТПУСКА
+       (вертикальный стек окон); 2-я — СИЗ; 3-я — МЕРОПРИЯТИЯ
+       (Task 404: блок СИЗ — СЛЕВА от блока мероприятий, три верхних
+       блока — профиль/СИЗ/мероприятия — в ОДНУ ЛИНИЮ; равные доли
+       flex: 1 1 0 — блоки гарантированно помещаются; align-items:
+       flex-start — колонки НЕ тянутся по высоте друг друга). Зазоры:
+       между колонками — gap 12px; между окнами 1-й колонки —
        margin-bottom панелей (базовые правила Task 393) */
     @media (min-width: 1024px) {
         .ws-wgrid2 {
@@ -6520,7 +6558,8 @@
             padding: 6px 4px;
         }
         .ws-grid.ws-narrow td.ws-emp-col .ws-tab-no,
-        .ws-grid.ws-narrow td.ws-emp-col .ws-emp-pos { display: none; }
+        .ws-grid.ws-narrow td.ws-emp-col .ws-emp-pos,
+        .ws-grid.ws-narrow td.ws-emp-col .ws-emp-tip { display: none; }
 
         /* 4) СУЖЕНИЕ колонки сотрудников таблиц итогов (шторка и
            страница): класс .ws-narrow на .ws-tt-table; ширина —
@@ -6969,6 +7008,51 @@
         hyphens: manual;
         text-align: center;
     }
+    /* Task 401 (заявка): ПОДСТРОКА шапки годовой таблицы — пояснение
+       формата данных в ячейках месяцев «дней/часов» (ячейка вида
+       «11/132»: слева ДНИ, справа ЧАСЫ); одна на все 12 месяцев
+       (colspan=12), под месяцами шапки. Компактная — высота auto
+       (не 38px базовой шапки), приглушённый цвет */
+    .ws-tt-table.ws-tt-year th.ws-tt-sub {
+        height: auto;
+        padding: 1px 4px 3px;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1.2;
+        color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+    }
+    [data-theme="light"] .ws-tt-table.ws-tt-year th.ws-tt-sub {
+        color: #5b6774;
+    }
+    /* Task 401 (заявка): ТРИ ИТОГОВЫХ СТОЛБЦА (Дней/Часов/Перераб.
+       (дни)) — фон НЕМНОГО ДРУГОГО ОТТЕНКА от столбцов месяцев:
+       шапка — светлее стальной (тёмная #243048 против #1e293b) /
+       чуть темнее (светлая #b4c1cd против #bfcad5); ячейки —
+       полупрозрачная тонировка ПОВЕРХ зебры строк (зебра видна);
+       слева от блока — РАЗДЕЛИТЕЛЬ 2px, та же линия, что левый
+       край окна итогов .ws-tt-edge (#4a8fc7 тёмная / #6e8ba4
+       светлая; в border-collapse стык 2px побеждает 1px границы
+       «дек» — линия непрерывна, включая подстроку шапки) */
+    .ws-tt-table.ws-tt-year th.ws-tt-sum {
+        background: #243048;
+    }
+    [data-theme="light"] .ws-tt-table.ws-tt-year th.ws-tt-sum {
+        background: #b4c1cd;
+    }
+    .ws-tt-table.ws-tt-year td.ws-tt-sum {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    [data-theme="light"] .ws-tt-table.ws-tt-year td.ws-tt-sum {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    .ws-tt-table.ws-tt-year th.ws-tt-sum-edge,
+    .ws-tt-table.ws-tt-year td.ws-tt-sum-edge {
+        border-left: 2px solid #4a8fc7;
+    }
+    [data-theme="light"] .ws-tt-table.ws-tt-year th.ws-tt-sum-edge,
+    [data-theme="light"] .ws-tt-table.ws-tt-year td.ws-tt-sum-edge {
+        border-left-color: #6e8ba4;
+    }
     [data-theme="light"] .ws-tt-table th,
     [data-theme="light"] .ws-tt-table td {
         /* Task 378: непрозрачный цвет линий дней шахматки (Task 377) */
@@ -7303,6 +7387,29 @@
     [data-theme="light"] .ws-grid tbody td.ws-emp-col::after {
         background: #6e8ba4;
     }
+    /* Task 401 (заявка): полная ширина «Года» — правила стоят ЗДЕСЬ,
+       ПОСЛЕ базовых ::after-полос ФИО сетки (Task 333/336), чтобы
+       первое вхождение селектора оставалось базовым:
+       · полоса-разделитель ФИО шахматки СКРЫТА — у левого края окна
+         итогов остаётся ЕДИНСТВЕННАЯ линия .ws-tt-edge (шторка
+         примыкает вплотную — иначе на стыке ДВЕ линии 2px + 2px);
+       · ползунок прокрутки шахматки (.ws-grid-hbar) погашен — дни
+         полностью закрыты шторкой, скроллить нечего (мертвый UI);
+         12px-зона остаётся — бордюры сетки и шторки на одном
+         уровне (Task 331) */
+    @media (min-width: 1024px) {
+        #page-work-schedule.ws-tt-yearfull .ws-grid thead th.ws-emp-col::after,
+        #page-work-schedule.ws-tt-yearfull .ws-grid tbody td.ws-emp-col::after {
+            display: none;
+        }
+        #page-work-schedule.ws-tt-yearfull .ws-grid-hbar.on {
+            background: none;
+            border-radius: 0;
+        }
+        #page-work-schedule.ws-tt-yearfull .ws-grid-hbar .ws-hbar-thumb {
+            display: none !important;
+        }
+    }
     .ws-grid {
         border-collapse: collapse;
         font-size: 12px;
@@ -7566,6 +7673,24 @@
         color: var(--text-secondary, rgba(255,255,255,0.55));
         margin-top: 1px;
         /* Task 256: целый интервал — в сумме с ФИО ровно 39px (см. выше) */
+        line-height: 12px;
+    }
+    /* Task 402 (заявка): данные ТИПА работника — ТРЕТЬЕЙ строкой
+       ячейки, под ФИО и должностью («смена №1» / «сменный» /
+       «дневной»). Шрифт и стили — ТЕ ЖЕ, что у строки должности
+       (заявка: «не меняя при этом шрифта и высоты ячеек»: на десктопе
+       высоту строк задаёт растяжка _fitGrid — третья строка
+       помещается в ту же ячейку; природная высота блока растёт
+       39 → 52px, ярусы compact/tight пересчитываются сами по замеру).
+       Пустой тип — строка не рендерится (JS, как у должности). */
+    .ws-grid tbody td.ws-emp-col .ws-emp-tip {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 10px;
+        font-weight: 400;
+        color: var(--text-secondary, rgba(255,255,255,0.55));
+        margin-top: 1px;
         line-height: 12px;
     }
     .ws-grid tbody td.ws-cell {
@@ -8547,6 +8672,10 @@
     [data-theme="light"] .ws-grid tbody td.ws-emp-col .ws-emp-pos {
         color: #666;
     }
+    /* Task 402: строка типа работника — тот же цвет, что должность */
+    [data-theme="light"] .ws-grid tbody td.ws-emp-col .ws-emp-tip {
+        color: #666;
+    }
     /* Task 251: светлая тема — маркер несохранённой ячейки потемнее */
     [data-theme="light"] .ws-grid tbody td.ws-cell.ws-pending {
         outline-color: rgba(176, 122, 0, 0.95);
@@ -8724,6 +8853,10 @@
         .ws-grid-wrap.ws-compact .ws-grid tbody td.ws-emp-col .ws-emp-pos {
             margin-top: 0;
         }
+        /* Task 402: строка типа — без отступа, как должность */
+        .ws-grid-wrap.ws-compact .ws-grid tbody td.ws-emp-col .ws-emp-tip {
+            margin-top: 0;
+        }
         /* Task 256: предельно сжатый режим: 1+13+10+1 = 25px */
         .ws-grid-wrap.ws-tight .ws-grid tbody td.ws-emp-col {
             padding: 1px 8px;
@@ -8732,6 +8865,12 @@
             line-height: 13px;
         }
         .ws-grid-wrap.ws-tight .ws-grid tbody td.ws-emp-col .ws-emp-pos {
+            font-size: 9px;
+            line-height: 10px;
+            margin-top: 0;
+        }
+        /* Task 402: строка типа — как должность в сжатом ярусе */
+        .ws-grid-wrap.ws-tight .ws-grid tbody td.ws-emp-col .ws-emp-tip {
             font-size: 9px;
             line-height: 10px;
             margin-top: 0;
@@ -18609,6 +18748,16 @@
                  из _EMPLOYEES); лист — единственный источник истины -->
             <label class="flow-input-label" for="wsEmpPosition">Должность</label>
             <select id="wsEmpPosition" class="flow-input-field-small"></select>
+        </div>
+        <div class="flow-input-group" style="flex:0 0 40%;">
+            <!-- Task 402: «Группа допуска» — столбец «группа_допуска»
+                 листа «Сотрудники» (табель_КИП_ИОС), ПОСЛЕ «Должности».
+                 ВЫПАДАЮЩИЙ список: уникальные значения листа +
+                 стандарт II/III/IV/V + «— не указана —»; наполняется
+                 при открытии шторки — _fillGroupSelect (как «Должность»
+                 Task 318; текущее значение сохраняется поверх) -->
+            <label class="flow-input-label" for="wsEmpAccessGroup">Группа допуска</label>
+            <select id="wsEmpAccessGroup" class="flow-input-field-small"></select>
         </div>
     </div>
     <textarea id="wsEmpComment" class="flow-comment-field" rows="2" maxlength="500" placeholder="Комментарий (необязательно)" autocomplete="off"></textarea>
@@ -41831,6 +41980,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     // Task 382: полная ширина колонки «Сотрудник»
                     // итогов (месяц, мобайл) — тоже зависит от шрифта
                     try { if (self._measureTtEmpFullW) self._measureTtEmpFullW(); } catch (e) {}
+                    // Task 403: ширина ярлыков «Работников» — по
+                    // самому длинному тексту (поздний шрифт меняет
+                    // ширину фамилий ярлыков)
+                    try { if (self._fitWorkersTabs) self._fitWorkersTabs(); } catch (e) {}
                 });
             }
 
@@ -43840,18 +43993,27 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 prevTier = empTier;
                 html += '<tr' +
                         (trClsParts.length ? ' class="' + trClsParts.join(' ') + '"' : '') + '>';
-                // Task 254 + Task 255: под ФИО — строка с должностью и
-                // режимом занятости из справочника сотрудников (таблица
-                // «Сотрудники» файла табель_КИП_ИОС: столбец C — тип,
-                // столбец D — номер смены): «Слесарь КИПиА смена №1»,
-                // «Слесарь КИПиА дневной» (см. _posLabel). Пустая
-                // подпись — строка не рендерится вовсе (без пустых
-                // строк в колонке). ФИО и подпись — отдельные блоки с
-                // собственным эллипсисом (десктоп: колонка — по
-                // самому широкому тексту, Task 325, --ws-emp-w).
-                var empPosLabel = this._posLabel(emp);
+                // Task 254 + Task 255 + Task 403: под ФИО — строка
+                // ДОЛЖНОСТИ со сокращённым «разряд» → «р.» («Слесарь
+                // КИПиА 5 р.»; группа допуска убрана из столбца ФИО —
+                // осталась в карточке/сводной/шторке), ТРЕТЬЕЙ строкой —
+                // данные типа работника
+                // (таблица «Сотрудники» файла табель_КИП_ИОС: столбец C
+                // — тип, столбец D — номер смены): «смена №1», «дневной»
+                // (см. _empPosLine/_empTipLine; прежний склеенный формат
+                // «Слесарь КИПиА смена №1» остаётся в печатной форме —
+                // _posLabel, Task 361). Пустая строка — блок не
+                // рендерится вовсе (без пустых строк в колонке).
+                // ФИО/должность/тип — отдельные блоки с собственным
+                // эллипсисом (десктоп: колонка — по самому широкому
+                // тексту, Task 325, --ws-emp-w).
+                var empPosLabel = this._empPosLine(emp);
                 var empPos = empPosLabel
                     ? '<div class="ws-emp-pos">' + this._esc(empPosLabel) + '</div>'
+                    : '';
+                var empTipLabel = this._empTipLine(emp);
+                var empTip = empTipLabel
+                    ? '<div class="ws-emp-tip">' + this._esc(empTipLabel) + '</div>'
                     : '';
                 // Task 309: колонка ФИО — КЛИК открывает карточку
                 // сотрудника (данные бывших вкладок: профиль, отпуска,
@@ -43875,7 +44037,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         // data-s4 (первые 4 буквы фамилии): JS-сужение при
                         // горизонтальной прокрутке меняет textContent span
                         // (толерантно к VM-мокам без _surname4)
-                        '<span class="ws-emp-full" data-full="' + this._escAttr(emp['ФИО']) + '" data-s4="' + this._escAttr((typeof this._surname4 === 'function') ? this._surname4(emp['ФИО']) : '') + '">' + this._esc(emp['ФИО']) + '</span></div>' + empPos + '</td>';
+                        '<span class="ws-emp-full" data-full="' + this._escAttr(emp['ФИО']) + '" data-s4="' + this._escAttr((typeof this._surname4 === 'function') ? this._surname4(emp['ФИО']) : '') + '">' + this._esc(emp['ФИО']) + '</span></div>' + empPos + empTip + '</td>';
                 for (var day = 1; day <= daysInMonth; day++) {
                     var ddt = new Date(this._year, this._month - 1, day);
                     var isoDate = this._isoDate(ddt);
@@ -43973,6 +44135,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 var pos = cells[i].querySelector('.ws-emp-pos');
                 var pw = measure(pos);
                 if (pw > w) w = pw;
+                // Task 402: строка типа — тоже в замере (колонка по
+                // самому широкому тексту из ТРЁХ строк)
+                var tip = cells[i].querySelector('.ws-emp-tip');
+                var tw = measure(tip);
+                if (tw > w) w = tw;
                 if (w > max) max = w;
             }
             // скрытая страница / пустая сетка — прежнее значение не трогаем
@@ -44419,53 +44586,17 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         '<span class="ws-ep-text">' + this._esc(text) + '</span></span>';
             }
             // Task 394 (заявка): в окне мероприятий месяца — ТАК ЖЕ
-            // ОТПУСКА и СИЗ. Отпуска — периоды листа «Отпуска»,
-            // ПЕРЕСЕКАЮЩИЕ открытый месяц (частично попадающие на
-            // два месяца показываются в окнах ОБЕИХ месяцев — фильтр
-            // пересечения тот же, что у мероприятий); выбранный день
-            // (Task 316) — только накрывающие день. СИЗ — записи, чей
-            // срок годности ИСТЕКАЕТ в этом месяце (дата_окончания
-            // внутри месяца; «До износа»/без даты — не показываются);
-            // в режиме дня — истекающие ровно в выбранный день.
-            // ПУСТЫЕ секции скрыты (окно не шумит зря); заголовки —
-            // те же плашки со счётчиком, строки — формат «точка ·
-            // даты · текст»; ПРОШЕДШИЕ (дата раньше «сегодня») —
-            // прозрачный фон .ws-ep-past (Tasks 380/389)
-            var vacList = [];
-            var vacsAll = this._VACATIONS || [];
-            for (var vI = 0; vI < vacsAll.length; vI++) {
-                var vRec = vacsAll[vI];
-                // Task 399: min — отпуска мастеров не показываются
-                if (hideMasters && masterTabs[vRec['таб_номер']]) continue;
-                var vS = vRec['дата_начала'];
-                if (!vS) continue;
-                var vE = vRec['дата_окончания'] || vS;
-                if (vE < mStart || vS > mEnd) continue;
-                if (selIso && (vS > selIso || vE < selIso)) continue;
-                vacList.push(vRec);
-            }
-            vacList.sort(function(a, b) {
-                return String(a['дата_начала']).localeCompare(String(b['дата_начала'])) ||
-                       String(a['таб_номер']).localeCompare(String(b['таб_номер']));
-            });
-            if (vacList.length) {
-                html += '<span class="ws-cp-cap ws-ep-cap ws-ep-cap-vac">Отпуска · ' +
-                        (selIso ? this._esc(fmtDay(selIso))
-                                : this._esc(monthsNom[m - 1]) + ' ' + y) +
-                        ' · ' + vacList.length + '</span>';
-                for (var vk = 0; vk < vacList.length; vk++) {
-                    var vac = vacList[vk];
-                    var vFio = fioIdx[vac['таб_номер']] || ('таб. №' + vac['таб_номер']);
-                    var vRange = fmtRange(vac['дата_начала'], vac['дата_окончания']);
-                    var vEndIso = String(vac['дата_окончания'] || vac['дата_начала'] || '');
-                    var vPast = (vEndIso && vEndIso < todayIso) ? ' ws-ep-past' : '';
-                    html += '<span class="ws-ep-item' + vPast + '">' +
-                            '<i class="ws-ep-dot ws-ep-dot-vac"></i>' +
-                            '<b class="ws-ep-date">' + this._esc(vRange) + '</b>' +
-                            '<span class="ws-ep-text">' +
-                            this._esc('Отпуск · ' + vFio) + '</span></span>';
-                }
-            }
+            // отпуска и СИЗ. Task 404 (заявка: «в окне мероприятий
+            // убери информацию по отпускам»): секция «ОТПУСКА»
+            // УДАЛЕНА — в окне только МЕРОПРИЯТИЯ и СИЗ (данные
+            // отпусков живы в карточках и шахматке — план «ОТ»).
+            // СИЗ — записи, чей срок годности ИСТЕКАЕТ в этом месяце
+            // (дата_окончания внутри месяца; «До износа»/без даты —
+            // не показываются); в режиме дня — истекающие ровно в
+            // выбранный день. ПУСТАЯ секция скрыта (окно не шумит
+            // зря); заголовок — та же плашка со счётчиком, строки —
+            // формат «точка · даты · текст»; ПРОШЕДШИЕ (дата раньше
+            // «сегодня») — прозрачный фон .ws-ep-past (Tasks 380/389)
             var ppeList = [];
             var ppeAll = this._PPE || [];
             for (var pzI = 0; pzI < ppeAll.length; pzI++) {
@@ -45254,6 +45385,46 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 drawer.style.marginRight = '';
                 return;
             }
+            // Task 401 (заявка): вкладка «Год» — шторка РАСКРЫВАЕТСЯ
+            // НА ВСЮ ШИРИНУ рабочей области правее столбца ФИО
+            // шахматки, ПОЛНОСТЬЮ закрывая собой дни. Ширина =
+            // #wsWsBody.clientWidth − --ws-emp-w (натуральная ширина
+            // колонки ФИО по тексту — её мерит _measureEmpCol; на
+            // десктопе сужения ФИО не бывает: _narrowApply гасит
+            // его при ≥1024px, поэтому --ws-emp-nw здесь не нужна).
+            // Класс ws-tt-yearfull на странице: снимает кап 60%,
+            // растягивает таблицу года на 100% шторки, прячет
+            // полосу ФИО сетки (у края окна — ЕДИНСТВЕННАЯ линия
+            // .ws-tt-edge) и гасит ползунок шахматки (дни закрыты).
+            // «Месяц»/закрытие — класс снят, ширина по столбцам
+            // таблицы (прежнее поведение Task 329)
+            var full = false;
+            var page = document.getElementById('page-work-schedule');
+            if (this._totalsTab === 'year' && !this._ttPage && page) {
+                var wBody = document.getElementById('wsWsBody');
+                var empW = 180;   // фолбэк ширины ФИО (как в CSS)
+                if (window.getComputedStyle) {
+                    try {
+                        var ev = parseFloat(window.getComputedStyle(page)
+                                    .getPropertyValue('--ws-emp-w'));
+                        if (ev > 0) empW = ev;
+                    } catch (e) {}
+                }
+                if (wBody && wBody.clientWidth) {
+                    var wFull = Math.floor(wBody.clientWidth - empW);
+                    if (wFull < 240) wFull = 240;   // минимум (как пустое состояние)
+                    drawer.style.width = wFull + 'px';
+                    full = true;
+                }
+            }
+            if (page && page.classList) {
+                if (full && page.classList.add) {
+                    page.classList.add('ws-tt-yearfull');
+                } else if (!full && page.classList.remove) {
+                    page.classList.remove('ws-tt-yearfull');
+                }
+            }
+            if (full) return;
             var body = document.getElementById('wsTtBody');
             var table = body ? body.querySelector('.ws-tt-table') : null;
             var w = table ? Math.ceil(table.getBoundingClientRect().width) : 0;
@@ -45275,6 +45446,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var page = document.getElementById('page-work-schedule');
             if (page && page.classList && page.classList.remove) {
                 page.classList.remove('ws-tt-gridwide');
+                // Task 401: полноширинный «Год» закрыт — класс снять
+                // (полоса ФИО сетки и ползунок возвращаются)
+                page.classList.remove('ws-tt-yearfull');
             }
             if (page && page.style && page.style.removeProperty) {
                 page.style.removeProperty('--ws-tt-head-h');
@@ -45940,10 +46114,15 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     out += '<td class="ws-tt-num">' +
                         (w ? w + '/' + self._fmtTotalsNum(hh) : '—') + '</td>';
                 }
-                out += '<td class="ws-tt-num">' + (sumWork || '—') + '</td>' +
-                        '<td class="ws-tt-num ws-tt-hours">' +
+                // Task 401 (заявка): три итоговых столбца — классы
+                // ws-tt-sum (фон другого оттенка) + ws-tt-sum-edge
+                // («Дней»: разделитель 2px слева — как левый край
+                // окна итогов)
+                out += '<td class="ws-tt-num ws-tt-sum ws-tt-sum-edge">' +
+                        (sumWork || '—') + '</td>' +
+                        '<td class="ws-tt-num ws-tt-hours ws-tt-sum">' +
                         (sumHours ? self._fmtTotalsNum(sumHours) : '—') + '</td>' +
-                        '<td class="ws-tt-num ws-tt-over" title="часов переработки: ' +
+                        '<td class="ws-tt-num ws-tt-over ws-tt-sum" title="часов переработки: ' +
                             self._fmtTotalsNum(sumOver) + ' (коды д/н)">' +
                         (sumOverDays || '—') + '</td></tr>';
                 return out;
@@ -45958,14 +46137,24 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var html = '';
             if (employees.length) {
                 html = '<table class="ws-tt-table ws-tt-year">' +
-                    // Task 335: «Сотрудник» → «Сотр» при сужении
-                    '<thead><tr><th class="ws-tt-emp"><span class="ws-tt-emp-head" data-full="Работник" data-s4="Рабо">Работник</span></th>';
+                    // Task 335: «Сотрудник» → «Сотр» при сужении;
+                    // Task 401: rowspan="2" — шапка ДВУХСТРОЧНАЯ
+                    // (подстрока «дней/часов» под месяцами)
+                    '<thead><tr><th class="ws-tt-emp" rowspan="2"><span class="ws-tt-emp-head" data-full="Работник" data-s4="Рабо">Работник</span></th>';
                 for (var h = 1; h <= 12; h++) {
                     html += '<th>' + monthsAbbr[h - 1] + '</th>';
                 }
-                html += '<th>Дней</th><th>Часов</th>' +
-                    '<th title="дни переработки за год — коды д/н">Перераб. (дни)</th>' +
-                    '</tr></thead><tbody>';
+                // Task 401 (заявка): итоговые столбцы — rowspan="2"
+                // (шапка двухстрочная) + классы ws-tt-sum (фон) и
+                // ws-tt-sum-edge («Дней»: разделитель 2px слева)
+                html += '<th class="ws-tt-sum ws-tt-sum-edge" rowspan="2">Дней</th>' +
+                    '<th class="ws-tt-sum" rowspan="2">Часов</th>' +
+                    '<th class="ws-tt-sum" rowspan="2" title="дни переработки за год — коды д/н">Перераб. (дни)</th>' +
+                    // Task 401 (заявка): ПОДСТРОКА-пояснение формата
+                    // ячеек месяцев «дней/часов» («11/132»: слева дни,
+                    // справа часы) — под месяцами шапки
+                    '</tr><tr><th class="ws-tt-sub" colspan="12">дней/часов</th></tr>' +
+                    '</thead><tbody>';
                 // Task 333: разделитель сменных/дневных — как в сетке
                 // (первая дневная после сменных) + штамп подсветки из
                 // _hoverRow (строка шторки = строка сетки)
@@ -45994,14 +46183,18 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             if (archived.length) {
                 html += '<div class="ws-tt-arch-cap">Архив</div>' +
                     '<table class="ws-tt-table ws-tt-year ws-tt-arch">' +
-                    // Task 335: «Сотрудник» → «Сотр» при сужении
-                    '<thead><tr><th class="ws-tt-emp"><span class="ws-tt-emp-head" data-full="Работник" data-s4="Рабо">Работник</span></th>';
+                    // Task 335: «Сотрудник» → «Сотр» при сужении;
+                    // Task 401: rowspan="2" + подстрока «дней/часов» —
+                    // шапка двухстрочная, как у главной (Task 401)
+                    '<thead><tr><th class="ws-tt-emp" rowspan="2"><span class="ws-tt-emp-head" data-full="Работник" data-s4="Рабо">Работник</span></th>';
                 for (var h2 = 1; h2 <= 12; h2++) {
                     html += '<th>' + monthsAbbr[h2 - 1] + '</th>';
                 }
-                html += '<th>Дней</th><th>Часов</th>' +
-                    '<th title="дни переработки за год — коды д/н">Перераб. (дни)</th>' +
-                    '</tr></thead><tbody>';
+                html += '<th class="ws-tt-sum ws-tt-sum-edge" rowspan="2">Дней</th>' +
+                    '<th class="ws-tt-sum" rowspan="2">Часов</th>' +
+                    '<th class="ws-tt-sum" rowspan="2" title="дни переработки за год — коды д/н">Перераб. (дни)</th>' +
+                    '</tr><tr><th class="ws-tt-sub" colspan="12">дней/часов</th></tr>' +
+                    '</thead><tbody>';
                 var prevTierA = -1;
                 for (var ar = 0; ar < archived.length; ar++) {
                     var aemp = archived[ar];
@@ -46294,12 +46487,29 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             if (wrap && typeof ResizeObserver !== 'undefined') {
                 this._fitObserver = new ResizeObserver(function() {
                     self._fitGrid();
+                    // Task 401 (заявка): годовая шторка «на всю ширину» —
+                    // при изменении размера окна/области ширина
+                    // пересчитывается (иначе шахматка выглядывает
+                    // из-под закрывающего её окна). Сходится: повторный
+                    // вызов с теми же входными не меняет ширину —
+                    // ResizeObserver больше не срабатывает
+                    if (self._totalsOpen && self._totalsTab === 'year'
+                            && !self._ttPage
+                            && typeof self._fitTtDrawer === 'function') {
+                        try { self._fitTtDrawer(); } catch (e) {}
+                    }
                 });
                 this._fitObserver.observe(wrap);
             } else if (wrap) {
                 // запасной вариант для старых браузеров без ResizeObserver
                 window.addEventListener('resize', function() {
                     self._fitGrid();
+                    // Task 401: годовая шторка — пересчёт и на ресайзе
+                    if (self._totalsOpen && self._totalsTab === 'year'
+                            && !self._ttPage
+                            && typeof self._fitTtDrawer === 'function') {
+                        try { self._fitTtDrawer(); } catch (e) {}
+                    }
                 });
             }
             // Task 378: перенос текста окон бара зависит от ширины окна
@@ -47501,8 +47711,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
         // Содержимое карточки: шапка (ФИО · таб. №) + блоки — профиль
         // (Task 311: без строки-заголовка «Сотрудник», поля сразу после
-        // шапки), отпуска года, мероприятия месяца. Кнопки ✎/✕ в блоке
-        // мероприятий — только ролям с правом записи.
+        // шапки), отпуска года, мероприятия года. Task 403 (заявка):
+        // данные СИЗ из попапа УБРАНЫ — СИЗ только на странице
+        // «Работники» (кнопки ✎/✕ мероприятий — ролям с правом записи).
         _renderEmpPopup: function(tabNo) {
             // Task 385: карточка в шахматке — ТОЛЬКО ЧТЕНИЕ для всех
             // уровней (заявка: все кнопки правки убраны из окна
@@ -47512,7 +47723,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         },
 
         // Task 393: asBlocks=true — вернуть МАССИВ из 4 блоков
-        // (профиль+действия / отпуска / мероприятия / СИЗ) для
+        // (профиль+действия / отпуска / мероприятия / СИЗ; Task 403:
+        // СИЗ — только страница «Работники») для
         // _renderWorkerCardPanels (страница «Работники» — каждый
         // блок ОТДЕЛЬНЫМ окном .ws-wcard); без флага — склеенная
         // строка (попап шахматки, прежний сплошной вид)
@@ -47583,6 +47795,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var fields = [
                 ['Режим работы', tipVal],
                 ['Должность', String(emp['должность'] || '').trim() || '—'],
+                // Task 402 (заявка): «группа_допуска» — строкой ПОСЛЕ
+                // «Должности» (столбец листа «Сотрудники»; пусто — «—»,
+                // редактируется в шторке «Правка данных…»)
+                ['Группа допуска', String(emp['группа_допуска'] || '').trim() || '—'],
                 ['Дата приёма', emp['дата_приёма'] ? this._fmtDateRu(emp['дата_приёма']) : '—'],
                 ['Комментарий', String(emp['комментарий'] || '').trim()]
             ];
@@ -47781,7 +47997,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
 
             // --- Секция 4: СИЗ — средства индивидуальной защиты
-            //     работника (Task 392, лист «СИЗ» табель_КИП_ИОС).
+            //     работника (Task 392, лист «СИЗ» табель_КИП_ИОС;
+            //     Task 403 — блок ТОЛЬКО страницы «Работники»
+            //     (asBlocks): попап шахматки его не показывает).
             //     Каждая запись: наименование, дата выдачи, срок
             //     годности, дата окончания (АВТО: выдача + срок,
             //     «До износа» — без даты), примечание. ✎/✕ —
@@ -47847,32 +48065,40 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                       this._esc(String(emp['таб_номер'] || '')) + '\')">+ СИЗ…</div>';
             }
             // Task 393: asBlocks — массив 4 блоков (страница
-            // «Работники», каждое — своё окно), без флага — строка
-            return asBlocks ? [b1, b2, b3, b4] : (b1 + b2 + b3 + b4);
+            // «Работники», каждое — своё окно), без флага — строка.
+            // Task 403 (заявка): попап шахматки — БЕЗ блока СИЗ (из
+            // сплывающего окна данные СИЗ убраны; страница «Работники»
+            // — по-прежнему все четыре блока)
+            return asBlocks ? [b1, b2, b3, b4] : (b1 + b2 + b3);
         },
 
         // Task 393 (заявка): ЧЕТЫРЕ БЛОКА карточки работника на
         // странице «Работники»: профиль с действиями / отпуска /
         // мероприятия / СИЗ — КАЖДЫЙ блок отдельным окном-панелью
-        // .ws-wcard. Попап шахматки — прежний сплошной вид
-        // (_renderWorkerCard без asBlocks)
-        // Task 395 (заявка, ДЕСКТОП): ОТПУСКА — ПОД блоком профиля,
-        // МЕРОПРИЯТИЯ — ПОД блоком отпуска (ЛЕВАЯ колонка-обёртка
-        // .ws-wcol), СИЗ — ВЕРХНЯЯ ПРАВАЯ часть экрана (ПРАВАЯ
-        // колонка .ws-wcol-ppe; раскладка — CSS @media ≥1024px).
-        // Мобайл ≤1023px — прежний вертикальный СТЕК: колонки без
-        // правил раскладки = блоки друг под другом в прежнем
-        // порядке (профиль → отпуска → мероприятия → СИЗ); зазоры —
+        // .ws-wcard. Попап шахматки — сплошной вид БЕЗ блока СИЗ
+        // (_renderWorkerCard без asBlocks; Task 403)
+        // Task 395 → 403 → 404 (заявка): ТРИ колонки-обёртки .ws-wcol
+        // (раскладка — CSS @media ≥1024px). Task 404 (заявка: «блок
+        // СИЗ размести слева от блока мероприятия; в верхней части —
+        // три блока слева направо: профиль (под ним отпуска), СИЗ,
+        // мероприятия»): колонка 1 — ПРОФИЛЬ + ОТПУСКА (вертикальный
+        // стек), колонка 2 (.ws-wcol-ppe) — СИЗ, колонка 3
+        // (.ws-wcol-tr) — МЕРОПРИЯТИЯ: три верхних блока в ОДНУ
+        // ЛИНИЮ. Мобайл ≤1023px — вертикальный СТЕК колонок
+        // (профиль → отпуска → СИЗ → мероприятия); зазоры —
         // margin-bottom панелей (Task 393) + межколоночный (CSS)
         _renderWorkerCardPanels: function(tabNo, withEdit) {
             var blocks = this._renderWorkerCard(tabNo, withEdit, true);
-            var left = '', right = '';
+            var colMain = '', colPpe = '', colTr = '';
             for (var bi = 0; bi < blocks.length; bi++) {
                 var panel = '<div class="ws-wcard">' + blocks[bi] + '</div>';
-                if (bi < 3) left += panel; else right += panel;
+                if (bi < 2) colMain += panel;
+                else if (bi === 3) colPpe += panel;
+                else colTr += panel;
             }
-            return '<div class="ws-wcol">' + left + '</div>' +
-                   '<div class="ws-wcol ws-wcol-ppe">' + right + '</div>';
+            return '<div class="ws-wcol">' + colMain + '</div>' +
+                   '<div class="ws-wcol ws-wcol-ppe">' + colPpe + '</div>' +
+                   '<div class="ws-wcol ws-wcol-tr">' + colTr + '</div>';
         },
 
         // Task 385 → 386 → 395: СТРАНИЦА «РАБОТНИКИ» — переход
@@ -47995,11 +48221,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     }
                 }
                 // Task 394 (заявка): четыре блока-окна — в обёртке
-                // .ws-wgrid2: десктоп ≥1024px — СЕТКА 2×2 на всю
-                // ширину (профиль слева сверху / отпуска справа от
-                // профиля / мероприятия под профилем / СИЗ под
-                // отпусками); мобайл — прежний вертикальный стек
-                // (обёртка без правил сетки)
+                // .ws-wgrid2: десктоп ≥1024px — ДВЕ колонки на всю
+                // ширину (Task 403: слева профиль и отпуска, справа
+                // мероприятия НАД СИЗ — между блоками профиля и СИЗ);
+                // мобайл — прежний вертикальный стек (обёртка без
+                // правил сетки)
                 contentHtml = '<div class="ws-wgrid2">' +
                     this._renderWorkerCardPanels(empTabNo, withEdit) + '</div>';
             }
@@ -48008,6 +48234,52 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 tabsHtml + '</div>' +
                 '<div class="ws-wtab-body">' + contentHtml + '</div>' +
                 '</div>';
+            // Task 403 (заявка): ширина колонки ярлыков — по самому
+            // длинному тексту (замер после КАЖДОЙ перерисовки —
+            // список работников меняется: добавление/увольнение);
+            // VM-моки без метода — тихо пропускается
+            try { if (this._fitWorkersTabs) this._fitWorkersTabs(); } catch (e) {}
+        },
+
+        // Task 403 (заявка): ширина ярлыков-вкладок с фамилиями —
+        // ПО ГАБАРИТАМ САМОГО ДЛИННОГО текста (было: фикс 236px).
+        // Приём как у _measureEmpCol (Task 325): контейнеру .ws-wtabs
+        // временно ставится width:auto (перебивает базовое
+        // width: var(--ws-wtabs-w)), ярлыкам — white-space:nowrap,
+        // flex-колонка СЖИМАЕТСЯ до самого широкого ярлыка, снимается
+        // offsetWidth, стили возвращаются. Результат пишется в
+        // CSS-переменную --ws-wtabs-w НА ЭЛЕМЕНТЕ (НЕ inline width:
+        // мобайл ≤1023px перекрывает media-правилом .ws-wtabs
+        // { width: auto } горизонтальной ленты — переменная ленте
+        // не мешает). Замер < 60px (скрытая страница/пусто/моки) —
+        // переменная не пишется, работает фолбэк 236px из CSS.
+        // Повтор по document.fonts.ready — поздний веб-шрифт меняет
+        // ширину текста (хук в init, как у --ws-emp-w)
+        _fitWorkersTabs: function() {
+            if (typeof document === 'undefined' || !document.querySelector) return;
+            var tabs = document.querySelector('.ws-wtabs');
+            if (!tabs || !tabs.style || !tabs.querySelectorAll) return;
+            var w = 0;
+            try {
+                var items = tabs.querySelectorAll('.ws-wtab');
+                var oldWs = [];
+                for (var i = 0; i < items.length; i++) {
+                    oldWs.push(items[i].style.whiteSpace);
+                    items[i].style.whiteSpace = 'nowrap';
+                }
+                var oldW = tabs.style.width;
+                tabs.style.width = 'auto';
+                w = tabs.offsetWidth;
+                tabs.style.width = oldW || '';
+                for (var j = 0; j < items.length; j++) {
+                    items[j].style.whiteSpace = oldWs[j] || '';
+                }
+            } catch (e) { return; }
+            if (!isFinite(w) || w < 60) return;
+            var wpx = Math.ceil(w + 1) + 'px';
+            if (!tabs.style.getPropertyValue) return;
+            if (tabs.style.getPropertyValue('--ws-wtabs-w') === wpx) return;
+            try { tabs.style.setProperty('--ws-wtabs-w', wpx); } catch (e) {}
         },
 
         // Task 388: ОБЩАЯ вкладка — сводная информация по ВСЕМ
@@ -48070,7 +48342,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
             html += '<table class="ws-wgen-table"><thead><tr>' +
                     '<th>Таб. №</th><th>ФИО</th><th>Режим работы</th>' +
-                    '<th>Должность</th><th>Дата приёма</th>' +
+                    '<th>Должность</th><th>Группа допуска</th>' +
+                    '<th>Дата приёма</th>' +
                     '<th>Отпуск · ' + this._year + '</th>' +
                     '<th>Мероприятия · ' + this._year + '</th>' +
                     '</tr></thead><tbody>';
@@ -48095,6 +48368,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         '<td class="ws-wgen-fio">' + this._esc(emp['ФИО']) + '</td>' +
                         '<td>' + this._esc(tipVal) + '</td>' +
                         '<td>' + this._esc(String(emp['должность'] || '').trim() || '—') + '</td>' +
+                        '<td>' + this._esc(String(emp['группа_допуска'] || '').trim() || '—') + '</td>' +
                         '<td>' + (emp['дата_приёма'] ? this._fmtDateRu(emp['дата_приёма']) : '—') + '</td>' +
                         '<td>' + (vacDays ? vacDays + ' ' +
                             this._plural(vacDays, ['день', 'дня', 'дней']) : '—') + '</td>' +
@@ -48480,6 +48754,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // «Сотрудники» (наполняется асинхронно: шторка открывается
             // сразу, опции появляются по ответу листа)
             this._fillPositionSelect();
+            // Task 402: сброс «Группы допуска» при создании
+            this._fillGroupSelect('');
             document.getElementById('wsEmpComment').value = '';
             this.onEmpTypeChange();
 
@@ -48565,6 +48841,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 posSel.innerHTML = '<option value="">— выберите —</option>';
             }
             this._fillPositionSelect();
+            // Task 402: префилл «Группы допуска» правкой (временная
+            // опция значения — асинхронный _fillGroupSelect сохранит
+            // выбор, как у «Должности» Task 318)
+            this._fillGroupSelect(String(emp['группа_допуска'] || '').trim());
             document.getElementById('wsEmpComment').value = String(emp['комментарий'] || '');
             this.onEmpTypeChange();
 
@@ -48633,6 +48913,50 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         this._esc(list[j]) + '</option>';
             }
             var keep = sel.value;
+            sel.innerHTML = html;
+            if (keep) sel.value = keep;
+        },
+
+        // Task 402: «Группа допуска» — наполнение селекта шторки
+        // работника: уникальные значения столбца «группа_допуска»
+        // листа «Сотрудники» (listEmployees includeArchived) +
+        // стандартные группы II/III/IV/V (всегда в списке — новые
+        // значения выбираются и без существующих строк листа) +
+        // «— не указана —» (пусто). keep — текущее значение шторки:
+        // временная опция до подгрузки, как у «Должности» (Task 318).
+        _fillGroupSelect: function(keep) {
+            var self = this;
+            var sel = document.getElementById('wsEmpAccessGroup');
+            if (!sel) return;
+            this._api('workSchedule.listEmployees', { includeArchived: true })
+                .then(function(data) {
+                    self._fillGroupOptions(sel, data.employees || [], keep);
+                })
+                .catch(function() {
+                    self._fillGroupOptions(sel, self._EMPLOYEES || [], keep);
+                });
+        },
+
+        _fillGroupOptions: function(sel, employees, keep) {
+            var seen = {};
+            var list = [];
+            // стандартные группы — всегда в списке (электробезопасность)
+            var std = ['II', 'III', 'IV', 'V'];
+            for (var s = 0; s < std.length; s++) {
+                if (!seen[std[s]]) { seen[std[s]] = true; list.push(std[s]); }
+            }
+            for (var i = 0; i < (employees || []).length; i++) {
+                var g = String(employees[i]['группа_допуска'] || '').trim();
+                if (g && !seen[g]) { seen[g] = true; list.push(g); }
+            }
+            // значение шторки (правка) — даже если его нет в листе
+            if (keep && !seen[keep]) { seen[keep] = true; list.push(keep); }
+            list.sort(function(a, b) { return a.localeCompare(b, 'ru'); });
+            var html = '<option value="">— не указана —</option>';
+            for (var j = 0; j < list.length; j++) {
+                html += '<option value="' + this._escAttr(list[j]) + '">' +
+                        this._esc(list[j]) + '</option>';
+            }
             sel.innerHTML = html;
             if (keep) sel.value = keep;
         },
@@ -48743,6 +49067,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var startCycle = document.getElementById('wsEmpStart').value;
             var hireDate = document.getElementById('wsEmpHire').value;
             var position = document.getElementById('wsEmpPosition').value.trim();
+            // Task 402: группа допуска — селект шторки (пусто =
+            // «не указана», в лист пишется пустая строка); селекта
+            // нет (старые VM-моки) — пусто
+            var grpSel = document.getElementById('wsEmpAccessGroup');
+            var accessGroup = grpSel ? String(grpSel.value || '').trim() : '';
             var comment = document.getElementById('wsEmpComment').value.slice(0, 500);
             var self = this;
 
@@ -48763,6 +49092,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     старт_цикла: startCycle,
                     дата_приёма: hireDate || null,
                     должность: position,
+                    'группа_допуска': accessGroup,
                     комментарий: comment
                 }).then(function() {
                     self._empEditTab = null;
@@ -48788,6 +49118,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 старт_цикла: startCycle,
                 дата_приёма: hireDate || null,
                 должность: position,
+                'группа_допуска': accessGroup,
                 комментарий: comment
             }).then(function() {
                 self.closeEmployeeForm();
@@ -49681,6 +50012,43 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             return y + '-' + m + '-' + d;
         },
 
+        // Task 403 (заявка): строка ДОЛЖНОСТИ ячейки сетки — ТОЛЬКО
+        // должность со СОКРАЩЁННЫМ словом «разряд»: «5 разряд» /
+        // «5 разряда» → «5 р.» («Слесарь КИПиА 5 р.», _shortGrade).
+        // Группа допуска из столбца ФИО УБРАНА по заявке (данные
+        // остаются в карточке, сводной «Общая» и шторке правки).
+        // Карточка/сводная/печать — полная должность без сокращения
+        // (_posLabel печатной формы прежний, Task 361).
+        _empPosLine: function(emp) {
+            var pos = String(emp['должность'] || '').trim();
+            if (!pos) return '';
+            return this._shortGrade(pos);
+        },
+
+        // Task 403: сокращение слова «разряд» в должности ячейки ФИО:
+        // заменяется ЦЕЛОЕ слово в любом регистре с любым окончанием
+        // («разряд»/«разряда»/«разряду»/«разрядом»/…/«разрядами») на
+        // «р.» с точкой; остальной текст должности не трогается.
+        _shortGrade: function(pos) {
+            return String(pos).replace(/разряд[а-яё]*/gi, 'р.');
+        },
+
+        // Task 402 (заявка): данные типа работника — ТРЕТЬЯ строка
+        // ячейки сетки, под ФИО и должностью. Данные таблицы
+        // «Сотрудники» файла табель_КИП_ИОС: столбец C — тип
+        // (сменный/дневной), столбец D — номер смены (1..5, только у
+        // сменного): «смена №1», «сменный» (сменный без номера),
+        // «дневной». Без типа — '' (строка не рендерится).
+        _empTipLine: function(emp) {
+            var tip = String(emp['тип'] || '').trim();
+            if (tip === 'сменный') {
+                var smena = parseInt(emp['смена'], 10);
+                return (smena >= 1 && smena <= 5) ? 'смена №' + smena : 'сменный';
+            }
+            if (tip === 'дневной') return 'дневной';
+            return '';
+        },
+
         // Task 255: подпись должности с режимом занятости — данные из
         // таблицы «Сотрудники» файла табель_КИП_ИОС (тот же справочник
         // в Google-таблице, метод listEmployees): столбец C — тип
@@ -49689,6 +50057,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // (сменный, смена 1), «Слесарь КИПиА дневной» (дневной).
         // Сменный без номера смены — «… сменный»; без типа — только
         // должность; пусто и там и там — '' (строка не рендерится).
+        // Task 402: используется ПЕЧАТНОЙ формой (_buildPrintHtml,
+        // Task 361) — шахматка перешла на _empPosLine/_empTipLine.
         _posLabel: function(emp) {
             var pos = String(emp['должность'] || '').trim();
             var tip = String(emp['тип'] || '').trim();

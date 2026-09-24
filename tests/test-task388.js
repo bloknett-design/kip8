@@ -260,10 +260,10 @@ describe('Task 388 — SRC: итоги учёта доступны в любом
             'тосты сменного/дневного вида обещают итоги');
     });
 
-    test('SW: кэш поднят до kipia-v475', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v475'") !== -1,
-            'CACHE_VERSION = kipia-v475 (Task 388 — фронтенд менялся)');
-        assertFalse(SW_SRC.indexOf('kipia-v476') !== -1,
+    test('SW: кэш поднят до kipia-v476', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v476'") !== -1,
+            'CACHE_VERSION = kipia-v476 (Task 388 — фронтенд менялся)');
+        assertFalse(SW_SRC.indexOf('kipia-v477') !== -1,
             'v617 ещё не существует (guard)');
     });
 });
@@ -338,8 +338,8 @@ describe('Task 388 — SRC: страница «Работники» — вкла
         const i = INDEX_SRC.indexOf('.ws-wtabs {');
         const chunk = INDEX_SRC.slice(i, INDEX_SRC.indexOf('}', i) + 1);
         assertTrue(chunk.indexOf('flex-direction: column') !== -1 &&
-                   chunk.indexOf('width: 236px') !== -1,
-            'ярлыки — вертикальная колонка слева');
+                   chunk.indexOf('width: var(--ws-wtabs-w, 236px)') !== -1,
+            'ярлыки — вертикальная колонка слева (Task 403: ширина по самому длинному тексту, 236px — фолбэк)');
         assertTrue(INDEX_SRC.indexOf('.ws-wtab.active {') !== -1,
             'активный ярлык подсвечен');
         const m = INDEX_SRC.indexOf('@media (max-width: 1023px)', INDEX_SRC.indexOf('.ws-wtabs {'));
@@ -637,6 +637,20 @@ function pluralRu(n, forms) {
         (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2];
 }
 
+// Русские склонения (Task 390: харнесс использует РЕАЛЬНОЕ
+// правило — строки шапки «Общей» вкладки со склонениями категорий)
+function pluralRu(n, forms) {
+    return forms[(n % 10 === 1 && n % 100 !== 11) ? 0 :
+        (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2];
+}
+
+// Русские склонения (Task 390: харнесс использует РЕАЛЬНОЕ
+// правило — строки шапки «Общей» вкладки со склонениями категорий)
+function pluralRu(n, forms) {
+    return forms[(n % 10 === 1 && n % 100 !== 11) ? 0 :
+        (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 1 : 2];
+}
+
 describe('Task 388 — VM: страница «Работники» — вкладки', () => {
 
     function workersHost(canEdit) {
@@ -656,6 +670,10 @@ describe('Task 388 — VM: страница «Работники» — вкла�
             methodText(INDEX_SRC, '_renderWorkersPage') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkersGeneral') + ',\n' +
             methodText(INDEX_SRC, 'selectWorkersTab') + ',\n' +
+            // Task 390: шапка «Общей» вкладки считает мастеров
+            methodText(INDEX_SRC, '_isMasterKipia') + ',\n' +
+            // Task 390: шапка «Общей» вкладки считает мастеров
+            methodText(INDEX_SRC, '_isMasterKipia') + ',\n' +
             // Task 390: шапка «Общей» вкладки считает мастеров
             methodText(INDEX_SRC, '_isMasterKipia') + ',\n' +
             '_workersTab: "general",' +

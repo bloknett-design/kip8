@@ -66,6 +66,19 @@
 //   I: в_архиве           — 0/1
 //   J: должность
 //   K: комментарий
+//   группа_допуска (Task 402) — ПОЗИЦИЯ ЛЮБАЯ: столбец добавлен
+//     пользователем в файл табель_КИП_ИОС (в файле пользователя —
+//     МЕЖДУ «должностью» и «комментарием»); находится по ЗАГОЛОВКУ
+//     строки 1 («группа_допуска» / «группа допуска», без учёта
+//     регистра — _accessGroupColIndex). Нет столбца — listEmployees
+//     отдаёт пустое поле, запись в updateEmployee/addEmployee
+//     пропускается (обратная совместимость).
+//   Task 403 (баг комментария): пользовательский столбец «группа_
+//     допуска» сместил «комментарий» с K на L — жёсткие индексы
+//     J..K читали/писали НЕ ТУДА (в поле «комментарий» показывалась
+//     группа допуска, правка комментария не сохранялась). Теперь
+//     «должность» и «комментарий» тоже ищутся по ЗАГОЛОВКУ строки 1
+//     (_headerColIndex); заголовков нет — фолбэк канона J/K.
 //
 // Структура листа «Коды_статусов» (Task 298 — состав по Т-12/Т-13):
 //   A: код (Д/Д8/Д7,2/Н/д/н/ОТ/У/ОВ/Б/ПР/И/ОБ/ПЗ/*/.)
@@ -618,6 +631,50 @@ var WorkSchedule = {
     return { ok: true, data: { patterns: patterns } };
   },
 
+  // Task 402: индекс столбца «группа_допуска» листа «Сотрудники» —
+  // по ЗАГОЛОВКУ строки 1 (столбец добавлен пользователем в файл
+  // табель_КИП_ИОС; позиция может быть любой — обычно L). Сравнение
+  // толерантно к регистру, пробелам вокруг и пробелу/подчёркиванию
+  // внутри: «группа_допуска» / «группа допуска» / «Группа допуска».
+  // Столбца нет (меньше 12 колонок или заголовок не найден) — null:
+  // мягкая деградация до канона A..K.
+  _accessGroupColIndex: function(sheet) {
+    try {
+      var lastCol = sheet.getLastColumn();
+      if (!lastCol || lastCol < 12) return null;
+      var heads = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+      for (var c = 0; c < heads.length; c++) {
+        var h = String(heads[c] || '').trim().toLowerCase()
+                  .replace(/\s+/g, ' ');
+        if (h === 'группа_допуска' || h === 'группа допуска') return c;
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  },
+
+  // Task 403 (баг комментария): индекс столбца листа «Сотрудники»
+  // по ЗАГОЛОВКУ строки 1 — обобщение _accessGroupColIndex (Task 402)
+  // на любое имя. variants — допустимые написания заголовка ПОСЛЕ
+  // нормализации (нижний регистр, пробелы/подчёркивания схлопнуты в
+  // один пробел): ['должность'], ['комментарий'] и т.п. Заголовка
+  // нет — null: вызывающий код даёт ЛЕГАСИ-индекс канона
+  // (должность J=9, комментарий K=10).
+  _headerColIndex: function(sheet, variants) {
+    try {
+      var lastCol = sheet.getLastColumn();
+      if (!lastCol) return null;
+      var heads = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+      for (var c = 0; c < heads.length; c++) {
+        var h = String(heads[c] || '').trim().toLowerCase()
+                  .replace(/[\s_]+/g, ' ');
+        for (var v = 0; v < variants.length; v++) {
+          if (h === variants[v]) return c;
+        }
+      }
+    } catch (e) { /* ignore */ }
+    return null;
+  },
+
   // workSchedule.listEmployees
   // payload: { token, includeArchived }
   // returns: { ok:true, data: { employees: [...] } }
@@ -631,7 +688,22 @@ var WorkSchedule = {
     var lastRow = sheet.getLastRow();
     if (lastRow < 2) return { ok: true, data: { employees: [] } };
 
-    var values = sheet.getRange(2, 1, lastRow - 1, 11).getValues();
+    // Task 402: столбец «группа_допуска» — по заголовку строки 1
+    // (позиция любая). Task 403 (баг комментария): «должность» и
+    // «комментарий» — ТОЖЕ по заголовкам (пользовательский столбец
+    // группы сместил комментарий с K на L); чтение расширено до
+    // самого правого из найденных столбцов
+    var groupCol = this._accessGroupColIndex(sheet);
+    var posCol = this._headerColIndex(sheet, ['должность']);
+    var comCol = this._headerColIndex(sheet, ['комментарий']);
+    if (posCol === null) posCol = 9;   // легаси-канон J
+    if (comCol === null) comCol = 10;  // легаси-канон K
+    var readWidth = 11;
+    if (groupCol !== null && groupCol + 1 > readWidth) readWidth = groupCol + 1;
+    if (posCol + 1 > readWidth) readWidth = posCol + 1;
+    if (comCol + 1 > readWidth) readWidth = comCol + 1;
+    var values = sheet.getRange(2, 1, lastRow - 1, readWidth)
+        .getValues();
     var includeArchived = !!payload.includeArchived;
     var employees = [];
     for (var i = 0; i < values.length; i++) {
@@ -649,8 +721,14 @@ var WorkSchedule = {
         дата_приёма:     r[6] instanceof Date ? this._toIsoDate(r[6]) : null,
         дата_увольнения: r[7] instanceof Date ? this._toIsoDate(r[7]) : null,
         в_архиве:        archived ? 1 : 0,
-        должность:       String(r[9] || '').trim(),
-        комментарий:     String(r[10] || '').trim()
+        // Task 403: должность/комментарий — из столбцов по
+        // заголовкам (фолбэк J/K)
+        должность:       String(r[posCol] || '').trim(),
+        // Task 402: группа допуска — из столбца по заголовку
+        // «группа_допуска» (нет столбца — пусто)
+        группа_допуска:  (groupCol !== null)
+                           ? String(r[groupCol] || '').trim() : '',
+        комментарий:     String(r[comCol] || '').trim()
       });
     }
     return { ok: true, data: { employees: employees } };
@@ -1548,7 +1626,8 @@ var WorkSchedule = {
 
   // workSchedule.addEmployee
   // payload: { token, таб_номер, ФИО, тип, смена, шаблон_ротации,
-  //            старт_цикла(ISO), дата_приёма(ISO), должность, комментарий }
+  //            старт_цикла(ISO), дата_приёма(ISO), должность,
+  //            группа_допуска, комментарий }
   addEmployee: function(payload) {
     var auth = this._requireWrite(payload.token);
     if (auth.error) return auth.error;
@@ -1586,12 +1665,34 @@ var WorkSchedule = {
     var comment   = String(payload.комментарий || '').slice(0, 500);
 
     // Task 304: A (таб_номер) — текст: «0871» не должен стать числом 871
-    this._appendRowKeepText(sheet, [
+    // Task 402: группа допуска — в столбец по заголовку строки 1
+    // («группа_допуска», позиция любая; нет столбца — пропуск).
+    // Task 403 (баг комментария): «должность»/«комментарий» — тоже
+    // по заголовкам; строка собирается до самого правого столбца,
+    // каждый реквизит — в СВОЙ столбец (прежде фикс J..K: столбец
+    // группы МЕЖДУ ними затирал комментарий)
+    var groupCol = this._accessGroupColIndex(sheet);
+    var posCol = this._headerColIndex(sheet, ['должность']);
+    var comCol = this._headerColIndex(sheet, ['комментарий']);
+    if (posCol === null) posCol = 9;   // легаси-канон J
+    if (comCol === null) comCol = 10;  // легаси-канон K
+    var rowWidth = Math.max(11, posCol + 1, comCol + 1,
+                            groupCol !== null ? groupCol + 1 : 0);
+    var rowVals = [
       tabNo, fio, tip, smena || null, patId || null,
       startCycle, hireDate, null,  // H=дата_увольнения — пусто
-      0,  // в_архиве=0
-      position, comment
-    ], [1]);
+      0   // в_архиве=0
+    ];
+    while (rowVals.length < rowWidth) rowVals.push('');
+    rowVals[posCol] = position;
+    rowVals[comCol] = comment;
+    if (groupCol !== null) {
+      var accessGroup = (payload.группа_допуска !== undefined
+                         && payload.группа_допуска !== null)
+        ? String(payload.группа_допуска).trim().slice(0, 50) : '';
+      rowVals[groupCol] = accessGroup;
+    }
+    this._appendRowKeepText(sheet, rowVals, [1]);
 
     try {
       Utils.audit(user.email, 'WORKSCHEDULE_ADD_EMPLOYEE', '', '',
@@ -1648,10 +1749,12 @@ var WorkSchedule = {
 
   // workSchedule.updateEmployee (Task 384)
   // payload: { token, таб_номер, ФИО, тип, смена, шаблон_ротации,
-  //            старт_цикла(ISO), дата_приёма(ISO), должность, комментарий }
+  //            старт_цикла(ISO), дата_приёма(ISO), должность,
+  //            группа_допуска, комментарий }
   // Правка данных сотрудника из карточки (шторка «Правка сотрудника»).
   // Обновляет B..G (ФИО/тип/смена/шаблон/старт_цикла/дата_приёма) и
-  // J..K (должность/комментарий); A (таб_номер) — НЕИЗМЕНЕН: PK, на
+  // должность/комментарий (Task 403: по ЗАГОЛОВКАМ строки 1, каждый
+  // в свой столбец; фолбэк J..K); A (таб_номер) — НЕИЗМЕНЕН: PK, на
   // него ссылаются «Записи_графика»/«Инструктажи»/«Отпуска»; H/I
   // (дата_увольнения/в_архиве) не трогаются — увольнение отдельным
   // dismissEmployee.
@@ -1694,8 +1797,27 @@ var WorkSchedule = {
       sheet.getRange(row, 2, 1, 6).setValues([[
         fio, tip, smena || null, patId || null, startCycle, hireDate
       ]]);
-      // J..K: должность, комментарий (A/H/I не трогаются)
-      sheet.getRange(row, 10, 1, 2).setValues([[ position, comment ]]);
+      // Task 403 (баг комментария): должность/комментарий — по
+      // ЗАГОЛОВКАМ строки 1, каждый в СВОЙ столбец setValue'ом
+      // (прежде фикс J..K одной пачкой: пользовательский столбец
+      // группы между ними — комментарий попадал не туда и
+      // затирался). A/H/I не трогаются
+      var posCol = this._headerColIndex(sheet, ['должность']);
+      var comCol = this._headerColIndex(sheet, ['комментарий']);
+      if (posCol === null) posCol = 9;   // легаси-канон J
+      if (comCol === null) comCol = 10;  // легаси-канон K
+      sheet.getRange(row, posCol + 1).setValue(position);
+      sheet.getRange(row, comCol + 1).setValue(comment);
+      // Task 402: группа допуска — в столбец по заголовку строки 1
+      // («группа_допуска», позиция любая; нет столбца — пропуск).
+      // Пишем ТОЛЬКО когда поле пришло в payload: старый фронтенд
+      // (кэш SW) без поля НЕ затирает существующее значение листа
+      var groupCol = this._accessGroupColIndex(sheet);
+      if (groupCol !== null && payload.группа_допуска !== undefined
+              && payload.группа_допуска !== null) {
+        var accessGroup = String(payload.группа_допуска).trim().slice(0, 50);
+        sheet.getRange(row, groupCol + 1).setValue(accessGroup);
+      }
       try {
         Utils.audit(user.email, 'WORKSCHEDULE_UPDATE_EMPLOYEE', '', '',
           'Обновлены данные сотрудника таб_номер=' + tabNo + ' ФИО=' + fio);
