@@ -178,21 +178,20 @@ describe('Task 393 — CSS: шрифт карточки страницы кру�
     });
 
     test('стек панелей: зазор между окнами, у последнего — 0', () => {
-        assertTrue(INDEX_SRC.indexOf('.ws-wtab-body .ws-wcard { margin-bottom: 12px; }') !== -1,
-            'зазор между блоками-окнами');
+        assertTrue(INDEX_SRC.indexOf('.ws-wtab-body .ws-wcard { margin-bottom: 5px; }') !== -1,
+            'зазор между блоками-окнами (Task 428: 5px)');
         assertTrue(INDEX_SRC.indexOf('.ws-wtab-body .ws-wcard:last-child { margin-bottom: 0; }') !== -1,
             'последнее окно без нижнего зазора');
     });
 
-    test('попап карточки у сетки — прежняя компактная типографика', () => {
-        const r = ruleBlock('.ws-cell-popup.ws-emp-popup {');
-        assertTrue(r !== null && r.indexOf('max-height: 440px;') !== -1,
-            'габариты попапа не изменились');
+    test('Task 417: попап карточки у сетки удалён (CSS)', () => {
+        assertFalse(INDEX_SRC.indexOf('.ws-cell-popup.ws-emp-popup {') !== -1,
+            'габариты попапа удалены вместе с окном');
         // новые правила шрифта — ТОЛЬКО каскад .ws-wcard (страница),
         // селекторов попапа в них нет
         assertTrue(INDEX_SRC.indexOf('.ws-wcard .ws-cell-popup') === -1 &&
                    INDEX_SRC.indexOf('.ws-wcard #wsEmpPopup') === -1,
-            'попап не попадает под каскад .ws-wcard');
+            'каскад .ws-wcard не цепляет удалённый попап');
     });
 });
 
@@ -210,6 +209,14 @@ function cardHost(withEdit, ppe) {
     ];
     const host = new Function('document', 'return ({' +
         methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCardPanels') + ',\n' +
         methodText(INDEX_SRC, '_isInstrType') + ',\n' +
         '_canEdit: ' + JSON.stringify(!!withEdit) + ',' +
@@ -369,6 +376,10 @@ function pageHost(canEdit, ppe) {
         methodText(INDEX_SRC, 'selectWorkersTab') + ',\n' +
         methodText(INDEX_SRC, '_isMasterKipia') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCardPanels') + ',\n' +
         methodText(INDEX_SRC, '_isInstrType') + ',\n' +
         '_workersTab: "general",' +
@@ -454,10 +465,10 @@ describe('Task 393 — VM: страница «Работники» — 4 окн�
 // ============================================================
 describe('Task 393 — SW', () => {
 
-    test('SW: kipia-v477', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v477'") !== -1,
+    test('SW: kipia-v478', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v478') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
             'двойного бампа не было');
     });
 });

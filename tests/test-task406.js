@@ -97,8 +97,8 @@ describe('Task 406 — SRC: раскладка колонок карточки',
                    m[0].indexOf('flex-wrap: nowrap;') !== -1 &&
                    m[0].indexOf('flex: 1 1 0;') !== -1,
             'flex без переноса, равные доли — три колонки в одну линию');
-        assertTrue(INDEX_SRC.indexOf('.ws-wgrid2 .ws-wcol { margin-bottom: 12px; }') !== -1,
-            'мобайл-стек: зазор между колонками жив');
+        assertTrue(INDEX_SRC.indexOf('.ws-wgrid2 .ws-wcol { margin-bottom: 5px; }') !== -1,
+            'мобайл-стек: зазор между колонками жив (Task 428: 5px)');
     });
 
     test('попап шахматки НЕ меняется: b1+b2+b3+b5 (без СИЗ)', () => {
@@ -136,7 +136,13 @@ describe('Task 406 — VM: колонки карточки', () => {
 
     function cardHost(withEdit) {
         return new Function('document', 'return ({' +
+            methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
+            methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCardPanels') + ',\n' +
             methodText(INDEX_SRC, '_isInstrType') + ',\n' +
             '_canEdit: ' + (withEdit ? 'true' : 'false') + ',' +
@@ -265,10 +271,10 @@ describe('Task 406 — VM: колонки карточки', () => {
 // ============================================================
 describe('Task 406 — SW', () => {
 
-    test('CACHE_VERSION = kipia-v477', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v477'") !== -1,
+    test('CACHE_VERSION = kipia-v478', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
             'SW v633 (Task 406)');
-        assertTrue(SW_SRC.indexOf('kipia-v478') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
             'нет забегания вперёд');
     });
 });

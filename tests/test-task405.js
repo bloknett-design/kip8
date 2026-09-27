@@ -95,15 +95,16 @@ describe('Task 405 — SRC: сервер (WorkSchedule.gs)', () => {
             'хелпер чтения одного листа существует');
     });
 
-    test('addTraining: маршрутизация по типу + сквозной id', () => {
+    test('addTraining: маршрутизация по типу + РАЗДЕЛЬНЫЙ id (Task 427)', () => {
         const fn = stripComments(methodText(WS_SRC, 'addTraining'));
         assertTrue(fn.indexOf('this._trainingsSheetForType(tip)') !== -1,
             'лист записи выбирается по типу');
         assertTrue(fn.indexOf('this._ensureEventsSheet()') !== -1,
             'лист «Мероприятия» создаётся при первой записи');
-        assertTrue(fn.indexOf('this._maxTrainingsId(this._getSheet(this.TRAININGS_SHEET))') !== -1 &&
-                   fn.indexOf('this._maxTrainingsId(this._getSheet(this.EVENTS_SHEET))') !== -1,
-            'id — max по ОБОИМ листам (сквозная нумерация)');
+        assertTrue(fn.indexOf('this._maxTrainingsId(sheet) + 1') !== -1,
+            'id — максимум СВОЕГО листа + 1 (заявка Task 427: раздельное нарастание)');
+        assertTrue(fn.indexOf('evMaxId') === -1,
+            'кросс-максимум по чужому листу удалён (сквозная нумерация Task 405 отменена)');
     });
 
     test('deleteTraining: id ищется в обоих листах', () => {
@@ -147,10 +148,12 @@ describe('Task 405 — SRC: карточка — блоки мероприяти
 
     test('карточка: деление записей по типу (evs/ins)', () => {
         const fn = stripComments(methodText(INDEX_SRC, '_renderWorkerCard'));
-        assertTrue(fn.indexOf('var evs = [], ins = [];') !== -1,
+        const wr = stripComments(methodText(INDEX_SRC, '_wtabYearRecords'));
+        assertTrue(wr.indexOf('if (this._isInstrType(r.тип)) ins.push(r);') !== -1 &&
+                   wr.indexOf('else evs.push(r);') !== -1,
             'два списка: evs (мероприятия) и ins (инструктажи)');
-        assertTrue(fn.indexOf('this._isInstrType(trs[si].тип)') !== -1,
-            'фильтр по типу');
+        assertTrue(fn.indexOf('var evs = wRecs.evs, ins = wRecs.ins;') !== -1,
+            'карточка берёт записи года из _wtabYearRecords (Task 408)');
         assertTrue(fn.indexOf('for (var tk = 0; tk < evs.length; tk++)') !== -1,
             'блок «Мероприятия» строится по evs');
     });
@@ -195,13 +198,16 @@ describe('Task 405 — SRC: карточка — блоки мероприяти
             'класс применён в заголовке блока инструктажей');
     });
 
-    test('форма: prefillType — тип по умолчанию из кнопки входа', () => {
+    test('форма: prefillType — режим/тип по умолчанию из кнопки входа', () => {
         const fn = stripComments(methodText(INDEX_SRC, 'openTrainingForm'));
         assertTrue(fn.indexOf('editTraining, prefillType') !== -1,
             '4-й аргумент prefillType');
-        assertTrue(fn.indexOf("preTip === 'инструктаж'") !== -1 &&
-                   fn.indexOf("preTip === 'обучение'") !== -1,
-            'валидация переданного типа (фолбэк — инструктаж)');
+        // Task 410: instr-типы → instr-режим (select «Список_И_и_ПЗ»),
+        // мероприятие — обучение/прогул/примечание, фолбэк «обучение»
+        assertTrue(fn.indexOf('this._trInstrMode = this._isInstrType(preTip);') !== -1,
+            'instr-режим из prefillType (Task 410)');
+        assertTrue(fn.indexOf("preTip === 'обучение'") !== -1,
+            'валидация переданного типа мероприятия');
         const addTr = stripComments(methodText(INDEX_SRC, 'onEmpAddTraining'));
         assertTrue(addTr.indexOf("'обучение'") !== -1,
             '«+ Мероприятие…» — дефолт «обучение»');
@@ -238,7 +244,13 @@ describe('Task 405 — VM: карточка и сводка', () => {
 
     function cardHost(withEdit) {
         return new Function('document', 'return ({' +
+            methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
+            methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_isInstrType') + ',\n' +
             '_canEdit: ' + (withEdit ? 'true' : 'false') + ', _year: 2026, _month: 8,' +
             '_EMPLOYEES: ' + JSON.stringify(EMP) + ',' +
@@ -285,9 +297,9 @@ describe('Task 405 — VM: карточка и сводка', () => {
             'инструктаж и проверка знаний — в новом блоке');
         assertTrue(b5.indexOf('Курс по АСУ ТП') === -1,
             'обучение — НЕ в блоке инструктажей');
-        assertTrue(b5.indexOf('WorkSchedule.editTraining(5)') !== -1 &&
-                   b5.indexOf('WorkSchedule.deleteTraining(5)') !== -1,
-            'кнопки ✎/✕ у записей (редактору)');
+        assertTrue(b5.indexOf('WorkSchedule.editTraining(5, 1)') !== -1 &&
+                   b5.indexOf('WorkSchedule.deleteTraining(5, 1)') !== -1,
+            'кнопки ✎/✕ у записей + семейство инструктажей (Task 427)');
         assertTrue(b5.indexOf('WorkSchedule.onEmpAddInstruction(\u00272706\u0027)') !== -1,
             'кнопка «+ Инструктаж…» с таб. № работника');
     });
@@ -479,7 +491,8 @@ describe('Task 405 — GAS-VM: сервер (моки листов)', () => {
         const WS = loadWS(sheets);
         const r1 = WS.addTraining({ token: 't', 'таб_номер': '017',
             тип: 'инструктаж', тема: 'Новый повторный', дата_начала: '2026-08-25' });
-        assertTrue(r1.ok && r1.data.id === 11, 'id 11 = max(10, 4) + 1 (сквозной)');
+        assertTrue(r1.ok && r1.data.id === 5,
+            'id 5 = max «Инструктажей» (4) + 1 — СВОЯ последовательность листа (Task 427)');
         assertEqual(sheets['Инструктажи'].rows.length, 6,
             'строка добавлена в «Инструктажи» (5+1)');
         assertEqual(sheets['Инструктажи'].rows[5][2], 'инструктаж', 'тип в «Инструктажах»');
@@ -487,7 +500,8 @@ describe('Task 405 — GAS-VM: сервер (моки листов)', () => {
 
         const r2 = WS.addTraining({ token: 't', 'таб_номер': '017',
             тип: 'обучение', тема: 'Новый курс', дата_начала: '2026-08-26' });
-        assertTrue(r2.ok && r2.data.id === 12, 'id 12 — следующий сквозной');
+        assertTrue(r2.ok && r2.data.id === 11,
+            'id 11 = max «Мероприятий» (10) + 1 — СВОЯ последовательность (Task 427: id «Инструктажей» не мешает)');
         assertEqual(sheets['Мероприятия'].rows.length, 3,
             'строка добавлена в «Мероприятия» (2+1)');
         assertEqual(sheets['Мероприятия'].rows[2][2], 'обучение', 'тип в «Мероприятиях»');
@@ -567,10 +581,10 @@ describe('Task 405 — GAS-VM: сервер (моки листов)', () => {
 // 5. SW — версия кэша
 // ============================================================
 describe('Task 405 — SW: версия кэша', () => {
-    test('CACHE_VERSION = kipia-v477', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v477'") !== -1,
+    test('CACHE_VERSION = kipia-v478', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
             'SW v632 (Task 405)');
-        assertTrue(SW_SRC.indexOf('kipia-v478') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
             'двойной бамп отсутствует');
     });
 });

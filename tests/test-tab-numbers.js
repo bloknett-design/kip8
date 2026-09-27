@@ -417,9 +417,9 @@ describe('Task 304 — статические инварианты', () => {
             'все записи в листы идут через _appendRowKeepText (формат «@» до значения)');
     });
 
-    test('WorkSchedule.gs: _appendRowKeepText вызывается из 5 CRUD-функций', () => {
+    test('WorkSchedule.gs: _appendRowKeepText вызывается из CRUD-функций', () => {
         const uses = WS_SRC.split('this._appendRowKeepText(').length - 1;
-        assertEqual(uses, 6, 'addEmployee + addTraining + addVacation + setManualEntry + addPpe (Task 392) + splitTrainingsSheet (Task 405: перенос строк в лист «Мероприятия»)');
+        assertEqual(uses, 8, 'addEmployee + addTraining ×2 (Task 418: формат done/legacy) + addVacation + setManualEntry + addPpe (Task 392) + splitTrainingsSheet (Task 405) + _appendTrainingRow (Task 419: автосоздание новых сроков)');
     });
 
     test('WorkSchedule.gs: generateMonth — «@» колонки B ДО setValues(toInsert)', () => {
@@ -445,9 +445,9 @@ describe('Task 304 — статические инварианты', () => {
         assertTrue(INDEX_SRC.indexOf('нет в справочнике') !== -1, 'текст маркера');
     });
 
-    test('SW: версия кэша kipia-v477 (Task 304 — клиент менялся)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v477'") !== -1,
-            'CACHE_VERSION = kipia-v477');
+    test('SW: версия кэша kipia-v478 (Task 304 — клиент менялся)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
+            'CACHE_VERSION = kipia-v478');
     });
 
     test('TabNumbersFix.gs: функции починки/диагностики на месте', () => {

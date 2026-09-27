@@ -39,7 +39,7 @@
 //   CSS мобайл: user-select:none на .ws-grid,.ws-tt-table внутри
 //     @media (max-width: 1023px); базовые правила таблиц БЕЗ
 //     user-select (десктоп жив); правило одно.
-//   SW: kipia-v477 (guard v610).
+//   SW: kipia-v478 (guard v610).
 //   Регресс: окна бара на десктопе выделяются как прежде
 //     (.ws-events-panel без user-select).
 //
@@ -181,7 +181,8 @@ describe('Task 380 — VM: классы строк по сроку', () => {
         const document = { getElementById: function(id) {
             return id === 'wsEventsPanel' ? el : null;
         }};
-        const texts = ['_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta']
+        const texts = ['_instrShortOf', '_normInstrKey',
+                   '_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta']
             .map(n => methodText(INDEX_SRC, n));
         const make = new Function('localStorage', 'document', 'confirm',
                                   'KipToast', 'kipConfirm',
@@ -307,10 +308,10 @@ describe('Task 380 — CSS: мобайл без выделения текста'
 // ============================================================
 describe('Task 380 — SW и адаптации тестов', () => {
 
-    test('SW: kipia-v477', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v477'") !== -1,
-            'версия кэша kipia-v477');
-        assertFalse(SW_SRC.indexOf('kipia-v478') !== -1,
+    test('SW: kipia-v478', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
+            'версия кэша kipia-v478');
+        assertFalse(SW_SRC.indexOf('kipia-v479') !== -1,
             'двойного бампа нет');
     });
 

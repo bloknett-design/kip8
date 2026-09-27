@@ -41,7 +41,7 @@
 //     форматы дат; пустой месяц; счётчик; скрытие hidden),
 //     _updateSaveBtn (n=0 скрыта / n=2 показана), cancelAll
 //     (сброс правок, тост).
-//   SW: kipia-v477.
+//   SW: kipia-v478.
 //
 // Запуск: через tests/run-all.js (require './test-task315.js').
 
@@ -309,7 +309,8 @@ describe('Task 315 — VM: окно мероприятий месяца', () => 
         const el = { innerHTML: '', hidden: true };
         const document = { getElementById: function(id) { return id === 'wsEventsPanel' ? el : null; } };
         const ctx = loadCtx(
-            ['_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta'],
+            ['_instrShortOf', '_normInstrKey',
+                   '_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta'],
             '_year: ' + year + ', _month: ' + month + ',' +
             '_TRAININGS: ' + JSON.stringify(trainings) + ',' +
             '_EMPLOYEES: ' + JSON.stringify(employees) + ',' +
@@ -344,7 +345,8 @@ describe('Task 315 — VM: окно мероприятий месяца', () => 
         // вручную — чтобы статус-мета бралась из CODES
         const el = { innerHTML: '', hidden: true };
         const document = { getElementById: function(id) { return id === 'wsEventsPanel' ? el : null; } };
-        const texts = ['_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta'].map(n => methodText(INDEX_SRC, n));
+        const texts = ['_instrShortOf', '_normInstrKey',
+                   '_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta'].map(n => methodText(INDEX_SRC, n));
         const make = new Function('localStorage', 'document', 'confirm', 'KipToast', 'kipConfirm',
             'return ({' + texts.join('\n') + '\n' +
             '_year: 2026, _month: 9,' +
@@ -487,10 +489,10 @@ describe('Task 315 — VM: кнопки «Сохранить»/«Отменит�
 // Service Worker
 // ------------------------------------------------------------
 describe('Task 315 — Service Worker', () => {
-    test('SW: версия кэша kipia-v477', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v477') !== -1,
+    test('SW: версия кэша kipia-v478', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v478') !== -1,
             'SW поднят до v556 (Task 317 — тултип «данные от», три ряда кнопок)');
-        assertFalse(SW_SRC.indexOf('kipia-v478') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v479') !== -1,
             'лишний инкремент не делался');
     });
 });

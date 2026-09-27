@@ -25,7 +25,7 @@
 //     накрывающих записей, заголовок «05.09», «нет мероприятий в
 //     этот день», охрана дня вне месяца → полный месяц);
 //     _dayColClass мягкий к мок-DOM.
-//   SW: kipia-v477.
+//   SW: kipia-v478.
 //
 // Запуск: через tests/run-all.js (require './test-task316.js').
 
@@ -289,7 +289,8 @@ describe('Task 316 — VM: окно мероприятий по выбранно
         const document = { getElementById: function(id) {
             return id === 'wsEventsPanel' ? el : null;
         }};
-        const texts = ['_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta']
+        const texts = ['_instrShortOf', '_normInstrKey',
+                   '_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta']
             .map(n => methodText(INDEX_SRC, n));
         const make = new Function('localStorage', 'document', 'confirm', 'KipToast', 'kipConfirm',
             'return ({' + texts.join('\n') + '\n' +
@@ -378,9 +379,9 @@ describe('Task 316 — VM: окно мероприятий по выбранно
 // SW: версия кэша
 // ------------------------------------------------------------
 describe('Task 316 — SW: версия кэша', () => {
-    test('SW: kipia-v477', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v477') !== -1,
-            'CACHE_VERSION = kipia-v477');
+    test('SW: kipia-v478', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v478') !== -1,
+            'CACHE_VERSION = kipia-v478');
         assertFalse(SW_SRC.indexOf('kipia-test-v554') !== -1,
             'прежней версии нет');
     });

@@ -32,7 +32,7 @@
 //     ширин ws-tt-c-*, ПЕРЕРАБОТКА В ДНЯХ (overDays), часы — в
 //     тултипе; _renderTotalsYearTable — сумма дней; min-width только
 //     на мобайле; пересечение брейкпоинта — сброс/перезамер.
-//   SW: kipia-v477.
+//   SW: kipia-v478.
 //
 // Запуск: через tests/run-all.js (require './test-task329.js').
 
@@ -232,10 +232,10 @@ describe('Task 329 — CSS: левый край, ширина по столбц�
         const zgl = INDEX_SRC.match(/\[data-theme="light"\] #page-work-schedule\.ws-tt-gridwide \.ws-grid[\s\S]{0,80}tr:nth-child\(even\) td\.ws-emp-col\s*\{[^}]*\}/);
         assertTrue(!!zgl && zgl[0].indexOf('rgba(0, 0, 0, 0.07)') !== -1,
             'gridwide светлая: 7%');
-        // hover ФИО — сплошной (зебра гаснет на время наведения)
-        const h = INDEX_SRC.match(/\.ws-grid tbody tr:nth-child\(even\) td\.ws-emp-col:hover\s*\{[^}]*\}/);
-        assertTrue(!!h && h[0].indexOf('background-image: none') !== -1,
-            'hover: зебра сбрасывается (сплошная подсветка)');
+        // Task 417: hover ФИО удалён вместе с попапом карточки —
+        // зебра чётных строк живёт без оверрайдов
+        assertFalse(INDEX_SRC.indexOf('.ws-grid tbody tr:nth-child(even) td.ws-emp-col:hover') !== -1,
+            'оверрайд зебры для hover удалён (Task 417)');
     });
 });
 
@@ -474,9 +474,9 @@ describe('Task 329 — VM: закрытие и рендер', () => {
 // ============================================================
 describe('Task 329 — SW: версия кэша', () => {
 
-    test('SW: кэш поднят до kipia-v477 (Task 329)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v477') !== -1,
-            'CACHE_VERSION = kipia-v477');
+    test('SW: кэш поднят до kipia-v478 (Task 329)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v478') !== -1,
+            'CACHE_VERSION = kipia-v478');
         assertFalse(SW_SRC.indexOf('kipia-v478-OLD') !== -1,
             'старой версии v567 нет');
     });

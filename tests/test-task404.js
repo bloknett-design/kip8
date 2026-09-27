@@ -93,15 +93,15 @@ describe('Task 404 — SRC: карточка — три блока в одну �
             'flex БЕЗ переноса — колонки строго в одну линию');
         assertTrue(m[0].indexOf('flex: 1 1 0;') !== -1,
             'равные доли 1 1 0 — три блока гарантированно помещаются');
-        assertTrue(m[0].indexOf('gap: 12px;') !== -1,
-            'зазор между колонками 12px');
+        assertTrue(m[0].indexOf('gap: 5px;') !== -1,
+            'зазор между колонками 5px (Task 428)');
         assertTrue(m[0].indexOf('align-items: flex-start;') !== -1,
             'колонки не тянутся по высоте друг друга');
     });
 
     test('мобайл ≤1023px — стек колонок без раскладки', () => {
-        assertTrue(INDEX_SRC.indexOf('.ws-wgrid2 .ws-wcol { margin-bottom: 12px; }') !== -1,
-            'зазор между колонками в стеке жив');
+        assertTrue(INDEX_SRC.indexOf('.ws-wgrid2 .ws-wcol { margin-bottom: 5px; }') !== -1,
+            'зазор между колонками в стеке жив (Task 428: 5px)');
         assertTrue(INDEX_SRC.indexOf('.ws-wgrid2 .ws-wcol:last-child { margin-bottom: 0; }') !== -1,
             'последняя колонка без зазора');
     });
@@ -180,7 +180,17 @@ describe('Task 404 — VM: панели и кнопки карточки', () =>
               'группа_допуска': 'IV', 'дата_приёма': '2024-03-15' },
         ];
         return new Function('document', 'return ({' +
+            methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
+            methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCardPanels') + ',\n' +
             methodText(INDEX_SRC, '_isInstrType') + ',\n' +
             '_canEdit: true, _year: 2026, _month: 8,' +
@@ -254,16 +264,16 @@ describe('Task 404 — VM: панели и кнопки карточки', () =>
         const iDel = blocks[1].indexOf('WorkSchedule.deleteVacation(7)');
         assertTrue(iEv !== -1 && iDel !== -1 && iEv < iDel,
             'отпуск: ✎ (правка) и ✕ (удаление) — оба, ✎ первым');
-        // мероприятия (Task 405: в b3 — обучение id 6)
-        const iEt = blocks[2].indexOf('WorkSchedule.editTraining(6)');
-        const iDt = blocks[2].indexOf('WorkSchedule.deleteTraining(6)');
+        // мероприятия (Task 405: в b3 — обучение id 6; Task 427: + семейство)
+        const iEt = blocks[2].indexOf('WorkSchedule.editTraining(6, 0)');
+        const iDt = blocks[2].indexOf('WorkSchedule.deleteTraining(6, 0)');
         assertTrue(iEt !== -1 && iDt !== -1 && iEt < iDt,
-            'мероприятие (обучение): ✎ и ✕ — оба, ✎ первым');
-        // инструктаж (Task 405: в b5 — «Инструктаж» id 5)
-        const iEi = blocks[4].indexOf('WorkSchedule.editTraining(5)');
-        const iDi = blocks[4].indexOf('WorkSchedule.deleteTraining(5)');
+            'мероприятие (обучение): ✎ и ✕ — оба, ✎ первым (семейство 0 — Task 427)');
+        // инструктаж (Task 405: в b5 — «Инструктаж» id 5; Task 427: семейство 1)
+        const iEi = blocks[4].indexOf('WorkSchedule.editTraining(5, 1)');
+        const iDi = blocks[4].indexOf('WorkSchedule.deleteTraining(5, 1)');
         assertTrue(iEi !== -1 && iDi !== -1 && iEi < iDi,
-            'инструктаж: ✎ и ✕ — в блоке 5, ✎ первым');
+            'инструктаж: ✎ и ✕ — в блоке 5, ✎ первым (семейство 1 — Task 427)');
         // СИЗ — образец
         const iEp = blocks[3].indexOf('WorkSchedule.editPpe(3)');
         const iDp = blocks[3].indexOf('WorkSchedule.deletePpe(3)');
@@ -277,7 +287,13 @@ describe('Task 404 — VM: панели и кнопки карточки', () =>
               'смена': '', 'должность': 'Слесарь КИПиА', 'комментарий': '' },
         ];
         const host = new Function('document', 'return ({' +
+            methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
+            methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+            methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_isInstrType') + ',\n' +
             '_canEdit: false, _year: 2026, _month: 8,' +
             '_EMPLOYEES: ' + JSON.stringify(EMP) + ',' +
@@ -317,7 +333,8 @@ describe('Task 404 — VM: окно мероприятий — отпуска н
         const document = { getElementById: function(id) {
             return id === 'wsEventsPanel' ? el : null;
         }};
-        const texts = ['_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta']
+        const texts = ['_instrShortOf', '_normInstrKey',
+                   '_renderMonthEventsPanel', '_trainingCodeOf', '_statusMeta']
             .map(n => methodText(INDEX_SRC, n));
         const make = new Function('localStorage', 'document', 'confirm',
                                   'KipToast', 'kipConfirm',
@@ -385,12 +402,12 @@ describe('Task 404 — VM: окно мероприятий — отпуска н
 // 6. SW — версия кэша
 // ============================================================
 describe('Task 404 — SW: версия кэша', () => {
-    test('CACHE_VERSION = kipia-v477 (Task 404)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v477'") !== -1,
+    test('CACHE_VERSION = kipia-v478 (Task 404)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
             'фронтенд менялся — кэш поднят до v631');
     });
     test('guard: v632 отсутствует (следующий бамп)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v478') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
             'v632 ещё не существует (guard следующего бампа)');
     });
 });

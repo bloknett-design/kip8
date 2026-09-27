@@ -242,9 +242,9 @@ describe('Task 396 — SRC: CSS шапок, кнопок и зебры', () => {
             'скругление полос-«пилюль»');
     });
 
-    test('SW поднят до kipia-v477', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v477'") !== -1,
-            'SW kipia-v477');
+    test('SW поднят до kipia-v478', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
+            'SW kipia-v478');
         assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-test-v623'") === -1,
             'прежней v623 нет');
     });
@@ -292,7 +292,17 @@ function cardHost(withEdit) {
           дата_окончания: '2027-09-05', примечание: '' },
     ];
     const host = new Function('document', 'return ({' +
+        methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
+        methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_isInstrType') + ',\n' +
         '_canEdit: ' + JSON.stringify(!!withEdit) + ',' +
         '_year: 2026, _month: 8,' +
@@ -480,7 +490,13 @@ function pageHost() {
         methodText(INDEX_SRC, '_renderWorkersPage') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkersGeneral') + ',\n' +
         methodText(INDEX_SRC, 'selectWorkersTab') + ',\n' +
+        methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
+        methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCardPanels') + ',\n' +
         methodText(INDEX_SRC, '_isInstrType') + ',\n' +
         '_workersTab: "general",' +
@@ -535,9 +551,9 @@ describe('Task 396 — VM: страница «Работники»', () => {
 describe('Task 396 — SW и отсутствие регрессов', () => {
 
     test('SW: v624 — ассерт присутствия, v625 — guard отсутствия', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v477') !== -1,
-            'SW kipia-v477');
-        assertTrue(SW_SRC.indexOf('kipia-v478') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v478') !== -1,
+            'SW kipia-v478');
+        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
             'v625 ещё не существует (guard)');
     });
 

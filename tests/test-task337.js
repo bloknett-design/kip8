@@ -26,7 +26,7 @@
 //   4) cycleView: программный guard — зритель не переключает вид.
 //   Сервер шлюзит каждый запрос rmRequirePerm('workschedule.edit')
 //   — как и прежде; клиентский фикс синхронизирует UX с матрицей.
-//   SW: kipia-v477.
+//   SW: kipia-v478.
 //
 // Запуск: через tests/run-all.js (require './test-task337.js').
 
@@ -334,10 +334,10 @@ describe('Task 337 — регресс-гейты правки', () => {
 // ============================================================
 describe('Task 337 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v477', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v477'") !== -1,
-            'CACHE_VERSION = kipia-v477 (Task 337 — только фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v478') !== -1,
+    test('SW: кэш поднят до kipia-v478', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
+            'CACHE_VERSION = kipia-v478 (Task 337 — только фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v479') !== -1,
             'лишний инкремент (v577) не сделан');
     });
 
