@@ -152,8 +152,8 @@ describe('Task 405 — SRC: карточка — блоки мероприяти
         assertTrue(wr.indexOf('if (this._isInstrType(r.тип)) ins.push(r);') !== -1 &&
                    wr.indexOf('else evs.push(r);') !== -1,
             'два списка: evs (мероприятия) и ins (инструктажи)');
-        assertTrue(fn.indexOf('var evs = wRecs.evs, ins = wRecs.ins;') !== -1,
-            'карточка берёт записи года из _wtabYearRecords (Task 408)');
+        assertTrue(fn.indexOf('var evs = wRecsEv.evs, ins = wRecsIn.ins;') !== -1,
+            'карточка берёт записи года из _wtabYearRecords (Task 408; Task 435: раздельные годы блоков)');
         assertTrue(fn.indexOf('for (var tk = 0; tk < evs.length; tk++)') !== -1,
             'блок «Мероприятия» строится по evs');
     });
@@ -247,6 +247,7 @@ describe('Task 405 — VM: карточка и сводка', () => {
             methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
             methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+            methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
@@ -581,10 +582,10 @@ describe('Task 405 — GAS-VM: сервер (моки листов)', () => {
 // 5. SW — версия кэша
 // ============================================================
 describe('Task 405 — SW: версия кэша', () => {
-    test('CACHE_VERSION = kipia-v478', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
+    test('CACHE_VERSION = kipia-v479', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
             'SW v632 (Task 405)');
-        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v480') === -1,
             'двойной бамп отсутствует');
     });
 });

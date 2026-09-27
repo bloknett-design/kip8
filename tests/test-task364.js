@@ -13,7 +13,7 @@
 //     обёртки на всю ширину; каждая запись/код — отдельной
 //     строкой своего столбика (как в Task 360).
 //
-// SW: kipia-v478.
+// SW: kipia-v479.
 //
 // Запуск: через tests/run-all.js (require './test-task364.js').
 
@@ -95,38 +95,48 @@ describe('Task 364 — SRC: рамка выходных 2px #e57373', () => {
 // ============================================================
 describe('Task 364 — SRC: wsp-bottom на печати', () => {
 
-    test('SRC: CSS .wsp-bottom — flex-ряд с зазором', () => {
+    test('SRC: CSS .wsp-bottom — обёртка вертикальной секции (Task 433)', () => {
         const r = cssRule(INDEX_SRC, '#wsPrintSheet .wsp-bottom');
         assertTrue(r !== '', 'правило обёртки есть');
-        assertTrue(r.indexOf('display: flex') !== -1, 'flex-раскладка');
-        assertTrue(r.indexOf('flex-direction: row') !== -1,
-            'колонки в один ряд (мероприятия слева, коды справа)');
-        assertTrue(r.indexOf('align-items: flex-start') !== -1,
-            'колонки от общего верха');
-        assertTrue(r.indexOf('gap: 10px') !== -1, 'зазор между столбиками 10px (Task 375: «на расстоянии 10px»)');
+        // Task 433 (заявка: «расположение кодов в печати верни
+        // обратно…»): флоат Task 432 и flex-ряд Task 364–431
+        // СНЯТЫ — нижняя секция ВЕРТИКАЛЬНАЯ: список мероприятий
+        // на всю ширину, коды — строкой-абзацем ПОД ним
+        assertTrue(r.indexOf('display: flex') === -1,
+            'flex-ряда нет (Task 433: вертикальная секция)');
+        assertTrue(r.indexOf('flow-root') === -1,
+            'флоат-обёртки Task 432 больше нет');
         assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
             'отступ от таблицы перенесён на обёртку');
     });
 
-    test('SRC: CSS .wsp-mev — тянется на свободную ширину слева', () => {
+    test('SRC: CSS .wsp-mev — строки на всю ширину листа (Task 432)', () => {
         const r = cssRule(INDEX_SRC, '#wsPrintSheet .wsp-mev');
-        assertTrue(r.indexOf('flex: 1 1 auto') !== -1,
-            'мероприятия занимают остаток ряда');
-        assertTrue(r.indexOf('min-width: 0') !== -1, 'перенос длинных строк');
+        // Task 432: flex снят — блок мероприятий на всю ширину, строки
+        // ТЕКУТ вокруг плавающих кодов (рядом — до кромки кодов минус
+        // 10px, ниже — до конца листа), переносятся ТОЛЬКО когда
+        // места не хватает (прежде 0 1 auto Task 431 сжимал колонку
+        // по тексту — правая часть листа пустовала)
+        assertTrue(r.indexOf('flex:') === -1,
+            'мероприятия НЕ в flex-колонке (Task 432: обтекание)');
         assertTrue(r.indexOf('margin-top: 0') !== -1,
             'личный отступ сверху снят (отступ — на обёртке)');
         assertTrue(r.indexOf('font-size: 11px') !== -1,
             'шрифт Task 361 (11px) сохранён');
     });
 
-    test('SRC: CSS .wsp-legend — правая колонка без растяжения', () => {
+    test('SRC: CSS .wsp-legend — строка-абзац ПОД списком (Task 433)', () => {
         const r = cssRule(INDEX_SRC, '#wsPrintSheet .wsp-legend');
-        assertTrue(r.indexOf('flex: 0 0 auto') !== -1,
-            'кодам НЕ растягиваться на остаток (правый столбик)');
-        assertTrue(r.indexOf('max-width: 44%') !== -1,
-            'не шире 44% листа');
-        assertTrue(r.indexOf('margin-top: 0') !== -1,
-            'личный отступ сверху снят');
+        // Task 433 (заявка: «расположение кодов в печати верни
+        // обратно»): ВЕРНУЛИ исходную форму «в одну строку» —
+        // флоат и max-width сняты, блок — обычный абзац ПОД
+        // списком мероприятий, растянутый до конца листа
+        assertTrue(r.indexOf('float:') === -1,
+            'флоат Task 432 снят (коды — не плавающий столбик)');
+        assertTrue(r.indexOf('max-width') === -1,
+            'кап ширины Task 364 снят');
+        assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
+            'отступ от списка мероприятий сверху');
         assertTrue(r.indexOf('font-size: 11px') !== -1,
             'шрифт Task 361 (11px) сохранён');
     });
@@ -139,18 +149,27 @@ describe('Task 364 — SRC: wsp-bottom на печати', () => {
         const iFoot = b.indexOf('<div class="wsp-foot">');
         assertTrue(iOpen !== -1, 'обёртка wsp-bottom строится');
         assertTrue(iOpen < iMev, 'открытие обёртки до мероприятий');
-        assertTrue(iMev < iLegend, 'мероприятия раньше кодов в ряду');
-        assertTrue(iLegend < iFoot, 'сноска — после ряда');
+        // Task 433: секция ВЕРТИКАЛЬНАЯ — список мероприятий
+        // ПЕРВЫМ, коды — строкой-абзацем ПОД ним (флоат Task 432
+        // строил коды первыми в DOM)
+        assertTrue(iMev < iLegend, 'коды — ПОД списком мероприятий (Task 433)');
+        assertTrue(iLegend < iFoot, 'сноска — после кодов');
     });
 
-    test('SRC: JS — обёртка закрывается ПОСЛЕ перечня кодов (двойной div)', () => {
+    test('SRC: JS — обёртка закрывается ПОСЛЕ кодов (двойной div)', () => {
         const b = stripComments(methodText(WS_CLIENT, '_buildPrintHtml'));
-        const iClose = b.indexOf("html += '</div></div>';");
         const iLegend = b.indexOf('<div class="wsp-legend">');
         const iFoot = b.indexOf('<div class="wsp-foot">');
-        assertTrue(iClose !== -1, 'двойное закрытие legend + обёртки');
-        assertTrue(iClose > iLegend, 'закрытие после перечня кодов');
-        assertTrue(iClose < iFoot, 'сноска строится после закрытия обёртки');
+        // Task 433: порядок — мероприятия → коды → закрытие обёртки:
+        // закрытие кодов и обёртки — ДВА последовательных оператора
+        const iClose1 = b.indexOf("html += '</div>';", iLegend);
+        const iClose2 = b.indexOf("html += '</div>';", iClose1 + 1);
+        assertTrue(iClose1 !== -1 && iClose2 !== -1,
+            'двойное закрытие legend + обёртки');
+        assertTrue(iClose1 > iLegend, 'закрытие после перечня кодов');
+        assertTrue(iClose2 - iClose1 < 200,
+            'операторы закрытия — подряд');
+        assertTrue(iClose2 < iFoot, 'сноска строится после закрытия обёртки');
     });
 });
 
@@ -220,18 +239,22 @@ describe('Task 364 — VM: ряд мероприятий|кодов в печа�
         var iClose = html.indexOf('</div></div>', iLegend);
         var iFoot = html.indexOf('<div class="wsp-foot">');
         assertTrue(iOpen !== -1, 'обёртка wsp-bottom в листе');
-        assertTrue(iOpen < iMev && iMev < iLegend, 'мероприятия и коды внутри обёртки');
+        // Task 433: секция вертикальная — мероприятия ПЕРВЫМИ,
+        // коды — ПОД списком (флоат Task 432 строил коды первыми)
+        assertTrue(iOpen < iMev && iMev < iLegend,
+            'мероприятия, за ними коды — внутри обёртки (Task 433)');
         assertTrue(iClose !== -1 && iClose > iLegend, 'обёртка закрыта после кодов');
         assertTrue(iFoot > iClose, 'сноска — ПОД обёрткой, на всю ширину');
     });
 
-    test('VM: у мероприятий и кодов НЕТ личных отступов сверху (единый ряд)', () => {
+    test('VM: у мероприятий и кодов НЕТ личных обёрток-посредников', () => {
         var html = sheetHost()._buildPrintHtml(EMPS, AGG);
         // структура CSS проверена в SRC; здесь — что оба блока
         // в одном родителе: между закрытием mev и открытием legend
-        // нет обёрток-посредников с отступами
-        var iMevEnd = html.indexOf('</div>', html.indexOf('<div class="wsp-mev">'));
+        // (Task 433: мероприятия строятся первыми) нет посредников
+        var iMev = html.indexOf('<div class="wsp-mev">');
         var iLegend = html.indexOf('<div class="wsp-legend">');
+        var iMevEnd = html.indexOf('</div>', iMev);
         var between = html.slice(iMevEnd + 6, iLegend);
         assertEqual(between.replace(/\s+/g, ''), '',
             'legend — непосредственный сосед mev в обёртке');
@@ -263,8 +286,8 @@ describe('Task 364 — VM: ряд мероприятий|кодов в печа�
 // 4. SW — версия кеша
 // ============================================================
 describe('Task 364 — SW: версия кеша', () => {
-    test('SW: CACHE_VERSION = kipia-v478', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
-            'SW поднят до v593 (рамка 2px + коды справа от мероприятий)');
+    test('SW: CACHE_VERSION = kipia-v479', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
+            'SW поднят до v659 (рамка 2px + коды строкой под мероприятиями — Task 433)');
     });
 });

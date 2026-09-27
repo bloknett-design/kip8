@@ -391,9 +391,9 @@ describe('Task 397 — VM: общее правило по ролям', () => {
 // ============================================================
 describe('Task 397 — SW-кэш', () => {
     test('SW поднят до v625 (Task 397 — фронтенд менялся)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v478') !== -1,
-            'sw.js: CACHE_VERSION kipia-v478');
-        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v479') !== -1,
+            'sw.js: CACHE_VERSION kipia-v479');
+        assertTrue(SW_SRC.indexOf('kipia-v480') === -1,
             'двойного бампа нет (v626 не существует)');
     });
 });

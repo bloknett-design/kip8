@@ -183,6 +183,7 @@ describe('Task 404 — VM: панели и кнопки карточки', () =>
             methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
             methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+            methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
@@ -269,11 +270,13 @@ describe('Task 404 — VM: панели и кнопки карточки', () =>
         const iDt = blocks[2].indexOf('WorkSchedule.deleteTraining(6, 0)');
         assertTrue(iEt !== -1 && iDt !== -1 && iEt < iDt,
             'мероприятие (обучение): ✎ и ✕ — оба, ✎ первым (семейство 0 — Task 427)');
-        // инструктаж (Task 405: в b5 — «Инструктаж» id 5; Task 427: семейство 1)
+        // инструктаж (Task 405: в b5 — «Инструктаж» id 5; Task 427: семейство 1;
+        // Task 433: кнопки ПОМЕНЯНЫ МЕСТАМИ — ✎ строится ПЕРВЫМ,
+        // ✕ — вторым (ряд .ws-act-row под галочкой)
         const iEi = blocks[4].indexOf('WorkSchedule.editTraining(5, 1)');
         const iDi = blocks[4].indexOf('WorkSchedule.deleteTraining(5, 1)');
         assertTrue(iEi !== -1 && iDi !== -1 && iEi < iDi,
-            'инструктаж: ✎ и ✕ — в блоке 5, ✎ первым (семейство 1 — Task 427)');
+            'инструктаж: ✎ и ✕ — в блоке 5, ✎ ПЕРВЫМ (Task 433: поменяны местами)');
         // СИЗ — образец
         const iEp = blocks[3].indexOf('WorkSchedule.editPpe(3)');
         const iDp = blocks[3].indexOf('WorkSchedule.deletePpe(3)');
@@ -290,6 +293,7 @@ describe('Task 404 — VM: панели и кнопки карточки', () =>
             methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
             methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
             methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+            methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
@@ -402,12 +406,12 @@ describe('Task 404 — VM: окно мероприятий — отпуска н
 // 6. SW — версия кэша
 // ============================================================
 describe('Task 404 — SW: версия кэша', () => {
-    test('CACHE_VERSION = kipia-v478 (Task 404)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
+    test('CACHE_VERSION = kipia-v479 (Task 404)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
             'фронтенд менялся — кэш поднят до v631');
     });
     test('guard: v632 отсутствует (следующий бамп)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v480') === -1,
             'v632 ещё не существует (guard следующего бампа)');
     });
 });

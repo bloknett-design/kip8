@@ -429,6 +429,8 @@ describe('Task 387 — VM: легенда/попап/select/ширина', () =>
                 ],
                 _effectiveEntry: function() { return null; },
                 _fmtTotalsNum: function(n) { return String(n); },
+                // Task 434: заголовок попапа кодов — дата дд.мм.гггг
+                _fmtDateRu: function(d) { return String(d); },
                 _fitGrid: function() {},
                 ${src}
             };
@@ -563,10 +565,10 @@ describe('Task 387 — VM: легенда/попап/select/ширина', () =>
 
 describe('Task 387 — SW', () => {
 
-    test('SW: кэш поднят до kipia-v478', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
-            'CACHE_VERSION = kipia-v478 (Task 387 — фронтенд менялся)');
-        assertFalse(SW_SRC.indexOf('kipia-v479') !== -1,
+    test('SW: кэш поднят до kipia-v479', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
+            'CACHE_VERSION = kipia-v479 (Task 387 — фронтенд менялся)');
+        assertFalse(SW_SRC.indexOf('kipia-v480') !== -1,
             'v616 ещё не существует (guard)');
     });
 });

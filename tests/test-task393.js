@@ -151,8 +151,11 @@ describe('Task 393 — CSS: шрифт карточки страницы кру�
         assertTrue(r !== null && r.indexOf('font-size: 14px;') !== -1,
             'поля 14px');
         const k = ruleBlock('.ws-wcard .ws-emp-field .ws-emp-k {');
-        assertTrue(k !== null && k.indexOf('min-width: 128px;') !== -1,
-            'метка min-width 128px');
+        // Task 433 (заявка: расстояние название→содержание — как
+        // код→содержание у мероприятий): слот ПЛОТНЫЙ по самой
+        // длинной строке профиля («Группа допуска»), прежде 128px
+        assertTrue(k !== null && k.indexOf('min-width: 110px;') !== -1,
+            'метка min-width 110px (Task 433: плотный слот)');
     });
 
     test('заголовок блока (ws-popup-sec) — 12px с подчёркиванием', () => {
@@ -465,10 +468,10 @@ describe('Task 393 — VM: страница «Работники» — 4 окн�
 // ============================================================
 describe('Task 393 — SW', () => {
 
-    test('SW: kipia-v478', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
+    test('SW: kipia-v479', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v480') === -1,
             'двойного бампа не было');
     });
 });

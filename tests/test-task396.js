@@ -229,22 +229,31 @@ describe('Task 396 — SRC: CSS шапок, кнопок и зебры', () => {
         const segl = INDEX_SRC.slice(il, il + 400);
         assertTrue(il !== -1 && segl.indexOf('background: rgba(0, 0, 0, 0.05);') !== -1,
             'светлая — тёмный тинт');
-        // строки — «пилюли»: боковой паддинг + скругление
+        // Task 432 (заявка: «убери фон зебры строк в виде рамки, и
+        // размести строки на всю ширину в блоке, зеброй без рамок
+        // и отступов»): строки — во всю ширину окна (margin: 0 -16px
+        // гасит паддинг панели), вертикальный ритм 5px, боковой
+        // паддинг 16px держит текст на линии панели; «пилюли» сняты
         const f = ruleBlock('.ws-wcard .ws-emp-field {');
-        assertTrue(f.indexOf('padding: 4px 10px;') !== -1, 'поля — боковой паддинг 10px');
+        assertTrue(f.indexOf('padding: 5px 16px;') !== -1, 'поля — вертикаль 5px (Task 432)');
+        assertTrue(f.indexOf('margin: 0 -16px;') !== -1, 'поля — во всю ширину окна');
         const row = ruleBlock('.ws-wcard .ws-popup-row {');
-        assertTrue(row.indexOf('padding: 8px 10px;') !== -1, 'строки — 10px');
+        assertTrue(row.indexOf('padding: 5px 16px;') !== -1, 'строки — вертикаль 5px');
+        assertTrue(row.indexOf('margin: 0 -16px;') !== -1, 'строки — во всю ширину окна');
         const ppe = ruleBlock('.ws-wcard .ws-ppe-item {');
-        assertTrue(ppe.indexOf('padding: 6px 10px;') !== -1, 'СИЗ — 10px');
-        assertTrue(INDEX_SRC.indexOf('.ws-wcard .ws-ppe-item {\n        border-radius: 6px;') !== -1 ||
-                   seg.indexOf('border-radius: 6px;') !== -1 ||
-                   INDEX_SRC.indexOf('border-radius: 6px;') !== -1,
-            'скругление полос-«пилюль»');
+        assertTrue(ppe.indexOf('padding: 5px 16px;') !== -1, 'СИЗ — вертикаль 5px');
+        assertTrue(ppe.indexOf('margin: 0 -16px;') !== -1, 'СИЗ — во всю ширину окна');
+        // Task 432: скругление «пилюли» СНЯТО — зебра без рамок
+        const iR = INDEX_SRC.indexOf('.ws-wcard .ws-emp-field,\n' +
+            '    .ws-wcard .ws-popup-row,');
+        const rR = INDEX_SRC.slice(iR, INDEX_SRC.indexOf('}', iR));
+        assertTrue(iR !== -1 && rR.indexOf('border-radius: 0') !== -1,
+            'скругление снято — border-radius: 0 (Task 432)');
     });
 
-    test('SW поднят до kipia-v478', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v478'") !== -1,
-            'SW kipia-v478');
+    test('SW поднят до kipia-v479', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
+            'SW kipia-v479');
         assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-test-v623'") === -1,
             'прежней v623 нет');
     });
@@ -295,6 +304,7 @@ function cardHost(withEdit) {
         methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
         methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+        methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
@@ -405,8 +415,11 @@ describe('Task 396 — VM: блоки-окна (asBlocks) — шапки и кн
                    blocks[0].indexOf('"ws-emp-k">Группа допуска') <
                    blocks[0].indexOf('"ws-emp-k">Дата приёма'),
             'Task 402: Группа допуска — ПОСЛЕ Должности (до Даты приёма)');
-        // b2: 3 периода → 1 alt
-        assertEqual((blocks[1].match(/ws-emp-field ws-row-alt/g) || []).length, 1,
+        // b2: 3 периода → 1 alt; Task 433: строки отпусков несут
+        // класс ws-emp-vac (плотный слот «Часть N»)
+        assertEqual((blocks[1].match(/ws-emp-field ws-emp-vac/g) || []).length, 3,
+            'отпуска: все строки — ws-emp-vac (Task 433)');
+        assertEqual((blocks[1].match(/ws-emp-field ws-emp-vac ws-row-alt/g) || []).length, 1,
             'отпуска: вторая строка — alt');
         // Task 405: b3 — только обучение (1 запись) → 0 alt
         assertEqual((blocks[2].match(/ws-popup-event ws-row-alt/g) || []).length, 0,
@@ -493,6 +506,7 @@ function pageHost() {
         methodText(INDEX_SRC, '_instrShortOf') + ',\n' +
         methodText(INDEX_SRC, '_normInstrKey') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
+        methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
@@ -551,9 +565,9 @@ describe('Task 396 — VM: страница «Работники»', () => {
 describe('Task 396 — SW и отсутствие регрессов', () => {
 
     test('SW: v624 — ассерт присутствия, v625 — guard отсутствия', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v478') !== -1,
-            'SW kipia-v478');
-        assertTrue(SW_SRC.indexOf('kipia-v479') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v479') !== -1,
+            'SW kipia-v479');
+        assertTrue(SW_SRC.indexOf('kipia-v480') === -1,
             'v625 ещё не существует (guard)');
     });
 

@@ -4397,6 +4397,166 @@
     #wsPrintSheet { display: none; }
     .ws-print-btn { white-space: nowrap; }
 
+    /* ============================================================
+       Task 430 (заявка: «при печати шахматки табеля, вначале
+       должно появляться диалоговое окно с предпросмотром и с
+       возможностью сохранения графика в файл»): ДИАЛОГ
+       ПРЕДПРОСМОТРА ПЕЧАТИ #wsPrintPrevModal. Кнопка «Печать»
+       тулбара больше не печатает СРАЗУ — сначала модальный диалог:
+       белый «бумажный» лист (тот же HTML, что уйдёт на печать, —
+       iframe со standalone-документом; CSS печатного листа
+       переиспользуется из печатной медиа-секции приложения через
+       _printCssText), масштаб под ширину окна, снизу — действия:
+       «Печать» (window.print основного документа: печатная
+       медиа-секция скрывает всё, кроме #wsPrintSheet), «Сохранить
+       в файл» (standalone HTML в загрузки браузера), «Отмена».
+       Тема — переменные приложения; z-index выше попапов (9402),
+       ниже тостов (10000). При печати диалог скрывается общим
+       правилом body > *:not(#wsPrintSheet)
+       ============================================================ */
+    .wspprev-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 9500;
+        background: rgba(0, 0, 0, 0.55);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+    .wspprev-dialog {
+        display: flex;
+        flex-direction: column;
+        width: min(1240px, 96vw);
+        max-width: 96vw;
+        height: min(92vh, 1000px);
+        background: var(--bg-primary, #141a22);
+        border: 1px solid var(--card-border, rgba(74, 143, 199, 0.25));
+        border-radius: 12px;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+    }
+    .wspprev-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+        flex: none;
+    }
+    .wspprev-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary, #e0e0e0);
+        white-space: nowrap;
+    }
+    .wspprev-sub {
+        flex: 1;
+        min-width: 0;
+        font-size: 12px;
+        color: var(--text-secondary, rgba(255, 255, 255, 0.5));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .wspprev-close {
+        flex: none;
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--card-border, rgba(255, 255, 255, 0.16));
+        border-radius: 8px;
+        background: transparent;
+        color: var(--text-primary, #e0e0e0);
+        font-size: 16px;
+        line-height: 1;
+        cursor: pointer;
+    }
+    .wspprev-close:hover { filter: brightness(1.3); }
+    .wspprev-body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.28);
+        display: flex;
+        justify-content: center;
+        padding: 14px;
+    }
+    .wspprev-paper {
+        position: relative;
+        flex: none;
+        overflow: hidden;
+    }
+    .wspprev-frame {
+        display: block;
+        border: 0;
+        width: 1063px; /* 281мм печатной области A4 (297 − 2×8мм) @96dpi */
+        background: transparent;
+    }
+    .wspprev-foot {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 10px 14px;
+        border-top: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+        flex: none;
+    }
+    .wspprev-btn {
+        height: 34px;
+        padding: 0 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        flex: none;
+    }
+    .wspprev-btn svg { width: 15px; height: 15px; }
+    .wspprev-print {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid transparent;
+        background: var(--accent-blue, #4a8fc7);
+        color: #fff;
+    }
+    .wspprev-print:hover { filter: brightness(1.12); }
+    .wspprev-print:active { filter: brightness(0.9); }
+    .wspprev-save,
+    .wspprev-cancel {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 1px solid var(--card-border, rgba(255, 255, 255, 0.22));
+        background: transparent;
+        color: var(--text-primary, #e0e0e0);
+    }
+    .wspprev-save:hover,
+    .wspprev-cancel:hover { background: rgba(255, 255, 255, 0.07); }
+    .wspprev-hint {
+        margin-left: auto;
+        font-size: 11px;
+        color: var(--text-secondary, rgba(255, 255, 255, 0.45));
+        white-space: nowrap;
+    }
+    /* мобайл: диалог на весь экран, кнопки — в полную ширину */
+    @media (max-width: 640px) {
+        .wspprev-overlay { padding: 0; }
+        .wspprev-dialog {
+            width: 100vw;
+            max-width: 100vw;
+            height: 100dvh;
+            border-radius: 0;
+            border: 0;
+        }
+        .wspprev-sub { display: none; }
+        .wspprev-foot { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+    }
+
     @media print {
         @page { size: A4 landscape; margin: 8mm; }
         html, body { background: #fff !important; }
@@ -4584,61 +4744,112 @@
            Task 361: шрифт блоков под таблицей 8→11px (заявка:
            «размер шрифта всех строк над и под таблицей сделай
            больше»).
-           Task 364 (заявка: «коды под графиком на печати размести
-           в столбик справа от столбика мероприятий»): мероприятия
-           и коды — ДВЕ КОЛОНКИ одного ряда под таблицей (обёртка
-           wsp-bottom, flex-ряд: мероприятия слева, коды справа),
-           каждая запись/код — по-прежнему отдельной строкой своего
-           столбика; отступ сверху 2.5mm перенесён на обёртку.
-           Task 375: расстояние между столбиками — ровно 10px */
+           Task 364: коды — ДВЕ КОЛОНКИ одного ряда под таблицей
+           (обёртка wsp-bottom, flex-ряд: мероприятия слева, коды
+           справа).
+           Task 375: расстояние между столбиками — ровно 10px.
+           Task 431: flex-grow столбика мероприятий снят — коды
+           вплотную к тексту мероприятий (зазор 10px).
+           Task 432: ОБТЕКАНИЕ — столбик кодов плавал (float:
+           right) у правого верхнего угла ряда, строки мероприятий
+           текли вокруг него и ниже — до конца листа.
+           Task 433 (заявка: «расположение кодов в печати верни
+           обратно, я имел в виду, что бы правая часть блока
+           растянулась вправо до конца листа, и если текст не
+           будет вмещаться в одну строку, тогда переносить его на
+           следующую строку»): флоат Task 432 и flex-ряд
+           Task 364–431 СНЯТЫ — нижняя секция снова ВЕРТИКАЛЬНАЯ
+           (как до Task 364): (1) СПИСОК МЕРОПРИЯТИЙ — КАЖДАЯ
+           ЗАПИСЬ-БЛОК ГИБКИМ РЯДОМ [точка][дата][текст]: ПРАВАЯ
+           ЧАСТЬ БЛОКА (текст) РАСТЯНУТА ВПРАВО ДО КОНЦА ЛИСТА
+           (flex: 1), перенос — ТОЛЬКО когда текст не вмещается
+           в одну строку; (2) КОДЫ — Task 434 (заявка: «коды
+           на печати сделать в две колонки под названием
+           "Коды:"»): заголовок «Коды:» сверху, под ним
+           ДВЕ-КОЛОНКИ .wsp-legend-cols (grid 1fr 1fr) до
+           конца листа, ПОД списком мероприятий; сноска
+           wsp-foot — ниже обеих секций */
         #wsPrintSheet .wsp-bottom {
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            /* Task 375 (заявка: «на расстоянии 10px»): зазор между
-               столбиком мероприятий и столбиком кодов — 10px */
-            gap: 10px;
             margin-top: 2.5mm;
         }
         #wsPrintSheet .wsp-mev {
-            flex: 1 1 auto;
-            min-width: 0;
             margin-top: 0;
             font-size: 11px;
             line-height: 1.6;
         }
         #wsPrintSheet .wsp-mev-t { font-weight: 700; }
+        /* Task 433 (заявка: «правая часть блока растянулась вправо
+           до конца листа, и если текст не будет вмещаться в одну
+           строку, тогда переносить его на следующую строку»):
+           каждая запись-«блок» — ГИБКИЙ РЯД [точка][дата][текст]:
+           дата — слот (мин-ширина худшего диапазона
+           «29.09–02.10», короткие «20.09» выравниваются по нему),
+           ТЕКСТ — ПРАВАЯ ЧАСТЬ БЛОКА: flex: 1 — растянут до
+           КОНЦА ЛИСТА, перенос на следующую строку — только когда
+           текст НЕ ВМЕЩАЕТСЯ В ОДНУ СТРОКУ (прежде flex-колонка
+           Task 364–431 сжимала ВСЕ строки по ширине самого
+           широкого текста, флоат Task 432 переносил их вокруг
+           столбика кодов) */
         #wsPrintSheet .wsp-mev-item {
-            display: block;
+            display: flex;
+            align-items: baseline;
+            gap: 1mm;
             page-break-inside: avoid;
         }
+        #wsPrintSheet .wsp-mev-none { display: block; color: #4c5660; }
         #wsPrintSheet .wsp-mev-item i {
             display: inline-block;
             width: 9px;
             height: 9px;
             border: 1px solid #7a838c;
-            margin-right: 1mm;
+            flex-shrink: 0;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
-        #wsPrintSheet .wsp-mev-date { font-weight: 700; }
-        #wsPrintSheet .wsp-mev-none { color: #4c5660; }
+        #wsPrintSheet .wsp-mev-date {
+            font-weight: 700;
+            flex-shrink: 0;
+            min-width: 66px;
+        }
+        #wsPrintSheet .wsp-mev-text {
+            flex: 1;
+            min-width: 0;
+        }
 
         /* легенда кодов и пояснения (Task 360: только коды
-           этого месяца, одна строка — один код; Task 361:
-           шрифт 8→11px, точка 7→9px; Task 364: правая колонка
-           ряда wsp-bottom — «в столбик справа от столбика
-           мероприятий», без растяжения на всю ширину) */
+           этого месяца; Task 361: шрифт 8→11px, точка 7→9px;
+           Task 364: правая колонка ряда wsp-bottom; Task 432:
+           флоат у правого верхнего угла; Task 433: единая
+           строка-абзац «Коды: …» под списком мероприятий).
+           Task 434 (заявка: «коды на печати сделать в ДВЕ
+           КОЛОНКИ под названием "Коды:"»): заголовок «Коды:» —
+           ОТДЕЛЬНОЙ строкой СВЕРХУ, под ним сетка-ДВЕ-КОЛОНКИ
+           .wsp-legend-cols (grid 1fr 1fr) на всю ширину листа
+           ДО КОНЦА; каждая запись-код — своя строка колонки
+           (длинное наименование переносится ВНУТРИ колонки,
+           запись не рвётся между колонками/страницами) */
         #wsPrintSheet .wsp-legend {
-            flex: 0 0 auto;
-            max-width: 44%;
-            margin-top: 0;
+            margin-top: 2.5mm;
             font-size: 11px;
             line-height: 1.6;
         }
-        #wsPrintSheet .wsp-legend-t { font-weight: 700; }
+        #wsPrintSheet .wsp-legend-t {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 1mm;
+        }
+        #wsPrintSheet .wsp-legend-cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 6mm;
+            row-gap: 0.8mm;
+            align-items: start;
+        }
         #wsPrintSheet .wsp-lg {
             display: block;
+            min-width: 0;
+            white-space: normal;
+            break-inside: avoid;
             page-break-inside: avoid;
         }
         #wsPrintSheet .wsp-lg i {
@@ -5459,6 +5670,35 @@
     .ws-done-chk.ws-done-ro:hover { background: none; border-color: #43a047; }
     [data-theme="light"] .ws-done-chk { border-color: rgba(0, 0, 0, 0.28); }
     [data-theme="light"] .ws-done-chk:hover { background: rgba(67, 160, 71, 0.12); }
+    /* Task 431 (заявка: «кнопку отметки выполнения расположи над
+       кнопкой удалить»): колонка-стек КОНЦА строки записи
+       инструктажа в карточке — ГАЛОЧКА отметки выполнения НАД
+       кнопками действий. Task 432 (заявка: «кнопку редактировать
+       размести справа от кнопки удалить, строго на одном уровне»):
+       галочка — НАД, точно над ✕ (align-items: flex-start);
+       ✕ и ✎ — в горизонтальном ряду .ws-act-row ПОД галочкой,
+       СТРОГО на одном уровне; вертикальный зазор галочка↔ряд —
+       5px (заявка: «расстояние между текстами и кнопками, по
+       вертикали, — 5px»; прежде 2px). Только блок «Повторные
+       инструктажи…» (строки b5); мероприятия/отпуска/СИЗ и
+       попапы — прежний горизонтальный порядок кнопок */
+    .ws-act-col {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 5px;
+        flex-shrink: 0;
+    }
+    /* авто-сдвиг первого ✎/✕ к правому краю строки — в колонке
+       не нужен (строку растягивает имя flex:1) */
+    .ws-act-col .ws-popup-act { margin-left: 0; }
+    /* Task 432: ✎ — СПРАВА от ✕, на одной линии (ряд колонки) */
+    .ws-act-row {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
     /* Task 418: бейдж «просрочен» — дата проведения прошла, отметки
        о выполнении нет («просрочен» = 1) */
     .ws-late-tag {
@@ -5496,10 +5736,19 @@
         line-height: 1.35;
     }
     .ws-emp-field .ws-emp-k {
-        min-width: 108px;
+        /* Task 433 (заявка: «в блоках профиля и отпуска расстояние
+           между названием строчки и содержанием — по примеру
+           блока мероприятий, где код и содержание в строке»):
+           слот названия ПЛОТНЫЙ — по самой длинной строке блока
+           («Группа допуска»), как слот кода у мероприятий; прежде
+           108px при шрифте 12px оставлял большой зазор */
+        min-width: 94px;
         flex-shrink: 0;
         color: var(--text-secondary, rgba(255,255,255,0.55));
     }
+    /* Task 433: строки блока ОТПУСКОВ — СВОЙ плотный слот
+       («Часть N» короче названий профиля) */
+    .ws-emp-field.ws-emp-vac .ws-emp-k { min-width: 48px; }
     .ws-emp-field .ws-emp-v {
         color: var(--text-primary, #e0e0e0);
         overflow: hidden;
@@ -6219,14 +6468,28 @@
     }
     .ws-wcard .ws-emp-field {
         font-size: 14px;
-        /* Task 396: боковой паддинг — полосы-«пилюли» ЗЕБРЫ строк */
-        padding: 4px 10px;
+        /* Task 432 (заявка: «в блоках карт работников убери фон
+           зебры строк в виде рамки, и размести строки на всю
+           ширину в блоке, зеброй без рамок и отступов»):
+           отрицательные поля гасят боковой паддинг панели 16px —
+           полоса зебры во всю ширину окна, без «пилюли»;
+           вертикальный ритм — 5px (заявка) */
+        padding: 5px 16px;
+        margin: 0 -16px;
     }
-    .ws-wcard .ws-emp-field .ws-emp-k { min-width: 128px; }
+    /* Task 433 (заявка): слот названий в блоках КАРТ (шрифт 14px)
+       — ПЛОТНЫЙ по самой длинной строке профиля («Группа
+       допуска» ≈ 109px при 14px), как слот кода в блоке
+       мероприятий (26px): расстояние название→содержание —
+       как код→содержание; прежде 128px давал зазор до 58px */
+    .ws-wcard .ws-emp-field .ws-emp-k { min-width: 110px; }
+    /* Task 433: строки блока ОТПУСКОВ в картах — слот «Часть N» */
+    .ws-wcard .ws-emp-field.ws-emp-vac .ws-emp-k { min-width: 56px; }
     .ws-wcard .ws-emp-empty {
         font-size: 13px;
-        /* Task 396: отступ — вровень с текстом строк зебры */
-        padding: 4px 10px 6px;
+        /* Task 432: отступ — вровень с текстом строк зебры
+           (текст строк теперь на линии паддинга панели) */
+        padding: 5px 0;
     }
     .ws-wcard .ws-popup-sec {
         font-size: 12px;
@@ -6238,14 +6501,24 @@
     }
     .ws-wcard .ws-popup-row {
         font-size: 14px;
-        /* Task 396: боковой паддинг — полосы-«пилюли» ЗЕБРЫ строк */
-        padding: 8px 10px;
+        /* Task 432 (заявка: «в блоках карт работников убери фон
+           зебры строк в виде рамки, и размести строки на всю
+           ширину в блоке, зеброй без рамок и отступов»):
+           отрицательные поля гасят боковой паддинг панели 16px —
+           строка (и полоса зебры) во всю ширину окна, без
+           «пилюли»; вертикальный ритм — 5px (заявка: «расстояние
+           между текстами и кнопками, по вертикали, — 5px»;
+           прежде 8px) */
+        padding: 5px 16px;
+        margin: 0 -16px;
     }
     .ws-wcard .ws-popup-more { margin-top: 4px; }
     .ws-wcard .ws-ppe-item {
         font-size: 14px;
-        /* Task 396: боковой паддинг — полосы-«пилюли» ЗЕБРЫ строк */
-        padding: 6px 10px;
+        /* Task 432: зебра во всю ширину окна — как у .ws-popup-row
+           (отрицательные поля, вертикальный ритм 5px) */
+        padding: 5px 16px;
+        margin: 0 -16px;
     }
     .ws-wcard .ws-ppe-name { font-size: 14px; }
     .ws-wcard .ws-ppe-meta { font-size: 12.5px; }
@@ -6444,11 +6717,14 @@
        строк каждого блока (класс ws-row-alt ставит
        _renderWorkerCard при asBlocks; попап шахматки — БЕЗ зебры).
        Оттенок — как зебра сводной таблицы «Общей» вкладки
-       (Task 388); строки — «пилюли» со скруглением 6px */
+       (Task 388); Task 432 (заявка: «убери фон зебры строк в виде
+       рамки… зеброй без рамок и отступов»): скругление «пилюли»
+       СНЯТО — полоса зебры тянется во всю ширину окна от края
+       до края (поля/паддинги строк — в правилах строк выше) */
     .ws-wcard .ws-emp-field,
     .ws-wcard .ws-popup-row,
     .ws-wcard .ws-ppe-item {
-        border-radius: 6px;
+        border-radius: 0;
     }
     .ws-wcard .ws-emp-field.ws-row-alt,
     .ws-wcard .ws-popup-row.ws-row-alt,
@@ -6458,6 +6734,30 @@
     [data-theme="light"] .ws-wcard .ws-emp-field.ws-row-alt,
     [data-theme="light"] .ws-wcard .ws-popup-row.ws-row-alt,
     [data-theme="light"] .ws-wcard .ws-ppe-item.ws-row-alt {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    /* Task 431 (заявка: «в блоке Повторные инструктажи и
+       периодическая проверка знаний, при наведении указателя мыши
+       на строку зебры, она меняет цвет фона — убери этот
+       эффект»): колонка инструктажей .ws-wcol-instr (Task 406 — в
+       ней живёт ТОЛЬКО окно блока «Повторные инструктажи…») —
+       строки-записи при наведении БЕЗ смены фона: НЕзебра-строки
+       — прозрачно (перекрывает подсветку .ws-popup-row:hover, в
+       светлой теме — [data-theme="light"] .ws-popup-row:hover
+       rgba(42,93,143,0.12) — именно её и видел пользователь),
+       зебра-строки — СВОЙ статичный оттенок (подсветка НЕ
+       заменяет зебру). Зона — только блок инструктажей: строки
+       мероприятий/отпусков/СИЗ и попапы шахматки НЕ тронуты */
+    .ws-wcol-instr .ws-popup-row:hover { background: transparent; }
+    .ws-wcol-instr .ws-popup-row.ws-row-alt,
+    .ws-wcol-instr .ws-popup-row.ws-row-alt:hover {
+        background: rgba(255, 255, 255, 0.045);
+    }
+    [data-theme="light"] .ws-wcol-instr .ws-popup-row:hover {
+        background: transparent;
+    }
+    [data-theme="light"] .ws-wcol-instr .ws-popup-row.ws-row-alt,
+    [data-theme="light"] .ws-wcol-instr .ws-popup-row.ws-row-alt:hover {
         background: rgba(0, 0, 0, 0.05);
     }
     /* Task 386 (заявка): «Добавить работника» — ТЕКСТОВАЯ кнопка
@@ -6485,6 +6785,46 @@
     .ws-workers-add:hover { filter: brightness(1.12); }
     .ws-workers-add:active { filter: brightness(0.9); }
 
+    /* Task 430 (заявка: «в общей карте работников добавь кнопку
+       сохранить архив, при нажатии на которую весь архив по
+       работникам должен сохраняться в формате таблицы excel»):
+       кнопка «Сохранить архив» — ВТОРАЯ в ряду действий шапки
+       «Общей» вкладки (рядом с «Добавить работника», контейнер
+       .ws-wgen-actions). В отличие от акцентной «Добавить» —
+       ВТОРИЧНАЯ контурная: выгрузка архива — фича ПРОСМОТРА,
+       доступна и уровню view (как «Печать»). Акцент берётся из
+       переменной темы (тёмная — синий #4a8fc7, светлая —
+       оранжевый #C6613F), отдельные светлые оверрайды не нужны.
+       Значок — дискета (inline SVG, как значки тулбара) */
+    .ws-wgen-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex: none;
+    }
+    .ws-workers-archive {
+        height: 34px;
+        padding: 0 14px;
+        border-radius: 8px;
+        border: 1px solid var(--accent-blue, #4a8fc7);
+        background: transparent;
+        color: var(--accent-blue, #4a8fc7);
+        font-size: 13px;
+        line-height: 1;
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+    }
+    .ws-workers-archive svg { width: 15px; height: 15px; flex: none; }
+    .ws-workers-archive:hover {
+        background: rgba(74, 143, 199, 0.14);
+    }
+    .ws-workers-archive:active { filter: brightness(0.9); }
+
     /* Task 388 (заявка): ярлыки-вкладки СТОЛБИКОМ СЛЕВА (браузерный
        вид): активный ярлык подсвечен и «пристыкован» к телу
        (margin-right:-1px, правая рамка прозрачна); тело — карточка
@@ -6495,11 +6835,15 @@
        .ws-wcard (уже сплошной).
        Task 390 (заявка: в тёмной теме ярлыки СВЕТЛЕЕ и ДРУГИМ по
        цвету — ближе к светлой теме, чтобы НЕ сливались с общим
-       фоном страницы #1a2233): тёмная тема — ТЁПЛЫЙ тон (как
-       светлые #E4E0D3/#DBD6C8, затемнённый): неактивный #4B4E46,
-       hover #575A50, активный #63665B (светлее неактивного — как
-       активные вкладки браузеров); светлая тема — БЕЗ ИЗМЕНЕНИЙ
-       (#E4E0D3/#DBD6C8/var(--bg-tertiary)) */
+       фоном страницы #1a2233). Task 431 (заявка: «в тёмной теме фон
+       ярлыков работников сделай как фон в блоках карт
+       работников»): тёплый тон Task 390 (#4B4E46/#575A50/#63665B)
+       ЗАМЕНЁН СЕМЕЙСТВОМ ФОНА БЛОКОВ КАРТ (#243349, Task 395):
+       неактивный — ТОЧНО фон блока карты #243349, hover — на шаг
+       светлее #2A3A53, активный — ещё светлее #31445F (как
+       активные вкладки браузеров; акцентная планка слева жива);
+       светлая тема — БЕЗ ИЗМЕНЕНИЙ (#E4E0D3/#DBD6C8/
+       var(--bg-tertiary)) */
     .ws-workers-layout {
         display: flex;
         align-items: stretch;
@@ -6536,9 +6880,9 @@
            снята ниже в .ws-wtab.active, зазор до окна —
            gap раскладки Task 428 */
         border-radius: 8px;
-        /* Task 390: СВЕТЛЕЕ фона страницы (#1a2233) и ТЁПЛЫЙ тон
-           (ближе к светлой теме — не сливается с общим фоном) */
-        background: #4B4E46;
+        /* Task 431: фон — КАК У БЛОКОВ КАРТ работника (.ws-wcard
+           #243349, Task 395); тёплый тон Task 390 снят */
+        background: #243349;
         color: rgba(255, 255, 255, 0.78);
         padding: 8px 10px;
         font-size: 12.5px;
@@ -6547,17 +6891,18 @@
         overflow-wrap: break-word;
     }
     .ws-wtab:hover {
-        /* Task 390: тёплый, светлее неактивного */
-        background: #575A50;
+        /* Task 431: шаг светлее фона блоков карт */
+        background: #2A3A53;
         color: var(--text-primary, #e0e0e0);
     }
     .ws-wtab.active {
-        /* Task 390: активный — САМЫЙ светлый тёплый (как активные
+        /* Task 390: активный — САМЫЙ светлый (как активные
            вкладки браузеров) */
         /* Task 428: пристыковка к окну вкладок СНЯТА — ярлыки
            закруглены со всех сторон, между колонкой ярлыков и
            окнами — gap 5px раскладки (рамка справа — обычная) */
-        background: #63665B;
+        /* Task 431: самый светлый шаг семейства #243349 */
+        background: #31445F;
         border-color: rgba(255, 255, 255, 0.14);
         border-left-color: var(--accent-blue, #4a8fc7);
         color: var(--text-primary, #e0e0e0);
@@ -41492,6 +41837,51 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // Записи от старых к новым (по X слева направо)
             var chartRecords = records.slice(0, 31).reverse();
 
+            // Task 436 (заявка: «все значения относительно между
+            // собой до 100%, но если есть значения, которые больше
+            // в два раза и выше чем среднее значение остальных…»):
+            // шкала ДВУХ ГРУПП для сильно различающихся значений.
+            // Значение показанной записи — «большое», если оно
+            // ≥ 2 × среднего ОСТАЛЬНЫХ показанных значений (среднее
+            // остальных > 0 — при нулевых остальных «вдвое больше
+            // нуля» не считается). Есть большие → малые
+            // масштабируются «относительно друг друга» в полосе
+            // 0–80% высоты графика, большие — в полосе 80–100%
+            // (равные/единственные в группе — середина своей
+            // полосы): резко выделяющееся значение не снижает все
+            // остальные к нулю. Границы групп — по ПОКАЗАННЫМ
+            // записям (последние 31 суточных): значения вне окна
+            // графика на него не влияют. Больших нет — прежняя
+            // нормализация 0–100% (Task 224/226) без изменений
+            var vals = [];
+            for (var cv = 0; cv < chartRecords.length; cv++) {
+                vals.push(pickValue(chartRecords[cv]));
+            }
+            var vSum = 0;
+            for (var sv = 0; sv < vals.length; sv++) vSum += vals[sv];
+            var isBig = [], bigCount = 0;
+            for (var bv = 0; bv < vals.length; bv++) {
+                var avgOthers = (vals.length > 1)
+                    ? ((vSum - vals[bv]) / (vals.length - 1)) : 0;
+                var big = (avgOthers > 0 && vals[bv] >= 2 * avgOthers);
+                isBig.push(big);
+                if (big) bigCount++;
+            }
+            var twoScale = (bigCount > 0 && bigCount < vals.length);
+            var minS = Infinity, maxS = -Infinity;
+            var minB = Infinity, maxB = -Infinity;
+            if (twoScale) {
+                for (var gv = 0; gv < vals.length; gv++) {
+                    if (isBig[gv]) {
+                        if (vals[gv] < minB) minB = vals[gv];
+                        if (vals[gv] > maxB) maxB = vals[gv];
+                    } else {
+                        if (vals[gv] < minS) minS = vals[gv];
+                        if (vals[gv] > maxS) maxS = vals[gv];
+                    }
+                }
+            }
+
             // Заголовок графика зависит от источника данных.
             // Task 292: для dailyMode — «Показания (посуточно)», чтобы
             // явно отличать суточные данные графика от счётчика «За
@@ -41513,8 +41903,21 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 var val = pickValue(r);
                 // Task 224: нормализация по диапазону (val − min) / (max − min) × 100.
                 // Task 226: минимальная высота бара 5%.
+                // Task 436: есть «большие» (≥ 2 × среднего
+                // остальных) — высота по СВОЕЙ группе: малые — в
+                // полосе 0–80% (пол 5% — Task 226), большие — в
+                // полосе 80–100% (равные/единственные — середина
+                // полосы: 40% у малых, 90% у больших)
                 var barPct;
-                if (flat) {
+                if (twoScale && isBig[j]) {
+                    barPct = (minB === maxB)
+                        ? 90
+                        : (80 + ((val - minB) / (maxB - minB)) * 20);
+                } else if (twoScale) {
+                    barPct = (minS === maxS)
+                        ? 40
+                        : Math.max(5, ((val - minS) / (maxS - minS)) * 80);
+                } else if (flat) {
                     barPct = 60; // все значения одинаковы — плоская линия
                 } else {
                     barPct = Math.max(5, ((val - minVal) / range) * 100);
@@ -43468,8 +43871,306 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var agg = this._totalsAgg(
                 this._totalsEffectiveEntries(),
                 this._empTypeMap(this._EMPLOYEES));
-            sheet.innerHTML = this._buildPrintHtml(viewEmps, agg);
-            window.print();
+            var html = this._buildPrintHtml(viewEmps, agg);
+            sheet.innerHTML = html;
+            // Task 430 (заявка: «при печати шахматки табеля, вначале
+            // должно появляться диалоговое окно с предпросмотром и с
+            // возможностью сохранения графика в файл»): кнопка
+            // «Печать» БОЛЬШЕ не печатает сразу — сначала открывает
+            // ДИАЛОГ ПРЕДПРОСМОТРА (белый «бумажный» лист в iframe +
+            // кнопки «Печать»/«Сохранить в файл»/«Отмена»). Диалог
+            // не открылся (нет DOM/iframe — экзотика) — фолбэк
+            // прежнего поведения Task 341: печать сразу
+            var opened = false;
+            try {
+                opened = this._openPrintPreview(html);
+            } catch (e) { opened = false; }
+            if (!opened) window.print();
+        },
+
+        // Task 430: CSS печатного листа текстом — правила из
+        // @media print-блока приложения (единственный блок с
+        // #wsPrintSheet/wsp-*), снятые с обёртки @media: тот же CSS
+        // работает в standalone-документе (предпросмотр-iframe и
+        // сохранённый файл) — вёрстка предпросмотра/файла ГАРАНТИ
+        // РОВАННО совпадает с печатью (@page уходит вместе с
+        // правилами: печать файла из браузера даёт A4 альбомную).
+        // Вне браузера (VM-тесты без styleSheets) — пустая строка
+        _printCssText: function() {
+            if (typeof document === 'undefined' ||
+                !document.styleSheets) return '';
+            var out = '';
+            try {
+                for (var s = 0; s < document.styleSheets.length; s++) {
+                    var rules;
+                    try { rules = document.styleSheets[s].cssRules; }
+                    catch (e) { continue; }
+                    if (!rules) continue;
+                    for (var r = 0; r < rules.length; r++) {
+                        var rule = rules[r];
+                        if (!rule || !rule.media) continue;
+                        var mt = '';
+                        try { mt = rule.media.mediaText; } catch (e) {}
+                        if (!mt || mt.indexOf('print') === -1) continue;
+                        var txt = rule.cssText || '';
+                        if (txt.indexOf('#wsPrintSheet') === -1 ||
+                            txt.indexOf('wsp-grid') === -1) continue;
+                        var i = txt.indexOf('{');
+                        var j = txt.lastIndexOf('}');
+                        if (i !== -1 && j > i) {
+                            out += txt.slice(i + 1, j) + '\n';
+                        }
+                    }
+                }
+            } catch (e) { return out; }
+            return out;
+        },
+
+        // Task 430: standalone-документ печатного листа: экран —
+        // белый лист 281мм (A4 альбомная минус поля 2×8мм) на
+        // подложке (файл) / в притирку к диалогу (iframe), печать
+        // файла — те же @page-правила из _printCssText.
+        // forFile=true — «бумажная» подложка и тень (файл красиво
+        // открывается в браузере), false — предпросмотр в диалоге
+        _buildPrintFileHtml: function(printHtml, forFile) {
+            var months = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                          'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+            var mIdx = Math.min(Math.max(parseInt(this._month, 10) || 1, 1), 12);
+            var title = 'График работы — ' + months[mIdx - 1] + ' ' + this._year +
+                        ' (табель учёта рабочего времени)';
+            var screenCss = forFile
+                ? 'html{background:#566170;}' +
+                  'body{margin:0;padding:6mm 0;display:flex;' +
+                  'justify-content:center;}' +
+                  '#wsPrintSheet{background:#fff;box-shadow:0 1mm 4mm ' +
+                  'rgba(0,0,0,0.45);padding:8mm;width:281mm;}'
+                : 'body{margin:0;padding:0;}' +
+                  '#wsPrintSheet{background:#fff;padding:8mm;width:281mm;}';
+            return '<!DOCTYPE html>\n<html><head>' +
+                '<meta charset="utf-8">' +
+                '<meta name="viewport" content="width=device-width, ' +
+                'initial-scale=1">' +
+                '<title>' + this._esc(title) + '</title>' +
+                '<style>' + screenCss + '\n' + this._printCssText() +
+                '</style></head><body>' +
+                '<div id="wsPrintSheet">' + printHtml + '</div>' +
+                '</body></html>';
+        },
+
+        // Task 430: «Сохранить в файл» диалога предпросмотра —
+        // standalone-HTML печатного листа (с подложкой) в загрузки
+        // браузера; имя — «График_работы_‹Месяц›_‹год›.html»
+        _savePrintFile: function(printHtml) {
+            var months = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                          'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+            var mIdx = Math.min(Math.max(parseInt(this._month, 10) || 1, 1), 12);
+            var name = 'График_работы_' + months[mIdx - 1] + '_' +
+                       this._year + '.html';
+            var html = this._buildPrintFileHtml(printHtml, true);
+            var ok = this._wsDownload(this._wsXlsBytes(html),
+                                      'text/html;charset=utf-8', name);
+            if (typeof KipToast !== 'undefined' && KipToast.show) {
+                KipToast.show(ok
+                    ? ('График сохранён — файл «' + name + '»')
+                    : 'Не удалось сохранить файл графика');
+            }
+        },
+
+        // Task 430: масштаб предпросмотра под окно: лист 1063px
+        // (281мм @96dpi) сжимается transform:scale до ширины тела
+        // диалога; высота «бумаги» = натуральная высота iframe × k
+        // (трансформ не меняет layout-габариты — гасим обёрткой)
+        _wsPrevFit: function() {
+            if (typeof document === 'undefined') return;
+            var overlay = document.getElementById('wsPrintPrevModal');
+            if (!overlay) return;
+            var body = overlay.querySelector('.wspprev-body');
+            var paper = overlay.querySelector('.wspprev-paper');
+            var frame = overlay.querySelector('.wspprev-frame');
+            if (!body || !paper || !frame) return;
+            var W = 1063;
+            var avail = (body.clientWidth || 0) - 28;
+            if (!(avail > 0)) avail = W;
+            var k = Math.min(1, avail / W);
+            var h = frame._natH || 800;
+            try {
+                frame.style.transformOrigin = 'top left';
+                frame.style.transform = 'scale(' + k + ')';
+                paper.style.width = Math.round(W * k) + 'px';
+                paper.style.height = Math.round(h * k) + 'px';
+            } catch (e) { /* моки без style — тихо */ }
+        },
+
+        // Task 430: закрыть диалог предпросмотра — снять слушатели
+        // окна, удалить элемент из <body>
+        _closePrintPreview: function() {
+            if (typeof window !== 'undefined' && window.removeEventListener) {
+                if (this._wsPrevEsc) {
+                    try { window.removeEventListener('keydown',
+                                                    this._wsPrevEsc); }
+                    catch (e) {}
+                }
+                if (this._wsPrevResize) {
+                    try { window.removeEventListener('resize',
+                                                    this._wsPrevResize); }
+                    catch (e) {}
+                }
+            }
+            this._wsPrevEsc = null;
+            this._wsPrevResize = null;
+            this._wsPrevFrame = null;
+            if (typeof document === 'undefined' ||
+                !document.getElementById) return;
+            var overlay = document.getElementById('wsPrintPrevModal');
+            if (overlay && overlay.parentNode &&
+                overlay.parentNode.removeChild) {
+                try { overlay.parentNode.removeChild(overlay); }
+                catch (e) {}
+            }
+        },
+
+        // Task 430: ДИАЛОГ ПРЕДПРОСМОТРА ПЕЧАТИ. Строится в <body>
+        // (динамически, id wsPrintPrevModal — как печатный лист
+        // Task 341): шапка (заголовок + месяц/год + ✕), тело —
+        // iframe со standalone-документом печатного листа (тот же
+        // HTML, что в #wsPrintSheet: предпросмотр = печать),
+        // масштаб под окно; низ — «Печать» (window.print() ОСНОВНОГО
+        // документа: @media print скрывает всё кроме #wsPrintSheet —
+        // диалог тоже, поэтому его можно не закрывать), «Сохранить
+        // в файл» (standalone-HTML в загрузки), «Отмена». Esc и
+        // клик по затемнению закрывают. Возвращает true при успехе;
+        // false — без DOM (фолбэк printGrid: печать сразу)
+        _openPrintPreview: function(printHtml) {
+            if (typeof document === 'undefined' ||
+                !document.createElement || !document.body ||
+                !document.body.appendChild) {
+                return false;
+            }
+            var self = this;
+            this._closePrintPreview();
+            var months = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                          'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+            var mIdx = Math.min(Math.max(parseInt(this._month, 10) || 1, 1), 12);
+
+            var overlay = document.createElement('div');
+            overlay.id = 'wsPrintPrevModal';
+            overlay.className = 'wspprev-overlay';
+            if (overlay.addEventListener) {
+                overlay.addEventListener('click', function(ev) {
+                    if (ev && ev.target === overlay) {
+                        self._closePrintPreview();
+                    }
+                });
+            }
+
+            var dlg = document.createElement('div');
+            dlg.className = 'wspprev-dialog';
+
+            var head = document.createElement('div');
+            head.className = 'wspprev-head';
+            head.innerHTML = '<span class="wspprev-title">Предпросмотр ' +
+                             'печати</span>' +
+                             '<span class="wspprev-sub">График работы — ' +
+                             this._esc(months[mIdx - 1]) + ' ' + this._year +
+                             ' г.</span>';
+            var closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.className = 'wspprev-close';
+            if (closeBtn.setAttribute) {
+                closeBtn.setAttribute('aria-label', 'Закрыть предпросмотр');
+            }
+            closeBtn.innerHTML = '✕';
+            if (closeBtn.addEventListener) {
+                closeBtn.addEventListener('click', function() {
+                    self._closePrintPreview();
+                });
+            }
+            head.appendChild(closeBtn);
+
+            var body = document.createElement('div');
+            body.className = 'wspprev-body';
+            var paper = document.createElement('div');
+            paper.className = 'wspprev-paper';
+            var frame = document.createElement('iframe');
+            frame.className = 'wspprev-frame';
+            if (frame.setAttribute) {
+                frame.setAttribute('title', 'Предпросмотр печатного листа');
+            }
+            frame.style.height = '800px';
+            frame._natH = 800;
+            paper.appendChild(frame);
+            body.appendChild(paper);
+
+            var foot = document.createElement('div');
+            foot.className = 'wspprev-foot';
+            foot.innerHTML =
+                '<button type="button" class="wspprev-btn wspprev-print">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V6z" fill="currentColor"/></svg>' +
+                'Печать</button>' +
+                '<button type="button" class="wspprev-btn wspprev-save">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>' +
+                'Сохранить в файл</button>' +
+                '<button type="button" class="wspprev-btn ' +
+                'wspprev-cancel">Отмена</button>' +
+                '<span class="wspprev-hint">A4 · альбомная</span>';
+
+            dlg.appendChild(head);
+            dlg.appendChild(body);
+            dlg.appendChild(foot);
+            overlay.appendChild(dlg);
+            document.body.appendChild(overlay);
+            this._wsPrevFrame = frame;
+
+            // содержимое iframe: standalone-документ листа. Слушатель
+            // load — ДО srcdoc (иначе событие теряется); высота — по
+            // scrollHeight содержимого, затем масштаб под окно
+            if (frame.addEventListener) {
+                frame.addEventListener('load', function() {
+                    var h = 0;
+                    try {
+                        var doc = frame.contentDocument;
+                        if (doc && doc.documentElement) {
+                            h = doc.documentElement.scrollHeight;
+                        }
+                    } catch (e) { h = 0; }
+                    frame._natH = (h > 200) ? h : 800;
+                    try { frame.style.height = frame._natH + 'px'; }
+                    catch (e2) {}
+                    self._wsPrevFit();
+                });
+            }
+            frame.srcdoc = this._buildPrintFileHtml(printHtml, false);
+            this._wsPrevFit();
+
+            var printBtn = foot.querySelector('.wspprev-print');
+            var saveBtn = foot.querySelector('.wspprev-save');
+            var cancelBtn = foot.querySelector('.wspprev-cancel');
+            if (printBtn && printBtn.addEventListener) {
+                printBtn.addEventListener('click', function() {
+                    try { window.print(); } catch (e) {}
+                });
+            }
+            if (saveBtn && saveBtn.addEventListener) {
+                saveBtn.addEventListener('click', function() {
+                    self._savePrintFile(printHtml);
+                });
+            }
+            if (cancelBtn && cancelBtn.addEventListener) {
+                cancelBtn.addEventListener('click', function() {
+                    self._closePrintPreview();
+                });
+            }
+
+            // Esc — закрыть; resize — перемасштабировать
+            this._wsPrevEsc = function(ev) {
+                if (ev && ev.key === 'Escape') self._closePrintPreview();
+            };
+            this._wsPrevResize = function() { self._wsPrevFit(); };
+            if (typeof window !== 'undefined' && window.addEventListener) {
+                window.addEventListener('keydown', this._wsPrevEsc);
+                window.addEventListener('resize', this._wsPrevResize);
+            }
+            return true;
         },
 
         // Task 341: HTML печатного листа (светлая «бумажная» вёрстка,
@@ -43745,11 +44446,20 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             for (var fi = 0; fi < evEmps.length; fi++) {
                 fioIdx[evEmps[fi]['таб_номер']] = evEmps[fi]['ФИО'];
             }
-            // Task 364 (заявка: «коды под графиком на печати
-            // размести в столбик справа от столбика мероприятий»):
-            // обёртка wsp-bottom — мероприятия и коды в ОДНОМ РЯДУ
-            // (мероприятия слева, коды справа; CSS @media print),
-            // сноска wsp-foot — ниже обёртки на всю ширину листа
+            // Task 364: обёртка wsp-bottom — мероприятия и коды
+            // под таблицей, сноска wsp-foot — ниже на всю ширину
+            // листа.
+            // Task 433 (заявка: «расположение кодов в печати верни
+            // обратно, я имел в виду, что бы правая часть блока
+            // растянулась вправо до конца листа, и если текст не
+            // будет вмещаться в одну строку, тогда переносить его на
+            // следующую строку»): нижняя секция снова ВЕРТИКАЛЬНАЯ
+            // (флоат Task 432 и flex-ряд Task 364–431 сняты):
+            // ПЕРВЫМ в DOM — список мероприятий (записи-блоки
+            // [точка][дата][текст], текст растянут до конца листа,
+            // перенос — только когда не вмещается в одну строку),
+            // ВТОРЫМ — коды ЕДИНОЙ СТРОКОЙ-АБЗАЦЕМ «Коды: …»
+            // (исходное расположение до Task 360), сноска — ниже
             html += '<div class="wsp-bottom">';
             html += '<div class="wsp-mev"><span class="wsp-mev-t">' +
                     'Мероприятия · ' + monthsNom[this._month - 1] + ' ' + this._year +
@@ -43786,6 +44496,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                              // «Список_И_и_ПЗ»), нет — полное
                              (this._instrShortOf(ev['тема']) || evMeta.name || '—') +
                              ' · ' + evFio;
+                // Task 433: запись-«блок» [точка][дата][текст]:
+                // правая часть (текст) растянута до конца листа
+                // (.wsp-mev-text flex:1), перенос — только когда
+                // текст не вмещается в одну строку
                 html += '<span class="wsp-mev-item">' +
                         '<i style="background:' + (evMeta.color || '#3a3a3a') + ';"></i>' +
                         '<b class="wsp-mev-date">' + this._esc(evRange) + '</b>' +
@@ -43793,21 +44507,26 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         '</span>';
             }
             html += '</div>';
-
             // Task 360 (заявка: «а под списком, в один столбик
             // перечень кодов с их наименованием только которые есть
             // в этом месяце»): в печать идут ТОЛЬКО коды,
             // ПРИСУТСТВУЮЩИЕ в этом месяце (usedCodes — эффективные
-            // записи печатаемых строк, см. выше), КАЖДЫЙ КОД
-            // ОТДЕЛЬНОЙ СТРОКОЙ (один столбик; прежде — весь
-            // справочник в одну строку). Порядок — справочник
-            // _STATUS_CODES (единственный источник имён);
+            // записи печатаемых строк, см. выше). Порядок —
+            // справочник _STATUS_CODES (единственный источник имён);
             // легаси-код, удалённый из справочника, попадает в
-            // конец без цвета и имени (только код). Task 364:
-            // столбик кодов — ПРАВАЯ колонка ряда wsp-bottom
-            // (слева — мероприятия), а не секция под списком
+            // конец без цвета и имени (только код).
+            // Task 433 (заявка: «расположение кодов в печати верни
+            // обратно»): ВЕРНУЛИ ИСХОДНУЮ ФОРМУ «в одну строку"
+            // (как до Task 360; столбик Task 360–431 и флоат Task 432
+            // сняты). Task 434 (заявка: «коды на печати сделать в
+            // две колонки под названием "Коды:""): заголовок —
+            // ОТДЕЛЬНОЙ строкой, под ним ДВЕ КОЛОНКИ
+            // (.wsp-legend-cols, grid 1fr 1fr) на всю ширину листа:
+            // каждый код — своя строка колонки, длинное название
+            // переносится ВНУТРИ своей колонки (запись не рвётся)
             var codes = this._STATUS_CODES || [];
-            html += '<div class="wsp-legend"><span class="wsp-legend-t">Коды:</span>';
+            html += '<div class="wsp-legend"><span class="wsp-legend-t">Коды:</span>' +
+                    '<div class="wsp-legend-cols">';
             for (var ci = 0; ci < codes.length; ci++) {
                 // Task 387: «.» в данных = выходной — раскрывается
                 // строкой «Выходного» (пустой код) БЕЗ кода-символа
@@ -43840,7 +44559,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             for (var li = 0; li < legacy.length; li++) {
                 html += '<span class="wsp-lg">' + this._esc(legacy[li]) + '</span>';
             }
-            html += '</div></div>';
+            // Task 434: закрытие ДВУХ уровней — сетка-колонки
+            // .wsp-legend-cols и сама легенда .wsp-legend
+            html += '</div>';
+            html += '</div>';
+            html += '</div>';
             html += '<div class="wsp-foot">* — сокращённый предпраздничный рабочий день; ' +
                     'пунктирная рамка ячейки — плановый отпуск (записи ещё нет); ' +
                     'красная точка — переработка; значок в углу ячейки — ' +
@@ -44209,6 +44932,76 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 }
             }
             return t;
+        },
+
+        // Task 434 (заявка: «в картах работников, в блоке профиля,
+        // после знака группы указывать дату последней выполненной
+        // проверке знаний до 1000В, в формате "от дд.мм.гггг"»):
+        // самая поздняя дата ВЫПОЛНЕННОЙ записи «Проверка знаний …
+        // до 1000 В» работника — по пулу «Инструктажей» ВСЕХ лет
+        // (_INSTR_ALL + годовой срез _TRAININGS старого сервера).
+        // Критерии записи: работник совпадает, тип — проверка_знаний
+        // (нормализация как в _isInstrType), тема пункта содержит
+        // «до 1000 В» (толерантно к пробелам/регистру — «до 1000В»),
+        // отметка «выполнение» = 1 (невыполненные и просроченные
+        // не считаются); дата — «дата_проведения» нормализованного
+        // листа, фолбэк «дата_начала» (легаси-записи). Пустая строка
+        // — выполненной проверки нет (в профиле дата не показывается).
+        // Пул «Мероприятий» (_EVENTS_ALL) НЕ сканируется — разделы
+        // независимы (Task 429)
+        _lastExam1000Date: function(tabNo) {
+            tabNo = String(tabNo);
+            if (!tabNo) return '';
+            var pool = (this._INSTR_ALL || []).concat(this._TRAININGS || []);
+            var best = '';
+            for (var i = 0; i < pool.length; i++) {
+                var r = pool[i];
+                if (String(r['таб_номер']) !== tabNo) continue;
+                var tNorm = String(r.тип || '').trim().toLowerCase()
+                                       .replace(/\s+/g, '_');
+                if (tNorm !== 'проверка_знаний') continue;
+                if (parseInt(r.выполнение, 10) !== 1) continue;
+                if (!/до\s*1000\s*в/i.test(String(r.тема || ''))) continue;
+                var d = String(r.дата_проведения || r.дата_начала || '');
+                if (!d) continue;
+                if (d > best) best = d;
+            }
+            return best;
+        },
+
+        // Task 434 (заявка: «в картах работников, в блоке профиля,
+        // после знака группы указывать дату последней выполненной
+        // проверке знаний до 1000В, в формате "от дд.мм.гггг"»):
+        // самая поздняя дата ВЫПОЛНЕННОЙ записи «Проверка знаний …
+        // до 1000 В» работника — по пулу «Инструктажей» ВСЕХ лет
+        // (_INSTR_ALL + годовой срез _TRAININGS старого сервера).
+        // Критерии записи: работник совпадает, тип — проверка_знаний
+        // (нормализация как в _isInstrType), тема пункта содержит
+        // «до 1000 В» (толерантно к пробелам/регистру — «до 1000В»),
+        // отметка «выполнение» = 1 (невыполненные и просроченные
+        // не считаются); дата — «дата_проведения» нормализованного
+        // листа, фолбэк «дата_начала» (легаси-записи). Пустая строка
+        // — выполненной проверки нет (в профиле дата не показывается).
+        // Пул «Мероприятий» (_EVENTS_ALL) НЕ сканируется — разделы
+        // независимы (Task 429)
+        _lastExam1000Date: function(tabNo) {
+            tabNo = String(tabNo);
+            if (!tabNo) return '';
+            var pool = (this._INSTR_ALL || []).concat(this._TRAININGS || []);
+            var best = '';
+            for (var i = 0; i < pool.length; i++) {
+                var r = pool[i];
+                if (String(r['таб_номер']) !== tabNo) continue;
+                var tNorm = String(r.тип || '').trim().toLowerCase()
+                                       .replace(/\s+/g, '_');
+                if (tNorm !== 'проверка_знаний') continue;
+                if (parseInt(r.выполнение, 10) !== 1) continue;
+                if (!/до\s*1000\s*в/i.test(String(r.тема || ''))) continue;
+                var d = String(r.дата_проведения || r.дата_начала || '');
+                if (!d) continue;
+                if (d > best) best = d;
+            }
+            return best;
         },
 
         // Task 407: ISO-дата + N месяцев (день клампится к концу
@@ -47800,8 +48593,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var eff = this._effectiveEntry(isoDate, tabNo) || {};
             var current = eff['статус'] || '';
             // Task 260: название праздника/переноса — в заголовке попапа
-            // («2026-05-09 · День Победы · Иванов И. И.»)
-            var popupDate = isoDate;
+            // («09.05.2026 · День Победы · Иванов И. И.»).
+            // Task 434 (заявка: «в окнах мероприятий ячеек табеля дату
+            // — в формате дд.мм.гггг»): окна, открывающиеся кликом по
+            // ячейке, показывают дату ПО-РУССКИ (_fmtDateRu), не ISO
+            var popupDate = this._fmtDateRu(isoDate);
             if (typeof ProdCalendar !== 'undefined' && ProdCalendar.dayInfo) {
                 var pp = String(isoDate).split('-');
                 if (pp.length === 3) {
@@ -47898,7 +48694,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 if (this._EMPLOYEES[j]['таб_номер'] === tabNo) { emp = this._EMPLOYEES[j]; break; }
             }
             var html = '<div class="ws-popup-title">Мероприятия в этот день</div>' +
-                       '<div class="ws-events-sub">' + this._esc(isoDate) + ' · ' +
+                       // Task 434 (заявка: «в окнах мероприятий ячеек
+                       // табеля, дату указывать в формате дд.мм.гггг»):
+                       // подзаголовок окна — дата ПО-РУССКИ (прежде ISO)
+                       '<div class="ws-events-sub">' +
+                       this._esc(this._fmtDateRu(isoDate)) + ' · ' +
                        this._esc(emp ? emp['ФИО'] : 'таб. №' + tabNo) + '</div>';
             var dayEvents = this._eventsAt(isoDate, tabNo);
             if (!dayEvents.length) {
@@ -48334,13 +49134,26 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // остаются в шторке добавления и на сервере — в карточке
             // не показываются); Task 311 также снят заголовок-строка
             // «Сотрудник» — профиль идёт сразу после шапки ФИО
+            // Task 434 (заявка): ПОСЛЕ ЗНАКА ГРУППЫ — дата последней
+            // ВЫПОЛНЕННОЙ «проверки знаний до 1000 В» в формате
+            // «от дд.мм.гггг» («IV от 15.03.2026»): ищет
+            // _lastExam1000Date по записям «Инструктажей» ВСЕХ лет;
+            // нет выполненной проверки — только знак группы, как
+            // прежде; нет группы — «—» без даты
+            var grpVal = String(emp['группа_допуска'] || '').trim();
+            if (grpVal) {
+                var examIso = this._lastExam1000Date(emp['таб_номер']);
+                if (examIso) grpVal += ' от ' + this._fmtDateRu(examIso);
+            }
             var fields = [
                 ['Режим работы', tipVal],
                 ['Должность', String(emp['должность'] || '').trim() || '—'],
                 // Task 402 (заявка): «группа_допуска» — строкой ПОСЛЕ
                 // «Должности» (столбец листа «Сотрудники»; пусто — «—»,
-                // редактируется в шторке «Правка данных…»)
-                ['Группа допуска', String(emp['группа_допуска'] || '').trim() || '—'],
+                // редактируется в шторке «Правка данных…»);
+                // Task 434: после знака группы — дата последней
+                // выполненной проверки знаний до 1000 В («от …»)
+                ['Группа допуска', grpVal || '—'],
                 ['Дата приёма', emp['дата_приёма'] ? this._fmtDateRu(emp['дата_приёма']) : '—'],
                 ['Комментарий', String(emp['комментарий'] || '').trim()]
             ];
@@ -48436,7 +49249,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                                 '<span class="ws-popup-act ws-popup-act-del" title="Удалить период"' +
                                 ' onclick="event.stopPropagation(); WorkSchedule.deleteVacation(' + vId + ')">✕</span>';
                     }
-                    b2 += '<div class="ws-emp-field' +
+                    b2 += '<div class="ws-emp-field ws-emp-vac' +
                           ((asBlocks && vk % 2 === 1) ? ' ws-row-alt' : '') +
                           '"><span class="ws-emp-k">Часть ' +
                           (pNo ? pNo : '—') + '</span><span class="ws-emp-v">' +
@@ -48481,14 +49294,23 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // «‹ год ›» — записи любого года из instrAll/eventsAll
             // (выбранный год хранится по работнику); попап ячейки
             // остаётся за ГОД ШАХМАТКИ
-            var wYear = asBlocks ? this._wtabYearOf(tabNo) : this._year;
-            var wRecs = this._wtabYearRecords(tabNo, wYear);
-            var evs = wRecs.evs, ins = wRecs.ins;
+            // Task 435 (заявка: «эти блоки не должны влиять друг
+            // на друга»): годы блоков «Мероприятия» и «Повторные
+            // инструктажи…» — РАЗДЕЛЬНЫЕ (fam 0 → хранилище
+            // _wtabYear, fam 1 → _wtabYearInstr): стрелки ‹год›
+            // каждого блока меняют ТОЛЬКО свой год, записи — своя
+            // выборка года; попап ячейки (не asBlocks) — год
+            // шахматки, как прежде
+            var wYearEv = asBlocks ? this._wtabYearOf(tabNo, 0) : this._year;
+            var wYearIn = asBlocks ? this._wtabYearOf(tabNo, 1) : this._year;
+            var wRecsEv = this._wtabYearRecords(tabNo, wYearEv);
+            var wRecsIn = this._wtabYearRecords(tabNo, wYearIn);
+            var evs = wRecsEv.evs, ins = wRecsIn.ins;
             // Task 396: шапка блока мероприятий — полоса .ws-whead,
             // кнопка «+ Мероприятие…» — КОМПАКТНАЯ, в правом углу
             var b3 = asBlocks
                 ? '<div class="ws-whead"><div class="ws-whead-t">Мероприятия · ' +
-                  wYear + this._wtabYearNav(tabNo, wYear) + '</div><div class="ws-whead-a">' +
+                  wYearEv + this._wtabYearNav(tabNo, wYearEv, 0) + '</div><div class="ws-whead-a">' +
                   (withEdit ? '<button type="button" class="ws-wbtn ws-emp-addtr"' +
                   ' title="Добавить мероприятие этому работнику"' +
                   ' onclick="WorkSchedule.onEmpAddTraining(\'' +
@@ -48555,7 +49377,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             //     групповой вид — только попап ячейки ---
             var b5 = asBlocks
                 ? '<div class="ws-whead"><div class="ws-whead-t ws-whead-wrap">Повторные инструктажи и периодическая проверка знаний · ' +
-                  wYear + this._wtabYearNav(tabNo, wYear) + '</div><div class="ws-whead-a">' +
+                  wYearIn + this._wtabYearNav(tabNo, wYearIn, 1) + '</div><div class="ws-whead-a">' +
                   (withEdit ? '<button type="button" class="ws-wbtn ws-emp-addins"' +
                   ' title="Добавить инструктаж этому работнику"' +
                   ' onclick="WorkSchedule.onEmpAddInstruction(\'' +
@@ -48574,7 +49396,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // защитная деградация попапа без шаблона
             if (!asBlocks && this._INSTR_LIST && this._INSTR_LIST.length) {
                 b5 += this._renderInstrSection(ins, tabNo, withEdit,
-                                                asBlocks, this._INSTR_LIST, wYear);
+                                                asBlocks, this._INSTR_LIST, wYearIn);
             } else if (!ins.length) {
                 b5 += '<div class="ws-emp-empty">нет инструктажей и проверок знаний за год</div>';
             } else {
@@ -48595,11 +49417,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     var iTrId = parseInt(it.id, 10);
                     // Task 427: семейство записи (id таблиц раздельные)
                     var iTrFam = this._isInstrType(it.тип) ? 1 : 0;
-                    var iActs = '';
+                    // Task 431 (заявка: «кнопку отметки выполнения
+                    // расположи над кнопкой удалить»): галочка и ✕ —
+                    // в вертикальной колонке .ws-act-col в КОНЦЕ строки
+                    // записи. Task 432 (заявка: «кнопку редактировать
+                    // размести справа от кнопки удалить, строго на
+                    // одном уровне»): ✎ — ВНУТРИ колонки, в горизонтальном
+                    // ряду .ws-act-row ПОСЛЕ ✕ (✕✎ на одной линии,
+                    // галочка — над ними, точно над ✕)
+                    var iActEdit = '', iActDel = '';
                     if (withEdit && iTrId) {
-                        iActs = '<span class="ws-popup-act" title="Редактировать"' +
-                                ' onclick="event.stopPropagation(); WorkSchedule.editTraining(' + iTrId + ', ' + iTrFam + ')">✎</span>' +
-                                '<span class="ws-popup-act ws-popup-act-del" title="Удалить"' +
+                        iActEdit = '<span class="ws-popup-act" title="Редактировать"' +
+                                ' onclick="event.stopPropagation(); WorkSchedule.editTraining(' + iTrId + ', ' + iTrFam + ')">✎</span>';
+                        iActDel = '<span class="ws-popup-act ws-popup-act-del" title="Удалить"' +
                                 ' onclick="event.stopPropagation(); WorkSchedule.deleteTraining(' + iTrId + ', ' + iTrFam + ')">✕</span>';
                     }
                     var iPeriod = (it.дата_начала === it.дата_окончания)
@@ -48637,6 +49467,28 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         iChk = '<span class="ws-done-chk ws-done-on ws-done-ro"' +
                                ' title="Выполнено">✓</span>';
                     }
+                    // Task 432: КОНЕЦ строки — карточка: колонка
+                    // .ws-act-col: галочка НАД горизонтальным рядом
+                    // .ws-act-row кнопок ✎/✕, строго на одном
+                    // уровне (у зрителей — одна галочка состояния;
+                    // записи без id — без колонки); попап ячейки —
+                    // прежний горизонтальный порядок ✎/✕ (галочки в
+                    // попапе нет — Task 418).
+                    // Task 433 (заявка: «кнопки редактировать и
+                    // удалить в блоке инструктажей поменяй местами»):
+                    // в ряду ПОРЯДОК ОБРАТНЫЙ Task 432 — СНАЧАЛА ✎
+                    // (редактировать), ПОТОМ ✕ (удалить)
+                    var iRowEnd;
+                    if (asBlocks) {
+                        var iActRow = (iActDel || iActEdit)
+                            ? '<span class="ws-act-row">' + iActEdit + iActDel + '</span>'
+                            : '';
+                        iRowEnd = ((iChk || iActRow)
+                            ? '<span class="ws-act-col">' + iChk + iActRow + '</span>'
+                            : '');
+                    } else {
+                        iRowEnd = iActEdit + iActDel;
+                    }
                     b5 += '<div class="ws-popup-row ws-popup-event' +
                           ((asBlocks && ik % 2 === 1) ? ' ws-row-alt' : '') +
                           (iDone ? ' ws-row-done' : '') + '">' +
@@ -48650,7 +49502,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                           // месяца, печати табеля)
                           this._esc(it.тема || iMeta.name || it.тип) +
                           ' · ' + iPeriod + '</span>' +
-                          iLateTag + iChk + iActs + '</div>';
+                          iLateTag + iRowEnd + '</div>';
                 }
             }
             // «+ Инструктаж…» — шторка «Новое мероприятие» с работником
@@ -48799,8 +49651,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // Снимок: «последний» и «след. срок» считаются по записям
         // ДО КОНЦА выбранного года; архивный год — нейтральная
         // строка срока, без красного «просрочено»
-        _wtabYearOf: function(tabNo) {
-            var y = this._wtabYear && this._wtabYear[String(tabNo)];
+        // Task 435: fam 1 — год блока «Повторные инструктажи…»
+        // (хранилище _wtabYearInstr), fam 0/не задан — год блока
+        // «Мероприятия» (хранилище _wtabYear, прежнее поведение)
+        _wtabYearOf: function(tabNo, fam) {
+            var store = (fam === 1) ? this._wtabYearInstr : this._wtabYear;
+            var y = store && store[String(tabNo)];
             y = parseInt(y, 10);
             if (y && y >= 1900 && y <= 2999) return y;
             return this._year || new Date().getFullYear();
@@ -48808,15 +49664,22 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
         // нижняя граница навигации — самый ранний год записи
         // работника (instrAll/eventsAll/срез года табеля); записей
-        // нет — год шахматки
-        _wtabYearMin: function(tabNo) {
+        // нет — год шахматки. Task 435: fam 1 — граница ТОЛЬКО по
+        // записям инструктажей, fam 0 — только по мероприятиям
+        // (стрелки блока не зависят от записей чужого раздела);
+        // fam не задан — по всем записям (попап, прежнее поведение)
+        _wtabYearMin: function(tabNo, fam) {
             tabNo = String(tabNo);
+            var famFilter = (fam === 0 || fam === 1);
+            var wantInstr = (fam === 1);
             var min = null;
             var pools = [this._INSTR_ALL, this._EVENTS_ALL, this._TRAININGS];
             for (var p = 0; p < pools.length; p++) {
                 var arr = pools[p] || [];
                 for (var i = 0; i < arr.length; i++) {
                     if (String(arr[i]['таб_номер']) !== tabNo) continue;
+                    if (famFilter &&
+                        (this._isInstrType(arr[i].тип) !== wantInstr)) continue;
                     var s = String(arr[i].дата_начала || '');
                     if (s.length >= 4) {
                         var y = parseInt(s.slice(0, 4), 10);
@@ -48831,36 +49694,46 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // «Работники»; границы клампятся (раньше записей нельзя,
         // выше максимума(текущий; год табеля) нельзя); возврат к
         // году табеля снимает персональный выбор
-        _wtabYearShift: function(tabNo, delta) {
+        // Task 435: fam 1 — меняется год ТОЛЬКО блока инструктажей
+        // (хранилище _wtabYearInstr), fam 0/не задан — только
+        // блока мероприятий (_wtabYear): второй блок сохраняет
+        // свой год
+        _wtabYearShift: function(tabNo, delta, fam) {
             tabNo = String(tabNo);
             var now = new Date().getFullYear();
-            var y = this._wtabYearOf(tabNo) + (delta || 0);
-            var min = this._wtabYearMin(tabNo);
+            var y = this._wtabYearOf(tabNo, fam) + (delta || 0);
+            var min = this._wtabYearMin(tabNo, fam);
             var max = Math.max(now, this._year || now);
             if (y < min) y = min;
             if (y > max) y = max;
-            if (!this._wtabYear) this._wtabYear = {};
-            if (y === (this._year || now)) delete this._wtabYear[tabNo];
-            else this._wtabYear[tabNo] = y;
+            var store = (fam === 1) ? '_wtabYearInstr' : '_wtabYear';
+            if (!this[store]) this[store] = {};
+            if (y === (this._year || now)) delete this[store][tabNo];
+            else this[store][tabNo] = y;
             this._renderWorkersPage();
         },
 
         // навигатор «‹ ›» для заголовка блока карточки (год стоит
         // перед ним текстом; только asBlocks — страница «Работники»);
         // на границах — приглушённые стрелки без клика
-        _wtabYearNav: function(tabNo, year) {
-            var min = this._wtabYearMin(tabNo);
+        // Task 435: fam 1 — навигатор блока инструктажей (клик
+        // передаёт третий аргумент 1), fam 0/не задан — блока
+        // мероприятий (прежняя сигнатура клика, без третьего
+        // аргумента); минимум — по записям СВОЕГО раздела
+        _wtabYearNav: function(tabNo, year, fam) {
+            var min = this._wtabYearMin(tabNo, fam);
             var now = new Date().getFullYear();
             var max = Math.max(now, this._year || now);
+            var famArg = (fam === 1) ? ', 1' : '';
             var left = (year > min)
                 ? '<span class="ws-ynav-btn" role="button" title="Предыдущий год"' +
                   ' onclick="event.stopPropagation(); WorkSchedule._wtabYearShift(\'' +
-                  this._esc(String(tabNo)) + '\', -1)">‹</span>'
+                  this._esc(String(tabNo)) + '\', -1' + famArg + ')">‹</span>'
                 : '<span class="ws-ynav-btn ws-ynav-off">‹</span>';
             var right = (year < max)
                 ? '<span class="ws-ynav-btn" role="button" title="Следующий год"' +
                   ' onclick="event.stopPropagation(); WorkSchedule._wtabYearShift(\'' +
-                  this._esc(String(tabNo)) + '\', 1)">›</span>'
+                  this._esc(String(tabNo)) + '\', 1' + famArg + ')">›</span>'
                 : '<span class="ws-ynav-btn ws-ynav-off">›</span>';
             return '<span class="ws-ynav">' + left + right + '</span>';
         },
@@ -49139,8 +50012,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // сеткой — _renderWorkersIfOpen)
         _workersTab: 'general',
         // Task 408: выбранный ГОД блоков карточки по работникам
-        // (стрелки ‹год›; не выбран — год шахматки)
+        // (стрелки ‹год›; не выбран — год шахматки). Task 435: годы
+        // блоков РАЗДЕЛЬНЫЕ — «Мероприятия» (_wtabYear, fam 0) и
+        // «Повторные инструктажи…» (_wtabYearInstr, fam 1) не
+        // влияют друг на друга
         _wtabYear: {},
+        _wtabYearInstr: {},
 
         // клик по ярлыку вкладки (inline onclick ярлыка): выбор
         // вкладки + перерисовка страницы
@@ -49321,9 +50198,18 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // СКОБОК — «Работников на текущий момент 12 (2 мастера,
             // 5 дневных, 5 сменных).» (заявка: «12 без скобок»)
             var totalN = masterN + dayN + shiftN;
+            // Task 430 (заявка): «Сохранить архив» — вторая кнопка
+            // действий шапки (контурная): выгрузка архива по всем
+            // работникам в Excel (фича просмотра — видна уровням
+            // edit И view, как «Печать»; контейнер .ws-wgen-actions
+            // держит кнопки шапки рядом, flex-wrap шапки переносит
+            // их вместе)
+            var archBtn = '<button type="button" id="wsWorkersArchiveBtn" class="ws-workers-archive" onclick="WorkSchedule.saveWorkersArchive()" aria-label="Сохранить архив по работникам в Excel" title="Весь архив по работникам (инструктажи + мероприятия, все годы) — файл Excel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z" fill="currentColor"/></svg>Сохранить архив</button>';
             var addBtn = this._canEdit
                 ? '<button type="button" id="wsWorkersAddBtn" class="ws-workers-add" onclick="WorkSchedule.openEmployeeForm()" aria-label="Добавить работника">Добавить работника</button>'
                 : '';
+            var actionsHtml = '<div class="ws-wgen-actions">' +
+                              archBtn + addBtn + '</div>';
             var html = '<div class="ws-wgen-head"><div class="ws-wgen-info">' +
                        '<span class="ws-wgen-staff">Работников по штату 14 ' +
                        '(2 мастера, 7 дневных, 5 сменных).</span>' +
@@ -49333,7 +50219,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                        dayN + ' ' + this._plural(dayN, ['дневной', 'дневных', 'дневных']) + ', ' +
                        shiftN + ' ' + this._plural(shiftN, ['сменный', 'сменных', 'сменных']) +
                        ').</span>' +
-                       '</div>' + addBtn + '</div>';
+                       '</div>' + actionsHtml + '</div>';
             if (!list.length) {
                 html += '<div class="ws-tt-empty">Нет активных работников — добавьте первого кнопкой «Добавить работника».</div>';
                 return html;
@@ -49383,6 +50269,494 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // Task 390: сноска «Сводка по всем работникам…» удалена
             // (заявка) — категории теперь в шапке сводки
             return html;
+        },
+
+        // ============================================================
+        // Task 430 (заявка: «в общей карте работников добавь кнопку
+        // сохранить архив, при нажатии на которую весь архив по
+        // работникам должен сохраняться в формате таблицы excel»):
+        // ВЫГРУЗКА АРХИВА В .XLSX — ПОЛНОСТЬЮ КЛИЕНТСКАЯ, без
+        // внешних библиотек (PWA работает офлайн). Собственный
+        // мини-писатель XLSX: zip-контейнер (метод STORED, без
+        // сжатия — Office читает), CRC32, листы с inline-строками
+        // (не sharedStrings — меньше файлов), шапки жирным на синем
+        // (styles.xml с 2 cellXfs), ширины колонок, закреплённая
+        // строка заголовков. Данные — уже загруженные пулы карточки:
+        // _EMPLOYEES (справочник) + _INSTR_ALL (все «Инструктажи»,
+        // Task 407) + _EVENTS_ALL (все «Мероприятия», Task 408) +
+        // годовой срез _TRAININGS (старый сервер без eventsAll);
+        // дедуп — по СЕМЕЙСТВУ типа (Task 427: i+id / e+id), как
+        // в _wtabYearRecords. КНИГА = ТРИ листа (независимые разделы
+        // — по правилу Task 429 раздельно):
+        //   1) «Работники» — справочник (таб/ФИО/тип/смена/
+        //      должность/группа допуска/дата приёма);
+        //   2) «Инструктажи» — ВСЕ записи всех лет (+дата проведения/
+        //      выполнение/просрочен, Task 418);
+        //   3) «Мероприятия» — ВСЕ записи всех лет (период/
+        //      длительность).
+        // Записи без id и без даты — пропускаются (мусорные строки
+        // листа не читаются сервером). VM-тесты зовут
+        // _workersArchiveData/_buildArchiveWorkbook напрямую —
+        // DOM не нужен; скачивание — _wsDownload (document/BLob
+        // под защитой typeof)
+        // ============================================================
+
+        // UTF-8 байты строки (TextEncoder; фолбэк unescape для
+        // окружений без TextEncoder — старые Safari/VM-тесты)
+        _wsXlsBytes: function(s) {
+            s = String(s == null ? '' : s);
+            if (typeof TextEncoder !== 'undefined') {
+                return new TextEncoder().encode(s);
+            }
+            var b = [], s2 = unescape(encodeURIComponent(s));
+            for (var i = 0; i < s2.length; i++) b.push(s2.charCodeAt(i) & 0xff);
+            return new Uint8Array(b);
+        },
+
+        // CRC32 (полином 0xEDB88320, таблица кэшируется)
+        _wsXlsCrc32: function(bytes) {
+            if (!this._wsXlsCrcTab) {
+                var t = [];
+                for (var n = 0; n < 256; n++) {
+                    var c = n;
+                    for (var k = 0; k < 8; k++) {
+                        c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                    }
+                    t[n] = c >>> 0;
+                }
+                this._wsXlsCrcTab = t;
+            }
+            var crc = 0xFFFFFFFF;
+            for (var i = 0; i < bytes.length; i++) {
+                crc = (crc >>> 8) ^ this._wsXlsCrcTab[(crc ^ bytes[i]) & 0xFF];
+            }
+            return (crc ^ 0xFFFFFFFF) >>> 0;
+        },
+
+        // ZIP-контейнер, метод STORED (без сжатия): локальные
+        // заголовки + данные + центральный каталог + EOCD. Имена
+        // помечены флагом UTF-8 (0x0800) — кириллица не нужна (все
+        // имена ASCII), но флаг безвреден и честен
+        _wsXlsZip: function(files) {
+            var chunks = [], central = [], offset = 0;
+            var now = new Date();
+            var dosTime = ((now.getHours() << 11) |
+                           (now.getMinutes() << 5) | (now.getSeconds() >> 1)) & 0xffff;
+            var dosDate = (((now.getFullYear() - 1980) << 9) |
+                          ((now.getMonth() + 1) << 5) | now.getDate()) & 0xffff;
+            for (var f = 0; f < files.length; f++) {
+                var name = this._wsXlsBytes(files[f].name);
+                var data = files[f].data;
+                var crc = this._wsXlsCrc32(data);
+                var lh = new Uint8Array(30 + name.length);
+                var dv = new DataView(lh.buffer);
+                dv.setUint32(0, 0x04034b50, true);   // PK\x03\x04
+                dv.setUint16(4, 20, true);            // version needed
+                dv.setUint16(6, 0x0800, true);        // UTF-8 flag
+                dv.setUint16(8, 0, true);            // method: stored
+                dv.setUint16(10, dosTime, true);
+                dv.setUint16(12, dosDate, true);
+                dv.setUint32(14, crc, true);
+                dv.setUint32(18, data.length, true);
+                dv.setUint32(22, data.length, true);
+                dv.setUint16(26, name.length, true);
+                dv.setUint16(28, 0, true);            // extra len
+                lh.set(name, 30);
+                chunks.push(lh, data);
+                var ch = new Uint8Array(46 + name.length);
+                var cv = new DataView(ch.buffer);
+                cv.setUint32(0, 0x02014b50, true);     // PK\x01\x02
+                cv.setUint16(4, 20, true);             // version made by
+                cv.setUint16(6, 20, true);             // version needed
+                cv.setUint16(8, 0x0800, true);
+                cv.setUint16(10, 0, true);
+                cv.setUint16(12, dosTime, true);
+                cv.setUint16(14, dosDate, true);
+                cv.setUint32(16, crc, true);
+                cv.setUint32(20, data.length, true);
+                cv.setUint32(24, data.length, true);
+                cv.setUint16(28, name.length, true);
+                // extra/comment/disk/attrs — нули по умолчанию
+                cv.setUint32(42, offset, true);        // offset лок. заголовка
+                ch.set(name, 46);
+                central.push(ch);
+                offset += lh.length + data.length;
+            }
+            var centralSize = 0;
+            for (var c = 0; c < central.length; c++) centralSize += central[c].length;
+            var end = new Uint8Array(22);
+            var ev = new DataView(end.buffer);
+            ev.setUint32(0, 0x06054b50, true);         // PK\x05\x06
+            ev.setUint16(8, files.length, true);        // всего записей
+            ev.setUint16(10, files.length, true);
+            ev.setUint32(12, centralSize, true);
+            ev.setUint32(16, offset, true);
+            var total = offset + centralSize + 22;
+            var out = new Uint8Array(total);
+            var pos = 0;
+            var all = chunks.concat(central, [end]);
+            for (var a = 0; a < all.length; a++) {
+                out.set(all[a], pos);
+                pos += all[a].length;
+            }
+            return out;
+        },
+
+        // имя колонки листа: 0→A, 25→Z, 26→AA…
+        _wsXlsColName: function(idx) {
+            var s = '';
+            idx = idx + 1;
+            while (idx > 0) {
+                s = String.fromCharCode(65 + ((idx - 1) % 26)) + s;
+                idx = Math.floor((idx - 1) / 26);
+            }
+            return s;
+        },
+
+        // экранирование XML-текста
+        _wsXlsEsc: function(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        },
+
+        // XML листа: rows — массив строк (массив ячеек; строка =>
+        // inlineStr, число => числовая ячейка); строка 1 — шапка
+        // (стиль s="1": жирный белый на синем); opts: widths —
+        // ширины колонок, freeze — закрепить строк заголовка,
+        // active — tabSelected. Пустые ячейки пропускаются (sparse)
+        _wsXlsSheetXml: function(rows, opts) {
+            opts = opts || {};
+            var maxCol = 0;
+            for (var i = 0; i < (rows || []).length; i++) {
+                if (rows[i].length > maxCol) maxCol = rows[i].length;
+            }
+            var x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+                '<dimension ref="A1:' + this._wsXlsColName(Math.max(maxCol, 1) - 1) +
+                Math.max(rows ? rows.length : 0, 1) + '"/>' +
+                '<sheetViews><sheetView workbookViewId="0"' +
+                (opts.active ? ' tabSelected="1"' : '') + '>' +
+                (opts.freeze
+                    ? '<pane ySplit="' + opts.freeze + '" topLeftCell="A' +
+                      (opts.freeze + 1) + '" activePane="bottomLeft" state="frozen"/>'
+                    : '') +
+                '</sheetView></sheetViews>';
+            if (opts.widths && opts.widths.length) {
+                x += '<cols>';
+                for (var w = 0; w < opts.widths.length; w++) {
+                    x += '<col min="' + (w + 1) + '" max="' + (w + 1) +
+                         '" width="' + opts.widths[w] + '" customWidth="1"/>';
+                }
+                x += '</cols>';
+            }
+            x += '<sheetData>';
+            for (var r = 0; r < (rows || []).length; r++) {
+                var row = rows[r];
+                if (!row.length) continue;
+                x += '<row r="' + (r + 1) + '">';
+                for (var c = 0; c < row.length; c++) {
+                    var v = row[c];
+                    if (v === null || v === undefined || v === '') continue;
+                    var ref = this._wsXlsColName(c) + (r + 1);
+                    var hs = (r === 0) ? ' s="1"' : '';
+                    if (typeof v === 'number' && isFinite(v)) {
+                        x += '<c r="' + ref + '"' + hs + '><v>' + v + '</v></c>';
+                    } else {
+                        var sv = String(v);
+                        var sp = (/^\s|\s$/.test(sv)) ? ' xml:space="preserve"' : '';
+                        x += '<c r="' + ref + '" t="inlineStr"' + hs +
+                             '><is><t' + sp + '>' + this._wsXlsEsc(sv) +
+                             '</t></is></c>';
+                    }
+                }
+                x += '</row>';
+            }
+            x += '</sheetData></worksheet>';
+            return x;
+        },
+
+        // минимальный styles.xml: шрифт Arial 11 (обычный + жирный
+        // белый), заливка шапки #4472C4, cellXf 0 — обычный,
+        // 1 — шапка. Больше таблице не нужно
+        _wsXlsStylesXml: function() {
+            return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+                '<fonts count="2">' +
+                '<font><sz val="11"/><color rgb="FF1B1F24"/><name val="Arial"/></font>' +
+                '<font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Arial"/></font>' +
+                '</fonts>' +
+                '<fills count="3">' +
+                '<fill><patternFill patternType="none"/></fill>' +
+                '<fill><patternFill patternType="gray125"/></fill>' +
+                '<fill><patternFill patternType="solid">' +
+                '<fgColor rgb="FF4472C4"/><bgColor indexed="64"/>' +
+                '</patternFill></fill>' +
+                '</fills>' +
+                '<borders count="1">' +
+                '<border><left/><right/><top/><bottom/><diagonal/></border>' +
+                '</borders>' +
+                '<cellStyleXfs count="1">' +
+                '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>' +
+                '</cellStyleXfs>' +
+                '<cellXfs count="2">' +
+                '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+                '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" ' +
+                'applyFont="1" applyFill="1"/>' +
+                '</cellXfs>' +
+                '<cellStyles count="1">' +
+                '<cellStyle name="Normal" xfId="0" builtinId="0"/>' +
+                '</cellStyles>' +
+                '</styleSheet>';
+        },
+
+        // СБОРКА ДАННЫХ АРХИВА (чистая функция — без DOM, для
+        // VM-тестов): три набора строк (шапка + данные)
+        _workersArchiveData: function() {
+            var list = (this._EMPLOYEES || []).slice().sort(function(a, b) {
+                return String(a['ФИО'] || '').localeCompare(
+                    String(b['ФИО'] || ''), 'ru');
+            });
+            var byTab = {};
+            for (var i = 0; i < list.length; i++) {
+                byTab[String(list[i]['таб_номер'])] = list[i];
+            }
+            var fioOf = function(tab) {
+                var e = byTab[String(tab)];
+                return e ? String(e['ФИО'] || '') : '';
+            };
+            var dateRu = function(iso) {
+                var p = String(iso || '').split('-');
+                return p.length === 3 ? (p[2] + '.' + p[1] + '.' + p[0]) : '';
+            };
+            // единый пул записей (как _wtabYearRecords, но БЕЗ
+            // фильтра года — ВЕСЬ архив всех лет); дедуп по
+            // семейству типа (Task 427: раздельные id листов)
+            var pool = [].concat(this._INSTR_ALL || [],
+                                 this._EVENTS_ALL || [],
+                                 this._TRAININGS || []);
+            var seen = {}, ins = [], evs = [];
+            for (var p = 0; p < pool.length; p++) {
+                var r = pool[p];
+                if (!r) continue;
+                var isInstr = !!this._isInstrType(r.тип);
+                var id = parseInt(r.id, 10);
+                var k = id
+                    ? (isInstr ? 'i' + id : 'e' + id)
+                    : ('t' + String(r['дата_начала'] || '') + '|' +
+                       String(r.тема || ''));
+                if (seen[k]) continue;
+                seen[k] = true;
+                (isInstr ? ins : evs).push(r);
+            }
+            var byDate = function(a, b) {
+                var d = String(a['дата_начала'] || '')
+                    .localeCompare(String(b['дата_начала'] || ''));
+                if (d) return d;
+                return (parseInt(a.id, 10) || 0) - (parseInt(b.id, 10) || 0);
+            };
+            ins.sort(byDate);
+            evs.sort(byDate);
+
+            var employees = [['Таб. №', 'ФИО', 'Тип', 'Смена',
+                              'Должность', 'Группа допуска', 'Дата приёма']];
+            for (var e = 0; e < list.length; e++) {
+                var emp = list[e];
+                var smena = parseInt(emp['смена'], 10);
+                employees.push([
+                    String(emp['таб_номер'] || ''),
+                    String(emp['ФИО'] || ''),
+                    String(emp['тип'] || ''),
+                    (smena >= 1 && smena <= 5) ? smena : '',
+                    String(emp['должность'] || ''),
+                    String(emp['группа_допуска'] || ''),
+                    dateRu(emp['дата_приёма'])
+                ]);
+            }
+
+            var instr = [['id', 'Таб. №', 'ФИО', 'Тип', 'Тема',
+                          'Дата проведения', 'Выполнено', 'Просрочен',
+                          'Комментарий']];
+            for (var n = 0; n < ins.length; n++) {
+                var t = ins[n];
+                instr.push([
+                    parseInt(t.id, 10) || '',
+                    String(t['таб_номер'] || ''),
+                    fioOf(t['таб_номер']),
+                    String(t.тип || ''),
+                    String(t.тема || ''),
+                    dateRu(t['дата_начала']),
+                    (parseInt(t.выполнение, 10) === 1) ? 'да' : 'нет',
+                    (parseInt(t.просрочен, 10) === 1) ? 'да' : 'нет',
+                    String(t.комментарий || '')
+                ]);
+            }
+
+            var events = [['id', 'Таб. №', 'ФИО', 'Тип', 'Тема',
+                           'Дата начала', 'Дата окончания',
+                           'Длительность, дн', 'Комментарий']];
+            for (var v = 0; v < evs.length; v++) {
+                var m = evs[v];
+                events.push([
+                    parseInt(m.id, 10) || '',
+                    String(m['таб_номер'] || ''),
+                    fioOf(m['таб_номер']),
+                    String(m.тип || ''),
+                    String(m.тема || ''),
+                    dateRu(m['дата_начала']),
+                    dateRu(m['дата_окончания'] || m['дата_начала']),
+                    parseInt(m['длительность_дней'], 10) || '',
+                    String(m.комментарий || '')
+                ]);
+            }
+            return { employees: employees, instr: instr, events: events };
+        },
+
+        // КНИГА .xlsx: [Content_Types], rels, workbook, 3 листа,
+        // styles — ZIP (stored) → Uint8Array; имя файла — с датой
+        // выгрузки
+        _buildArchiveWorkbook: function() {
+            var d = this._workersArchiveData();
+            var sheets = [
+                { name: 'Работники', rows: d.employees, active: true,
+                  widths: [9, 32, 12, 8, 36, 15, 14] },
+                { name: 'Инструктажи', rows: d.instr,
+                  widths: [6, 9, 32, 17, 50, 17, 12, 12, 42] },
+                { name: 'Мероприятия', rows: d.events,
+                  widths: [6, 9, 32, 15, 50, 15, 15, 16, 42] }
+            ];
+            var files = [];
+            var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+                '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+                '<Default Extension="xml" ContentType="application/xml"/>' +
+                '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+                '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>';
+            var sheetTags = '', rels = '';
+            for (var i = 0; i < sheets.length; i++) {
+                var part = '/xl/worksheets/sheet' + (i + 1) + '.xml';
+                ct += '<Override PartName="' + part +
+                      '" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
+                sheetTags += '<sheet name="' + this._wsXlsEsc(sheets[i].name) +
+                             '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>';
+                rels += '<Relationship Id="rId' + (i + 1) +
+                        '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"' +
+                        ' Target="worksheets/sheet' + (i + 1) + '.xml"/>';
+                files.push({
+                    name: 'xl/worksheets/sheet' + (i + 1) + '.xml',
+                    data: this._wsXlsBytes(this._wsXlsSheetXml(
+                        sheets[i].rows, { widths: sheets[i].widths,
+                                          freeze: 1, active: sheets[i].active }))
+                });
+            }
+            var relN = sheets.length + 1;
+            rels += '<Relationship Id="rId' + relN +
+                    '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"' +
+                    ' Target="styles.xml"/>';
+            files.push({ name: '[Content_Types].xml',
+                        data: this._wsXlsBytes(ct + '</Types>') });
+            files.push({
+                name: '_rels/.rels',
+                data: this._wsXlsBytes(
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+                    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"' +
+                    ' Target="xl/workbook.xml"/></Relationships>')
+            });
+            files.push({
+                name: 'xl/workbook.xml',
+                data: this._wsXlsBytes(
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"' +
+                    ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+                    '<sheets>' + sheetTags + '</sheets></workbook>')
+            });
+            files.push({
+                name: 'xl/_rels/workbook.xml.rels',
+                data: this._wsXlsBytes(
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+                    rels + '</Relationships>')
+            });
+            files.push({ name: 'xl/styles.xml',
+                         data: this._wsXlsBytes(this._wsXlsStylesXml()) });
+            var now = new Date();
+            var name = 'Архив_по_работникам_' + this._isoDate(now) + '.xlsx';
+            return {
+                name: name,
+                bytes: this._wsXlsZip(files),
+                counts: {
+                    employees: Math.max(0, d.employees.length - 1),
+                    instr: Math.max(0, d.instr.length - 1),
+                    events: Math.max(0, d.events.length - 1)
+                }
+            };
+        },
+
+        // скачивание блоба (общий помощник выгрузок Task 430:
+        // xlsx-архив + html-график); вне браузера (VM) — false
+        _wsDownload: function(bytes, mime, name) {
+            if (typeof document === 'undefined' || typeof Blob === 'undefined' ||
+                typeof URL === 'undefined' || !URL.createObjectURL) {
+                return false;
+            }
+            try {
+                var blob = new Blob([bytes], { type: mime });
+                var url = URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = name;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    try { document.body.removeChild(a); } catch (e) {}
+                    try { URL.revokeObjectURL(url); } catch (e) {}
+                }, 100);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        },
+
+        // КНОПКА «Сохранить архив» (Общая вкладка): собрать книгу,
+        // скачать, тост с составом. Доступ — edit/view (как
+        // «Печать»: страница карточек и так закрыта для null/min)
+        saveWorkersArchive: function() {
+            var lvl = (this._viewLevel === undefined)
+                ? (this._canEdit ? 'edit' : 'view')
+                : this._viewLevel;
+            if (lvl !== 'edit' && lvl !== 'view') return;
+            var wb;
+            try {
+                wb = this._buildArchiveWorkbook();
+            } catch (e) {
+                if (typeof KipToast !== 'undefined' && KipToast.show) {
+                    KipToast.show('Не удалось собрать архив: ' +
+                                  ((e && e.message) ? e.message : String(e)));
+                }
+                return;
+            }
+            var ok = this._wsDownload(
+                wb.bytes,
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                wb.name);
+            if (typeof KipToast !== 'undefined' && KipToast.show) {
+                KipToast.show(ok
+                    ? ('Архив сохранён — «' + wb.name + '»: ' +
+                       wb.counts.employees + ' ' +
+                       this._plural(wb.counts.employees,
+                                    ['работник', 'работника', 'работников']) +
+                       ', ' + wb.counts.instr + ' ' +
+                       this._plural(wb.counts.instr,
+                                    ['инструктаж', 'инструктажа', 'инструктажей']) +
+                       ', ' + wb.counts.events + ' ' +
+                       this._plural(wb.counts.events,
+                                    ['мероприятие', 'мероприятия', 'мероприятий']))
+                    : 'Не удалось сохранить файл архива');
+            }
         },
 
         // Серверная запись по ключу (без pending-наложения)
