@@ -242,12 +242,12 @@ describe('Task 387 — SRC: панель/пояснения/«Выходной»
             'класс-маркер ws-dot-code');
     });
 
-    test('печать: «.» раскрывается строкой «Выходного» без кода', () => {
+    test('печать: слот «Выходного» удалён вместе с легендой (Task 442)', () => {
         const b = methodText(INDEX_SRC, '_buildPrintHtml');
-        assertTrue(b.indexOf("!(codes[ci].code === '' && usedCodes['.'])") !== -1,
-            'фильтр: usedCodes[„."]» раскрывает слот «Выходного»');
-        assertTrue(b.indexOf("this._esc(codes[ci].name || 'Выходной')") !== -1,
-            'строка «Выходного» — имя без кода-символа');
+        assertTrue(b.indexOf("usedCodes['.'])") === -1,
+            'фильтра-раскрытия «.» нет — перечня кодов больше нет (Task 442)');
+        assertTrue(b.indexOf("codes[ci].name || 'Выходной'") === -1,
+            'строки «Выходного» в печати нет');
     });
 });
 
@@ -565,10 +565,10 @@ describe('Task 387 — VM: легенда/попап/select/ширина', () =>
 
 describe('Task 387 — SW', () => {
 
-    test('SW: кэш поднят до kipia-v480', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
-            'CACHE_VERSION = kipia-v480 (Task 387 — фронтенд менялся)');
-        assertFalse(SW_SRC.indexOf('kipia-v481') !== -1,
+    test('SW: кэш поднят до kipia-v481', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v481'") !== -1,
+            'CACHE_VERSION = kipia-v481 (Task 387 — фронтенд менялся)');
+        assertFalse(SW_SRC.indexOf('kipia-v482') !== -1,
             'v616 ещё не существует (guard)');
     });
 });
