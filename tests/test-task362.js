@@ -18,7 +18,7 @@
 //     печататься (баг из заявки); сноска листа ссылается на
 //     перечень выше.
 //
-// SW: kipia-v479.
+// SW: kipia-v480.
 //
 // Запуск: через tests/run-all.js (require './test-task362.js').
 
@@ -113,7 +113,7 @@ function sheetHost(opts) {
             '(dt.getDate() < 10 ? "0" : "") + dt.getDate(); },' +
         '_buildEntryIndex: function() { return ' + JSON.stringify(opts.entries || {}) + '; },' +
         '_PENDING: ' + JSON.stringify(opts.pending || {}) + ',' +
-        '_posLabel: function() { return "Слесарь КИПиА"; },' +
+        '_empTipLine: function() { return "смена №1"; },' +
         '_fmtTotalsNum: function(v) { return String(Math.round((v || 0) * 10) / 10).replace(".", ","); },' +
         '_STATUS_CODES: ' + JSON.stringify(opts.codes || [
             { code: 'Д', name: 'День (12-час)', color: '#FFE082' },
@@ -380,8 +380,8 @@ describe('Task 362 — VM: регресс прежних фич печати', (
     test('VM: шапка/таблица/секции/сноска — всё на месте (сменный вид)', () => {
         var html = sheetHost({ view: 'shift', trainings: TRAININGS })
             ._buildPrintHtml([EMPS[0]], AGG);
-        assertTrue(html.indexOf('График работы — табель учёта рабочего времени') !== -1,
-            'заголовок листа (Task 341)');
+        assertTrue(html.indexOf('<div class="wsp-title">График работы</div>') !== -1,
+            'заголовок листа (Task 341/438)');
         assertTrue(html.indexOf('вид табеля: сменный') !== -1,
             'шапка помечает вид (Task 341)');
         assertTrue(html.indexOf('<table class="wsp-grid">') !== -1, 'таблица');
@@ -390,8 +390,8 @@ describe('Task 362 — VM: регресс прежних фич печати', (
         assertTrue(html.indexOf('<div class="wsp-legend">') !== -1,
             'перечень кодов (Task 360)');
         assertTrue(html.indexOf('wsp-sum') === -1, 'итоговой строки нет (Task 343)');
-        assertTrue(html.indexOf('значок в углу ячейки') !== -1,
-            'сноска о значках (Task 361)');
+        assertTrue(html.indexOf('wsp-foot') === -1,
+            'сноски нет (Task 438)');
     });
 
     test('VM: структура строки мероприятия не изменилась (дата/точка/текст)', () => {
@@ -412,10 +412,10 @@ describe('Task 362 — VM: регресс прежних фич печати', (
 // ============================================================
 describe('Task 362 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v479', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
-            'CACHE_VERSION = kipia-v479 (Task 362 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v480') !== -1,
+    test('SW: кэш поднят до kipia-v480', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+            'CACHE_VERSION = kipia-v480 (Task 362 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v481') !== -1,
             'v605 ещё не существует (лишний инкремент)');
     });
 

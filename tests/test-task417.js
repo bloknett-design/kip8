@@ -288,6 +288,8 @@ describe('Task 417 — VM: карточка — полные названия', 
             methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_renderInstrSection') + ',\n' +
@@ -345,10 +347,10 @@ describe('Task 417 — VM: карточка — полные названия', 
 // 5. SW — версия поднята
 // ============================================================
 describe('Task 417 — SW', () => {
-    test('SW: кэш поднят до kipia-v479', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
-            'CACHE_VERSION = kipia-v479 (Task 417)');
-        assertFalse(SW_SRC.indexOf('kipia-v480') !== -1,
+    test('SW: кэш поднят до kipia-v480', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+            'CACHE_VERSION = kipia-v480 (Task 417)');
+        assertFalse(SW_SRC.indexOf('kipia-v481') !== -1,
             'следующей версии в кэше нет');
     });
 });

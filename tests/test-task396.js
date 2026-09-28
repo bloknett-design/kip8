@@ -251,9 +251,9 @@ describe('Task 396 — SRC: CSS шапок, кнопок и зебры', () => {
             'скругление снято — border-radius: 0 (Task 432)');
     });
 
-    test('SW поднят до kipia-v479', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
-            'SW kipia-v479');
+    test('SW поднят до kipia-v480', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+            'SW kipia-v480');
         assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-test-v623'") === -1,
             'прежней v623 нет');
     });
@@ -307,10 +307,14 @@ function cardHost(withEdit) {
         methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_isInstrType') + ',\n' +
@@ -509,6 +513,8 @@ function pageHost() {
         methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCardPanels') + ',\n' +
@@ -565,9 +571,9 @@ describe('Task 396 — VM: страница «Работники»', () => {
 describe('Task 396 — SW и отсутствие регрессов', () => {
 
     test('SW: v624 — ассерт присутствия, v625 — guard отсутствия', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v479') !== -1,
-            'SW kipia-v479');
-        assertTrue(SW_SRC.indexOf('kipia-v480') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v480') !== -1,
+            'SW kipia-v480');
+        assertTrue(SW_SRC.indexOf('kipia-v481') === -1,
             'v625 ещё не существует (guard)');
     });
 

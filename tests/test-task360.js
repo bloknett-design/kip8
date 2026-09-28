@@ -28,7 +28,7 @@
 //   • CSS @media print: .wsp-mev-item/.wsp-lg — display: block
 //     (один столбик) + page-break-inside: avoid.
 //
-// SW: kipia-v479.
+// SW: kipia-v480.
 //
 // Запуск: через tests/run-all.js (require './test-task360.js').
 
@@ -118,14 +118,15 @@ describe('Task 360 — SRC: секция мероприятий в печати'
             'префикс wsp-ev не используется в секции мероприятий (бейджи ячеек Task 361 — в _printCell)');
     });
 
-    test('SRC: порядок секций — таблица → обёртка(мероприятия→коды) → сноска', () => {
+    test('SRC: порядок секций — таблица → обёртка(мероприятия→коды)', () => {
         const b = stripComments(methodText(WS_CLIENT, '_buildPrintHtml'));
         const iTable = b.indexOf("'</tbody></table>'");
         const iMev = b.indexOf('<div class="wsp-mev">');
         const iLegend = b.indexOf('<div class="wsp-legend">');
         const iFoot = b.indexOf('<div class="wsp-foot">');
-        assertTrue(iTable !== -1 && iMev !== -1 && iLegend !== -1 && iFoot !== -1,
+        assertTrue(iTable !== -1 && iMev !== -1 && iLegend !== -1,
             'все секции на месте');
+        assertTrue(iFoot === -1, 'сноски wsp-foot нет (Task 438)');
         assertTrue(iTable < iMev, 'мероприятия ПОД графиком');
         // Task 433 (заявка: «расположение кодов в печати верни
         // обратно»): нижняя секция снова ВЕРТИКАЛЬНАЯ — список
@@ -133,7 +134,8 @@ describe('Task 360 — SRC: секция мероприятий в печати'
         // (флоат Task 432 строил коды первыми в DOM)
         assertTrue(iMev < iLegend, 'перечень кодов — ПОД списком мероприятий'
             + ' (Task 433: вертикальная секция, флоат снят)');
-        assertTrue(iLegend < iFoot, 'сноска после перечня кодов');
+        // Task 438: сноски после кодов больше нет — лист заканчивается
+        // перечнем кодов
     });
 });
 
@@ -183,7 +185,8 @@ describe('Task 360 — печатный CSS (один столбик)', () => {
     // (Task 361 удлинил блок комментариями/правилами бейджей)
     function printCss() {
         const i = INDEX_SRC.indexOf('@media print');
-        return stripComments(INDEX_SRC.slice(i, i + 13000));
+        // Task 439 удлинил блок (flex-ряд + комментарии) — окно 16000
+        return stripComments(INDEX_SRC.slice(i, i + 16000));
     }
 
     test('SRC: секция .wsp-mev — стили в @media print', () => {
@@ -238,8 +241,8 @@ describe('Task 360 — печатный CSS (один столбик)', () => {
         assertTrue(c !== -1, 'правило сетки .wsp-legend-cols есть');
         const cRule = block.slice(c, block.indexOf('}', c) + 1);
         assertTrue(cRule.indexOf('display: grid') !== -1 &&
-                   cRule.indexOf('grid-template-columns: 1fr 1fr') !== -1,
-            'две равные колонки на всю ширину листа');
+                   cRule.indexOf('grid-template-columns: 1fr') !== -1,
+            'одна колонка на всю ширину блока кодов (Task 441)');
         assertTrue(rule.indexOf('display: block') !== -1,
             'каждый код — своя строка колонки (не инлайн)');
         assertTrue(rule.indexOf('white-space: normal') !== -1,
@@ -276,7 +279,7 @@ describe('Task 360 — VM: список мероприятий месяца', ()
                 '(dt.getDate() < 10 ? "0" : "") + dt.getDate(); },' +
             '_buildEntryIndex: function() { return ' + JSON.stringify(opts.entries || {}) + '; },' +
             '_PENDING: ' + JSON.stringify(opts.pending || {}) + ',' +
-            '_posLabel: function() { return "Слесарь КИПиА"; },' +
+            '_empTipLine: function() { return "смена №1"; },' +
             '_fmtTotalsNum: function(v) { return String(Math.round((v || 0) * 10) / 10).replace(".", ","); },' +
             '_STATUS_CODES: ' + JSON.stringify(opts.codes || [
                 { code: 'Д', name: 'День (12-час)', color: '#FFE082' },
@@ -406,7 +409,7 @@ describe('Task 360 — VM: список мероприятий месяца', ()
             '_isoDate: function(dt) { return "2026-09-01"; },' +
             '_buildEntryIndex: function() { return {}; },' +
             '_PENDING: {},' +
-            '_posLabel: function() { return ""; },' +
+            '_empTipLine: function() { return ""; },' +
             '_fmtTotalsNum: function(v) { return String(v); },' +
             '_STATUS_CODES: [{ code: "Д", name: "День", color: "#FFE082" }],' +
             '_calDayOff: function() { return false; },' +
@@ -442,7 +445,7 @@ describe('Task 360 — VM: перечень кодов месяца', () => {
                 '(dt.getDate() < 10 ? "0" : "") + dt.getDate(); },' +
             '_buildEntryIndex: function() { return ' + JSON.stringify(opts.entries || {}) + '; },' +
             '_PENDING: ' + JSON.stringify(opts.pending || {}) + ',' +
-            '_posLabel: function() { return "Слесарь КИПиА"; },' +
+            '_empTipLine: function() { return "смена №1"; },' +
             '_fmtTotalsNum: function(v) { return String(Math.round((v || 0) * 10) / 10).replace(".", ","); },' +
             '_STATUS_CODES: ' + JSON.stringify(opts.codes || [
                 { code: 'Д', name: 'День (12-час)', color: '#FFE082' },
@@ -573,7 +576,7 @@ describe('Task 360 — регресс прежних фич печати', () =>
                 '(dt.getDate() < 10 ? "0" : "") + dt.getDate(); },' +
             '_buildEntryIndex: function() { return ' + JSON.stringify(opts.entries || {}) + '; },' +
             '_PENDING: ' + JSON.stringify(opts.pending || {}) + ',' +
-            '_posLabel: function() { return "Слесарь КИПиА"; },' +
+            '_empTipLine: function() { return "смена №1"; },' +
             '_fmtTotalsNum: function(v) { return String(Math.round((v || 0) * 10) / 10).replace(".", ","); },' +
             '_STATUS_CODES: ' + JSON.stringify(opts.codes || [
                 { code: 'Д', name: 'День (12-час)', color: '#FFE082' }]) + ',' +
@@ -594,19 +597,17 @@ describe('Task 360 — регресс прежних фич печати', () =>
         var agg = { byTab: { '017': { work: 21, hours: 151.2, over: 12, overDays: 1 } },
                     grand: null };
         var html = sheetHost()._buildPrintHtml(EMPS, agg);
-        assertTrue(html.indexOf('График работы — табель учёта рабочего времени') !== -1,
-            'заголовок листа (Task 341)');
-        assertTrue(html.indexOf('<th class="wsp-tot wsp-tot-over">Перераб.<span>дни/ч</span></th>') !== -1,
-            'колонка «Перераб.» (Task 342)');
-        assertTrue(html.indexOf('<td class="wsp-tot wsp-tot-over">1/12</td>') !== -1,
-            'значение переработки (Task 342)');
+        assertTrue(html.indexOf('<div class="wsp-title">График работы</div>') !== -1,
+            'заголовок листа (Task 341/438)');
+        assertTrue(html.indexOf('<th class="wsp-tot wsp-tot-over">Перераб.<span>дни</span></th>') !== -1,
+            'колонка «Перераб.» (Task 342/438: дни)');
+        assertTrue(html.indexOf('<td class="wsp-tot wsp-tot-over">1</td>') !== -1,
+            'значение переработки — дни (Task 342/438)');
+        assertTrue(html.indexOf('<td class="wsp-tot wsp-tot-over">1/12</td>') === -1,
+            'старый формат «1/12» не печатается (Task 438)');
         assertTrue(html.indexOf('wsp-sum') === -1, 'итоговой строки нет (Task 343)');
-        var iFoot = html.indexOf('<div class="wsp-foot">');
-        var foot = html.slice(iFoot);
-        assertTrue(foot.indexOf('«Перераб.» — дни/часы переработки') !== -1,
-            'сноска поясняет колонку (Task 342/343)');
-        assertTrue(foot.indexOf('мероприятие') !== -1,
-            'сноска упоминает значок мероприятия в углу ячейки (Task 361)');
+        assertTrue(html.indexOf('wsp-foot') === -1,
+            'сноска удалена (Task 438)');
     });
 });
 
@@ -615,10 +616,10 @@ describe('Task 360 — регресс прежних фич печати', () =>
 // ============================================================
 describe('Task 360 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v479', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
-            'CACHE_VERSION = kipia-v479 (Task 360 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v480') !== -1,
+    test('SW: кэш поднят до kipia-v480', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+            'CACHE_VERSION = kipia-v480 (Task 360 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v481') !== -1,
             'v605 ещё не существует (лишний инкремент)');
     });
 });

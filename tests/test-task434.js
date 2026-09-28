@@ -46,7 +46,7 @@
 //      дата_начала; записи других работников не мешают;
 //   8) _renderEventsPopup: подстрока окна — «05.09.2026»,
 //      ISO-даты «2026-09-05» в окне НЕТ.
-//   SW: kipia-v479 (главный), v660 — прежней нет.
+//   SW: kipia-v480 (главный), v660 — прежней нет.
 // ============================================================
 
 const fs = require('fs');
@@ -112,15 +112,19 @@ describe('Task 434 — SRC: печать (коды в две колонки)', (
             'отступ заголовка от сетки кодов');
     });
 
-    test('.wsp-legend-cols — сетка ДВЕ равные колонки', () => {
+    test('.wsp-legend-cols — сетка ОДНА колонка (Task 441)', () => {
         const r = ruleBlock('#wsPrintSheet .wsp-legend-cols {');
         assertTrue(r !== '', 'правило сетки есть');
         assertTrue(r.indexOf('display: grid') !== -1,
             'контейнер — grid');
-        assertTrue(r.indexOf('grid-template-columns: 1fr 1fr') !== -1,
-            'ДВЕ равные колонки на всю ширину листа до конца');
-        assertTrue(r.indexOf('column-gap') !== -1,
-            'горизонтальный зазор между колонками');
+        // Task 441 (заявка: «коды сделай в один столбец»):
+        // ОДНА колонка — прежде ДВЕ равные (Task 434)
+        assertTrue(r.indexOf('grid-template-columns: 1fr') !== -1,
+            'ОДНА колонка на всю ширину блока кодов');
+        assertFalse(r.indexOf('grid-template-columns: 1fr 1fr') !== -1,
+            'две равные колонки Task 434 сняты (Task 441)');
+        assertFalse(r.indexOf('column-gap') !== -1,
+            'column-gap снят — колонок больше нет (Task 441)');
         assertTrue(r.indexOf('row-gap') !== -1,
             'вертикальный зазор между записями');
     });
@@ -150,8 +154,12 @@ describe('Task 434 — SRC: печать (коды в две колонки)', (
             'флоат Task 432 не вернулся');
         assertTrue(r.indexOf('max-width') === -1,
             'кап ширины Task 364 не вернулся');
-        assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
-            'отступ от списка мероприятий (Task 433) жив');
+        // Task 439: коды — ПРАВЫЙ блок ряда (справа от
+        // мероприятий), верхняя линия общая — отступа сверху нет
+        assertTrue(r.indexOf('flex: 0 0 92mm') !== -1,
+            'фиксированная ширина блока кодов (Task 439)');
+        assertTrue(r.indexOf('margin-top: 0') !== -1,
+            'верхняя линия общая с мероприятиями (Task 439)');
         assertTrue(r.indexOf('font-size: 11px') !== -1,
             'шрифт Task 361 (11px) жив');
     });
@@ -172,7 +180,7 @@ describe('Task 434 — SRC: печать (коды в две колонки)', (
         assertTrue(iClose1 !== -1 && iClose2 !== -1 && iClose3 !== -1 &&
                    iClose2 - iClose1 < 200 && iClose3 - iClose2 < 200,
             'закрытия сетки, легенды и обёртки — три последовательных оператора');
-        assertTrue(iClose3 < iFoot, 'сноска — после закрытия обёртки');
+        assertTrue(iFoot === -1, 'сноска wsp-foot удалена (Task 438)');
     });
 
     test('JS: мероприятие — прежний ряд [дата][текст] (регресс 433)', () => {
@@ -258,6 +266,8 @@ describe('Task 434 — VM: карточка (группа + дата прове�
             methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_renderInstrSection') + ',\n' +
@@ -461,9 +471,9 @@ describe('Task 434 — VM: окно «Мероприятия в этот ден�
 // ============================================================
 describe('Task 434 — SW: версия кеша', () => {
     test('v659 (главный), v660 — прежней нет', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
-            'SW кэш kipia-v479');
-        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+            'SW кэш kipia-v480');
+        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v481'") !== -1,
             'v660 ещё не существует (guard следующего бампа)');
     });
 });

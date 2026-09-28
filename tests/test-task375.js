@@ -82,13 +82,16 @@ describe('Task 375 — SRC: печать табеля, коды справа н�
             'флоат-обёртка Task 432 снята');
         assertTrue(r.indexOf('gap: 5mm') === -1,
             'прежний 5mm убран из правила');
-        assertTrue(r.indexOf('gap: 10px') === -1,
-            'зазор 10px между столбиками больше не нужен (столбиков нет)');
+        // Task 440 (заявка: «коды справа от мероприятий на
+        // расстоянии друг от друга 10px»): ряд Task 439 — зазор
+        // между блоками СНОВА ровно 10px (как в Task 375)
+        assertTrue(r.indexOf('gap: 10px') !== -1,
+            'зазор между блоками ряда — ровно 10px (Task 440)');
         const leg = cssRule(INDEX_SRC, '#wsPrintSheet .wsp-legend');
         assertTrue(leg.indexOf('float:') === -1,
-            'коды — не плавающий столбик (Task 433: строка под списком)');
-        assertTrue(leg.indexOf('margin-top: 2.5mm') !== -1,
-            'отступ строки кодов от списка мероприятий');
+            'коды — не плавающий столбик (Task 439: правый блок ряда)');
+        assertTrue(leg.indexOf('margin-top: 0') !== -1,
+            'отступ строки кодов снят (Task 439: общая верхняя линия с мероприятиями)');
         assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
             'отступ от таблицы на обёртке не тронут');
     });
@@ -105,10 +108,12 @@ describe('Task 375 — SRC: печать табеля, коды справа н�
 
     test('«gap: 5mm» больше нигде в печати не встречается', () => {
         // единственное историческое упоминание 5mm — само правило,
-        // оно заменено; проверяем полный источник печати
+        // оно заменено; проверяем полный print-блок (от @media print
+        // до следующей секции CSS — Task 438: якорь .wsp-foot
+        // удалён вместе со сноской)
         const z = INDEX_SRC.indexOf('@media print');
-        const z2 = INDEX_SRC.indexOf('}', INDEX_SRC.indexOf('#wsPrintSheet .wsp-foot'));
-        const printCss = INDEX_SRC.slice(z, z2);
+        const z2 = INDEX_SRC.indexOf('/* Task 317', z);
+        const printCss = INDEX_SRC.slice(z, z2 !== -1 ? z2 : z + 20000);
         assertTrue(printCss.indexOf('gap: 5mm') === -1,
             'в print-блоке не осталось зазора 5mm');
     });
@@ -569,13 +574,13 @@ describe('Task 375 — SRC: сервер FlowmeterArchive.gs', () => {
 // ============================================================
 describe('Task 375 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v479', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
+    test('SW: CACHE_VERSION = kipia-v480', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
             'версия кэша поднята до v604');
     });
 
     test('SW: нет v603 (старая) и нет v605 (двойной бамп)', () => {
         assertTrue(SW_SRC.indexOf('kipia-test-v603') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v480') === -1, 'двойного бампа не было');
+        assertTrue(SW_SRC.indexOf('kipia-v481') === -1, 'двойного бампа не было');
     });
 });

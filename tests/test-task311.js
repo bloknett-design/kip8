@@ -89,7 +89,8 @@ describe('Task 311 — карточка: строки «Шаблон ротац�
         assertFalse(rp.indexOf('vacTotal') !== -1,
             'переменная итога удалена');
         // дни периодов — чистые (Task 310), с пометкой праздников
-        assertTrue(rp.indexOf('_vacNetDaysInYear(vv, this._year)') !== -1,
+        // Task 440: дни — по году БЛОКА «Отпуска» (wYearVac)
+        assertTrue(rp.indexOf('_vacNetDaysInYear(vv, wYearVac)') !== -1,
             'чистые дни периода на месте');
         // лимит 42 жив в шторке «+ Отпуск» (Task 310 — не задет)
         assertTrue(INDEX_SRC.indexOf('_VAC_YEAR_LIMIT: 42') !== -1,
@@ -243,9 +244,9 @@ describe('Task 311 — кнопка «+ Сотрудник» → заголов�
 
 describe('Task 311 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v479', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v479');
+    test('SW: версия кэша kipia-v480', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v480');
         assertFalse(SW_SRC.indexOf('kipia-test-v549') !== -1,
             'старой версии v549 нет');
     });

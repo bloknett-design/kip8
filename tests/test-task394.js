@@ -216,6 +216,8 @@ function cardHost(trainings, vacs) {
         methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCardPanels') + ',\n' +
@@ -356,6 +358,8 @@ function pageHost(trainings) {
         methodText(INDEX_SRC, '_renderWorkerCard') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
         methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
         methodText(INDEX_SRC, '_renderWorkerCardPanels') + ',\n' +
@@ -626,10 +630,10 @@ describe('Task 394 — VM: окно мероприятий — порядок с
 // ============================================================
 describe('Task 394 — SW', () => {
 
-    test('SW: kipia-v479', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
+    test('SW: kipia-v480', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v480') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v481') === -1,
             'двойного бампа не было');
     });
 });

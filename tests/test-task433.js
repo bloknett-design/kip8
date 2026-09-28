@@ -43,7 +43,7 @@
 //      ПЕРВЫМ в ряду .ws-act-row, ✕ — ПОСЛЕ; отпускные строки
 //      несут ws-emp-vac; _buildPrintHtml — мероприятия ПЕРВЫМИ,
 //      коды ПОД ними, записи с [дата][текст].
-//   SW: kipia-v479 (главный), v660 — прежней нет.
+//   SW: kipia-v480 (главный), v660 — прежней нет.
 // ============================================================
 
 const fs = require('fs');
@@ -95,17 +95,19 @@ function mockDoc(els) {
 // ============================================================
 describe('Task 433 — SRC: печать (секция вертикальная, коды строкой)', () => {
 
-    test('.wsp-bottom — блочный поток: флоат и flex сняты', () => {
+    test('.wsp-bottom — РЯД: мероприятия слева, коды справа (Task 439)', () => {
         const r = ruleBlock('#wsPrintSheet .wsp-bottom {');
         assertTrue(r !== '', 'правило обёртки есть');
-        assertTrue(r.indexOf('display:') === -1,
-            'обёртка — обычный блочный поток (Task 433)');
+        // Task 439 (заявка: «блок с кодами размести справа от
+        // мероприятий»): вертикальная секция Task 433 снова стала
+        // РЯДОМ (flex; флоат Task 432 не вернулся)
+        assertTrue(r.indexOf('display: flex') !== -1,
+            'обёртка — flex-ряд (Task 439)');
         assertTrue(r.indexOf('flow-root') === -1,
-            'флоат-обёртка Task 432 снята');
-        assertTrue(r.indexOf('flex') === -1,
-            'flex-ряда Task 364–431 нет');
-        assertTrue(r.indexOf('gap') === -1,
-            'gap снят — столбиков рядом больше нет');
+            'флоат-обёртка Task 432 не вернулась');
+        // Task 440: зазор ряда — ровно 10px (прежде 6mm)
+        assertTrue(r.indexOf('gap: 10px') !== -1,
+            'зазор между мероприятиями и кодами — 10px (Task 440)');
         assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
             'отступ от таблицы (Task 364) жив');
     });
@@ -147,15 +149,19 @@ describe('Task 433 — SRC: печать (секция вертикальная,
             'точка цвета не сжимается');
     });
 
-    test('.wsp-legend — коды вернулись исходной строкой ПОД списком', () => {
+    test('.wsp-legend — ПРАВЫЙ блок ряда (Task 439: справа от мероприятий)', () => {
         const r = ruleBlock('#wsPrintSheet .wsp-legend {');
         assertTrue(r !== '', 'правило кодов есть');
         assertTrue(r.indexOf('float') === -1,
-            'флоат Task 432 снят');
+            'флоат Task 432 не вернулся');
         assertTrue(r.indexOf('max-width') === -1,
-            'кап ширины Task 364 снят');
-        assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
-            'отступ строки кодов от списка мероприятий');
+            'кап ширины Task 364 не вернулся');
+        // Task 439: коды — СПРАВА от мероприятий (фикс. ширина,
+        // общая верхняя линия), прежний отступ «под списком» снят
+        assertTrue(r.indexOf('flex: 0 0 92mm') !== -1,
+            'фиксированная ширина блока кодов (Task 439)');
+        assertTrue(r.indexOf('margin-top: 0') !== -1,
+            'верхняя линия общая с мероприятиями (Task 439)');
         assertTrue(r.indexOf('font-size: 11px') !== -1,
             'шрифт Task 361 (11px) жив');
     });
@@ -176,8 +182,8 @@ describe('Task 433 — SRC: печать (секция вертикальная,
         assertTrue(t.indexOf('display: block') !== -1,
             'заголовок «Коды:» — отдельной строкой СВЕРХУ сетки');
         const c = ruleBlock('#wsPrintSheet .wsp-legend-cols {');
-        assertTrue(c.indexOf('grid-template-columns: 1fr 1fr') !== -1,
-            'две равные колонки на всю ширину листа');
+        assertTrue(c.indexOf('grid-template-columns: 1fr') !== -1,
+            'одна колонка на всю ширину блока кодов (Task 441)');
         assertFalse(r.indexOf('display: inline') !== -1,
             'инлайн-строка Task 433 снята');
     });
@@ -188,8 +194,9 @@ describe('Task 433 — SRC: печать (секция вертикальная,
         const iMev = b.indexOf('<div class="wsp-mev">');
         const iLegend = b.indexOf('<div class="wsp-legend">');
         const iFoot = b.indexOf('<div class="wsp-foot">');
-        assertTrue(iOpen !== -1 && iMev !== -1 && iLegend !== -1 && iFoot !== -1,
+        assertTrue(iOpen !== -1 && iMev !== -1 && iLegend !== -1,
             'все секции строятся');
+        assertTrue(iFoot === -1, 'сноска wsp-foot удалена (Task 438)');
         assertTrue(iOpen < iMev && iMev < iLegend,
             'порядок: обёртка → МЕРОПРИЯТИЯ → КОДЫ (Task 433)');
         // Task 434: заголовок «Коды:» и СЕТКА-ДВЕ-КОЛОНКИ открываются
@@ -203,7 +210,6 @@ describe('Task 433 — SRC: печать (секция вертикальная,
         assertTrue(iClose1 !== -1 && iClose2 !== -1 && iClose3 !== -1 &&
                    iClose2 - iClose1 < 200 && iClose3 - iClose2 < 200,
             'Task 434: закрытия сетки, легенды и обёртки — три последовательных оператора');
-        assertTrue(iClose3 < iFoot, 'сноска — после закрытия обёртки');
     });
 
     test('JS: запись содержит [дата][текст] (правая часть — текст)', () => {
@@ -331,6 +337,8 @@ describe('Task 433 — VM: строка инструктажа и строка �
             methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_renderInstrSection') + ',\n' +
@@ -405,9 +413,9 @@ describe('Task 433 — VM: строка инструктажа и строка �
 // ============================================================
 describe('Task 433 — SW: версия кеша', () => {
     test('v659 (главный), v660 — прежней нет', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
-            'SW кэш kipia-v479');
-        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+            'SW кэш kipia-v480');
+        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v481'") !== -1,
             'v660 ещё не существует (guard следующего бампа)');
     });
 });

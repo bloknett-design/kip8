@@ -175,10 +175,10 @@ describe('Task 385 — HTML: легенда/страница/переимено�
             'подсказка «Вид» (Task 388: итоги в любом виде)');
     });
 
-    test('SW: кэш поднят до kipia-v479', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v479'") !== -1,
-            'CACHE_VERSION = kipia-v479 (Task 385 — фронтенд менялся)');
-        assertFalse(SW_SRC.indexOf('kipia-v480') !== -1,
+    test('SW: кэш поднят до kipia-v480', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+            'CACHE_VERSION = kipia-v480 (Task 385 — фронтенд менялся)');
+        assertFalse(SW_SRC.indexOf('kipia-v481') !== -1,
             'v614 ещё не существует (guard)');
     });
 });
@@ -449,9 +449,10 @@ describe('Task 385 — VM: карточка/страница/легенда', ()
         '_instrShortOf', '_normInstrKey',
         // Task 405: деление записей по типу (мероприятия/инструктажи)
         '_isInstrType',
-        // Task 408: год блоков карточки (стрелки ‹год›)
+        // Task 408: год блоков карточки (стрелки ‹год›); Task 440:
+        // максимум по записям + диапазон отпусков (fam 2)
         '_wtabYearOf', '_wtabYearMin', '_wtabYearNav',
-        '_wtabYearRecords',
+        '_wtabYearRecords', '_wtabYearMax', '_vacYearRange',
         '_vacDaysInYear', '_vacNetDaysInYear', '_vacIsHoliday',
         '_vacSplitDays', '_parseIsoLocal',
         // Task 390: подсчёт мастеров в шапке «Общей» вкладки

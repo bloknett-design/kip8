@@ -32,7 +32,7 @@
 //      ✎ — левее колонки; зритель — колонка с одной галочкой
 //      состояния (выполнено); запись без id — без колонки;
 //      попап (!asBlocks) — БЕЗ галочки, прежний порядок ✎/✕.
-//   SW: kipia-v479.
+//   SW: kipia-v480.
 // ============================================================
 
 const fs = require('fs');
@@ -73,50 +73,58 @@ function mockDoc(els) {
 // ============================================================
 describe('Task 431 — SRC: печать (коды справа от мероприятий)', () => {
 
-    test('.wsp-mev: без flex — строки на всю ширину листа', () => {
+    test('.wsp-mev: ЛЕВАЯ часть ряда — flex 0 1 auto (Task 431 → 440)', () => {
         const i = INDEX_SRC.indexOf('#wsPrintSheet .wsp-mev {');
         assertTrue(i !== -1, 'правило .wsp-mev есть');
         const r = INDEX_SRC.slice(i, INDEX_SRC.indexOf('}', i));
-        // Task 432 (заявка: «строки столбика мероприятий должны
-        // растягиваться вправо до конца листа»): flex снят ВЕСЬ — блок
-        // на всю ширину, строки ТЕКУТ вокруг плавающих кодов и ниже
-        // их растягиваются до конца листа (прежде 0 1 auto сжимал
-        // колонку по тексту — правая часть листа пустовала)
-        assertTrue(r.indexOf('flex:') === -1,
-            'flex снят — обтекание кодов (Task 432)');
-        assertFalse(r.indexOf('flex: 1 1 auto') !== -1,
-            'прежний flex 1 1 auto (растяжение, коды у правого края) снят');
+        // Task 440 (заявка: «коды справа от мероприятий на
+        // расстоянии друг от друга 10px» — как в 431 «сейчас между
+        // ними очень большое расстояние»): flex-grow СНЯТ (Task 439
+        // временно вернул 1 1 auto) — коды встают в 10px от ПРАВОГО
+        // КРАЯ ТЕКСТА мероприятий; перенос длинных текстов жив
+        // (flex-shrink + min-width: 0)
+        assertTrue(r.indexOf('flex: 0 1 auto') !== -1,
+            'мероприятия НЕ растягиваются — коды за текстом (Task 440)');
+        assertTrue(r.indexOf('min-width: 0') !== -1,
+            'min-width — усадка для переносов текста');
     });
 
-    test('.wsp-legend: коды — строка-абзац ПОД списком (Task 433)', () => {
+    test('.wsp-legend: коды — ПРАВЫЙ блок ряда (Task 439)', () => {
         const i = INDEX_SRC.indexOf('#wsPrintSheet .wsp-legend {');
         assertTrue(i !== -1, 'правило кодов есть');
         const r = INDEX_SRC.slice(i, INDEX_SRC.indexOf('}', i));
-        // Task 433 (заявка: «расположение кодов в печати верни
-        // обратно»): флоат Task 432 и зазор 10px Task 431/375 СНЯТЫ —
-        // коды вернулись исходной строкой-абзацем ПОД списком
+        // Task 439 (заявка: «блок с кодами размести справа от
+        // мероприятий»): коды — ПРАВАЯ часть flex-ряда фикс. ширины
         assertTrue(r.indexOf('float:') === -1,
-            'флоат снят (коды — не плавающий столбик)');
-        assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
+            'флоат не вернулся (коды — не плавающий столбик)');
+        assertTrue(r.indexOf('flex: 0 0 92mm') !== -1,
+            'фиксированная ширина блока кодов (Task 439)');
+        assertTrue(r.indexOf('margin-top: 0') !== -1,
             'отступ строки кодов от списка мероприятий сверху');
     });
 
-    test('wsp-foot — ПОД обоими столбиками (после закрытия wsp-bottom)', () => {
+    test('wsp-foot удалена; закрытия секций — три оператора подряд (Task 438)', () => {
+        // Task 438 (заявка: «нижний текст убери»): сноска wsp-foot
+        // УДАЛЕНА — но структура секций не изменилась
         const f = INDEX_SRC.indexOf("html += '<div class=\"wsp-foot\">");
-        assertTrue(f !== -1, 'сноска wsp-foot есть');
-        // Task 432: закрытие мероприятий и обёртки — ДВА последовательных
-        // оператора (прежде один '</div></div>')
-        const close2 = INDEX_SRC.lastIndexOf("html += '</div>';", f);
-        const close1 = INDEX_SRC.lastIndexOf("html += '</div>';", close2 - 1);
-        assertTrue(close1 !== -1 && close2 !== -1 && close2 - close1 < 200,
-            'перед сноской — закрытие mev + обёртки (два оператора)');
-        const open = INDEX_SRC.lastIndexOf("html += '<div class=\"wsp-bottom\">'", close1);
-        assertTrue(open !== -1 && open < close1,
-            'обёртка wsp-bottom открывается раньше — сноска ПОД обоими столбиками');
-        // внутри обёртки — ОБА столбика: коды (флоат, первым — Task 432) + мероприятия
-        const wrap = INDEX_SRC.slice(open, close1);
+        assertTrue(f === -1, 'сноска wsp-foot не строится (Task 438)');
+        const iLegend = INDEX_SRC.indexOf("html += '<div class=\"wsp-legend\">");
+        assertTrue(iLegend !== -1, 'легенда кодов строится');
+        // Task 434 жив: закрытия сетки-колонок, легенды и обёртки —
+        // ТРИ последовательных оператора (сноска шла после них)
+        const close1 = INDEX_SRC.indexOf("html += '</div>';", iLegend);
+        const close2 = INDEX_SRC.indexOf("html += '</div>';", close1 + 1);
+        const close3 = INDEX_SRC.indexOf("html += '</div>';", close2 + 1);
+        assertTrue(close1 !== -1 && close2 !== -1 && close3 !== -1 &&
+                   close2 - close1 < 200 && close3 - close2 < 200,
+            'закрытия сетки/легенды/обёртки — подряд (Task 434 жив)');
+        const open = INDEX_SRC.lastIndexOf("html += '<div class=\"wsp-bottom\">'", iLegend);
+        assertTrue(open !== -1 && open < iLegend,
+            'обёртка wsp-bottom открывается раньше секций');
+        // внутри обёртки — ОБА блока: мероприятия + коды
+        const wrap = INDEX_SRC.slice(open, close3);
         assertTrue(wrap.indexOf('wsp-mev') !== -1 && wrap.indexOf('wsp-legend') !== -1,
-            'в ряду — столбик мероприятий и столбик кодов');
+            'в обёртке — список мероприятий и перечень кодов');
     });
 });
 
@@ -280,6 +288,8 @@ describe('Task 431 — VM: строка инструктажа (кнопки)', 
             methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_renderInstrSection') + ',\n' +
@@ -390,7 +400,7 @@ describe('Task 431 — VM: строка инструктажа (кнопки)', 
 // ============================================================
 describe('Task 431 — SW версия', () => {
     test('v657', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v479') !== -1,
-            'SW кэш kipia-v479');
+        assertTrue(SW_SRC.indexOf('kipia-v480') !== -1,
+            'SW кэш kipia-v480');
     });
 });

@@ -39,7 +39,7 @@
 //      ✕ (внутри .ws-act-row), ряд — внутри колонки, галочка —
 //      выше ряда; зритель — колонка с одной галочкой состояния;
 //      запись без id — без колонки; попап — без галочки/колонки.
-//   SW: kipia-v479 (главный), v659 — прежней нет.
+//   SW: kipia-v480 (главный), v659 — прежней нет.
 // ============================================================
 
 const fs = require('fs');
@@ -86,38 +86,43 @@ function mockDoc(els) {
 // ============================================================
 describe('Task 432/433 — SRC: печать (Task 433: флоат снят, секция вертикальная)', () => {
 
-    test('.wsp-bottom — обычный блочный поток (Task 433)', () => {
+    test('.wsp-bottom — flex-ряд: коды справа от мероприятий (Task 439)', () => {
         const r = ruleBlock('#wsPrintSheet .wsp-bottom {');
         assertTrue(r !== '', 'правило обёртки есть');
-        // Task 433 (заявка: «расположение кодов в печати верни
-        // обратно…»): флоат Task 432 СНЯТ — секция вертикальная
+        // Task 439 (заявка: «блок с кодами размести справа от
+        // мероприятий»): секция — ГИБКИЙ РЯД (флоат Task 432 не
+        // вернулся): мероприятия слева, коды справа, зазор 6mm
         assertTrue(r.indexOf('display: flow-root') === -1,
-            'флоат-обёртка Task 432 снята');
-        assertFalse(r.indexOf('display: flex') !== -1,
-            'flex-ряда Task 364–431 нет');
-        assertFalse(r.indexOf('gap:') !== -1,
-            'gap снят (столбиков рядом больше нет)');
+            'флоат-обёртка Task 432 не вернулась');
+        assertTrue(r.indexOf('display: flex') !== -1,
+            'обёртка — flex-ряд (Task 439)');
+        // Task 440: зазор ряда — ровно 10px (прежде 6mm)
+        assertTrue(r.indexOf('gap: 10px') !== -1,
+            'зазор между блоками ряда — 10px (Task 440)');
         assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
             'отступ от таблицы не тронут (Task 364)');
     });
 
-    test('.wsp-legend — ПОД списком, БЕЗ флоата (Task 433/434)', () => {
+    test('.wsp-legend — ПРАВЫЙ блок ряда, БЕЗ флоата (Task 439)', () => {
         const r = ruleBlock('#wsPrintSheet .wsp-legend {');
         assertTrue(r !== '', 'правило кодов есть');
-        // Task 433: коды — ПОД списком мероприятий (исходное
-        // расположение до Task 360); Task 434: заголовок «Коды:» +
-        // сетка-две-колонки
+        // Task 439 (заявка: «блок с кодами размести справа от
+        // мероприятий»): коды — ПРАВАЯ часть flex-ряда (заявка
+        // Task 433 «под списком» снята); Task 434: заголовок
+        // «Коды:» + сетка-две-колонки
         assertTrue(r.indexOf('float:') === -1,
-            'флоат Task 432 снят (коды — не плавающий столбик)');
-        assertTrue(r.indexOf('margin-top: 2.5mm') !== -1,
-            'отступ строки кодов от списка мероприятий');
+            'флоат Task 432 не вернулся (коды — не плавающий столбик)');
+        assertTrue(r.indexOf('flex: 0 0 92mm') !== -1,
+            'блок кодов — фикс. ширина 92mm справа (Task 439)');
+        assertTrue(r.indexOf('margin-top: 0') !== -1,
+            'верхняя линия общая с мероприятиями (Task 439)');
         assertTrue(r.indexOf('max-width') === -1,
-            'кап ширины Task 364 снят');
-        // Task 434: ДВЕ КОЛОНКИ под названием «Коды:» (заявка)
+            'кап ширины Task 364 не вернулся');
+        // Task 434: две колонки; Task 441 — ОДНА колонка
         const c = ruleBlock('#wsPrintSheet .wsp-legend-cols {');
         assertTrue(c.indexOf('display: grid') !== -1 &&
-                   c.indexOf('grid-template-columns: 1fr 1fr') !== -1,
-            'Task 434: сетка-ДВЕ-КОЛОНКИ на всю ширину листа');
+                   c.indexOf('grid-template-columns: 1fr') !== -1,
+            'Task 441: сетка-ОДНА-КОЛОНКА (прежде ДВЕ, Task 434)');
         const lg = ruleBlock('#wsPrintSheet .wsp-lg {');
         assertTrue(lg.indexOf('display: block') !== -1,
             'Task 434: каждый код — своя строка колонки');
@@ -125,13 +130,15 @@ describe('Task 432/433 — SRC: печать (Task 433: флоат снят, с�
             'Task 434: длинное наименование переносится внутри колонки');
     });
 
-    test('.wsp-mev — БЕЗ flex-колонки: записи на всю ширину листа', () => {
+    test('.wsp-mev — ЛЕВАЯ часть ряда (flex 0 1 auto, Task 440)', () => {
         const r = ruleBlock('#wsPrintSheet .wsp-mev {');
         assertTrue(r !== '', 'правило мероприятий есть');
-        assertFalse(r.indexOf('flex:') !== -1,
-            'flex-колонка снята (Task 432), секция — на всю ширину листа');
-        assertFalse(r.indexOf('min-width: 0') !== -1,
-            'min-width снят (был нужен flex-усадке Task 431)');
+        // Task 440: flex-grow снят — коды в 10px от ТЕКСТА
+        // мероприятий (семантика Task 431), не у правого края листа
+        assertTrue(r.indexOf('flex: 0 1 auto') !== -1,
+            'мероприятия НЕ растягиваются (Task 440)');
+        assertTrue(r.indexOf('min-width: 0') !== -1,
+            'min-width — усадка для переносов текста (Task 439)');
     });
 
     test('.wsp-mev-item — запись-блок [точка][дата][текст] (Task 433)', () => {
@@ -164,16 +171,16 @@ describe('Task 432/433 — SRC: печать (Task 433: флоат снят, с�
             'порядок: обёртка → мероприятия → коды (вертикальная секция)');
     });
 
-    test('JS: закрытие кодов и обёртки — два оператора перед сноской', () => {
+    test('JS: закрытие кодов и обёртки — два оператора (сноски нет)', () => {
         const b = methodText(INDEX_SRC, '_buildPrintHtml');
         const iFoot = b.indexOf('<div class="wsp-foot">');
         const iClose1 = b.indexOf("html += '</div>';", b.indexOf('<div class="wsp-legend">'));
         const iClose2 = b.indexOf("html += '</div>';", iClose1 + 1);
-        assertTrue(iFoot !== -1 && iClose1 !== -1 && iClose2 !== -1,
+        assertTrue(iFoot === -1, 'сноска wsp-foot удалена (Task 438)');
+        assertTrue(iClose1 !== -1 && iClose2 !== -1,
             'закрытия кодов и обёртки строятся');
         assertTrue(iClose2 - iClose1 < 200,
             'два последовательных оператора закрытия (legend + обёртка)');
-        assertTrue(iClose2 < iFoot, 'сноска — ПОСЛЕ закрытия обёртки');
     });
 });
 
@@ -308,6 +315,8 @@ describe('Task 432/433 — VM: строка инструктажа (Task 433: �
             methodText(INDEX_SRC, '_lastExam1000Date') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearOf') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearMin') + ',\n' +
+        methodText(INDEX_SRC, '_wtabYearMax') + ',\n' +
+        methodText(INDEX_SRC, '_vacYearRange') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearNav') + ',\n' +
             methodText(INDEX_SRC, '_wtabYearRecords') + ',\n' +
             methodText(INDEX_SRC, '_renderInstrSection') + ',\n' +
@@ -425,9 +434,9 @@ describe('Task 432/433 — VM: строка инструктажа (Task 433: �
 // ============================================================
 describe('Task 432 — SW версия', () => {
     test('v658 (главный), v659 — прежней нет', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v479') !== -1,
-            'SW кэш kipia-v479');
-        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v480'") !== -1,
+        assertTrue(SW_SRC.indexOf('kipia-v480') !== -1,
+            'SW кэш kipia-v480');
+        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v481'") !== -1,
             'v659 ещё не существует (guard следующего бампа)');
     });
 });
