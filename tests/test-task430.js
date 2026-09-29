@@ -41,7 +41,7 @@
 //      оверлей удалён, Esc → закрыт;
 //  14) printGrid фолбэк: без _openPrintPreview — window.print
 //      (прежнее поведение Task 341).
-//   SW: kipia-v482.
+//   SW: kipia-v483.
 // ============================================================
 
 const fs = require('fs');
@@ -908,10 +908,10 @@ describe('Task 430 — VM: printGrid без диалога — прежняя п
 // ============================================================
 describe('Task 430 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v482', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v482'") !== -1,
-            'CACHE_VERSION = kipia-v482 (Task 430 — предпросмотр печати + архив)');
-        assertFalse(SW_SRC.indexOf('kipia-v483') !== -1,
+    test('SW: кэш поднят до kipia-v483', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v483'") !== -1,
+            'CACHE_VERSION = kipia-v483 (Task 430 — предпросмотр печати + архив)');
+        assertFalse(SW_SRC.indexOf('kipia-v484') !== -1,
             'лишний инкремент не сделан');
     });
 

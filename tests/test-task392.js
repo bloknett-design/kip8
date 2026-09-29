@@ -204,8 +204,11 @@ describe('Task 392 — SRC: секция СИЗ в карточке + CSS', () =
         assertTrue(name !== null && name.indexOf('overflow-wrap: break-word;') !== -1,
             '.ws-ppe-name — перенос длинных наименований');
         const meta = ruleBlock('.ws-ppe-meta {');
-        assertTrue(meta !== null && meta.indexOf('font-size: 10.5px;') !== -1,
-            '.ws-ppe-meta — мелкая мета-строка');
+        // Task 444: мета-строка дат/сроков — ЯРКАЯ (primary) и крупнее
+        // (прежде — тусклая secondary 10.5px; заявка: «текст с датами
+        // и сроками — нормальный яркий, лучше читаемый»)
+        assertTrue(meta !== null && meta.indexOf('font-size: 11.5px;') !== -1,
+            '.ws-ppe-meta — мета-строка 11.5px (Task 444)');
         const info = ruleBlock('.ws-ppe-form-info {');
         assertTrue(info !== null && info.indexOf('font-size: 13px;') !== -1 &&
                    info.indexOf('font-weight: 600;') !== -1,
@@ -319,10 +322,10 @@ describe('Task 392 — SRC: загрузка, кэш, сервер, PPEInit.gs',
             'таб_№ — текстовый формат (Task 304)');
     });
 
-    test('SW: kipia-v482', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v482'") !== -1,
+    test('SW: kipia-v483', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v483'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v483') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v484') === -1,
             'двойного бампа не было');
     });
 });

@@ -176,8 +176,10 @@ describe('Task 393 — CSS: шрифт карточки страницы кру�
         assertTrue(ppe !== null && ppe.indexOf('font-size: 14px;') !== -1,
             'записи СИЗ 14px');
         const meta = ruleBlock('.ws-wcard .ws-ppe-meta {');
-        assertTrue(meta !== null && meta.indexOf('font-size: 12.5px;') !== -1,
-            'мета-строка СИЗ 12.5px');
+        // Task 444: мета дат/сроков в карточке — 13px, крупнее
+        // (прежде 12.5px); «до …» — 1.15em ≈ 15px цветная
+        assertTrue(meta !== null && meta.indexOf('font-size: 13px;') !== -1,
+            'мета-строка СИЗ 13px (Task 444)');
     });
 
     test('стек панелей: зазор между окнами, у последнего — 0', () => {
@@ -474,10 +476,10 @@ describe('Task 393 — VM: страница «Работники» — 4 окн�
 // ============================================================
 describe('Task 393 — SW', () => {
 
-    test('SW: kipia-v482', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v482'") !== -1,
+    test('SW: kipia-v483', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v483'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v483') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v484') === -1,
             'двойного бампа не было');
     });
 });
