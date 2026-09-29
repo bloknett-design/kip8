@@ -175,10 +175,10 @@ describe('Task 385 — HTML: легенда/страница/переимено�
             'подсказка «Вид» (Task 388: итоги в любом виде)');
     });
 
-    test('SW: кэш поднят до kipia-v485', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v485'") !== -1,
-            'CACHE_VERSION = kipia-v485 (Task 385 — фронтенд менялся)');
-        assertFalse(SW_SRC.indexOf('kipia-v486') !== -1,
+    test('SW: кэш поднят до kipia-v486', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v486'") !== -1,
+            'CACHE_VERSION = kipia-v486 (Task 385 — фронтенд менялся)');
+        assertFalse(SW_SRC.indexOf('kipia-v487') !== -1,
             'v614 ещё не существует (guard)');
     });
 });
@@ -268,7 +268,7 @@ describe('Task 385 — SRC: страница «Работники»', () => {
 
     test('страница в картах доступа/крошек', () => {
         assertTrue(INDEX_SRC.indexOf(
-            "_WORK_SCHEDULE_PAGES: ['work-schedule', 'ws-totals', 'ws-workers', 'ws-legend']") !== -1,
+            "_WORK_SCHEDULE_PAGES: ['work-schedule', 'ws-totals', 'ws-workers', 'ws-legend', 'ws-talons']") !== -1,
             '_WORK_SCHEDULE_PAGES + ws-workers + ws-legend (права наследует табель)');
         assertTrue(INDEX_SRC.indexOf("'ws-workers':               'work-schedule'") !== -1,
             'PAGE_PARENTS: дочь табеля');
