@@ -261,9 +261,9 @@ describe('Task 407 — SRC: клиент', () => {
             'размеры окна карточки (.ws-wcard)');
     });
 
-    test('SW поднят (SW_VERSION = kipia-v484)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v484') !== -1,
-            'CACHE_VERSION в sw.js — kipia-v484');
+    test('SW поднят (SW_VERSION = kipia-v485)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v485') !== -1,
+            'CACHE_VERSION в sw.js — kipia-v485');
     });
 });
 

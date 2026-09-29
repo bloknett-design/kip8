@@ -20,7 +20,7 @@
 //      граница 1px у th.ws-emp-col выравнивает padding-box с
 //      td (у которого граница 1px в border-collapse) — ::after
 //      шапки рисуется теми же 2px, что у строк.
-//   SW: kipia-v484.
+//   SW: kipia-v485.
 //
 // Запуск: через tests/run-all.js (require './test-task336.js').
 
@@ -290,10 +290,10 @@ describe('Task 336 — полоса шапки сетки: одна плоско
 // 4. Service Worker
 // ============================================================
 describe('Task 336 — Service Worker', () => {
-    test('SW: кэш поднят до kipia-v484', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v484'") !== -1,
-            'CACHE_VERSION = kipia-v484 (Task 336 — только фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v485') !== -1,
+    test('SW: кэш поднят до kipia-v485', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v485'") !== -1,
+            'CACHE_VERSION = kipia-v485 (Task 336 — только фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v486') !== -1,
             'лишний инкремент (v577) не сделан');
     });
 });
