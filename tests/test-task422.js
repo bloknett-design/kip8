@@ -29,7 +29,7 @@
 //   5) тост: новые сроки + пропущенные дети с причиной;
 //   6) старый сервер (нет srvVer) — предупреждение в тосте;
 //   7) autoNote — в консоль (F12); ошибка автосоздания — ⚠ в тосте;
-//   8) SW kipia-v486.
+//   8) SW kipia-v487.
 // ============================================================
 
 const fs = require('fs');
@@ -627,10 +627,10 @@ describe('Task 422 — VM: toggleTrainingDone — диагностика', () =>
 // 4. SW — версия кэша
 // ============================================================
 describe('Task 422 — SW: версия кэша', () => {
-    test('CACHE_VERSION = kipia-v486', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v486'") !== -1,
+    test('CACHE_VERSION = kipia-v487', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v487'") !== -1,
             'SW v649 (Task 422)');
-        assertTrue(SW_SRC.indexOf('kipia-v487') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v488') === -1,
             'двойной бамп отсутствует');
     });
 });
