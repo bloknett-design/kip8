@@ -331,8 +331,8 @@ describe('Task 389 — SRC: CSS — фоны НЕ прозрачные, левы
             'внешние отступы ушли контейнеру .ws-wgen-head');
     });
 
-    test('SW: kipia-v490', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v490'") !== -1,
+    test('SW: kipia-v491', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v491'") !== -1,
             'SWVersion bumped');
     });
 });

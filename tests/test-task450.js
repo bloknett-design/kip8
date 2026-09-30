@@ -262,6 +262,7 @@ describe('Task 450 — VM: разряды, группы, подписи', () => 
             methodText(WS_SRC, '_talonsMonthInfo') + ',\n' +
             methodText(WS_SRC, '_talonsEffectiveEntries') + ',\n' +
             methodText(WS_SRC, '_talonsRows') + ',\n' +
+            methodText(WS_SRC, '_talonsAgg') + ',\n' +
             methodText(WS_SRC, '_totalsAgg') + ',\n' +
             methodText(WS_SRC, '_totalsZero') + ',\n' +
             methodText(WS_SRC, '_empTypeMap') + ',\n' +
@@ -372,11 +373,11 @@ describe('Task 450 — VM: разряды, группы, подписи', () => 
 // 3. SW — версия кэша
 // ============================================================
 describe('Task 450 — SW', () => {
-    test('SW: кэш поднят до kipia-v490 (Task 450)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v490'") !== -1,
-            'CACHE_VERSION = kipia-v490');
-        assertTrue(SW_SRC.indexOf('kipia-v491') === -1,
-            'kipia-v491 не существует');
+    test('SW: кэш поднят до kipia-v491 (Task 450)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v491'") !== -1,
+            'CACHE_VERSION = kipia-v491');
+        assertTrue(SW_SRC.indexOf('kipia-v492') === -1,
+            'kipia-v492 не существует');
         assertTrue(SW_SRC.indexOf('Task 450') !== -1,
             'комментарий Task 450 в истории версий');
     });
