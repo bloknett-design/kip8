@@ -257,7 +257,12 @@
 // colgroup: canvas-замер + инлайн-ширины c3/c4, c7 width:auto;
 // фолбэк — проценты Excel); строки работников — высотой в
 // ДВЕ строки текста (height 2.5em), по вертикали по центру.
-const CACHE_VERSION = 'kipia-v493';
+// Task 455 (перенос из kip8test): «Талоны» — месяц отчёта =
+// МЕСЯЦ ОТКРЫТОЙ ШАХМАТКИ табеля (селекты тулбара; до —
+// всегда текущий); записи — всегда живая сетка: кэш
+// _TALONS_CACHE и подтяжка _talonsFetchMonth удалены;
+// «Обновить данные» — всегда refreshData сетки.
+const CACHE_VERSION = 'kipia-v494';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).

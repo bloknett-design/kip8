@@ -41,7 +41,7 @@
 //     форматы дат; пустой месяц; счётчик; скрытие hidden),
 //     _updateSaveBtn (n=0 скрыта / n=2 показана), cancelAll
 //     (сброс правок, тост).
-//   SW: kipia-v493.
+//   SW: kipia-v494.
 //
 // Запуск: через tests/run-all.js (require './test-task315.js').
 
@@ -489,10 +489,10 @@ describe('Task 315 — VM: кнопки «Сохранить»/«Отменит�
 // Service Worker
 // ------------------------------------------------------------
 describe('Task 315 — Service Worker', () => {
-    test('SW: версия кэша kipia-v493', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v493') !== -1,
+    test('SW: версия кэша kipia-v494', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v494') !== -1,
             'SW поднят до v556 (Task 317 — тултип «данные от», три ряда кнопок)');
-        assertFalse(SW_SRC.indexOf('kipia-v494') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v495') !== -1,
             'лишний инкремент не делался');
     });
 });
