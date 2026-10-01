@@ -42,7 +42,7 @@
 //       (белый, как фон пустых ячеек с точкой — светлая тема
 //       --bg-primary #FAF9F5); ОСНОВНОЕ значение пользователь
 //       меняет в листе «Коды_статусов» сам (код #FAF9F5).
-//   SW: kipia-v494 (Task 313: v551 → v552 — окно мероприятий
+//   SW: kipia-v495 (Task 313: v551 → v552 — окно мероприятий
 //       над окном кодов + подсветка сегодняшней даты).
 //
 // Запуск: через tests/run-all.js (require './test-task312.js').
@@ -276,7 +276,7 @@ describe('Task 312/314 — «.» (плановый выходной): симво
             'inline-фон только для «настоящих» статусов (не «.»)');
         // символ в ячейке — «·» (U+00B7) как у пустых
         // Task 355: в нерабочих днях (dayOff) «·» НЕ выводится
-        assertTrue(rc.indexOf("(showMainCode ? status : (vacPlan ? 'ОТ' : ''))") !== -1,
+        assertTrue(rc.indexOf("(showMainCode ? (status || autoDn) : (vacPlan ? 'ОТ' : ''))") !== -1,
             '«.» и пустая ячейка — чистый центр (Task 356: «·» убрана везде)');
     });
 
@@ -320,9 +320,9 @@ describe('Task 312/314 — «.» (плановый выходной): симво
 
 describe('Task 312 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v494', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v494'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v494');
+    test('SW: версия кэша kipia-v495', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v495'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v495');
         assertFalse(SW_SRC.indexOf('kipia-test-v550') !== -1,
             'старой версии v550 нет');
     });
