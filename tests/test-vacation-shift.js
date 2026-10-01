@@ -427,8 +427,8 @@ describe('Task 305 — сервер: приоритет отпуска не тр
             'замена в toInsert (строка шага 3)');
     });
 
-    test('SW: версия кэша kipia-v495 (Task 305 — клиент менялся)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v495'") !== -1,
-            'CACHE_VERSION = kipia-v495');
+    test('SW: версия кэша kipia-v496 (Task 305 — клиент менялся)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v496'") !== -1,
+            'CACHE_VERSION = kipia-v496');
     });
 });
