@@ -23,7 +23,7 @@
 //     (группа _PLAN_EVENTS_PAGES, уровни с PLAN_EVENTS, в
 //     _applyServerAccess — perm('plan.events') + переходный
 //     фоллбек пока колонки в матрице нет; см. test-task462.js);
-//   • sw.js → kipia-v499.
+//   • sw.js → kipia-v500.
 // ============================================================
 
 const fs = require('fs');
@@ -106,7 +106,7 @@ describe('Task 460 — SRC: таблица по образцу «Меропри�
 
     test('таблица pe-table с colgroup: наименование + 12 месяцев', () => {
         assertTrue(page !== null, 'страница найдена');
-        assertTrue(page.indexOf('<table class="pe-table">') !== -1, 'таблица pe-table');
+        assertTrue(page.indexOf('<table class="pe-table" id="peTable">') !== -1, 'таблица pe-table (id добавлен Task 463 — делегированный клик)');
         assertTrue(page.indexOf('<col class="pe-col-name">') !== -1, 'колонка наименований');
         assertTrue(page.indexOf('<col class="pe-col-month" span="12">') !== -1,
             '12 колонок месяцев одним col');
@@ -214,9 +214,13 @@ describe('Task 460 — SRC: CSS pe-*', () => {
         assertTrue(idx !== -1, 'правило скрытия скроллбара есть');
     });
 
-    test('пропорции образца: широкая колонка наименований + узкие месяцы', () => {
-        assertTrue(INDEX_SRC.indexOf('.pe-col-name { width: 300px; }') !== -1,
-            'колонка наименований 300px');
+    test('пропорции: колонка наименований по тексту (Task 464) + узкие месяцы', () => {
+        // Task 464: фиксированные 300px заменены на auto + nowrap —
+        // ширина по самому длинному наименованию (заявка пользователя)
+        assertTrue(INDEX_SRC.indexOf('.pe-col-name { width: auto; }') !== -1,
+            'колонка наименований по тексту (width: auto, Task 464)');
+        assertTrue(INDEX_SRC.indexOf('.pe-name, .pe-th-name { white-space: nowrap; }') !== -1,
+            'наименования без переносов');
         assertTrue(INDEX_SRC.indexOf('.pe-col-month { width: 46px; }') !== -1,
             'месяцы 46px');
     });
@@ -322,8 +326,8 @@ describe('Task 460 — SRC: права доступа (обновлено Task 4
 // ============================================================
 describe('Task 460 — SW', () => {
 
-    test('kipia-v499 + комментарий Task 460', () => {
-        assertTrue(SW_SRC.indexOf("kipia-v499") !== -1, 'версия поднята до v684');
+    test('kipia-v500 + комментарий Task 460', () => {
+        assertTrue(SW_SRC.indexOf("kipia-v500") !== -1, 'версия поднята до v684');
         assertTrue(SW_SRC.indexOf('kipia-v498') === -1, 'старой версии v683 нет');
         assertTrue(SW_SRC.indexOf('Task 460') !== -1, 'комментарий Task 460 в истории');
         assertTrue(SW_SRC.indexOf('Плановые мероприятия') !== -1,

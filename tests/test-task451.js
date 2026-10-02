@@ -741,11 +741,11 @@ describe('Task 451 — VM: печатная форма', () => {
 // 7. SW — версия кэша
 // ============================================================
 describe('Task 451 — SW', () => {
-    test('SW: кэш поднят до kipia-v499 (Task 451)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v499'") !== -1,
-            'CACHE_VERSION = kipia-v499');
-        assertTrue(SW_SRC.indexOf('kipia-v500') === -1,
-            'kipia-v500 не существует');
+    test('SW: кэш поднят до kipia-v500 (Task 451)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v500'") !== -1,
+            'CACHE_VERSION = kipia-v500');
+        assertTrue(SW_SRC.indexOf('kipia-v501') === -1,
+            'kipia-v501 не существует');
         assertTrue(SW_SRC.indexOf('Task 451') !== -1,
             'комментарий Task 451 в истории версий');
     });

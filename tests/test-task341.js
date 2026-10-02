@@ -20,7 +20,7 @@
 // display:none. Печатается ТЕКУЩИЙ вид табеля (у уровня min
 // «Мастер КИПиА» скрыт — _viewEmployees, Task 340).
 //
-// SW: kipia-v499.
+// SW: kipia-v500.
 //
 // Запуск: через tests/run-all.js (require './test-task341.js').
 
@@ -525,10 +525,10 @@ describe('Task 341 — _buildPrintHtml (VM)', () => {
 // ============================================================
 describe('Task 341 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v499', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v499'") !== -1,
-            'CACHE_VERSION = kipia-v499 (Task 341 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v500') !== -1,
+    test('SW: кэш поднят до kipia-v500', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v500'") !== -1,
+            'CACHE_VERSION = kipia-v500 (Task 341 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v501') !== -1,
             'лишний инкремент (v580) не сделан');
     });
 

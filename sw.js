@@ -297,7 +297,15 @@
 // форма СИЗ: подсказки datalist #wsPpeNameList динамически из
 // листа «СИЗ» (_fillPpeNameOptions); Task 462 — доступ к разделу
 // по отдельному праву plan.events в матрице KIP8_Access.
-const CACHE_VERSION = 'kipia-v499';
+// Task 463-464 (перенос партии из kip8test@de669b9f): Task 463 —
+// «Плановые мероприятия» ИНТЕРАКТИВНЫ: отметки выполнения +
+// архив файла Мероприятия_КИП_ИОС (PlanEvents.gs,
+// PlanEventsInit.gs); Task 464 — полировка: правка даты + снятие
+// отметки (planEvents.update/unmark), кнопка «Подтвердить» +
+// слегка красная «Отмена», ширина колонки мероприятий по тексту,
+// мобильная компактность — селектор peMonthSel и один столбец
+// месяца на экранах <= 1023px.
+const CACHE_VERSION = 'kipia-v500';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).
