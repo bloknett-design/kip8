@@ -16,7 +16,8 @@
 //   мероприятий — сброс margin-top: 3px от правила Task 381
 //   «склейка строк», из-за него значок висел НИЖЕ, чем в окне
 //   норм); НОВЫЙ значок .ws-bar-print в окне мероприятий —
-//   справа от раскрытия (в самом углу, 22×22, стиль пары),
+//   слева от раскрытия (Task 466: значки ПОМЕНЯНЫ МЕСТАМИ —
+//   раскрытие в самом углу; 22×22, стиль пары),
 //   создаёт _barExpSync (только #wsEventsPanel), клик →
 //   printEventsList; печать списка открытого месяца: модель
 //   _eventsListModel (та же выборка, что окно «Мероприятия»,
@@ -29,7 +30,7 @@
 //   _buildEventsWorkbook/_eventsSheetXml/_eventsStylesXml (xlsx
 //   «Мероприятия»); диалоги печати взаимоисключающие (график ↔
 //   талоны ↔ список мероприятий);
-//   SW: kipia-v501.
+//   SW: kipia-v502.
 //
 // Запуск: через tests/run-all.js (require './test-task465.js').
 
@@ -84,12 +85,14 @@ describe('Task 465 — SRC: CSS значков окон бара', () => {
         assertFalse(b !== null && /right:\s*5px/.test(b), 'прежних 5px нет');
     });
 
-    test('окно мероприятий: раскрытие сдвинуто ВЛЕВО (27px), печать в углу', () => {
-        const b = ruleBlock('#wsEventsPanel .ws-bar-exp { right: 27px; }');
-        assertTrue(b !== null, '#wsEventsPanel .ws-bar-exp { right: 27px } — пара значков');
+    test('окно мероприятий (Task 466): печать сдвинута ВЛЕВО (27px), раскрытие в углу', () => {
+        const b = ruleBlock('#wsEventsPanel .ws-bar-print { right: 27px; }');
+        assertTrue(b !== null, '#wsEventsPanel .ws-bar-print { right: 27px } — пара значков');
+        assertTrue(INDEX_SRC.indexOf('#wsEventsPanel .ws-bar-exp { right: 27px; }') === -1,
+            'Task 466: прежний сдвиг раскрытия УБРАН — раскрытие в самом углу');
         const p = ruleBlock('.ws-bar-print {\n');
         assertTrue(p !== null && /right:\s*2px/.test(p) && /top:\s*2px/.test(p),
-            '.ws-bar-print — в самом углу (3px от края)');
+            'база .ws-bar-print — 2px (в окне мероприятий перекрыта 27px)');
     });
 
     test('.ws-bar-print: квадрат 22×22, стиль пары раскрытию', () => {
@@ -676,14 +679,14 @@ describe('Task 465 — VM: _buildEventsWorkbook', () => {
 // ============================================================
 describe('Task 465 — SW: версия кэша', () => {
 
-    test('CACHE_VERSION = kipia-v501', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v501';") !== -1,
-            'текущая версия v689');
+    test('CACHE_VERSION = kipia-v502', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v502';") !== -1,
+            'текущая версия v690');
     });
 
-    test('v688 в sw.js отсутствует', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v500') === -1,
-            'версии до Task 465 нет');
+    test('v689 в sw.js отсутствует', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v501') === -1,
+            'версии до Task 466 нет');
     });
 
     test('комментарий Task 465 о составе правок', () => {
