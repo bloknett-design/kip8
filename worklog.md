@@ -9105,3 +9105,23 @@ Stage Summary:
 - Task 466 в БОЕВОМ kip8: SW kipia-v502, тесты 5250/0 (паритет 5244 + 6 task344), SMOKE 8/8; в окне мероприятий бара табеля значки поменяны местами — печать слева (27px), раскрытие в самом углу; серверных шагов нет, Apps Script не менялся.
 - ПАРИТЕТ РЕПО: kip8 @<этот коммит> SW kipia-v502 (guard v503) тесты 5250/0 ↔ kip8test @986db19b SW kipia-test-v690 (guard v691) тесты 5244/0; открытых хвостов нет; десктопы — CI-автосинк.
 - СЛЕДУЮЩИЙ НОМЕР ЗАДАЧИ: 467 (в обоих репо).
+
+---
+Task ID: 467 (kip8 — ПЕРЕНОС из kip8test)
+Agent: main (Super Z)
+Task: Перенос Task 467 (фикс окна предпросмотра печати списка мероприятий — лист смещался вправо за границу окна; iframe получил книжную ширину 794px, класс wsev-prev-frame, приём wst-prev-frame Task 449) из kip8test@ac074a2d в боевой kip8 ОДНИМ инкрементом SW kipia-v502→v503. Заявка: «В окне предпросмотра печати списка мероприятий, лист со списком смещён вправо за границу окна предпросмотра.»
+
+Work Log:
+- Перенос: scripts/task467-transfer.py — де-изоляция ×15 (якоря 459/462/465/466; Task 467 изоляцию не трогала), «дифф диффов»: репо-дифф 59 == эталону kip8test@d8030094↔kip8@867d4df, дифф задач 15 идентичен в обоих репо; kip8test-упоминаний 5 (исторические), kipia-test-v строк 0; .gs не тронуты (WorkSchedule/PPEInit/RoleMatrix/RoleMatrixGate/PlanEvents/PlanEventsInit синхронны, Code.gs kip8-версия жива — case-маркеры planEvents.* на месте).
+- Клиент (index.html): CSS-правило .wspprev-frame.wsev-prev-frame { width: 794px; } + в _openEventsPreview frame.className = 'wspprev-frame wsev-prev-frame' (комментарии Task 467). Диалог/кнопки/генераторы PDF-Excel/standalone-документ НЕ ТРОНУТЫ; график и талоны НЕ ТРОНУТЫ; свап значков 466 жив (печать слева 27px, раскрытие в углу 3px — проверено SMOKE).
+- sw.js kip8: kipia-v502→v503 + комментарий «Task 467 (перенос из kip8test@ac074a2d): фикс окна предпросмотра…» (289 символов < 2000 — окно test-task461).
+- Тесты kip8 5264/0 = паритет 5258 + 6 task344: маппинг v691→v503 (513)/v692→v504 (123)/негатив партии v690→v502 (1: test-task467)/негативы партии 466 v689→v501 (2)/v687→v499 (2)/исторические v685-v634→v494-v478; test-task344 v502→v503 (3); run-all +467; test-task467.js ×14 (CSS/JS/изоляция/SW) пришёл из kip8test автоматически с замапленными версиями; kipia-v502 после маппинга остался ТОЛЬКО в негативе test-task467.js.
+- SMOKE scripts/task467-smoke-k8.py 8/8 (порт 8997, ключи БЕЗ префикса): свап 466 жив (печать 3/28 слева, раскрытие 3/3 в углу, зазор 3, 22×22); диалог от принтера — кнопки «Печать/Сохранить PDF/Сохранить Excel/Отмена» + лист «Мероприятия»; ФИКС 467: iframe CSS 794px + viewport 794, лист в iframe left≈0/right≈794/ширина ~794, визуальный правый край листа ≤ paper.right + 2, paper==794 (k=1); Esc — диалог+инжект сняты; 0 JS-ошибок. Скриншот download/kip8-task467/smoke-k8-preview.png.
+- Коммит cbfa4c8, push origin/main (867d4df..cbfa4c8, PAT временно в URL → сброс, утечек нет); CI 4/4 success (CI Tests / pages build and deployment / Sync content to kip8-desktop / Build Desktop App); прод curl: SW kipia-v503, маркер wsev-prev-frame ×3 в index.html.
+- Промт kip8: scripts/task467-update-prompt.py — post-Task 467 строка версии (предыдущая post-466 сохранена), «Текущая версия кэша» v503, «Инкрементируй» v691→v692/v502→v503, ожидание тестов 5264/5258.
+- DEPLOY-Task467-events-preview-sheet-fit.md скопирован из kip8test (КЛИЕНТ-ONLY, серверных шагов НЕТ).
+- ПОДВОДНЫЙ КАМЕНЬ: перенос-скрипт ОДНОРАЗОВЫЙ — повторный прогон на применённом состоянии вставляет ДУБЛИКАТ require('./test-task467.js') в run-all.js (замена якоря выполняется до fail-выхода); лечение: git checkout -- . и ОДИН чистый прогон (exit 0, ВСЁ ОК). Первый прогон чистый — сверхстрогих ассертов, в отличие от 466, не понадобилось.
+
+Stage Summary:
+- ПАРТИЯ 467 ВЫКАЧАНА В ОБОИХ РЕПО: kip8 @cbfa4c8 SW kipia-v503, тесты 5264/0 (паритет 5258 + 6 task344); kip8test @ac074a2d SW kipia-test-v691, тесты 5258/0. Серверных шагов НЕТ (Apps Script не менялся).
+- СЛЕДУЮЩИЙ НОМЕР: 468 (в обоих репо).
