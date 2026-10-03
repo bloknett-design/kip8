@@ -41,7 +41,7 @@
 //     свёртывание при исчезновении переполнения), _barExpToggle
 //     (раскрытие = scrollHeight, свёртывание = 95px), вызовы после
 //     рендеров (мероприятия/нормы), toggleMobPanel/ресайз/fonts.ready.
-//   SW: kipia-v500.
+//   SW: kipia-v501.
 //
 // Запуск: через tests/run-all.js (require './test-task378.js').
 
@@ -333,8 +333,8 @@ describe('Task 378 — окна бара: без полосы, значок ра
     test('значок .ws-bar-exp: правый ВЕРХНИЙ угол, контраст по активности (Task 388)', () => {
         const b = ruleBlock('.ws-bar-exp {');
         assertTrue(b !== null && /position:\s*absolute/.test(b), 'absolute');
-        assertTrue(b !== null && /right:\s*5px/.test(b) && /top:\s*5px/.test(b),
-            'правый ВЕРХНИЙ угол окна (Task 388: прежде нижний — уезжал при раскрытии)');
+        assertTrue(b !== null && /right:\s*2px/.test(b) && /top:\s*2px/.test(b),
+            'правый ВЕРХНИЙ угол окна (Task 388: прежде нижний; Task 465: 2px+рамка = 3px от края)');
         assertTrue(b !== null && /opacity:\s*0\.45/.test(b),
             'НЕ активен — приглушён контрастом (0.45)');
         const hov = INDEX_SRC.match(/\.ws-bar-exp:hover,\s*\n\s*\.ws-bar-exp:focus-visible\s*\{[^}]*opacity:\s*1[^}]*\}/);
@@ -529,10 +529,10 @@ describe('Task 378 — вызовы значка после рендеров/с�
 // ============================================================
 describe('Task 378 — SW и регресс', () => {
 
-    test('SW: kipia-v500', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v500'") !== -1,
-            'версия кэша kipia-v500');
-        assertFalse(SW_SRC.indexOf('kipia-v501') !== -1,
+    test('SW: kipia-v501', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v501'") !== -1,
+            'версия кэша kipia-v501');
+        assertFalse(SW_SRC.indexOf('kipia-v502') !== -1,
             'двойного бампа нет');
     });
 
