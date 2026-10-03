@@ -315,7 +315,12 @@
 // табеля значки ПОМЕНЯНЫ МЕСТАМИ — печать слева (27px),
 // раскрытие — в самом углу (CSS-only:
 // #wsEventsPanel .ws-bar-print { right: 27px }).
-const CACHE_VERSION = 'kipia-v502';
+// Task 467 (перенос из kip8test@ac074a2d): фикс окна предпросмотра
+// печати списка мероприятий — iframe получил книжную ширину 794px
+// (класс wsev-prev-frame, приём wst-prev-frame Task 449): раньше
+// наследовал альбомные 1063px печати графика, лист смещался
+// вправо за границу окна.
+const CACHE_VERSION = 'kipia-v503';
 const CACHE_NAME = CACHE_VERSION;
 
 // Отдельный кэш для картинок Google Drive (превью + полные).
