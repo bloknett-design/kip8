@@ -267,13 +267,13 @@ describe('Task 399 — VM: edit/view/легаси — окно ПОЛНОЕ', ()
 // ============================================================
 describe('Task 399 — SRC: сервис-воркер', () => {
 
-    test('sw.js: CACHE_VERSION kipia-v509', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v509'") !== -1,
+    test('sw.js: CACHE_VERSION kipia-v510', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v510'") !== -1,
             'бамп v626 -> v627 (клиентский фикс раздаётся из кэша SW)');
     });
 
     test('sw.js: v628 НЕ существует (guard от двойного бампа)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v510') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v511') === -1,
             'v628 отсутствует — следующая задача');
     });
 });

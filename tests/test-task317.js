@@ -34,7 +34,7 @@
 //     (3 ветки — как в Task 314).
 //   VM: _updateCacheStamp (формат/подсказка), _showRefreshTip/
 //     _hideRefreshTip на моках (скрытие, позиция сверху/снизу).
-//   SW: kipia-v509.
+//   SW: kipia-v510.
 //
 // Запуск: через tests/run-all.js (require './test-task317.js').
 
@@ -262,10 +262,12 @@ describe('Task 317 — JS: тултип «данные от …»', () => {
             'прокрутка — скрыть (fixed-позиция устаревает)');
     });
 
-    test('JS: loadGrid по-прежнему обновляет дату (3 ветки)', () => {
+    test('JS: loadGrid по-прежнему обновляет дату (4 ветки)', () => {
+        // Task 476: +четвёртый вызов — ветка KipDB (IndexedDB) между
+        // промахом localStorage-копии и сетью.
         const m = methodText(INDEX_SRC, 'loadGrid');
         const n = (m.match(/_updateCacheStamp\(\)/g) || []).length;
-        assertEqual(n, 3, 'вызовы в кэш-ветке, до загрузки, после загрузки');
+        assertEqual(n, 4, 'кэш-ветка LS, кэш-ветка KipDB, до загрузки, после загрузки');
     });
 
     // ---------- VM на моках ----------
@@ -327,10 +329,10 @@ describe('Task 317 — JS: тултип «данные от …»', () => {
 // Service Worker
 // ------------------------------------------------------------
 describe('Task 317 — Service Worker', () => {
-    test('SW: версия кэша kipia-v509', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v509') !== -1,
-            'CACHE_VERSION = kipia-v509 (Task 317)');
-        assertFalse(SW_SRC.indexOf('kipia-v510') !== -1,
+    test('SW: версия кэша kipia-v510', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v510') !== -1,
+            'CACHE_VERSION = kipia-v510 (Task 317)');
+        assertFalse(SW_SRC.indexOf('kipia-v511') !== -1,
             'лишний инкремент не делался');
     });
 });

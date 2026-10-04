@@ -596,6 +596,17 @@ require('./test-task471.js');
 require('./test-task472.js');
 require('./test-task473.js');
 require('./test-task474.js');
+require('./test-task475.js');
+// Task 476 — ЭТАП 2 ОПТИМИЗАЦИИ: KipDB (IndexedDB) — кэш серверных
+// данных (табель/каб. журнал/расходомеры/отметки мероприятий) рядом
+// с localStorage (квота ~5 МБ не режет копии) + storage.persist() +
+// чистка копий при logout.
+require('./test-task476.js');
+// Task 477 — ЭТАП 3 ОПТИМИЗАЦИИ: KipPreload — фоновая предзагрузка
+// всех данных ПО ПРАВАМ РОЛИ после входа (idle-очередь по одному,
+// паузы ≥1.5 с; статика через SWR + серверные копии в KipDB;
+// saveData/2g — пропуск; logout — стоп).
+require('./test-task477.js');
 require('./test-deploy-url.js');
 
 // Запускаем
