@@ -729,10 +729,10 @@ describe('Task 418 — VM: WorkSchedule.toggleTrainingDone', () => {
 // 6. SW — версия кэша
 // ============================================================
 describe('Task 418 — SW: версия кэша', () => {
-    test('CACHE_VERSION = kipia-v510', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v510'") !== -1,
+    test('CACHE_VERSION = kipia-v511', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v511'") !== -1,
             'SW v645 (Task 418)');
-        assertTrue(SW_SRC.indexOf('kipia-v511') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v512') === -1,
             'двойной бамп отсутствует');
     });
 });

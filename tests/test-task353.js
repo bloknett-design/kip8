@@ -22,7 +22,7 @@
 //     возвращается в рабочее состояние.
 //   • Фильтр журнала: опция ADMIN_DELETE_USER.
 //
-// SW: kipia-v510.
+// SW: kipia-v511.
 //
 // Запуск: через tests/run-all.js (require './test-task353.js').
 
@@ -221,15 +221,15 @@ describe('Task 353 — SRC: логика KipAdmin', () => {
             'loadSessions после удаления');
     });
 
-    test('SRC: SW-версия kipia-v510 (бамп Task 353)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v510'") !== -1,
+    test('SRC: SW-версия kipia-v511 (бамп Task 353)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v511'") !== -1,
             'sw.js на v583');
     });
 
     test('SRC: guard — нет двойного бампа (v584 не существует)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v511') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v512') === -1,
             'v584 в sw.js не должно быть');
-        assertTrue(INDEX_SRC.indexOf('kipia-v511') === -1,
+        assertTrue(INDEX_SRC.indexOf('kipia-v512') === -1,
             'v584 в index.html не должно быть');
     });
 });
