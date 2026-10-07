@@ -25,16 +25,192 @@
 // зрительно различимы по месяцам; в легенде малые серии помечены
 // «(правая ось)»; сверху графика добавлен запас под подписи
 // (padding-top 16px).
+//
+// Task 483: ППР «Приборы» — НОВЫЙ ВИД «как в Excel» (заявка: «оформ-
+// ление и предоставление информации сделай по примеру как на
+// приложенном скрину»): ТАБЛИЦА СВЕРХУ (шапка «Вид обслуживания» +
+// «Количество ПРИБОРОВ по графику ППР по месяцам на <год> год»,
+// месяцы I–XII с пастельными заливками листа «Диаграммы», строки
+// К/П/ТО с бейджами-кодами и оттенками строк) + ДИАГРАММА СНИЗУ
+// (сгруппированные столбцы К/П/ТО, выровненные по колонкам таблицы
+// — общая сетка, значения над каждым столбцом, осей/легенды/титула
+// НЕТ — как на листе «Диаграммы»; ТО — горизонтальная штриховка).
+// ДАННЫЕ БОЛЬШЕ НЕ Зашиты: _PPR_DEVICES УДАЛЁН (корень жалобы —
+// зашитые числа расходились с файлом); счётчики считает sync-devices.py
+// (ppr_chart в data/devices.json): метка месяца I..XII == «К»/«П»/«ТО»
+// (точное совпадение, как COUNTIF; «К*» НЕ считается) И столбец
+// «Наличие в ППР» == «Есть» (заявка: «если «Нет» — не учитываются»;
+// РЕЗУЛЬТАТ ОТЛИЧАЕТСЯ от листа «Диаграммы», где COUNTIF считает
+// ВСЕ строки, включая «Нет»: К 350 без изм., П 86→84, ТО 4703→2977).
+// Вкладка «Приборы» теперь грузит devices.json (единый путь
+// _renderTab/_loadData).
+//
+// Task 484: ППР «Блокировки» — ТОТ ЖЕ вид «как в Excel», что
+// «Приборы» (заявка: «убери всё лишнее и сделай так же оформление
+// и подсчёт, как во вкладке "Приборы"»): вкладка «Блокировки»
+// рендерит ТАБЛИЦУ+ДИАГРАММУ _renderDevicesPPR (титул «Количество
+// БЛОКИРОВОК …», серии Кр/ТО) из блока ppr_chart в
+// data/lockouts.json — его считает sync-lockouts.py по исходному
+// листу «Блокировки»: метка месяца I..XII == «Кр»/«ТО»
+// (регистронезависимо, как COUNTIF) И «Наличие в перечне и в ППР»
+// == «Есть» (тот же фильтр заявки; «Нет»/пусто — мимо).
+// ЛИШНЕЕ УДАЛЕНО: старый рендерер _renderPPRChart (гистограмма с
+// осями/легендой/правой осью, Task 473/483) + заШитые счётчики
+// _PPR_LOCKOUTS (расходились с файлом: было Кр 526/ТО 1578, в файле
+// с фильтром Кр 503/ТО 1509) + их CSS (ppr-chart-*, ppr-bar-*,
+// ppr-y-*, ppr-totals-*) и _niceMax; сводная статистика и
+// Топ-10 вкладки «Блокировки» — как у «Приборов», НЕ рендерятся.
 // ============================================================
 (function () {
     'use strict';
 
     // ---------- 1. CSS ----------
-    var css = "    /* ======================== \u0413\u0420\u0410\u0424\u0418\u041a\u0418 \u041a\u0418\u041f \u0418\u041e\u0421 ======================== */\n    .charts-tabs {\n        display: flex;\n        gap: 0;\n        border-bottom: 1px solid var(--border-color);\n        background: var(--card-bg);\n        position: sticky;\n        top: 56px;\n        z-index: 5;\n        overflow-x: auto;\n        -webkit-overflow-scrolling: touch;\n    }\n    .charts-tab {\n        flex: 1;\n        min-width: 0;\n        padding: 10px 6px;\n        border: none;\n        background: transparent;\n        color: var(--text-secondary);\n        font-size: 13px;\n        font-weight: 500;\n        cursor: pointer;\n        white-space: nowrap;\n        position: relative;\n        transition: color 0.2s;\n    }\n    .charts-tab::after {\n        content: '';\n        position: absolute;\n        left: 0; right: 0; bottom: 0;\n        height: 2px;\n        background: transparent;\n        border-radius: 1px;\n        transition: background 0.2s;\n    }\n    .charts-tab-active {\n        color: #3aa288;\n        font-weight: 600;\n    }\n    .charts-tab-active::after {\n        background: #3aa288;\n    }\n    .charts-content {\n        padding: 12px 14px 24px;\n    }\n    .charts-loading {\n        text-align: center;\n        padding: 40px 20px;\n        color: var(--text-secondary);\n        font-size: 13px;\n    }\n    /* \u041a\u0430\u0440\u0442\u043e\u0447\u043a\u0430 \u0433\u0440\u0430\u0444\u0438\u043a\u0430 */\n    .chart-card {\n        background: var(--card-bg);\n        border: 1px solid var(--card-border);\n        border-radius: 10px;\n        margin-bottom: 14px;\n        overflow: hidden;\n    }\n    .chart-card-title {\n        padding: 10px 14px 6px;\n        font-size: 13px;\n        font-weight: 600;\n        color: var(--text-primary);\n    }\n    .chart-card-body {\n        padding: 6px 14px 12px;\n    }\n    /* \u0413\u043e\u0440\u0438\u0437\u043e\u043d\u0442\u0430\u043b\u044c\u043d\u0430\u044f \u0441\u0442\u043e\u043b\u0431\u0447\u0430\u0442\u0430\u044f \u0434\u0438\u0430\u0433\u0440\u0430\u043c\u043c\u0430 (CSS-\u0431\u0430\u0440\u044b) */\n    .chart-bar-row {\n        display: flex;\n        align-items: center;\n        margin-bottom: 6px;\n    }\n    .chart-bar-label {\n        flex: 0 0 auto;\n        max-width: 45%;\n        font-size: 11px;\n        color: var(--text-secondary);\n        overflow: hidden;\n        text-overflow: ellipsis;\n        white-space: nowrap;\n        padding-right: 8px;\n    }\n    .chart-bar-track {\n        flex: 1;\n        height: 16px;\n        background: rgba(255,255,255,0.06);\n        border-radius: 3px;\n        overflow: hidden;\n        position: relative;\n    }\n    .chart-bar-fill {\n        height: 100%;\n        border-radius: 3px;\n        transition: width 0.4s ease;\n        min-width: 2px;\n    }\n    .chart-bar-value {\n        flex: 0 0 auto;\n        width: 36px;\n        text-align: right;\n        font-size: 11px;\n        font-weight: 600;\n        color: var(--text-primary);\n        padding-left: 6px;\n    }\n    /* \u0421\u0432\u043e\u0434\u043d\u0430\u044f \u043a\u0430\u0440\u0442\u043e\u0447\u043a\u0430 \u0441\u043e \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u043e\u0439 */\n    .chart-stats-grid {\n        display: grid;\n        grid-template-columns: 1fr 1fr;\n        gap: 8px;\n        margin-bottom: 14px;\n    }\n    .chart-stat-card {\n        background: var(--card-bg);\n        border: 1px solid var(--card-border);\n        border-radius: 8px;\n        padding: 10px 12px;\n        text-align: center;\n    }\n    .chart-stat-value {\n        font-size: 22px;\n        font-weight: 700;\n        color: #3aa288;\n        line-height: 1.2;\n    }\n    .chart-stat-label {\n        font-size: 11px;\n        color: var(--text-secondary);\n        margin-top: 2px;\n    }\n    /* \u0421\u0432\u0435\u0442\u043b\u0430\u044f \u0442\u0435\u043c\u0430 */\n    [data-theme=\"light\"] .charts-tab-active { color: #2e8a72; }\n    [data-theme=\"light\"] .charts-tab-active::after { background: #2e8a72; }\n    [data-theme=\"light\"] .chart-bar-track { background: rgba(0,0,0,0.06); }\n    [data-theme=\"light\"] .chart-stat-card { background: #fafaf8; border-color: rgba(0,0,0,0.08); }\n    [data-theme=\"light\"] .chart-stat-value { color: #2e8a72; }\n    [data-theme=\"light\"] .chart-card { background: #fafaf8; border-color: rgba(0,0,0,0.08); }\n\n    /* ======================== \u0413\u0420\u0410\u0424\u0418\u041a \u041f\u041f\u0420 \u2014 \u0432\u0435\u0440\u0442\u0438\u043a\u0430\u043b\u044c\u043d\u0430\u044f \u0433\u0438\u0441\u0442\u043e\u0433\u0440\u0430\u043c\u043c\u0430 ======================== */\n    .ppr-chart-card {\n        margin-bottom: 16px;\n    }\n    .ppr-chart-header {\n        padding: 12px 14px 8px;\n    }\n    .ppr-chart-title {\n        font-size: 14px;\n        font-weight: 600;\n        color: var(--text-primary);\n        margin-bottom: 8px;\n    }\n    .ppr-legend {\n        display: flex;\n        flex-wrap: wrap;\n        gap: 10px;\n    }\n    .ppr-legend-item {\n        display: flex;\n        align-items: center;\n        gap: 4px;\n    }\n    .ppr-legend-dot {\n        width: 10px;\n        height: 10px;\n        border-radius: 2px;\n        flex-shrink: 0;\n    }\n    .ppr-legend-code {\n        font-size: 11px;\n        font-weight: 700;\n        color: var(--text-primary);\n    }\n    .ppr-legend-name {\n        font-size: 11px;\n        color: var(--text-secondary);\n    }\n    .ppr-chart-body {\n        padding: 16px 14px 12px;\n    }\n    .ppr-chart-area {\n        display: flex;\n        position: relative;\n    }\n    .ppr-y-axis {\n        display: flex;\n        flex-direction: column;\n        justify-content: space-between;\n        padding-right: 6px;\n        flex-shrink: 0;\n        width: 30px;\n    }\n    .ppr-y-label {\n        font-size: 9px;\n        color: var(--text-secondary);\n        text-align: right;\n        line-height: 1;\n    }\n    .ppr-chart-grid {\n        flex: 1;\n        display: flex;\n        position: relative;\n        height: 180px;\n        border-left: 1px solid var(--border-color);\n        border-bottom: 1px solid var(--border-color);\n    }\n    .ppr-grid-line {\n        position: absolute;\n        left: 0;\n        right: 0;\n        height: 1px;\n        background: var(--border-color);\n        opacity: 0.5;\n    }\n    .ppr-month-group {\n        flex: 1;\n        display: flex;\n        flex-direction: column;\n        justify-content: flex-end;\n        align-items: center;\n        position: relative;\n        min-width: 0;\n    }\n    .ppr-bars-row {\n        display: flex;\n        gap: 2px;\n        width: 100%;\n        justify-content: center;\n        /* Task 473: stretch — ячейки растягиваются на всю высоту ряда:\n           раньше ячейки прижимались к низу и сжимались по контенту,\n           height:% столбца разрешался против auto-высоты ячейки и\n           схлопывался в min-height:2px — диаграмма не показывала\n           столбцы зрительно; низ столбца прижат flex-end\n           самой ячейки (.ppr-bar-cell) */\n        align-items: stretch;\n        flex: 1;\n        padding: 0 1px;\n    }\n    .ppr-bar-cell {\n        flex: 1;\n        display: flex;\n        align-items: flex-end;\n        justify-content: center;\n        max-width: 14px;\n        position: relative;\n    }\n    .ppr-bar {\n        width: 100%;\n        border-radius: 2px 2px 0 0;\n        position: relative;\n        min-height: 2px;\n        transition: height 0.3s ease;\n    }\n    .ppr-bar-val {\n        position: absolute;\n        top: -14px;\n        left: 50%;\n        transform: translateX(-50%);\n        font-size: 8px;\n        font-weight: 600;\n        color: var(--text-primary);\n        white-space: nowrap;\n        pointer-events: none;\n    }\n    /* Task 473: zero month label at baseline */\n    .ppr-bar-val-zero {\n        position: absolute;\n        bottom: 1px;\n        left: 50%;\n        transform: translateX(-50%);\n        font-size: 8px;\n        font-weight: 600;\n        color: var(--text-secondary);\n        white-space: nowrap;\n        pointer-events: none;\n    }\n    /* Task 473: right secondary axis + legend axis hint */\n    .ppr-y-axis-right {\n        padding-left: 6px;\n        padding-right: 0;\n    }\n    .ppr-y-axis-right .ppr-y-label {\n        text-align: left;\n    }\n    .ppr-legend-axis {\n        font-size: 9px;\n        opacity: 0.75;\n    }\n    .ppr-month-label {\n        font-size: 9px;\n        font-weight: 500;\n        color: var(--text-secondary);\n        padding-top: 4px;\n        text-align: center;\n        flex-shrink: 0;\n    }\n    /* \u0421\u0442\u0440\u043e\u043a\u0430 \u0438\u0442\u043e\u0433\u043e\u0432 \u043f\u043e\u0434 \u0433\u0440\u0430\u0444\u0438\u043a\u043e\u043c \u041f\u041f\u0420 */\n    .ppr-totals-row {\n        display: flex;\n        align-items: center;\n        gap: 12px;\n        padding: 8px 0 0;\n        border-top: 1px solid var(--border-color);\n        margin-top: 6px;\n        flex-wrap: wrap;\n    }\n    .ppr-totals-label {\n        font-size: 11px;\n        font-weight: 700;\n        color: var(--text-primary);\n        flex-shrink: 0;\n    }\n    .ppr-totals-item {\n        display: flex;\n        align-items: center;\n        gap: 4px;\n    }\n    .ppr-totals-value {\n        font-size: 12px;\n        font-weight: 700;\n        color: var(--text-primary);\n    }\n    [data-theme=\"light\"] .ppr-totals-row {\n        border-top-color: rgba(0,0,0,0.1);\n    }\n    /* \u0421\u0432\u0435\u0442\u043b\u0430\u044f \u0442\u0435\u043c\u0430 \u0434\u043b\u044f \u041f\u041f\u0420 */\n    [data-theme=\"light\"] .ppr-chart-grid {\n        border-left-color: rgba(0,0,0,0.12);\n        border-bottom-color: rgba(0,0,0,0.12);\n    }\n    [data-theme=\"light\"] .ppr-grid-line {\n        background: rgba(0,0,0,0.08);\n    }\n";
+    var css = "    /* ======================== \u0413\u0420\u0410\u0424\u0418\u041a\u0418 \u041a\u0418\u041f \u0418\u041e\u0421 ======================== */\n    .charts-tabs {\n        display: flex;\n        gap: 0;\n        border-bottom: 1px solid var(--border-color);\n        background: var(--card-bg);\n        position: sticky;\n        top: 56px;\n        z-index: 5;\n        overflow-x: auto;\n        -webkit-overflow-scrolling: touch;\n    }\n    .charts-tab {\n        flex: 1;\n        min-width: 0;\n        padding: 10px 6px;\n        border: none;\n        background: transparent;\n        color: var(--text-secondary);\n        font-size: 13px;\n        font-weight: 500;\n        cursor: pointer;\n        white-space: nowrap;\n        position: relative;\n        transition: color 0.2s;\n    }\n    .charts-tab::after {\n        content: '';\n        position: absolute;\n        left: 0; right: 0; bottom: 0;\n        height: 2px;\n        background: transparent;\n        border-radius: 1px;\n        transition: background 0.2s;\n    }\n    .charts-tab-active {\n        color: #3aa288;\n        font-weight: 600;\n    }\n    .charts-tab-active::after {\n        background: #3aa288;\n    }\n    .charts-content {\n        padding: 12px 14px 24px;\n    }\n    .charts-loading {\n        text-align: center;\n        padding: 40px 20px;\n        color: var(--text-secondary);\n        font-size: 13px;\n    }\n    /* \u041a\u0430\u0440\u0442\u043e\u0447\u043a\u0430 \u0433\u0440\u0430\u0444\u0438\u043a\u0430 */\n    .chart-card {\n        background: var(--card-bg);\n        border: 1px solid var(--card-border);\n        border-radius: 10px;\n        margin-bottom: 14px;\n        overflow: hidden;\n    }\n    .chart-card-title {\n        padding: 10px 14px 6px;\n        font-size: 13px;\n        font-weight: 600;\n        color: var(--text-primary);\n    }\n    .chart-card-body {\n        padding: 6px 14px 12px;\n    }\n    /* \u0413\u043e\u0440\u0438\u0437\u043e\u043d\u0442\u0430\u043b\u044c\u043d\u0430\u044f \u0441\u0442\u043e\u043b\u0431\u0447\u0430\u0442\u0430\u044f \u0434\u0438\u0430\u0433\u0440\u0430\u043c\u043c\u0430 (CSS-\u0431\u0430\u0440\u044b) */\n    .chart-bar-row {\n        display: flex;\n        align-items: center;\n        margin-bottom: 6px;\n    }\n    .chart-bar-label {\n        flex: 0 0 auto;\n        max-width: 45%;\n        font-size: 11px;\n        color: var(--text-secondary);\n        overflow: hidden;\n        text-overflow: ellipsis;\n        white-space: nowrap;\n        padding-right: 8px;\n    }\n    .chart-bar-track {\n        flex: 1;\n        height: 16px;\n        background: rgba(255,255,255,0.06);\n        border-radius: 3px;\n        overflow: hidden;\n        position: relative;\n    }\n    .chart-bar-fill {\n        height: 100%;\n        border-radius: 3px;\n        transition: width 0.4s ease;\n        min-width: 2px;\n    }\n    .chart-bar-value {\n        flex: 0 0 auto;\n        width: 36px;\n        text-align: right;\n        font-size: 11px;\n        font-weight: 600;\n        color: var(--text-primary);\n        padding-left: 6px;\n    }\n    /* \u0421\u0432\u043e\u0434\u043d\u0430\u044f \u043a\u0430\u0440\u0442\u043e\u0447\u043a\u0430 \u0441\u043e \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043a\u043e\u0439 */\n    .chart-stats-grid {\n        display: grid;\n        grid-template-columns: 1fr 1fr;\n        gap: 8px;\n        margin-bottom: 14px;\n    }\n    .chart-stat-card {\n        background: var(--card-bg);\n        border: 1px solid var(--card-border);\n        border-radius: 8px;\n        padding: 10px 12px;\n        text-align: center;\n    }\n    .chart-stat-value {\n        font-size: 22px;\n        font-weight: 700;\n        color: #3aa288;\n        line-height: 1.2;\n    }\n    .chart-stat-label {\n        font-size: 11px;\n        color: var(--text-secondary);\n        margin-top: 2px;\n    }\n    /* \u0421\u0432\u0435\u0442\u043b\u0430\u044f \u0442\u0435\u043c\u0430 */\n    [data-theme=\"light\"] .charts-tab-active { color: #2e8a72; }\n    [data-theme=\"light\"] .charts-tab-active::after { background: #2e8a72; }\n    [data-theme=\"light\"] .chart-bar-track { background: rgba(0,0,0,0.06); }\n    [data-theme=\"light\"] .chart-stat-card { background: #fafaf8; border-color: rgba(0,0,0,0.08); }\n    [data-theme=\"light\"] .chart-stat-value { color: #2e8a72; }\n    [data-theme=\"light\"] .chart-card { background: #fafaf8; border-color: rgba(0,0,0,0.08); }";
     var styleEl = document.createElement('style');
     styleEl.id = 'chartsDesktopCss';
     styleEl.textContent = css;
     document.head.appendChild(styleEl);
+
+    // ---------- 1a. CSS Task 483: ППР «Приборы» — таблица + диаграмма ----------
+    // Вид-фрагмент листа «Диаграммы» книги «Перечень КИП ИОС рабочий.xlsx»:
+    // БЕЛАЯ «документная» карточка в обеих темах (пастели Excel читаются
+    // только на белом); сетка таблицы — через gap:1px + фон линий;
+    // диаграмма ниже — ТА ЖЕ сетка (столбцы выровнены по колонкам
+    // таблицы), палитра accent1/2/3 темы книги, штриховка ТО.
+    var css483 = [
+        '/* ===== Task 483: ППР «Приборы» — таблица + диаграмма «как в Excel» ===== */',
+        '.ppr-tc-card {',
+        '    background: #ffffff;',
+        '    border: 1px solid rgba(0,0,0,0.35);',
+        '    border-radius: 8px;',
+        '    margin-bottom: 16px;',
+        '    padding: 10px 8px 8px;',
+        '}',
+        '[data-theme="light"] .ppr-tc-card { background: #ffffff; border-color: rgba(0,0,0,0.28); }',
+        '.ppr-tc-table {',
+        '    display: grid;',
+        '    grid-template-columns: minmax(104px, 1.45fr) 40px repeat(12, minmax(30px, 1fr));',
+        '    gap: 1px;',
+        '    background: #9a9a9a; /* цвет линий сетки (gap) */',
+        '    border: 1px solid #7f7f7f;',
+        '}',
+        '.ppr-tc-table > div {',
+        '    background: #ffffff;',
+        '    display: flex;',
+        '    align-items: center;',
+        '    justify-content: center;',
+        '    text-align: center;',
+        '    font-size: 12px;',
+        '    color: #111111;',
+        '    padding: 4px 2px;',
+        '    box-sizing: border-box;',
+        '    min-height: 26px;',
+        '}',
+        '.ppr-tc-vo {',
+        '    grid-column: 1 / 3;',
+        '    grid-row: 1 / 3;',
+        '    font-weight: 600;',
+        '    font-size: 11.5px;',
+        '}',
+        '.ppr-tc-title {',
+        '    grid-column: 3 / 15;',
+        '    font-weight: 600;',
+        '    font-size: 12.5px;',
+        '    padding: 6px 4px;',
+        '}',
+        '.ppr-tc-m { font-weight: 700; font-size: 11px; }',
+        '.ppr-tc-table .ppr-tc-m-pink { background: #FFB9B9; }',
+        '.ppr-tc-table .ppr-tc-m-gold { background: #FFDB69; }',
+        '.ppr-tc-name { justify-content: flex-start; text-align: left; padding-left: 10px; }',
+        '.ppr-tc-badge { font-weight: 700; }',
+        '.ppr-tc-table .ppr-tc-badge-k  { background: #8DB4E2; }',
+        '.ppr-tc-table .ppr-tc-badge-p  { background: #D99694; }',
+        '.ppr-tc-table .ppr-tc-badge-to { background: #C3D69B; }',
+        '.ppr-tc-table .ppr-tc-r-k  { background: #DBEEF4; }',
+        '.ppr-tc-table .ppr-tc-r-p  { background: #FDEADA; }',
+        '.ppr-tc-table .ppr-tc-r-to { background: #EBF1DE; }',
+        '.ppr-tc-v { font-variant-numeric: tabular-nums; }',
+        '/* Диаграмма — та же сетка (выравнивание по колонкам таблицы) */',
+        '.ppr-tc-chart {',
+        '    display: grid;',
+        '    grid-template-columns: minmax(104px, 1.45fr) 40px repeat(12, minmax(30px, 1fr));',
+        '    gap: 1px;',
+        '    margin-top: 2px;',
+        '    min-height: 216px;',
+        '    /* прозрачная рамка = рамке таблицы: контент-боксы сеток',
+        '       совпадают побитово — столбцы диаграммы стоят ровно под',
+        '       колонками месяцев таблицы */',
+        '    border: 1px solid transparent;',
+        '}',
+        '.ppr-tc-chart-empty { grid-column: 1 / 3; }',
+        '.ppr-tc-g {',
+        '    position: relative;',
+        '    display: flex;',
+        '    border-bottom: 1px solid rgba(0,0,0,0.45);',
+        '    border-left: 1px solid rgba(0,0,0,0.10);',
+        '}',
+        '.ppr-tc-bars {',
+        '    position: relative;',
+        '    flex: 1;',
+        '    display: flex;',
+        '    align-items: stretch; /* Task 473: ячейки растягиваются на высоту */',
+        '    justify-content: center;',
+        '    gap: 2px;',
+        '    padding: 16px 1px 0; /* запас под подписи значений (Task 473) */',
+        '    box-sizing: border-box;',
+        '}',
+        '.ppr-tc-bcell {',
+        '    flex: 1;',
+        '    max-width: 17px;',
+        '    position: relative;',
+        '    display: flex;',
+        '    align-items: flex-end; /* низ столбца прижат к основанию */',
+        '    justify-content: center;',
+        '}',
+        '.ppr-tc-bar {',
+        '    width: 100%;',
+        '    min-height: 2px;',
+        '    position: relative;',
+        '    border: 1px solid rgba(0,0,0,0.22);',
+        '    border-radius: 1px 1px 0 0;',
+        '    box-sizing: border-box;',
+        '}',
+        '.ppr-tc-hatch {',
+        '    background: repeating-linear-gradient(to bottom, #A3AF7F 0px, #A3AF7F 3px, #C4D695 3px, #C4D695 6px);',
+        '}',
+        '.ppr-tc-val {',
+        '    position: absolute;',
+        '    top: -13px;',
+        '    left: 50%;',
+        '    transform: translateX(-50%);',
+        '    font-size: 9px;',
+        '    font-weight: 600;',
+        '    color: #222222;',
+        '    white-space: nowrap;',
+        '    pointer-events: none;',
+        '}',
+        '.ppr-tc-val-zero {',
+        '    position: absolute;',
+        '    bottom: 1px;',
+        '    left: 50%;',
+        '    transform: translateX(-50%);',
+        '    font-size: 9px;',
+        '    font-weight: 600;',
+        '    color: #666666;',
+        '    white-space: nowrap;',
+        '    pointer-events: none;',
+        '}',
+        '.ppr-tc-empty-note {',
+        '    padding: 18px 14px;',
+        '    font-size: 13px;',
+        '    color: var(--text-secondary);',
+        '    text-align: center;',
+        '}'
+    ].join('\n');
+    var styleEl483 = document.createElement('style');
+    styleEl483.id = 'chartsDesktopCss483';
+    styleEl483.textContent = css483;
+    document.head.appendChild(styleEl483);
 
     // ---------- 2. Страница page-charts ----------
     var pageWrap = document.createElement('div');
@@ -69,30 +245,38 @@
         // Месяцы года (римские)
         _MONTHS_ROMAN: ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'],
 
-        // Данные ППР на текущий год (2026) — Приборы
-        // 3 серии: Калибровка (K), Поверка (П), Тех.обслуж. (ТО)
-        // Источник: «Перечень КИП ИОС рабочий.xlsx» → лист «Диаграмма приборов»
-        // Формулы: COUNTIF(Приборы[<месяц>], <код вида обслуживания>)
-        _PPR_DEVICES: {
-            title: 'Количество приборов по графику ППР по месяцам на 2026 год',
-            series: [
-                { name: 'Калибровка', code: 'К', color: '#4a90d9', values: [13, 33, 30, 45, 24, 28, 33, 34, 48, 16, 34, 35] },
-                { name: 'Поверка', code: 'П', color: '#e07040', values: [12, 12, 4, 15, 0, 4, 6, 10, 4, 6, 1, 12] },
-                { name: 'Тех. обслуж.', code: 'ТО', color: '#5ab870', values: [353, 354, 500, 320, 374, 496, 333, 353, 481, 358, 362, 485] }
-            ]
+        // Task 483: ППР «Приборы» — оформление серий (палитра листа
+        // «Диаграммы» книги: бейджи и оттенки строк — accent1/2/3 +80%
+        // (стандартная палитра Excel), столбцы — accent1/2/3, штриховка
+        // ТО — полосы тех же тонов). Суффиксы классов — латиницей.
+        _PPR_TC_STYLES: {
+            'К':  { suffix: 'k',  bar: '#4F81BD', badge: '#8DB4E2', row: '#DBEEF4' },
+            'П':  { suffix: 'p',  bar: '#C0504D', badge: '#D99694', row: '#FDEADA' },
+            'ТО': { suffix: 'to', bar: '#9BBB59', badge: '#C3D69B', row: '#EBF1DE' },
+            // Task 484: «Кр» (капитальный ремонт блокировок) — та же
+            // ветка accent1 (синий), что «К» приборов; штриховки НЕТ
+            'Кр': { suffix: 'k',  bar: '#4F81BD', badge: '#8DB4E2', row: '#DBEEF4' }
         },
 
-        // Данные ППР на текущий год (2026) — Блокировки (Схемы)
-        // 2 серии: Кан.ремонт (Кр), Тех.обслуж. (ТО)
-        _PPR_LOCKOUTS: {
-            title: 'График ППР — Схемы на 2026 год',
-            series: [
-                { name: 'Кан. ремонт', code: 'Кр', color: '#4a90d9', values: [58, 49, 26, 31, 13, 38, 33, 34, 74, 23, 49, 98] },
-                { name: 'Тех. обслуж.', code: 'ТО', color: '#5ab870', values: [87, 96, 210, 114, 132, 198, 112, 111, 162, 122, 96, 138] }
-            ]
-        },
+        // Task 483: пастельные заливки шапки месяцев — как на листе
+        // «Диаграммы» (I/V/IX/XII — розовый #FFB9B9, VI-VIII —
+        // золотой #FFDB69, остальные — без заливки).
+        _PPR_TC_MONTH_CLS: ['pink','','','','pink','gold','gold','gold','pink','','','pink'],
 
-        // Конфигурация разделов
+        // Task 483: блок ppr_chart из data/devices.json (считает
+        // sync-devices.py по листу «Приборы»: метки месяцев I..XII ==
+        // К/П/ТО И «Наличие в ППР» == «Есть»). Заполняется в
+        // _loadData('devices'); рендер — _renderDevicesPPR.
+        _pprChart: null,
+
+        // Task 484: блок ppr_chart из data/lockouts.json (считает
+        // sync-lockouts.py по листу «Блокировки»: метки месяцев
+        // I..XII == Кр/ТО И «Наличие в перечне и в ППР» == «Есть» —
+        // тот же подсчёт, что у приборов). Заполняется в
+        // _loadData('lockouts'); рендер — _renderDevicesPPR.
+        _pprChartLockouts: null,
+
+                // Конфигурация разделов
         _SECTIONS: {
             devices: {
                 jsonFile: 'data/devices.json',
@@ -163,6 +347,19 @@
                 .then(function(data) {
                     var items = data[sec.arrayKey] || [];
                     KipCharts._cache[section] = items;
+                    // Task 483: для приборов — захватить блок ppr_chart
+                    // (месячные счётчики К/П/ТО с фильтром «Наличие в ППР»
+                    // = «Есть», считает sync-devices.py по листу «Приборы»)
+                    if (section === 'devices' && data.ppr_chart) {
+                        KipCharts._pprChart = data.ppr_chart;
+                    }
+                    // Task 484: для блокировок — тот же блок ppr_chart
+                    // (счётчики Кр/ТО с фильтром «Наличие в перечне и
+                    // в ППР» = «Есть», считает sync-lockouts.py по листу
+                    // «Блокировки»)
+                    if (section === 'lockouts' && data.ppr_chart) {
+                        KipCharts._pprChartLockouts = data.ppr_chart;
+                    }
                     callback(items);
                 })
                 .catch(function() {
@@ -177,12 +374,9 @@
             var container = document.getElementById('chartsContent');
             if (!container) return;
 
-            // Для вкладки Приборы — диаграмма ППР не зависит от JSON-данных
-            if (tab === 'devices') {
-                this._renderContent(tab, []);
-                return;
-            }
-
+            // Task 483: вкладка «Приборы» идёт общим путём — грузит
+            // devices.json (диаграмме ППР нужны счётчики ppr_chart;
+            // раньше данные были заШиты и загрузка не требовалась)
             container.innerHTML = '<div class="charts-loading">Загрузка…</div>';
             this._loadData(tab, function(items) {
                 KipCharts._renderContent(tab, items);
@@ -197,16 +391,28 @@
             var sec = this._SECTIONS[tab];
             var html = '';
 
-            // Для вкладки Приборы — только диаграмма ППР (как в Excel)
-            if (tab === 'devices') {
-                html += this._renderPPRChart(this._PPR_DEVICES);
+            // Для вкладок Приборы/Блокировки — таблица + диаграмма
+            // ППР «как в Excel» из блока ppr_chart (Task 483 —
+            // приборы: sync-devices.py по листу «Приборы», фильтр
+            // «Наличие в ППР» = «Есть»; Task 484 — блокировки:
+            // sync-lockouts.py по листу «Блокировки», фильтр «Наличие
+            // в перечне и в ППР» = «Есть»; тот же вид и подсчёт)
+            if (tab === 'devices' || tab === 'lockouts') {
+                var ppr = tab === 'devices' ? this._pprChart
+                                            : this._pprChartLockouts;
+                if (ppr && ppr.series && ppr.series.length) {
+                    html += this._renderDevicesPPR(ppr,
+                        tab === 'devices' ? 'ПРИБОРОВ' : 'БЛОКИРОВОК');
+                } else {
+                    // ppr_chart отсутствует (устаревший кэш данных или
+                    // синк с gid= одного листа) — понятное сообщение
+                    html += '<div class="chart-card"><div class="ppr-tc-empty-note">' +
+                        'Данные графика ППР по ' + (tab === 'devices' ? 'приборам' : 'блокировкам') + ' появятся после обновления перечня ' +
+                        'КИП ИОС (синхронизация с таблицей). Обновите страницу или ' +
+                        'повторите позже.</div></div>';
+                }
                 container.innerHTML = html;
                 return;
-            }
-
-            // 0. График ППР (если есть для данного раздела)
-            if (tab === 'lockouts') {
-                html += this._renderPPRChart(this._PPR_LOCKOUTS);
             }
 
             // 1. Сводная статистика
@@ -288,174 +494,111 @@
         },
 
         // ============================================================
-        // Рендер графика ППР — группированная вертикальная гистограмма
-        // (как в Excel: clustered column chart с легендой и итогами).
-        // Task 473: (а) значение над КАЖДЫМ столбцом — количество
-        // приборов на месяц видно прямо на диаграмме (включая «0»
-        // пустых месяцев — подпись у основания); (б) ВСПОМОГАТЕЛЬНАЯ
-        // ПРАВАЯ ОСЬ для малых серий: если максимум серии <= 25% от
-        // общего максимума (К 13–48 и П 0–15 при ТО 320–500), серия
-        // масштабируется по правой оси — иначе её столбцы зрительно
-        // неотличимы от нуля; малые серии делят одну ось и помечены
-        // в легенде «(правая ось)».
+        // Task 483: ППР «Приборы» — ТАБЛИЦА + ДИАГРАММА «как в Excel»
+        // (вид-фрагмент листа «Диаграммы» книги «Перечень КИП ИОС
+        // рабочий.xlsx», сверено со скрином пользователя):
+        //  — ТАБЛИЦА: шапка «Вид обслуживания» (2 строки × 2 колонки,
+        //    объединена как A1:B2) + титул «Количество ПРИБОРОВ по
+        //    графику ППР по месяцам на <год> год» (C1:N1); месяцы
+        //    I–XII жирным с пастельными заливками (I/V/IX/XII —
+        //    #FFB9B9, VI-VIII — #FFDB69); строки К/П/ТО: бейдж-код
+        //    (accent +40%) + название + 12 значений (строка —
+        //    оттенок accent +80%);
+        //  — ДИАГРАММА под таблицей: СГРУППИРОВАННЫЕ столбцы К/П/ТО
+        //    (accent1/2/3: #4F81BD/#C0504D/#9BBB59, у ТО — горизон-
+        //    тальная штриховка, как на листе), выровнены по колонкам
+        //    таблицы (ОБЩАЯ CSS-сетка), значения над КАЖДЫМ столбцом
+        //    (0 — подпись у основания, прецедент Task 473), осей,
+        //    легенды и титула диаграммы НЕТ (месяцы задаёт таблица
+        //    сверху) — всё как на листе «Диаграммы».
+        // Данные — ppr_chart (см. _loadData): counts НЕ заШиты.
+        // Task 484: noun — существительное титула («ПРИБОРОВ» у
+        // приборов, «БЛОКИРОВОК» у блокировок; по умолчанию —
+        // «ПРИБОРОВ», обратная совместимость моков тестов 483).
         // ============================================================
-        _renderPPRChart: function(pprData) {
-            var series = pprData.series;
-            var numSeries = series.length;
-            var numMonths = 12;
+        _renderDevicesPPR: function(ppr, noun) {
+            var styles = this._PPR_TC_STYLES;
+            var mCls = this._PPR_TC_MONTH_CLS;
+            var FALLBACK = { suffix: 'x', bar: '#9e9e9e', badge: '#e0e0e0', row: '#f5f5f5' };
 
-            // Максимумы по сериям и общий максимум (Task 473)
-            var seriesMax = [];
-            var maxVal = 0;
-            for (var s = 0; s < numSeries; s++) {
-                var sMax = 0;
-                for (var m = 0; m < numMonths; m++) {
-                    if (series[s].values[m] > sMax) sMax = series[s].values[m];
-                }
-                seriesMax[s] = sMax;
-                if (sMax > maxVal) maxVal = sMax;
+            // Серии (код/название/значения) + оформление по коду
+            var series = [];
+            for (var i = 0; i < ppr.series.length; i++) {
+                var s = ppr.series[i];
+                if (!s || !s.values || s.values.length !== 12) continue;
+                var st = styles[s.code] || FALLBACK;
+                series.push({ code: s.code, name: s.name || s.code, values: s.values, st: st });
             }
-            if (maxVal === 0) maxVal = 1;
+            var year = ppr.year || new Date().getFullYear();
+            var title = 'Количество ' + (noun || 'ПРИБОРОВ') + ' по графику ППР по месяцам на ' + year + ' год';
 
-            // Task 473: вспомогательная (правая) ось для малых серий —
-            // максимум серии <= 25% от общего максимума; все малые серии
-            // делят ОДНУ правую ось (масштаб — по наибольшей из них)
-            var SECONDARY_SHARE = 0.25;
-            var isSecondary = [];
-            var secMaxVal = 0;
-            var hasSecondary = false;
-            for (var s = 0; s < numSeries; s++) {
-                var small = seriesMax[s] > 0 && seriesMax[s] <= maxVal * SECONDARY_SHARE;
-                isSecondary[s] = small;
-                if (small) {
-                    hasSecondary = true;
-                    if (seriesMax[s] > secMaxVal) secMaxVal = seriesMax[s];
+            // ЕДИНАЯ шкала всех серий (как в Excel; оси нет, но высоты
+            // пропорциональны значениям). Максимум по всем сериям.
+            var maxVal = 1;
+            for (var i = 0; i < series.length; i++) {
+                for (var m = 0; m < 12; m++) {
+                    var v = series[i].values[m];
+                    if (typeof v === 'number' && v > maxVal) maxVal = v;
                 }
             }
 
-            // Округлить maxVal вверх до красивого числа
-            var niceMax = this._niceMax(maxVal);
-            var secNiceMax = hasSecondary ? this._niceMax(secMaxVal) : 0;
+            var html = '<div class="chart-card ppr-tc-card">';
 
-            // Ось Y: 5 делений
-            var ySteps = 5;
-            var yStepVal = niceMax / ySteps;
-            var secStepVal = hasSecondary ? secNiceMax / ySteps : 0;
-
-            var html = '<div class="chart-card ppr-chart-card">';
-            html += '<div class="ppr-chart-header">';
-            html += '<div class="ppr-chart-title">' + this._escHtml(pprData.title) + '</div>';
-            // Легенда
-            html += '<div class="ppr-legend">';
-            for (var s = 0; s < numSeries; s++) {
-                html += '<div class="ppr-legend-item">';
-                html += '<span class="ppr-legend-dot" style="background:' + series[s].color + ';"></span>';
-                html += '<span class="ppr-legend-code">' + this._escHtml(series[s].code) + '</span>';
-                html += '<span class="ppr-legend-name">' + this._escHtml(series[s].name) +
-                    (isSecondary[s] ? ' <span class="ppr-legend-axis">(правая ось)</span>' : '') + '</span>';
-                html += '</div>';
+            // ---------- ТАБЛИЦА ----------
+            html += '<div class="ppr-tc-table">';
+            // Шапка: «Вид обслуживания» (строки 1-2, колонки 1-2) + титул
+            html += '<div class="ppr-tc-vo">Вид обслуживания</div>';
+            html += '<div class="ppr-tc-title">' + this._escHtml(title) + '</div>';
+            for (var m = 0; m < 12; m++) {
+                var cls = 'ppr-tc-m' + (mCls[m] ? ' ppr-tc-m-' + mCls[m] : '');
+                html += '<div class="' + cls + '">' + this._MONTHS_ROMAN[m] + '</div>';
             }
-            html += '</div>';
-            html += '</div>';
-
-            // Тело графика
-            html += '<div class="ppr-chart-body">';
-
-            // Оси + область графика
-            html += '<div class="ppr-chart-area">';
-
-            // Ось Y (метки слева)
-            html += '<div class="ppr-y-axis">';
-            for (var i = ySteps; i >= 0; i--) {
-                var yVal = Math.round(yStepVal * i);
-                html += '<div class="ppr-y-label">' + yVal + '</div>';
+            // Строки данных: бейдж + название + 12 значений
+            for (var i = 0; i < series.length; i++) {
+                var sr = series[i];
+                html += '<div class="ppr-tc-name ppr-tc-r-' + sr.st.suffix + '">' + this._escHtml(sr.name) + '</div>';
+                html += '<div class="ppr-tc-badge ppr-tc-badge-' + sr.st.suffix + '">' + this._escHtml(sr.code) + '</div>';
+                for (var m = 0; m < 12; m++) {
+                    var val = sr.values[m];
+                    var num = (typeof val === 'number' && isFinite(val)) ? val : 0;
+                    html += '<div class="ppr-tc-v ppr-tc-r-' + sr.st.suffix + '">' + num + '</div>';
+                }
             }
             html += '</div>';
 
-            // Сетка + столбцы
-            html += '<div class="ppr-chart-grid">';
-
-            // Горизонтальные линии сетки
-            for (var i = 0; i <= ySteps; i++) {
-                var bottomPct = (i / ySteps) * 100;
-                html += '<div class="ppr-grid-line" style="bottom:' + bottomPct + '%;"></div>';
-            }
-
-            // Группы столбцов по месяцам
-            for (var m = 0; m < numMonths; m++) {
-                html += '<div class="ppr-month-group">';
-
-                // Столбцы серий
-                html += '<div class="ppr-bars-row">';
-                for (var s = 0; s < numSeries; s++) {
-                    var val = series[s].values[m];
-                    // Task 473: малые серии масштабируются по своей оси
-                    var scaleMax = isSecondary[s] ? secNiceMax : niceMax;
-                    var heightPct = (val / scaleMax) * 100;
-                    html += '<div class="ppr-bar-cell">';
-                    if (val > 0) {
-                        html += '<div class="ppr-bar" data-scale="' + (isSecondary[s] ? 'secondary' : 'primary') + '" style="height:' + heightPct + '%;background:' + series[s].color + ';" title="' + this._escHtml(series[s].name) + (isSecondary[s] ? ' (правая ось)' : '') + ': ' + val + '">';
-                        // Task 473: значение над КАЖДЫМ столбцом — количество
-                        // приборов на месяц видно прямо на диаграмме
-                        html += '<span class="ppr-bar-val">' + val + '</span>';
+            // ---------- ДИАГРАММА (та же сетка — выравнивание по месяцам) ----------
+            html += '<div class="ppr-tc-chart">';
+            html += '<div class="ppr-tc-chart-empty"></div>';
+            for (var m = 0; m < 12; m++) {
+                html += '<div class="ppr-tc-g">';
+                html += '<div class="ppr-tc-bars">';
+                for (var i = 0; i < series.length; i++) {
+                    var sr = series[i];
+                    var val = sr.values[m];
+                    var num = (typeof val === 'number' && isFinite(val)) ? val : 0;
+                    var barCls = 'ppr-tc-bar' + (sr.code === 'ТО' ? ' ppr-tc-hatch' : '');
+                    var styleAttr = 'height:' + ((num / maxVal) * 100) + '%;' +
+                        (sr.code !== 'ТО' ? 'background:' + sr.st.bar + ';' : '');
+                    html += '<div class="ppr-tc-bcell">';
+                    if (num > 0) {
+                        html += '<div class="' + barCls + '" style="' + styleAttr + '"' +
+                            ' title="' + this._escHtml(sr.name) + ' (' + this._escHtml(sr.code) + '), ' +
+                            this._MONTHS_ROMAN[m] + ': ' + num + '">';
+                        html += '<span class="ppr-tc-val">' + num + '</span>';
                         html += '</div>';
                     } else {
-                        // Task 473: нулевой месяц — подпись «0» у основания
-                        html += '<span class="ppr-bar-val-zero">0</span>';
+                        // Нулевой месяц — подпись «0» у основания (Task 473)
+                        html += '<span class="ppr-tc-val-zero">0</span>';
                     }
                     html += '</div>';
                 }
                 html += '</div>';
-
-                // Метка месяца
-                html += '<div class="ppr-month-label">' + this._MONTHS_ROMAN[m] + '</div>';
-                html += '</div>';
-            }
-
-            html += '</div>'; // .ppr-chart-grid
-
-            // Task 473: правая вспомогательная ось — масштаб малых серий
-            if (hasSecondary) {
-                html += '<div class="ppr-y-axis ppr-y-axis-right">';
-                for (var i = ySteps; i >= 0; i--) {
-                    html += '<div class="ppr-y-label">' + Math.round(secStepVal * i) + '</div>';
-                }
-                html += '</div>';
-            }
-
-            html += '</div>'; // .ppr-chart-area
-
-            // Строка итогов (сумма по каждой серии)
-            html += '<div class="ppr-totals-row">';
-            html += '<div class="ppr-totals-label">Итого:</div>';
-            for (var s = 0; s < numSeries; s++) {
-                var total = 0;
-                for (var m = 0; m < numMonths; m++) total += series[s].values[m];
-                html += '<div class="ppr-totals-item">';
-                html += '<span class="ppr-legend-dot" style="background:' + series[s].color + ';"></span>';
-                html += '<span class="ppr-legend-code">' + this._escHtml(series[s].code) + '</span>';
-                html += '<span class="ppr-totals-value">' + total + '</span>';
                 html += '</div>';
             }
             html += '</div>';
 
-            html += '</div>'; // .ppr-chart-body
-            html += '</div>'; // .chart-card
-
+            html += '</div>'; // .ppr-tc-card
             return html;
-        },
-
-        // Красивое округление максимума для оси Y
-        _niceMax: function(val) {
-            if (val <= 0) return 10;
-            var mag = Math.pow(10, Math.floor(Math.log10(val)));
-            var norm = val / mag;
-            var nice;
-            if (norm <= 1) nice = 1;
-            else if (norm <= 2) nice = 2;
-            else if (norm <= 5) nice = 5;
-            else nice = 10;
-            return nice * mag;
         },
 
         // Название группировки для заголовка
