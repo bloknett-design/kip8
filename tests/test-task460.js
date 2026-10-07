@@ -23,7 +23,7 @@
 //     (группа _PLAN_EVENTS_PAGES, уровни с PLAN_EVENTS, в
 //     _applyServerAccess — perm('plan.events') + переходный
 //     фоллбек пока колонки в матрице нет; см. test-task462.js);
-//   • sw.js → kipia-v512.
+//   • sw.js → kipia-v513.
 // ============================================================
 
 const fs = require('fs');
@@ -350,8 +350,8 @@ describe('Task 460 — SRC: права доступа (обновлено Task 4
 // ============================================================
 describe('Task 460 — SW', () => {
 
-    test('kipia-v512 + комментарий Task 460', () => {
-        assertTrue(SW_SRC.indexOf("kipia-v512") !== -1, 'версия поднята до v684');
+    test('kipia-v513 + комментарий Task 460', () => {
+        assertTrue(SW_SRC.indexOf("kipia-v513") !== -1, 'версия поднята до v684');
         assertTrue(SW_SRC.indexOf('kipia-v498') === -1, 'старой версии v683 нет');
         assertTrue(SW_SRC.indexOf('Task 460') !== -1, 'комментарий Task 460 в истории');
         assertTrue(SW_SRC.indexOf('Плановые мероприятия') !== -1,

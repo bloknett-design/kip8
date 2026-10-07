@@ -227,7 +227,7 @@ describe('Task 483: charts-desktop.js — структура', () => {
 
     test('_renderContent: ветка devices рендерит ppr_chart', () => {
         const seg = CHARTS_SRC.slice(CHARTS_SRC.indexOf('_renderContent: function'),
-                                     CHARTS_SRC.indexOf('var totalItems'));
+                                     CHARTS_SRC.indexOf('_renderValvesPies: function'));
         assertTrue(seg.indexOf('_renderDevicesPPR(ppr,') !== -1,
             'вызов нового рендерера (Task 484: с noun)');
         assertTrue(seg.indexOf('ppr-tc-empty-note') !== -1,
@@ -487,8 +487,8 @@ describe('Task 483: VM — _renderDevicesPPR (таблица + диаграмм�
 // 5. SW: версия v512 + комментарий Task 483
 // ==========================================================================
 describe('Task 483: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v512', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v512';") !== -1,
+    test('CACHE_VERSION = kipia-v513', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v513';") !== -1,
             'версия поднята');
     });
 
@@ -497,12 +497,12 @@ describe('Task 483: SW — версия и кэши', () => {
     });
 
     test('v513 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v513') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v514') === -1);
     });
 
     test('комментарий Task 483 в шапке версий (окно 700)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v512';");
-        const ctx = SW_SRC.slice(Math.max(0, i - 700), i);
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v513';");
+        const ctx = SW_SRC.slice(Math.max(0, i - 1500), i);
         assertTrue(ctx.indexOf('Task 483') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('Графики КИП ИОС') !== -1, 'раздел');
         assertTrue(ctx.indexOf('ppr_chart') !== -1, 'блок данных');

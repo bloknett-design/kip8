@@ -22,7 +22,7 @@
 //   (в) нулевые месяцы — подпись «0» у основания;
 //   (г) ВСПОМОГАТЕЛЬНАЯ ПРАВАЯ ОСЬ для малых серий (легаси
 //       гистограммы Task 473);
-//   SW: kipia-v512.
+//   SW: kipia-v513.
 //
 // ИСТОРИЯ АДАПТАЦИЙ:
 //   Task 483: _PPR_DEVICES УДАЛЁН (данные вкладки «Приборы» теперь
@@ -238,8 +238,8 @@ describe('Task 473: шапка charts-desktop.js и SW', () => {
             'назначение модуля не изменилось');
     });
 
-    test('CACHE_VERSION = kipia-v512', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v512';") !== -1,
+    test('CACHE_VERSION = kipia-v513', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v513';") !== -1,
             'текущая версия v707');
     });
 
@@ -249,14 +249,14 @@ describe('Task 473: шапка charts-desktop.js и SW', () => {
     });
 
     test('v708 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v513') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v514') === -1,
             'версия после текущей задачи не существует');
     });
 
     test('комментарий Task 473 о составе правок в sw.js (окно истории)', () => {
         // Task 473 ~3843 (комментарии 474-484 отодвинули) — окно 4600
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v512';");
-        const ctx = SW_SRC.slice(Math.max(0, i - 4600), i);
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v513';");
+        const ctx = SW_SRC.slice(Math.max(0, i - 5100), i);
         assertTrue(ctx.indexOf('Task 473') !== -1, 'маркер задачи в окне истории');
         assertTrue(ctx.indexOf('правая ось') !== -1 || ctx.indexOf('ППР') !== -1,
             'упоминание графика ППР');
