@@ -130,9 +130,9 @@ describe('Task 409 — SRC: клиент (формат периодичност�
             'подсказка — _fmtPeriodRu');
     });
 
-    test('SW поднят (SW_VERSION = kipia-v513)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v513') !== -1,
-            'CACHE_VERSION в sw.js — kipia-v513');
+    test('SW поднят (SW_VERSION = kipia-v514)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v514') !== -1,
+            'CACHE_VERSION в sw.js — kipia-v514');
     });
 });
 

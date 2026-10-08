@@ -23,7 +23,7 @@
 //      _openEmpPopup (программные вызовы тоже). Режим зрителя —
 //      класс ws-readonly на #page-work-schedule: CSS выключает
 //      подсветку наведения ФИО (зебра чётных строк живёт).
-//   SW: kipia-v513.
+//   SW: kipia-v514.
 //
 // Запуск: через tests/run-all.js (require './test-task338.js').
 
@@ -38,7 +38,7 @@ const SW_SRC = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 // Срез исходника от начала объекта WorkSchedule (имена методов
 // НЕуникальны в файле — извлекаем только из модуля «График работы»)
 const WS_START = INDEX_SRC.indexOf('var WorkSchedule = {');
-const WS_CLIENT = INDEX_SRC.slice(WS_START, WS_START + 500000);
+const WS_CLIENT = INDEX_SRC.slice(WS_START, WS_START + 600000);
 
 function methodText(src, name) {
     const sig = '\n        ' + name + ': function';
@@ -243,10 +243,10 @@ describe('Task 338 — регрессы прав Task 337', () => {
 // ============================================================
 describe('Task 338 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v513', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v513'") !== -1,
-            'CACHE_VERSION = kipia-v513 (Task 338 — только фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v514') !== -1,
+    test('SW: кэш поднят до kipia-v514', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v514'") !== -1,
+            'CACHE_VERSION = kipia-v514 (Task 338 — только фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v515') !== -1,
             'лишний инкремент (v578) не сделан');
     });
 

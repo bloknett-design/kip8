@@ -28,7 +28,7 @@
 //   • CSS @media print: .wsp-mev-item/.wsp-lg — display: block
 //     (один столбик) + page-break-inside: avoid.
 //
-// SW: kipia-v513.
+// SW: kipia-v514.
 //
 // Запуск: через tests/run-all.js (require './test-task360.js').
 
@@ -43,7 +43,7 @@ const SW_SRC = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 // Срез исходника от начала объекта WorkSchedule (имена методов
 // НЕуникальны в файле — извлекаем только из модуля «График работы»)
 const WS_START = INDEX_SRC.indexOf('var WorkSchedule = {');
-const WS_CLIENT = INDEX_SRC.slice(WS_START, WS_START + 500000);
+const WS_CLIENT = INDEX_SRC.slice(WS_START, WS_START + 600000);
 
 function methodText(src, name) {
     const sig = '\n        ' + name + ': function';
@@ -522,10 +522,10 @@ describe('Task 360 — регресс прежних фич печати', () =>
 // ============================================================
 describe('Task 360 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v513', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v513'") !== -1,
-            'CACHE_VERSION = kipia-v513 (Task 360 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v514') !== -1,
+    test('SW: кэш поднят до kipia-v514', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v514'") !== -1,
+            'CACHE_VERSION = kipia-v514 (Task 360 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v515') !== -1,
             'v605 ещё не существует (лишний инкремент)');
     });
 });
