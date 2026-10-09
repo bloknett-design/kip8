@@ -438,8 +438,8 @@ describe('Task 484: VM — _renderDevicesPPR (блокировки)', () => {
 // 5. SW: версия v512 + комментарий Task 484
 // ==========================================================================
 describe('Task 484: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v514', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v514';") !== -1,
+    test('CACHE_VERSION = kipia-v515', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v515';") !== -1,
             'версия поднята');
     });
 
@@ -448,12 +448,12 @@ describe('Task 484: SW — версия и кэши', () => {
     });
 
     test('v513 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v515') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v516') === -1);
     });
 
     test('комментарий Task 484 в шапке версий (окно 700)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v514';");
-        const ctx = SW_SRC.slice(Math.max(0, i - 2100), i);
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v515';");
+        const ctx = SW_SRC.slice(Math.max(0, i - 3900), i);
         assertTrue(ctx.indexOf('Task 484') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('Блокировки') !== -1, 'вкладка');
         assertTrue(ctx.indexOf('ppr_chart') !== -1, 'блок данных');

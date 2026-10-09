@@ -28,7 +28,7 @@
 //   всех строк ключа, not_found если записи нет;
 //   planEvents.unmark — deleteRow всех строк ключа (с конца),
 //   идемпотентно removed:false; SRV_VER '464';
-//   SW: kipia-v514.
+//   SW: kipia-v515.
 //
 // Запуск: через tests/run-all.js (require './test-task464.js').
 
@@ -417,8 +417,8 @@ describe('Task 464 — SRC: Code.gs маршрутизация', () => {
 // ============================================================
 describe('Task 464 — SW: версия кэша', () => {
 
-    test('CACHE_VERSION = kipia-v514', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v514';") !== -1,
+    test('CACHE_VERSION = kipia-v515', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v515';") !== -1,
             'текущая версия v688');
     });
 

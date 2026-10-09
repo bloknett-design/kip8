@@ -20479,9 +20479,23 @@
             <label class="flow-input-label" for="wsEmpTabNo">Таб. №</label>
             <input type="text" id="wsEmpTabNo" class="flow-input-field-small" placeholder="2706" autocomplete="off">
         </div>
+        <!-- Task 489: столбец «ФИО» листа «Сотрудники» разделён на
+             ТРИ столбца — форма вводит ПОЛНЫЕ данные частями
+             (фамилия/имя/отчество); краткое ФИО «Иванов И. И.»
+             приложение composeит само -->
         <div class="flow-input-group" style="flex:1 1 65%;">
-            <label class="flow-input-label" for="wsEmpFio">ФИО</label>
-            <input type="text" id="wsEmpFio" class="flow-input-field-small" placeholder="Галкин Д. Н." autocomplete="off">
+            <label class="flow-input-label" for="wsEmpFam">Фамилия</label>
+            <input type="text" id="wsEmpFam" class="flow-input-field-small" placeholder="Галкин" autocomplete="off">
+        </div>
+    </div>
+    <div class="flow-input-row">
+        <div class="flow-input-group" style="flex:1 1 50%;">
+            <label class="flow-input-label" for="wsEmpName">Имя</label>
+            <input type="text" id="wsEmpName" class="flow-input-field-small" placeholder="Дмитрий" autocomplete="off">
+        </div>
+        <div class="flow-input-group" style="flex:1 1 50%;">
+            <label class="flow-input-label" for="wsEmpPatr">Отчество</label>
+            <input type="text" id="wsEmpPatr" class="flow-input-field-small" placeholder="Николаевич" autocomplete="off">
         </div>
     </div>
     <div class="flow-input-row">
@@ -20516,6 +20530,13 @@
         <div class="flow-input-group">
             <label class="flow-input-label" for="wsEmpHire">Дата приёма</label>
             <input type="date" id="wsEmpHire" class="flow-input-field-small">
+        </div>
+        <!-- Task 489: дата рождения — новый столбец «дата_рождения»
+             листа «Сотрудники» (ПЕРЕД «комментарием»); в карте
+             работника — в конце списка блока профиля -->
+        <div class="flow-input-group">
+            <label class="flow-input-label" for="wsEmpBirth">Дата рождения</label>
+            <input type="date" id="wsEmpBirth" class="flow-input-field-small">
         </div>
     </div>
     <!-- Task 320: подсказка календарного режима дневного персонала —
@@ -48139,9 +48160,16 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 // Task 442: число ВЫХОДНОГО дня — ЖИРНОЕ (s=1,
                 // как прежде у всех) + medium-верх контура
                 // (headC: T/TL/TR/TLR); обычный день — НЕ жирное
-                // число (новый стиль regDate)
-                head.push({ v: String(model.days[d].d) +
-                            (model.days[d].short ? '*' : ''),
+                // число (новый стиль regDate).
+                // Task 488 («простой редактируемый xlsx»): число
+                // дня — ЧИСЛОВАЯ ячейка (прежде — текст «1»..«31»
+                // ⇒ Excel рисовал «число сохранено как текст» на
+                // всей шапке, зелёные треугольники, сортировка/
+                // фильтр/правка — как у текста). Сокращённый день
+                // «N*» — остаётся ТЕКСТОМ (звёздочка)
+                head.push({ v: model.days[d].short
+                            ? (String(model.days[d].d) + '*')
+                            : model.days[d].d,
                             s: off ? stMap.headC + edge
                                    : stMap.regDate });
                 // день недели в полосе выходного — medium-бока
@@ -48270,8 +48298,14 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     } else if (String(v) === '') {
                         x += '<c r="' + ref + '"' + st + '/>';
                     } else {
+                        // Task 488: xml:space="preserve" при краевом
+                        // пробеле — как в _wsXlsSheetXml (архив);
+                        // без него Excel может подрезать текст
+                        var sv = String(v);
+                        var sp = (/^\s|\s$/.test(sv))
+                            ? ' xml:space="preserve"' : '';
                         x += '<c r="' + ref + '" t="inlineStr"' + st +
-                             '><is><t>' + this._wsXlsEsc(String(v)) +
+                             '><is><t' + sp + '>' + this._wsXlsEsc(sv) +
                              '</t></is></c>';
                     }
                 }
@@ -48312,6 +48346,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var widths = [Math.min(34, empLen + 2)];
             for (var d = 0; d < model.days.length; d++) widths.push(3.8);
             widths.push(6, 9.5);
+            // Task 488 («простой редактируемый xlsx»): + docProps
+            // (core/app) в [Content_Types] и _rels/.rels, в
+            // workbook.xml — bookViews (Excel всегда их пишет)
+            var dp = this._wsXlsDocProps();
             var files = [];
             var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                 '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
@@ -48320,6 +48358,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
                 '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
                 '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+                dp.ct +
                 '</Types>';
             files.push({ name: '[Content_Types].xml',
                          data: this._wsXlsBytes(ct) });
@@ -48329,14 +48368,21 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
                     '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"' +
-                    ' Target="xl/workbook.xml"/></Relationships>')
+                    ' Target="xl/workbook.xml"/>' + dp.rels +
+                    '</Relationships>')
             });
+            // Task 488: docProps — сразу за rels (канонический
+            // порядок частей Excel: CT, rels, docProps, xl/*)
+            for (var dpi = 0; dpi < dp.files.length; dpi++) {
+                files.push(dp.files[dpi]);
+            }
             files.push({
                 name: 'xl/workbook.xml',
                 data: this._wsXlsBytes(
                     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                     '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"' +
                     ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+                    '<bookViews><workbookView/></bookViews>' +
                     '<sheets><sheet name="Табель" sheetId="1" r:id="rId1"/>' +
                     '</sheets></workbook>')
             });
@@ -49494,8 +49540,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     } else if (String(v) === '') {
                         x += '<c r="' + ref + '"' + st + '/>';
                     } else {
+                        // Task 488: xml:space="preserve" при краевом
+                        // пробеле (как в _wsXlsSheetXml архива)
+                        var sv = String(v);
+                        var sp = (/^\s|\s$/.test(sv))
+                            ? ' xml:space="preserve"' : '';
                         x += '<c r="' + ref + '" t="inlineStr"' + st +
-                             '><is><t>' + this._wsXlsEsc(String(v)) +
+                             '><is><t' + sp + '>' + this._wsXlsEsc(sv) +
                              '</t></is></c>';
                     }
                 }
@@ -49599,6 +49650,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                                { v: model.ppe[q].fio, s: 7 }]);
                 }
             }
+            // Task 488 («простой редактируемый xlsx»): + docProps
+            // (core/app) и bookViews — тот же паттерн, что у книги
+            // «Табель» (_buildTabelWorkbook)
+            var dp = this._wsXlsDocProps();
             var files = [];
             var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                 '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
@@ -49607,6 +49662,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
                 '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
                 '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+                dp.ct +
                 '</Types>';
             files.push({ name: '[Content_Types].xml',
                          data: this._wsXlsBytes(ct) });
@@ -49616,14 +49672,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
                     '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"' +
-                    ' Target="xl/workbook.xml"/></Relationships>')
+                    ' Target="xl/workbook.xml"/>' + dp.rels +
+                    '</Relationships>')
             });
+            for (var dpi = 0; dpi < dp.files.length; dpi++) {
+                files.push(dp.files[dpi]);
+            }
             files.push({
                 name: 'xl/workbook.xml',
                 data: this._wsXlsBytes(
                     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                     '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"' +
                     ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+                    '<bookViews><workbookView/></bookViews>' +
                     '<sheets><sheet name="Мероприятия" sheetId="1" r:id="rId1"/>' +
                     '</sheets></workbook>')
             });
@@ -50946,6 +51007,42 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             if (!iso) return '—';
             var p = String(iso).split('-');
             return p.length === 3 ? (p[2] + '.' + p[1] + '.' + p[0]) : String(iso);
+        },
+
+        // Task 489: инициал части имени («Александр»/«А.»/«А» →
+        // «А.») — для композиции КРАТКОГО ФИО из частей
+        _wsNameInitial: function(part) {
+            var s = String(part || '').trim();
+            if (!s) return '';
+            return s.charAt(0).toUpperCase() + '.';
+        },
+
+        // Task 489: КРАТКОЕ ФИО из частей («Галкин»+«Дмитрий»+
+        // «Николаевич» → «Галкин Д. Н.»; инициалы «Д.»/«Н.» дают
+        // то же; нет имени/отчества — одна фамилия) — «в других
+        // местах как и прежде сокращённо» (заявка); так же поле
+        // ФИО в payload add/updateEmployee для легаси-сервера
+        _wsShortFio: function(fam, im, ot) {
+            var out = String(fam || '').trim();
+            var ini = this._wsNameInitial(im);
+            if (ini) out += ' ' + ini;
+            var oin = this._wsNameInitial(ot);
+            if (oin) out += ' ' + oin;
+            return out.trim();
+        },
+
+        // Task 489: ПОЛНОЕ ФИО из частей («Галкин Дмитрий
+        // Николаевич»; пустые части пропускаются) — шапка блока
+        // профиля карты работника + лист «Работники» Excel-архива
+        // (получение из записи — инлайн: ФИО_полное || ФИО)
+        _wsFullFio: function(fam, im, ot) {
+            var parts = [String(fam || '').trim(), String(im || '').trim(),
+                         String(ot || '').trim()];
+            var out = [];
+            for (var i = 0; i < parts.length; i++) {
+                if (parts[i]) out.push(parts[i]);
+            }
+            return out.join(' ');
         },
 
         // Русская форма множественного: 1 часть / 2 части / 5 частей
@@ -54219,6 +54316,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // Task 251: клик по ячейке открывает попап выбора статуса рядом
             // с ячейкой (вместо мгновенно сохраняющего bottom-sheet)
             var clickHandler = 'WorkSchedule.onCellClick(event, \'' + isoDate + '\',\'' + safeTabNo + '\')';
+            // Task 487 (заявка: «И в десктопной версии сделай появление
+            // попапа, если есть мероприятие, при наведении указателя
+            // мыши»): ховер-хендлеры на ВСЕХ ячейках — дёшево (сам
+            // onCellHover гейтит десктоп+мышь и наличие мероприятий);
+            // mouseenter/mouseleave НЕ всплывают и считают td с
+            // бейджами одной зоной — выхода на бейдж не происходит
+            var hoverHandler = 'WorkSchedule.onCellHover(event, \'' + isoDate + '\',\'' + safeTabNo + '\')';
             // Task 311: пояснительные тултипы (title) с ячеек шахматки
             // убраны по заявке — вся информация (статус/название,
             // праздник, мероприятия с кнопками, «Дополнительно…») — в
@@ -54227,7 +54331,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                    (style ? 'style="' + style + '" ' : '') +
                    'data-editable="' + editable + '" ' +
                    'data-day="' + day + '" ' +
-                   'onclick="' + clickHandler + '">' +
+                   'onclick="' + clickHandler + '" ' +
+                   'onmouseenter="' + hoverHandler + '" ' +
+                   'onmouseleave="WorkSchedule.onCellLeave()">' +
                    // Task 298: код отпуска «О» → «ОТ» (Т-12/Т-13).
                    // Task 274: пустая ячейка в периоде отпуска — код «ОТ»
                    // плана (фоновый цвет и рамка — классом ws-vac-plan)
@@ -54453,16 +54559,90 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             } catch (e) {}
             // Task 319 (заявка): ЗРИТЕЛЯМ («График работы — просмотр»)
             // клик по ячейке открывает ТОЛЬКО окно «Мероприятия в этот
-            // день» — справка без правки (кнопки ✎/✕ в нём и так
-            // скрыты _canEdit в _renderEventsPopup, строка не клика-
-            // бельна). Окно выбора кодов — только ролям с правом
-            // записи; прежний тост «нет прав» зрителю больше не
-            // показывается — вместо него информативное окно.
+            // день» — справка без правки (Task 487: кнопок в нём нет
+            // НИ У КОГО — окно справочное, правка из карточки
+            // работника; строка не кликабельна). Окно выбора кодов —
+            // только ролям с правом записи; прежний тост «нет прав»
+            // зрителю больше не показывается — вместо него
+            // информативное окно.
             if (!this._canEdit) {
                 this._openEventsOnlyPopup(td, isoDate, tabNo);
                 return;
             }
             this._openCellPopup(td, isoDate, tabNo);
+        },
+
+        // Task 487 (заявка: «И в десктопной версии сделай появление
+        // попапа, если есть мероприятие, при наведении указателя
+        // мыши»): ХОВЕР по ячейке шахматки с мероприятием открывает
+        // окно «Мероприятия в этот день» БЕЗ клика — быстрый просмотр
+        // (окно справочное, кнопок в нём больше нет — Task 487;
+        // правка — из карточки работника). Только ДЕСКТОП с настоящим
+        // мышьиным указателем: вьюпорт ≥1024px (тот же признак, что
+        // isDesktop у остального модуля) И media (hover: hover) +
+        // (pointer: fine) — планшет/телефон ховера не получает
+        // (tap-«mouseenter» совместимости отсекается). Гварды:
+        // пакетное сохранение (_saving) и ОТКРЫТЫЙ КЛИКОМ попап
+        // (_popupCell) — ховер им не мешает; ячейка без мероприятий
+        // окно не открывает. Повторный вход в ту же ячейку (выход на
+        // бейдж/соседа и назад в grace-окне 350 мс) — не дёргает
+        // рендер, только гасит отложенное закрытие.
+        onCellHover: function(ev, isoDate, tabNo) {
+            if (typeof window === 'undefined' || !window.matchMedia) return;
+            if (!window.matchMedia('(min-width: 1024px)').matches) return;
+            if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+            if (this._saving) return;
+            if (this._popupCell) return;
+            // Task 487: анти-дребезг — после ЗАКРЫТИЯ кликового попапа
+            // (Esc/кловер/выбор статуса) браузер переотправляет
+            // mouseenter на ячейку под НЕПОДВИЖНЫМ курсором (кловер-
+            // оверлей скрылся — элемент под указателем «сменлся»):
+            // 400 мс не даём окну «возродиться» сразу после закрытия;
+            // реальный ховер (движение мыши) работает как прежде
+            if (this._popupClosedAt &&
+                    (Date.now() - this._popupClosedAt) < 400) return;
+            // ячейка без мероприятий — окно «Мероприятия» не открываем
+            if (!this._eventsAt(isoDate, tabNo).length) return;
+            if (this._hoverOn && this._hoverCell &&
+                    this._hoverCell.date === isoDate &&
+                    String(this._hoverCell['таб_номер']) === String(tabNo)) {
+                // курсор вернулся в ту же ячейку — отменить закрытие
+                if (this._hoverTimer) {
+                    clearTimeout(this._hoverTimer);
+                    this._hoverTimer = null;
+                }
+                return;
+            }
+            var td = null;
+            try {
+                if (ev && ev.target && ev.target.closest) {
+                    td = ev.target.closest('td.ws-cell');
+                }
+            } catch (e) {}
+            this._openHoverPopup(td, isoDate, tabNo);
+        },
+
+        // Task 487: курсор ушёл с ячейки — окно закрывается не сразу:
+        // grace-таймер 350 мс (курсор может идти НА окно — прочитать
+        // длинную тему; вход в окно гасит таймер, см. _openHoverPopup).
+        // Открытый кликом попап (_popupCell) — неприкосновенен:
+        // ховер-состояние просто сбрасывается без закрытия.
+        onCellLeave: function() {
+            if (!this._hoverOn) return;
+            if (this._popupCell) {
+                this._hoverOn = false;
+                if (this._hoverTimer) {
+                    clearTimeout(this._hoverTimer);
+                    this._hoverTimer = null;
+                }
+                return;
+            }
+            if (this._hoverTimer) clearTimeout(this._hoverTimer);
+            var self = this;
+            this._hoverTimer = setTimeout(function() {
+                self._hoverTimer = null;
+                self._closeHoverPopup();
+            }, 350);
         },
 
         // Содержимое попапа: заголовок (дата · ФИО), строки статусов
@@ -54632,55 +54812,27 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
             for (var de = 0; de < dayEvents.length; de++) {
                 var deMeta = this._statusMeta(dayEvents[de].code) || {};
-                // Task 309: кнопки правки/удаления мероприятия —
-                // только ролям с правом записи (зрители видят
-                // справку без действий). stopPropagation — клик не
-                // дойдёт до строки (строка не кликабельна, но
-                // подстрахуемся на будущее)
+                // Task 487 (заявка: «в попапе мероприятия "И" или
+                // "ПЗ" убери возможность редактирования и внесения
+                // изменений (убери все три кнопки), должен быть
+                // только просмотр, а изменение теперь должно быть
+                // возможно только из карт работников»): все ТРИ
+                // кнопки окна — ГАЛОЧКА выполнения (Task 482), ✎
+                // (Task 309) и ✕ (Task 309) — УДАЛЕНЫ. Окно
+                // «Мероприятия в этот день» теперь СПРАВОЧНОЕ для
+                // ВСЕХ ролей (в т.ч. редакторов): правка/удаление/
+                // отметка выполнения — ТОЛЬКО из карточки работника
+                // (страница «Работники», Task 385/418/427).
+                // Task 488 (заявка: «кнопка отметки осталась»):
+                // удалён и read-only МАРКЕР-квадрат галочки (тот
+                // зелёный ✓ в рамке, классы chk/маркера) — он
+                // выглядит элементом управления, а окно должно быть
+                // чисто текстовой справкой. Состояние выполнения
+                // видно: (а) цветом рамки бейджа ячейки в сетке
+                // (ws-ev-done/ws-ev-late, Task 482), (б) галочкой
+                // в КАРТОЧКЕ работника. Строка окна = свотч + код +
+                // название — ничего кликабельного
                 var deT = dayEvents[de].training;
-                var deId = parseInt(deT.id, 10);
-                // Task 427: семейство записи (id таблиц раздельные —
-                // одинаковый id адресуется семейством типа)
-                var deFam = this._isInstrType(deT.тип) ? 1 : 0;
-                // Task 482 (заявка: «добавь возможность отмечать их
-                // выполнение в окне, которое появляется возле
-                // ячейкой при нажатии на эту ячейку, рядом со
-                // значками редактирования и удаления, у тех
-                // пользователей, которые имеют доступ к изменению
-                // данных»): ГАЛОЧКА отметки выполнения — в ряду
-                // действий, ПЕРЕД ✎/✕ (клик — toggleTrainingDone,
-                // тот же метод, что в карточке, Task 418: сервер
-                // пишет столбец «выполнение», автосоздание новых
-                // сроков, тост). ТОЛЬКО записям семейства
-                // «Инструктажи» (И/ПЗ — столбец есть; ОБ/ПР/* —
-                // галочки нет) и записям с id. Зрители (без права
-                // записи) видят СОСТОЯНИЕ — некликабельно (как в
-                // карточке); сетка показывает то же цветом рамки
-                // бейджа (ws-ev-done/ws-ev-late)
-                var deChk = '';
-                if (deFam === 1 && deId) {
-                    var deDone = (parseInt(deT.выполнение, 10) === 1);
-                    if (this._canEdit) {
-                        deChk = '<span class="ws-done-chk' +
-                                (deDone ? ' ws-done-on' : '') + '"' +
-                                ' role="button" tabindex="0" title="' +
-                                (deDone ? 'Снять отметку о выполнении'
-                                        : 'Отметить выполнение') + '"' +
-                                ' onclick="event.stopPropagation(); ' +
-                                'WorkSchedule.toggleTrainingDone(' + deId +
-                                ')">✓</span>';
-                    } else if (deDone) {
-                        deChk = '<span class="ws-done-chk ws-done-on ws-done-ro"' +
-                                ' title="Выполнено">✓</span>';
-                    }
-                }
-                var deActs = deChk;
-                if (this._canEdit && deId) {
-                    deActs += '<span class="ws-popup-act" title="Редактировать"' +
-                             ' onclick="event.stopPropagation(); WorkSchedule.editTraining(' + deId + ', ' + deFam + ')">✎</span>' +
-                             '<span class="ws-popup-act ws-popup-act-del" title="Удалить"' +
-                             ' onclick="event.stopPropagation(); WorkSchedule.deleteTraining(' + deId + ', ' + deFam + ')">✕</span>';
-                }
                 html += '<div class="ws-popup-row ws-popup-event">' +
                         '<span class="ws-popup-swatch" style="background:' + (deMeta.color || '#3a3a3a') + ';"></span>' +
                         '<span class="ws-popup-code">' + this._esc(dayEvents[de].code) + '</span>' +
@@ -54688,7 +54840,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                         // («сокращение» из «Список_И_и_ПЗ», нет — полное)
                         '<span class="ws-popup-name">' +
                         this._esc(this._instrShortOf(deT.тема) || deMeta.name || '') + '</span>' +
-                        deActs + '</div>';
+                        '</div>';
             }
             return html;
         },
@@ -54711,6 +54863,18 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // HTML рядом с #wsCellPopup (после него)
             var evp = document.getElementById('wsEventsPopup');
             this._popupCell = { date: isoDate, 'таб_номер': tabNo };
+            // Task 487: клик ПЕРЕХВАТЫВАЕТ окно мероприятий у ховер-
+            // режима — сбрасываем ховер-флаги/таймер/хендлеры: окно
+            // ниже перерендерится уже кликовым содержимым (гварды
+            // onCellLeave теперь видят живой _popupCell и не закроют
+            // его отсроченным таймером)
+            this._hoverOn = false;
+            this._hoverCell = null;
+            if (this._hoverTimer) {
+                clearTimeout(this._hoverTimer);
+                this._hoverTimer = null;
+            }
+            if (evp) { evp.onmouseenter = null; evp.onmouseleave = null; }
             popup.innerHTML = this._renderCellPopup(isoDate, tabNo);
             closer.classList.add('active');
             popup.classList.add('active');
@@ -54777,6 +54941,20 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         closeCellPopup: function() {
             var popup = document.getElementById('wsCellPopup');
             var closer = document.getElementById('wsPopupCloser');
+            // Task 487: Esc/кловер/выбор статуса закрывают и ховер-
+            // режим (если был жив) — флаги/таймер/хендлеры снимаются,
+            // само окно ниже закрывается общей логикой. Метка
+            // _popupClosedAt — для анти-дребезга в onCellHover:
+            // скрытие кловера «меняет» элемент под неподвижным
+            // курсором, и браузер переотправляет mouseenter ячейке —
+            // 400 мс окно не возрождается сразу после закрытия
+            this._hoverOn = false;
+            this._hoverCell = null;
+            if (this._hoverTimer) {
+                clearTimeout(this._hoverTimer);
+                this._hoverTimer = null;
+            }
+            this._popupClosedAt = Date.now();
             // Task 313: окно «Мероприятия в этот день» закрывается
             // ВМЕСТЕ с окном кодов (один жизненный цикл: кловер,
             // выбор статуса, «+ Мероприятие…», «Дополнительно…»,
@@ -54784,7 +54962,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // через closeCellPopup; Task 417: попап карточки
             // удалён)
             var evp = document.getElementById('wsEventsPopup');
-            if (evp) { evp.classList.remove('active'); evp.innerHTML = ''; }
+            if (evp) {
+                evp.classList.remove('active');
+                evp.innerHTML = '';
+                evp.onmouseenter = null;
+                evp.onmouseleave = null;
+            }
             if (popup) { popup.classList.remove('active'); popup.innerHTML = ''; }
             if (closer) closer.classList.remove('active');
             this._popupCell = null;
@@ -54797,13 +54980,23 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // правилам _openCellPopup (правее, не влезает — левее,
         // клампы по краям); закрывается кловером/Esc как обычно
         // (closeCellPopup чистит ОБА окна). Содержимое — тот же
-        // _renderEventsPopup: строки-справка без ✎/✕ (кнопки и
-        // так _canEdit-gated), пустой день — «нет мероприятий».
+        // _renderEventsPopup: строки-справка (Task 487 — окно без
+        // кнопок у ВСЕХ ролей), пустой день — «нет мероприятий».
         _openEventsOnlyPopup: function(cellEl, isoDate, tabNo) {
             var evp = document.getElementById('wsEventsPopup');
             var closer = document.getElementById('wsPopupCloser');
             if (!evp) return;
             this._popupCell = { date: isoDate, 'таб_номер': tabNo };
+            // Task 487: как и в _openCellPopup — клик зрителя
+            // перехватывает окно у ховер-режима (сброс флагов/таймера)
+            this._hoverOn = false;
+            this._hoverCell = null;
+            if (this._hoverTimer) {
+                clearTimeout(this._hoverTimer);
+                this._hoverTimer = null;
+            }
+            evp.onmouseenter = null;
+            evp.onmouseleave = null;
             evp.innerHTML = this._renderEventsPopup(isoDate, tabNo);
             if (closer) closer.classList.add('active');
             evp.classList.add('active');
@@ -54832,6 +55025,87 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             evp.style.left = Math.round(left) + 'px';
             evp.style.top = Math.round(top) + 'px';
             evp.style.visibility = '';
+        },
+
+        // Task 487: ховер-версия окна «Мероприятия в этот день» — тот
+        // же рендер (_renderEventsPopup, справочное окно без кнопок),
+        // то же позиционирование (правее ячейки, не влезает — левее,
+        // клампы по краям вьюпорта), но БЕЗ кловера #wsPopupCloser
+        // (закрытие — уход курсора, не клик «вне») и БЕЗ записи
+        // _popupCell (кликовый режим не трогаем). Курсор может уйти
+        // НА окно (прочитать длинную тему): mouseenter окна гасит
+        // grace-таймер, mouseleave — закрывает. Оба хендлера живут
+        // только в ховер-режиме (_closeHoverPopup их снимает; клики
+        // _openCellPopup/_openEventsOnlyPopup тоже сбрасывают).
+        _openHoverPopup: function(cellEl, isoDate, tabNo) {
+            var evp = document.getElementById('wsEventsPopup');
+            if (!evp) return;
+            if (this._hoverTimer) {
+                clearTimeout(this._hoverTimer);
+                this._hoverTimer = null;
+            }
+            this._hoverOn = true;
+            this._hoverCell = { date: isoDate, 'таб_номер': tabNo };
+            evp.innerHTML = this._renderEventsPopup(isoDate, tabNo);
+            evp.classList.add('active');
+            // Сначала скрыто в левом верхнем углу — измерить габариты,
+            // затем позиционировать и показать (как _openEventsOnlyPopup)
+            evp.style.left = '0px';
+            evp.style.top = '0px';
+            evp.style.visibility = 'hidden';
+            var ew = evp.offsetWidth;
+            var eh = evp.offsetHeight;
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            var left, top;
+            var rect = cellEl ? cellEl.getBoundingClientRect() : null;
+            if (rect) {
+                left = rect.right + 6;
+                if (left + ew > vw - 8) left = rect.left - ew - 6;
+                if (left < 8) left = Math.max(8, Math.min(rect.left, vw - ew - 8));
+                if (left + ew > vw - 8) left = Math.max(8, vw - ew - 8);
+                top = rect.top;
+                if (top + eh > vh - 8) top = Math.max(8, vh - eh - 8);
+            } else {
+                left = Math.max(8, (vw - ew) / 2);
+                top = Math.max(8, (vh - eh) / 2);
+            }
+            evp.style.left = Math.round(left) + 'px';
+            evp.style.top = Math.round(top) + 'px';
+            evp.style.visibility = '';
+            var self = this;
+            evp.onmouseenter = function() {
+                if (self._hoverTimer) {
+                    clearTimeout(self._hoverTimer);
+                    self._hoverTimer = null;
+                }
+            };
+            evp.onmouseleave = function() {
+                if (self._hoverOn && !self._popupCell) self._closeHoverPopup();
+            };
+        },
+
+        // Task 487: закрыть ховер-окно (grace-таймер истёк / курсор
+        // ушёл с самого окна / Esc / закрытие кликового попапа).
+        // Кликковый режим неприкосновенен: при живом _popupCell окно
+        // принадлежит клику — трогаем только ховер-флаги и хендлеры.
+        _closeHoverPopup: function() {
+            if (!this._hoverOn) return;
+            this._hoverOn = false;
+            this._hoverCell = null;
+            if (this._hoverTimer) {
+                clearTimeout(this._hoverTimer);
+                this._hoverTimer = null;
+            }
+            var evp = document.getElementById('wsEventsPopup');
+            if (evp) {
+                evp.onmouseenter = null;
+                evp.onmouseleave = null;
+                if (!this._popupCell) {
+                    evp.classList.remove('active');
+                    evp.innerHTML = '';
+                }
+            }
         },
 
         // Выбор статуса в попапе: применяется ЛОКАЛЬНО (в _PENDING),
@@ -55064,7 +55338,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var b1Acts = '';
             if (withEdit) {
                 b1Acts = '<button type="button" class="ws-wbtn ws-emp-editdata"' +
-                         ' title="Правка данных работника: ФИО, режим, должность…"' +
+                         ' title="Правка данных работника: ФИО (фамилия/имя/отчество), дата рождения, режим, должность…"' +
                          ' onclick="WorkSchedule.openEmpEditForm(\'' +
                          this._esc(String(emp['таб_номер'] || '')) + '\')">Правка данных…</button>' +
                          '<button type="button" class="ws-wbtn ws-wbtn-danger ws-emp-dismiss"' +
@@ -55072,12 +55346,18 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                          ' onclick="WorkSchedule.openDismissForm(\'' +
                          this._esc(String(emp['таб_номер'] || '')) + '\')">Уволить…</button>';
             }
+            // Task 489: шапка профиля — ПОЛНОЕ ФИО («Галкин Дмитрий
+            // Николаевич»; легаси-кэш без ФИО_полное — как прежде
+            // краткое) — «должны отражаться только в приложении в
+            // карте работника в блоке профиля» (заявка)
+            var empFioFull = String(emp['ФИО_полное'] || '').trim() ||
+                             String(emp['ФИО'] || '').trim();
             var b1 = asBlocks
                 ? '<div class="ws-whead"><div class="ws-whead-t ws-whead-name">' +
-                  this._esc(emp['ФИО']) + ' · таб. №' +
+                  this._esc(empFioFull) + ' · таб. №' +
                   this._esc(emp['таб_номер']) +
                   '</div><div class="ws-whead-a">' + b1Acts + '</div></div>'
-                : '<div class="ws-popup-title">' + this._esc(emp['ФИО']) +
+                : '<div class="ws-popup-title">' + this._esc(empFioFull) +
                   ' · таб. №' + this._esc(emp['таб_номер']) + '</div>';
 
             // --- Блок 1: профиль (бывшая вкладка «Сотрудники») ---
@@ -55112,7 +55392,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 // выполненной проверки знаний до 1000 В («от …»)
                 ['Группа допуска', grpVal || '—'],
                 ['Дата приёма', emp['дата_приёма'] ? this._fmtDateRu(emp['дата_приёма']) : '—'],
-                ['Комментарий', String(emp['комментарий'] || '').trim()]
+                ['Комментарий', String(emp['комментарий'] || '').trim()],
+                // Task 489 (заявка): «дата_рождения» — строкой В КОНЦЕ
+                // списка профиля (пусто/нет — не показывается)
+                ['Дата рождения', emp['дата_рождения']
+                    ? this._fmtDateRu(emp['дата_рождения']) : '']
             ];
             // Task 396 (заявка): ЗЕБРА — чередующийся фон вторых
             // строк блока (класс ws-row-alt — только asBlocks;
@@ -55132,8 +55416,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
 
             // Task 384 → 385: «Правка данных…» — шторка работника в
-            // режиме ПРАВКИ (профиль: ФИО/тип/смена/шаблон/старт/
-            // приём/должность/комментарий; таб. № — readonly, PK).
+            // режиме ПРАВКИ (профиль: фамилия/имя/отчество (Task 489 —
+            // столбец ФИО листа разделён)/дата рождения (Task 489)/
+            // тип/смена/шаблон/старт/приём/должность/комментарий;
+            // таб. № — readonly, PK).
             // Сервер: workSchedule.updateEmployee. Со страницы
             // «Работники» (withEdit; до Task 385 — из карточки
             // шахматки; двойная защита в openEmpEditForm)
@@ -57560,7 +57846,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // i+id / e+id), как в _wtabYearRecords. Task 445 (заявка):
         // КНИГА = ПЯТЬ листов, годы записей — относительно ТЕКУЩЕГО
         // календарного года (не года шахматки):
-        //   1) «Работники» — справочник профилей (таб/ФИО/тип/смена/
+        //   1) «Работники» — справочник профилей (таб/ФИО (Task 489:
+        //      ПОЛНОЕ — «Галкин Дмитрий Николаевич»)/тип/смена/
         //      должность/группа допуска/дата приёма) — без фильтра;
         //   2) «Отпуска» — даты отпусков ПРЕДЫДУЩЕГО и ТЕКУЩЕГО
         //      годов (пул _VAC_YEARS; соседние годы лениво
@@ -57704,10 +57991,62 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         // экранирование XML-текста
         _wsXlsEsc: function(s) {
             return String(s == null ? '' : s)
+                // Task 488 («простой редактируемый xlsx»): XML 1.0
+                // ЗАПРЕЩАЕТ управляющие символы 0x00–0x08, 0x0B,
+                // 0x0C, 0x0E–0x1F (допустимы только \t \n \r).
+                // «Мусорные» байты из пользовательских полей (тема
+                // мероприятия, примечание СИЗ…) дают книгу, которую
+                // LibreOffice/openpyxl открывают, а Excel —
+                // «восстанавливает» (ремонт файла). Вырезаем ДО
+                // экранирования, все три листа книги
+                .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '')
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;');
+        },
+
+        // Task 488 («простой редактируемый xlsx»): СТАНДАРТНЫЙ состав
+        // книги — docProps (core.xml/app.xml) + bookViews. Excel сам
+        // всегда пишет эти части: без них книга открывается, но
+        // «неполна» (панель свойств пуста; строгие наборы —
+        // МойОфис/старые сборки — ворчливее). Общий помощник всех
+        // трёх выгрузок: {files, ct, rels} — файлы docProps,
+        // Override-строки [Content_Types] и Relationship-строки
+        // _rels/.rels (rId2/rId3 НЕ конфликтуют: rId1 — workbook)
+        _wsXlsDocProps: function() {
+            var nowIso = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+            return {
+                files: [
+                    { name: 'docProps/core.xml',
+                      data: this._wsXlsBytes(
+                          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                          '<cp:coreProperties' +
+                          ' xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"' +
+                          ' xmlns:dc="http://purl.org/dc/elements/1.1/"' +
+                          ' xmlns:dcterms="http://purl.org/dc/terms/"' +
+                          ' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+                          '<dc:creator>КИПиА</dc:creator>' +
+                          '<cp:lastModifiedBy>КИПиА</cp:lastModifiedBy>' +
+                          '<dcterms:created xsi:type="dcterms:W3CDTF">' +
+                          nowIso + '</dcterms:created>' +
+                          '<dcterms:modified xsi:type="dcterms:W3CDTF">' +
+                          nowIso + '</dcterms:modified>' +
+                          '</cp:coreProperties>') },
+                    { name: 'docProps/app.xml',
+                      data: this._wsXlsBytes(
+                          '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                          '<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">' +
+                          '<Application>КИПиА</Application>' +
+                          '</Properties>') }
+                ],
+                ct: '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>' +
+                    '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>',
+                rels: '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties"' +
+                      ' Target="docProps/core.xml"/>' +
+                      '<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties"' +
+                      ' Target="docProps/app.xml"/>'
+            };
         },
 
         // XML листа: rows — массив строк (массив ячеек; строка =>
@@ -58010,7 +58349,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 var smena = parseInt(emp['смена'], 10);
                 employees.push([
                     String(emp['таб_номер'] || ''),
-                    String(emp['ФИО'] || ''),
+                    // Task 489 (заявка): полное ФИО — «отражаются …
+                    // в сохранённом файле excel … на листе
+                    // "Работники"»; легаси-кэш без ФИО_полное —
+                    // краткое, как прежде
+                    String(emp['ФИО_полное'] || '').trim() ||
+                        String(emp['ФИО'] || '').trim(),
                     String(emp['тип'] || ''),
                     (smena >= 1 && smena <= 5) ? smena : '',
                     String(emp['должность'] || ''),
@@ -58119,7 +58463,15 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 { name: 'Мероприятия', rows: d.events, person: 'ФИО',
                   widths: [32, 15, 50, 15, 15, 16, 42] }
             ];
-            var files = [];
+            // Task 488 («простой редактируемый xlsx»): (1) zip-порядок
+            // частей КАНОНИЧЕСКИЙ — [Content_Types].xml ПЕРВЫМ, затем
+            // _rels/.rels, docProps, workbook, его rels, листы, стили
+            // (прежде листы шли ПЕРВЫМИ, CT — последним: Excel такое
+            // читает по central directory, но поборчливые наборы
+            // ждут «как пишет сам Excel»); (2) + docProps (core/app)
+            // и bookViews в workbook.xml — паттерн _buildTabelWorkbook
+            var dp = this._wsXlsDocProps();
+            var sheetFiles = [];
             var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                 '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
                 '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
@@ -58136,7 +58488,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 rels += '<Relationship Id="rId' + (i + 1) +
                         '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"' +
                         ' Target="worksheets/sheet' + (i + 1) + '.xml"/>';
-                files.push({
+                sheetFiles.push({
                     name: 'xl/worksheets/sheet' + (i + 1) + '.xml',
                     data: this._wsXlsBytes(this._wsXlsSheetXml(
                         sheets[i].rows, { widths: sheets[i].widths,
@@ -58150,6 +58502,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             rels += '<Relationship Id="rId' + relN +
                     '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"' +
                     ' Target="styles.xml"/>';
+            ct += dp.ct;
+            var files = [];
             files.push({ name: '[Content_Types].xml',
                         data: this._wsXlsBytes(ct + '</Types>') });
             files.push({
@@ -58158,14 +58512,19 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
                     '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"' +
-                    ' Target="xl/workbook.xml"/></Relationships>')
+                    ' Target="xl/workbook.xml"/>' + dp.rels +
+                    '</Relationships>')
             });
+            for (var dpi = 0; dpi < dp.files.length; dpi++) {
+                files.push(dp.files[dpi]);
+            }
             files.push({
                 name: 'xl/workbook.xml',
                 data: this._wsXlsBytes(
                     '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
                     '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"' +
                     ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+                    '<bookViews><workbookView/></bookViews>' +
                     '<sheets>' + sheetTags + '</sheets></workbook>')
             });
             files.push({
@@ -58175,6 +58534,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
                     rels + '</Relationships>')
             });
+            for (var sfi = 0; sfi < sheetFiles.length; sfi++) {
+                files.push(sheetFiles[sfi]);
+            }
             files.push({ name: 'xl/styles.xml',
                          data: this._wsXlsBytes(this._wsXlsStylesXml()) });
             var now = new Date();
@@ -58755,7 +59117,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             document.getElementById('wsEmpStart').value = today;
             document.getElementById('wsEmpHire').value  = today;
             document.getElementById('wsEmpTabNo').value = '';
-            document.getElementById('wsEmpFio').value = '';
+            // Task 489: ТРИ поля имени + дата рождения (столбец ФИО
+            // листа разделён)
+            document.getElementById('wsEmpFam').value = '';
+            document.getElementById('wsEmpName').value = '';
+            document.getElementById('wsEmpPatr').value = '';
+            document.getElementById('wsEmpBirth').value = '';
             document.getElementById('wsEmpType').value = 'сменный';
             document.getElementById('wsEmpShift').value = '';
             // Task 318: «Должность» — выпадающий список из таблицы
@@ -58826,7 +59193,24 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             // на клиенте: пустой в записи → сегодня)
             document.getElementById('wsEmpTabNo').value = String(emp['таб_номер'] || '');
             document.getElementById('wsEmpTabNo').readOnly = true;
-            document.getElementById('wsEmpFio').value = String(emp['ФИО'] || '');
+            // Task 489: ТРИ поля имени — из ЧАСТЕЙ записи; легаси-
+            // кэш/сервер без частей — раскладка краткого ФИО по
+            // словам («Галкин Д. Н.» → Галкин/Д./Н.); дата
+            // рождения — поле записи (нет — пусто)
+            var famVal = String(emp['фамилия'] || '').trim();
+            var nameVal = String(emp['имя'] || '').trim();
+            var patrVal = String(emp['отчество'] || '').trim();
+            if (!famVal) {
+                var fioWords = String(emp['ФИО'] || '').trim().split(/\s+/);
+                famVal = fioWords[0] || '';
+                nameVal = fioWords[1] || '';
+                patrVal = fioWords.slice(2).join(' ');
+            }
+            document.getElementById('wsEmpFam').value = famVal;
+            document.getElementById('wsEmpName').value = nameVal;
+            document.getElementById('wsEmpPatr').value = patrVal;
+            document.getElementById('wsEmpBirth').value =
+                String(emp['дата_рождения'] || '');
             var tip = String(emp['тип'] || '').trim();
             document.getElementById('wsEmpType').value =
                 (tip === 'сменный' || tip === 'дневной') ? tip : 'сменный';
@@ -58866,7 +59250,7 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             document.getElementById('wsEmpOverlay').classList.add('active');
             document.getElementById('wsEmpSheet').classList.add('active');
             setTimeout(function() {
-                var f = document.getElementById('wsEmpFio');
+                var f = document.getElementById('wsEmpFam');
                 if (f) f.focus();
             }, 350);
         },
@@ -59068,7 +59452,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
 
         submitEmployeeForm: function() {
             var tabNo = document.getElementById('wsEmpTabNo').value.trim();
-            var fio = document.getElementById('wsEmpFio').value.trim();
+            // Task 489: имя — ТРИ поля (фамилия/имя/отчество);
+            // дата рождения — необязательное поле даты
+            var fam = document.getElementById('wsEmpFam').value.trim();
+            var name = document.getElementById('wsEmpName').value.trim();
+            var patr = document.getElementById('wsEmpPatr').value.trim();
+            var birth = document.getElementById('wsEmpBirth').value;
             var type = document.getElementById('wsEmpType').value;
             var shift = document.getElementById('wsEmpShift').value;
             var patId = document.getElementById('wsEmpPattern').value;
@@ -59084,8 +59473,17 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var self = this;
 
             if (!tabNo) { if (typeof KipToast !== 'undefined') KipToast.show('Введите таб. №'); return; }
-            if (!fio)   { if (typeof KipToast !== 'undefined') KipToast.show('Введите ФИО'); return; }
+            // Task 489: обязательна ФАМИЛИЯ (имя/отчество —
+            // необязательные части полного ФИО)
+            if (!fam)   { if (typeof KipToast !== 'undefined') KipToast.show('Введите фамилию'); return; }
             if (!startCycle) { if (typeof KipToast !== 'undefined') KipToast.show('Укажите дату старта цикла'); return; }
+
+            // Task 489: поле ФИО в payload — составленное КРАТКОЕ
+            // («Галкин Д. Н.»): легаси-сервер (не обновлён) пишет его
+            // в единый столбец ФИО как прежде; НОВЫЙ сервер —
+            // предпочитает ЧАСТИ (фамилия/имя/отчество) и дату
+            // рождения
+            var fioShort = this._wsShortFio(fam, name, patr);
 
             // Task 384: РЕЖИМ ПРАВКИ — данные существующего сотрудника
             // обновляются (workSchedule.updateEmployee; таб. № — из
@@ -59094,7 +59492,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             if (this._empEditTab) {
                 var editTab = this._empEditTab;
                 this._api('workSchedule.updateEmployee', {
-                    'таб_номер': editTab, 'ФИО': fio, тип: type,
+                    'таб_номер': editTab, 'ФИО': fioShort,
+                    'фамилия': fam, 'имя': name, 'отчество': patr,
+                    'дата_рождения': birth || null,
+                    тип: type,
                     смена: shift || null,
                     шаблон_ротации: patId ? parseInt(patId, 10) : null,
                     старт_цикла: startCycle,
@@ -59120,7 +59521,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
 
             this._api('workSchedule.addEmployee', {
-                'таб_номер': tabNo, 'ФИО': fio, тип: type,
+                'таб_номер': tabNo, 'ФИО': fioShort,
+                'фамилия': fam, 'имя': name, 'отчество': patr,
+                'дата_рождения': birth || null,
+                тип: type,
                 смена: shift || null,
                 шаблон_ротации: patId ? parseInt(patId, 10) : null,
                 старт_цикла: startCycle,
