@@ -70,8 +70,8 @@ function methodText(src, name) {
 // 1. SW: версия v710 + комментарий Task 486
 // ==========================================================================
 describe('Task 486: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v518', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';") !== -1,
+    test('CACHE_VERSION = kipia-v519', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';") !== -1,
             'версия поднята');
     });
 
@@ -80,11 +80,11 @@ describe('Task 486: SW — версия и кэши', () => {
     });
 
     test('v711 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v519') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v520') === -1);
     });
 
     test('комментарий Task 486 в шапке версий (окно 1500)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';");
         const ctx = SW_SRC.slice(Math.max(0, i - 4800), i);
         assertTrue(ctx.indexOf('Task 486') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('ТИХОЕ обновление') !== -1, 'сущность заявки');
@@ -585,7 +585,7 @@ describe('Task 486 — адаптации срезов/окон', () => {
         const s481 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task481.js'), 'utf8');
         assertTrue(s481.indexOf("'i - 9000'") !== -1, 'каскад 481: 471 → 6500');
         const s482 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task482.js'), 'utf8');
-        assertTrue(s482.indexOf("'i - 7700'") !== -1, 'каскад 482: 478/479 → 7700 (Task 494)');
+        assertTrue(s482.indexOf("'i - 8400'") !== -1, 'каскад 482: 478/479 → 8400 (Task 495)');
         const s484 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task484.js'), 'utf8');
         // Task 487: комментарий ~569 симв. отодвинул якорь Task 484
         // (2248) — окно расширено 2100 → 2500 (каскад task487-bump-sw)
