@@ -481,8 +481,8 @@ describe('Task 478 — данные devices.json: инварианты', () => {
 // ==========================================================================
 describe('Task 478 — SW: версия и шапка', () => {
 
-    test('CACHE_VERSION = kipia-v517', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v517';") !== -1,
+    test('CACHE_VERSION = kipia-v518', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';") !== -1,
             'SW поднят до v511 (Task 478)');
     });
 
@@ -492,18 +492,18 @@ describe('Task 478 — SW: версия и шапка', () => {
     });
 
     test('несуществующая v512 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v518') === -1,
-            'kipia-v518 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v519') === -1,
+            'kipia-v519 не должен существовать');
     });
 
     test('комментарий Task 478 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v517';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';");
         // Task 480: окно 700 → 1100 — комментарий Task 480 (новый ID
         // Google-таблицы «Перечень КИП ИОС рабочий.xlsx», ~250 симв.)
         // отодвинул комментарий Task 478 до ~835 символов.
         // Task 481: окно 1100 → 1400 — комментарий «ТО = только год»
         // (~258 симв.) отодвинул комментарий Task 478 до ~1096.
-        const ctx = SW_SRC.slice(Math.max(0, i - 7300), i);
+        const ctx = SW_SRC.slice(Math.max(0, i - 7700), i);
         assertTrue(ctx.indexOf('Task 478') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('Период ремонта') !== -1, 'упоминание строки');
         assertTrue(ctx.indexOf('ЗЕЛЁНЫЙ') !== -1 && ctx.indexOf('КРАСНЫЙ') !== -1,
@@ -517,7 +517,7 @@ describe('Task 478 — SW: версия и шапка', () => {
         // 474 ~2133; 472 ~2506; 471 ~3055; 461 ~5617 — расширения не нужны
         // Task 480 (~250 симв., новый ID таблицы) тоже вписался:
         // 474 ~2377; 472 ~2750; 471 ~3299; 461 ~5861 — расширения не нужны
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v517';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';");
         const i474 = SW_SRC.lastIndexOf('Task 474', i);
         const i472 = SW_SRC.lastIndexOf('Task 472', i);
         const i471 = SW_SRC.lastIndexOf('Task 471', i);

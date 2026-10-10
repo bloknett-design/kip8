@@ -729,9 +729,17 @@ require('./test-task492.js');
 // учёта»: статическая кнопка на page-docs-ios (workScheduleMenuBtn) +
 // label в реестре SUBSECTIONS (рендер закрепления renderPinnedItems);
 // заголовок страницы, крошки PAGE_LABELS и пункт сайдбара — прежние
-// полные имена. SW kipia-v517 (MAP из kip8test v717).
+// полные имена. SW kipia-v518 (MAP из kip8test v717).
 // Адаптации: 321 (кнопка/реестр), work-schedule (реестр, блок 267).
 require('./test-task493.js');
+// Task 494 — «Датчики температуры»: панель произвольного расчёта
+// (tempCustomCalcPanel) — заголовок «Расчёт произвольных значений» и
+// подсказка «Введите значение в любое поле…» УДАЛЕНЫ; панель — эффект
+// выступа (рамка 2px + градиент + тень, образец featured Task 492);
+// поля — крупнее и ярче (класс ts-calc-field: 52px/19px/700/белый).
+// SW kipia-v519 (MAP из kip8test v718).
+// Адаптации: 371 (список панели), 373 (подсказка).
+require('./test-task494.js');
 require('./test-deploy-url.js');
 
 // Запускаем

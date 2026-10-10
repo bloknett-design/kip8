@@ -470,8 +470,8 @@ describe('Task 481 — данные devices.json: инварианты «ТО = 
 // ==========================================================================
 describe('Task 481 — SW: версия и шапка', () => {
 
-    test('CACHE_VERSION = kipia-v517', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v517';") !== -1,
+    test('CACHE_VERSION = kipia-v518', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';") !== -1,
             'SW поднят до v511 (Task 481)');
     });
 
@@ -481,13 +481,13 @@ describe('Task 481 — SW: версия и шапка', () => {
     });
 
     test('несуществующая v512 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v518') === -1,
-            'kipia-v518 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v519') === -1,
+            'kipia-v519 не должен существовать');
     });
 
     test('комментарий Task 481 в шапке версий (окно 700)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v517';");
-        const ctx = SW_SRC.slice(Math.max(0, i - 6600), i);
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';");
+        const ctx = SW_SRC.slice(Math.max(0, i - 7000), i);
         assertTrue(ctx.indexOf('Task 481') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('ГОД') !== -1, 'правило года');
         assertTrue(ctx.indexOf('ТО') !== -1, 'вид «ТО»');
@@ -496,10 +496,10 @@ describe('Task 481 — SW: версия и шапка', () => {
     });
 
     test('комментарии Task 480/479/478 не вытеснены (окна 700/1400/1400)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v517';");
-        const w700 = SW_SRC.slice(Math.max(0, i - 6800), i);
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';");
+        const w700 = SW_SRC.slice(Math.max(0, i - 7200), i);
         assertTrue(w700.indexOf('Task 480') !== -1, 'Task 480 в окне 700');
-        const w1400 = SW_SRC.slice(Math.max(0, i - 7300), i);
+        const w1400 = SW_SRC.slice(Math.max(0, i - 7700), i);
         assertTrue(w1400.indexOf('Task 479') !== -1 && w1400.indexOf('оранжево-золотистый') !== -1,
             'Task 479 в окне 1400');
         assertTrue(w1400.indexOf('Task 478') !== -1 &&
@@ -511,7 +511,7 @@ describe('Task 481 — SW: версия и шапка', () => {
         // Task 481 (~258 симв.) отодвинул якоря: 474 ~2638 → окно 3100;
         // 472 ~3011 → 3600; 471 ~3560 → 4200; 461 ~6122 → 6800
         // (scripts/task481-windows.py; прецедент Task 478/475/476)
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v517';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v518';");
         const i474 = SW_SRC.lastIndexOf('Task 474', i);
         const i472 = SW_SRC.lastIndexOf('Task 472', i);
         const i471 = SW_SRC.lastIndexOf('Task 471', i);
