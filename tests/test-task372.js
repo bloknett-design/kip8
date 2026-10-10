@@ -31,6 +31,10 @@
 // renderTempSensorCards перерисовывается при каждом вызове (табы
 // «Все / Избранные» + звёзды TempFav); панель «Расчёт произвольных
 // значений» стала статичной над формой — из результатов удалена.
+// Task 490 (адаптация): мобильная сетка — кнопки по ДВЕ в строке
+// (пары с одинаковой градуировкой рядом), на кнопках ТС только
+// градуировка+α (скрыты аналог/R₀/диапазон), порядок ТП:
+// K,L,J,T,E,N,R,S,B (ТХА (K)+ТХК (L) вместе).
 
 const fs = require('fs');
 const path = require('path');
@@ -125,12 +129,12 @@ describe('Task 372 — SRC: страница карточек и страниц�
         }
     });
 
-    test('Каталог: порядок как в бывших списках (8 ТС, затем 9 ТП)', () => {
+    test('Каталог: 8 ТС парами градуировок (Task 491) + 9 ТП парами (Task 490)', () => {
         const fn = grabFn('getTempSensorCatalog');
         assertTrue(fn !== null, 'функция объявлена');
-        const orderChunk = "['cu50_1428','cu100_1428','cu50_1426','cu100_1426','pt50_1391','pt100_1391','pt100_1385','pt1000_1385']";
-        assertTrue(fn.indexOf(orderChunk) !== -1, 'порядок ТС');
-        assertTrue(fn.indexOf("['K','J','T','N','E','L','R','S','B']") !== -1, 'порядок ТП (Task 373: L после E)');
+        const orderChunk = "['cu50_1428','cu50_1426','cu100_1428','cu100_1426','pt50_1391','pt100_1391','pt100_1385','pt1000_1385']";
+        assertTrue(fn.indexOf(orderChunk) !== -1, 'порядок ТС (Task 491: 50М+50М, 100М+100М)');
+        assertTrue(fn.indexOf("['K','L','J','T','E','N','R','S','B']") !== -1, 'порядок ТП (Task 490: K+L вместе, парами)');
         assertTrue(fn.indexOf("key:'tc_'+k") !== -1, 'ключи ТП вида tc_K');
     });
 
@@ -144,8 +148,9 @@ describe('Task 372 — SRC: страница карточек и страниц�
     test('navigateTo: хуки списка и детальной страницы', () => {
         assertTrue(INDEX_SRC.indexOf("if (page === 'temp-sensor-view' && !tempSensorKey) { page = 'temp-sensors'; }") !== -1,
             'редирект без выбора → список');
-        assertTrue(INDEX_SRC.indexOf("if (page === 'temp-sensors') { if (typeof renderTempSensorCards === 'function') renderTempSensorCards(); }") !== -1,
-            'рендер карточек при открытии списка');
+        assertTrue(INDEX_SRC.indexOf("if (page === 'temp-sensors') {") !== -1 &&
+                   INDEX_SRC.indexOf("if (typeof renderTempSensorCards === 'function') renderTempSensorCards();") !== -1,
+            'рендер карточек при открытии списка (Task 491: multiline-блок)');
         // десктоп: последний сегмент крошек — имя датчика (customCurrentLabel)
         assertTrue(INDEX_SRC.indexOf('updateDesktopBreadcrumb(null, s372.name)') !== -1,
             'крошки: имя датчика вместо статической метки');
@@ -273,7 +278,7 @@ describe('Task 372 — VM: каталог всех датчиков', () => {
         assertEqual(cat[0].key, 'cu50_1428', 'первый — 50М (Cu50), как в списке');
         assertEqual(cat[7].key, 'pt1000_1385', 'последний ТС — Pt1000 (IEC)');
         assertEqual(cat[8].key, 'tc_K', 'первый ТП — ТХА (K)');
-        assertEqual(cat[13].key, 'tc_L', 'Task 373: ТХК (L) после ТХКн (E)');
+        assertEqual(cat[9].key, 'tc_L', 'Task 490: ТХК (L) сразу после ТХА (K)');
         assertEqual(cat[16].key, 'tc_B', 'последний ТП — ТПР (B)');
     });
 
@@ -320,8 +325,8 @@ describe('Task 372 — VM: renderTempSensorCards', () => {
         vmw.api.renderTempSensorCards();
         const rtd = vmw.els['tsRtdCards'].innerHTML;
         const tc = vmw.els['tsTcCards'].innerHTML;
-        assertEqual((rtd.match(/class="ts-card"/g) || []).length, 8, '8 ТС-карточек');
-        assertEqual((tc.match(/class="ts-card ts-card-tc"/g) || []).length, 9, '9 ТП-карточек (Task 373: + ТХК L)');
+        assertEqual((rtd.match(/class="ts-card[ "]/g) || []).length, 8, '8 ТС-карточек');
+        assertEqual((tc.match(/class="ts-card ts-card-tc[ "]/g) || []).length, 9, '9 ТП-карточек (Task 373: + ТХК L)');
         assertTrue(rtd.indexOf("openTempSensor('cu50_1428')") !== -1, 'onclick Cu50');
         assertTrue(rtd.indexOf("openTempSensor('pt1000_1385')") !== -1, 'onclick Pt1000');
         assertTrue(tc.indexOf("openTempSensor('tc_K')") !== -1, 'onclick K');
@@ -546,15 +551,15 @@ describe('Task 372 — VM: расчёт по выбранному датчику
 // ============================================================
 // E. SW v601 (guard v602)
 // ============================================================
-describe('Task 372 — SW: версия кэша kipia-v515', () => {
+describe('Task 372 — SW: версия кэша kipia-v516', () => {
 
-    test('CACHE_VERSION = kipia-v515', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v515'") !== -1,
+    test('CACHE_VERSION = kipia-v516', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v516'") !== -1,
             'SW бампнут до v601');
     });
 
     test('Guard: v605 ещё не существует', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v516') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v517') === -1,
             'v602 не должен существовать (следующий бамп)');
     });
 });
