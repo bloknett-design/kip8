@@ -724,6 +724,14 @@ require('./test-task491.js');
 // шрифты, SW), 323 (якорь @media от .ws-tt-drawer назад), окна
 // истории sw.js 461/472/473/474/480/481/482 + каскады 475/486/482.
 require('./test-task492.js');
+// Task 493 (перенос из kip8test) — кнопка «Табель учёта рабочего
+// времени», закрепляемая на главную, переименована короче — «Табель
+// учёта»: статическая кнопка на page-docs-ios (workScheduleMenuBtn) +
+// label в реестре SUBSECTIONS (рендер закрепления renderPinnedItems);
+// заголовок страницы, крошки PAGE_LABELS и пункт сайдбара — прежние
+// полные имена. SW kipia-v517 (MAP из kip8test v717).
+// Адаптации: 321 (кнопка/реестр), work-schedule (реестр, блок 267).
+require('./test-task493.js');
 require('./test-deploy-url.js');
 
 // Запускаем
