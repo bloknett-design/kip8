@@ -747,6 +747,14 @@ require('./test-task494.js');
 // + ts-calc-field), но с эффектом УГЛУБЛЕНИЯ (ts-calc-inset).
 // SW kipia-v519. Адаптации: 372/373 (чип), 494 (граница чанка).
 require('./test-task495.js');
+
+// Task 496 (ПЕРЕНОС из kip8test@a3006907): ППР — Enter
+// («Готово») закрывает клавиатуру, не перескакивает:
+// enterkeyhint done + tempQueryEnterBlur (preventDefault +
+// stopPropagation + blur). SW kipia-v520. MAP kipia-test-v720
+// → kipia-v520. Границы: блок таблицы (next×2) и глобальный
+// Enter-переход — не тронуты.
+require('./test-task496.js');
 require('./test-deploy-url.js');
 
 // Запускаем

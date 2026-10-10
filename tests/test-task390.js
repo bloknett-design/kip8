@@ -302,10 +302,10 @@ describe('Task 390 — SRC: CSS — шапка/примыкание/цвета �
             'светлая: активный — как окно вкладки');
     });
 
-    test('SW: kipia-v519', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v519'") !== -1,
+    test('SW: kipia-v520', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v520'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v520') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v521') === -1,
             'двойного бампа не было');
     });
 });

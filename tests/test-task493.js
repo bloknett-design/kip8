@@ -1,4 +1,4 @@
-// tests/test-task493.js (kip8 — перенос Task 493 из kip8test; MAP: kipia-test-v717→kipia-v519, guard v718→v518)
+// tests/test-task493.js (kip8 — перенос Task 493 из kip8test; MAP: kipia-test-v717→kipia-v520, guard v718→v518)
 // Task 493: заявка пользователя — «Кнопку "Табель учёта рабочего
 //   времени" установленную на главную страницу назови короче
 //   "Табель учёта".»
@@ -161,16 +161,16 @@ describe('Task 493 — кнопка «Табель учёта» (переиме�
     });
 
     test('SW: версия кеша поднята до v717', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';") !== -1,
-            'CACHE_VERSION = kipia-v519');
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';") !== -1,
+            'CACHE_VERSION = kipia-v520');
         assertTrue(SW_SRC.indexOf('kipia-v516') === -1,
             'v716 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v520') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v521') !== -1,
             'v718 не существует (guard)');
     });
 
     test('SW: комментарий Task 493 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';");
         const ctx = SW_SRC.slice(Math.max(0, i - 900), i);
         assertTrue(ctx.indexOf('Task 493') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('Табель учёта') !== -1, 'описание переименования');

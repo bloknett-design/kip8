@@ -208,17 +208,17 @@ describe('Task 494 — SRC: панель без заголовка/подска�
 
 describe('Task 494 — SW: версия кеша v718', () => {
 
-    test('SW: CACHE_VERSION = kipia-v519, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';") !== -1,
-            'CACHE_VERSION = kipia-v519');
+    test('SW: CACHE_VERSION = kipia-v520, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';") !== -1,
+            'CACHE_VERSION = kipia-v520');
         assertFalse(SW_SRC.indexOf('kipia-v517') !== -1,
             'v717 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v520') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v521') !== -1,
             'v719 не существует (guard)');
     });
 
     test('SW: комментарий Task 494 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';");
         const ctx = SW_SRC.slice(Math.max(0, i - 900), i);
         assertTrue(ctx.indexOf('Task 494') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('tempCustomCalcPanel') !== -1,

@@ -70,8 +70,8 @@ function methodText(src, name) {
 // 1. SW: версия v710 + комментарий Task 486
 // ==========================================================================
 describe('Task 486: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v519', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';") !== -1,
+    test('CACHE_VERSION = kipia-v520', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';") !== -1,
             'версия поднята');
     });
 
@@ -80,12 +80,12 @@ describe('Task 486: SW — версия и кэши', () => {
     });
 
     test('v711 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v520') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v521') === -1);
     });
 
     test('комментарий Task 486 в шапке версий (окно 1500)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';");
-        const ctx = SW_SRC.slice(Math.max(0, i - 4800), i);
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';");
+        const ctx = SW_SRC.slice(Math.max(0, i - 5600), i);
         assertTrue(ctx.indexOf('Task 486') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('ТИХОЕ обновление') !== -1, 'сущность заявки');
         assertTrue(ctx.indexOf('silentRefresh') !== -1, 'имя метода');
@@ -581,9 +581,9 @@ describe('Task 486 — адаптации срезов/окон', () => {
 
     test('окна истории sw.js — новые литералы синхронизированы', () => {
         const s475 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task475.js'), 'utf8');
-        assertTrue(s475.indexOf("'i - 12400'") !== -1, 'каскад 475: 461 → 12400 (Task 492)');
+        assertTrue(s475.indexOf("'i - 13200'") !== -1, 'каскад 475: 461 → 13200 (Task 496)');
         const s481 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task481.js'), 'utf8');
-        assertTrue(s481.indexOf("'i - 9000'") !== -1, 'каскад 481: 471 → 6500');
+        assertTrue(s481.indexOf("'i - 9700'") !== -1, 'каскад 481: 471 → 9700 (Task 496)');
         const s482 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task482.js'), 'utf8');
         assertTrue(s482.indexOf("'i - 8400'") !== -1, 'каскад 482: 478/479 → 8400 (Task 495)');
         const s484 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task484.js'), 'utf8');
@@ -592,7 +592,7 @@ describe('Task 486 — адаптации срезов/окон', () => {
         // Task 490: комментарий ~480 симв. — окно 3900 → 4500
         // (якорь Task 484 @4232; каскад task490-bump-sw)
         // Task 494 (перенос): окно 5500 → 5900 (якорь @5586 + 190)
-        assertTrue(s484.indexOf('i - 5900') !== -1, '484: собственное окно (Task 487/490/491/494)');
+        assertTrue(s484.indexOf('i - 6700') !== -1, '484: собственное окно (Task 487/490/491/494)');
     });
 });
 

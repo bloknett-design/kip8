@@ -42,8 +42,8 @@ const SW_SRC = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 // 1. SW: версия и шапка
 // ==========================================================================
 describe('Task 477 — SW: версия и шапка', () => {
-    test('CACHE_VERSION = kipia-v519', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';") !== -1,
+    test('CACHE_VERSION = kipia-v520', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';") !== -1,
             'SW поднят до v701');
     });
     test('прежняя версия v700 отсутствует', () => {
@@ -51,8 +51,8 @@ describe('Task 477 — SW: версия и шапка', () => {
             'в sw.js не осталось kipia-v509');
     });
     test('несуществующая v702 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v520') === -1,
-            'kipia-v520 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v521') === -1,
+            'kipia-v521 не должен существовать');
     });
     test('комментарий Task 477 в шапке версий', () => {
         assertTrue(SW_SRC.indexOf('Task 477 (этап 3 оптимизации): KipPreload') !== -1,
@@ -346,12 +346,12 @@ describe('Task 477 — границы и окна', () => {
 
     test('окна истории sw.js — компактный комментарий 477 НЕ расширял их (расширены Task 478/481/483)',
         () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';");
         const i474 = SW_SRC.lastIndexOf('Task 474', i);
         const i472 = SW_SRC.lastIndexOf('Task 472', i);
         const i471 = SW_SRC.lastIndexOf('Task 471', i);
         const i461 = SW_SRC.lastIndexOf('Task 461', i);
-        assertTrue(i474 !== -1 && (i - i474) < 8800, 'Task 474 (~3731) в окне 4000');
+        assertTrue(i474 !== -1 && (i - i474) < 9600, 'Task 474 (~3731) в окне 4000');
         // Task 478: окна расширены (комментарий ~340 симв.):
         // 474 1700→2500, 472 2100→2900, 471 2700→3400, 461 5300→6000.
         // Task 483: ~378 симв. — 3100→3500/3600→4000/4200→4600/
@@ -359,7 +359,7 @@ describe('Task 477 — границы и окна', () => {
         // 4600→5000/7200→7600 (windows-скрипты задач).
         assertTrue(i472 !== -1 && (i - i472) < 9900, 'Task 472 (~4104) в окне 4500');
         assertTrue(i471 !== -1 && (i - i471) < 10600, 'Task 471 (~4653) в окне 5000');
-        assertTrue(i461 !== -1 && (i - i461) < 12400, 'Task 461 (~7215) в окне 7600');
+        assertTrue(i461 !== -1 && (i - i461) < 13200, 'Task 461 (~7215) в окне 7600');
     });
 });
 

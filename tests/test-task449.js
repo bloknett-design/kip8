@@ -466,11 +466,11 @@ describe('Task 449 — VM: должности, группы, ИТОГО, шап�
 // 6. SW — версия кэша
 // ============================================================
 describe('Task 449 — SW', () => {
-    test('SW: кэш поднят до kipia-v519 (Task 449)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v519'") !== -1,
-            'CACHE_VERSION = kipia-v519');
-        assertTrue(SW_SRC.indexOf('kipia-v520') === -1,
-            'kipia-v520 не существует');
+    test('SW: кэш поднят до kipia-v520 (Task 449)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v520'") !== -1,
+            'CACHE_VERSION = kipia-v520');
+        assertTrue(SW_SRC.indexOf('kipia-v521') === -1,
+            'kipia-v521 не существует');
         assertTrue(SW_SRC.indexOf('Task 449') !== -1,
             'комментарий Task 449 в истории версий');
     });

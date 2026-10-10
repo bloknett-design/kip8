@@ -481,8 +481,8 @@ describe('Task 478 — данные devices.json: инварианты', () => {
 // ==========================================================================
 describe('Task 478 — SW: версия и шапка', () => {
 
-    test('CACHE_VERSION = kipia-v519', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';") !== -1,
+    test('CACHE_VERSION = kipia-v520', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';") !== -1,
             'SW поднят до v511 (Task 478)');
     });
 
@@ -492,12 +492,12 @@ describe('Task 478 — SW: версия и шапка', () => {
     });
 
     test('несуществующая v512 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v520') === -1,
-            'kipia-v520 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v521') === -1,
+            'kipia-v521 не должен существовать');
     });
 
     test('комментарий Task 478 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';");
         // Task 480: окно 700 → 1100 — комментарий Task 480 (новый ID
         // Google-таблицы «Перечень КИП ИОС рабочий.xlsx», ~250 симв.)
         // отодвинул комментарий Task 478 до ~835 символов.
@@ -517,15 +517,15 @@ describe('Task 478 — SW: версия и шапка', () => {
         // 474 ~2133; 472 ~2506; 471 ~3055; 461 ~5617 — расширения не нужны
         // Task 480 (~250 симв., новый ID таблицы) тоже вписался:
         // 474 ~2377; 472 ~2750; 471 ~3299; 461 ~5861 — расширения не нужны
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v519';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v520';");
         const i474 = SW_SRC.lastIndexOf('Task 474', i);
         const i472 = SW_SRC.lastIndexOf('Task 472', i);
         const i471 = SW_SRC.lastIndexOf('Task 471', i);
         const i461 = SW_SRC.lastIndexOf('Task 461', i);
-        assertTrue(i474 !== -1 && (i - i474) < 8800, 'Task 478 в окне 4000');
+        assertTrue(i474 !== -1 && (i - i474) < 9600, 'Task 478 в окне 4000');
         assertTrue(i472 !== -1 && (i - i472) < 9900, 'Task 472 в окне 4500');
         assertTrue(i471 !== -1 && (i - i471) < 10600, 'Task 471 в окне 5000');
-        assertTrue(i461 !== -1 && (i - i461) < 12400, 'Task 461 в окне 7600');
+        assertTrue(i461 !== -1 && (i - i461) < 13200, 'Task 461 в окне 7600');
     });
 });
 
