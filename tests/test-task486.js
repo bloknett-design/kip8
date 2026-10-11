@@ -70,8 +70,8 @@ function methodText(src, name) {
 // 1. SW: версия v710 + комментарий Task 486
 // ==========================================================================
 describe('Task 486: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v524', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v524';") !== -1,
+    test('CACHE_VERSION = kipia-v525', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v525';") !== -1,
             'версия поднята');
     });
 
@@ -80,11 +80,11 @@ describe('Task 486: SW — версия и кэши', () => {
     });
 
     test('v711 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v525') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v526') === -1);
     });
 
     test('комментарий Task 486 в шапке версий (окно 1500)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v524';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v525';");
         const ctx = SW_SRC.slice(Math.max(0, i - 7400), i);
         assertTrue(ctx.indexOf('Task 486') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('ТИХОЕ обновление') !== -1, 'сущность заявки');
