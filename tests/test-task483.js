@@ -489,8 +489,8 @@ describe('Task 483: VM — _renderDevicesPPR (таблица + диаграмм�
 // 5. SW: версия v512 + комментарий Task 483
 // ==========================================================================
 describe('Task 483: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v522', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';") !== -1,
+    test('CACHE_VERSION = kipia-v523', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v523';") !== -1,
             'версия поднята');
     });
 
@@ -499,13 +499,14 @@ describe('Task 483: SW — версия и кэши', () => {
     });
 
     test('v513 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v523') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v524') === -1);
     });
 
     test('комментарий Task 483 в шапке версий (окно 700)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v523';");
         // Task 490: +480 симв. комментария — окно 3900 → 4400 (якорь 4137)
-        const ctx = SW_SRC.slice(Math.max(0, i - 6700), i);
+        // Task 499: Task 483 отодвинут до ~7055 — окно 6700 → 7500.
+        const ctx = SW_SRC.slice(Math.max(0, i - 7500), i);
         assertTrue(ctx.indexOf('Task 483') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('Графики КИП ИОС') !== -1, 'раздел');
         assertTrue(ctx.indexOf('ppr_chart') !== -1, 'блок данных');

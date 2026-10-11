@@ -764,6 +764,8 @@ require('./test-task496.js');
 // SW kipia-v522 (MAP kipia-test-v721).
 require('./test-task497.js');
 require('./test-task498.js');
+require('./test-task499.js');
+// SW kipia-v523 (MAP kipia-test-v723).
 require('./test-deploy-url.js');
 
 // Запускаем

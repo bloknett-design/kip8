@@ -70,8 +70,8 @@ function methodText(src, name) {
 // 1. SW: версия v710 + комментарий Task 486
 // ==========================================================================
 describe('Task 486: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v522', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';") !== -1,
+    test('CACHE_VERSION = kipia-v523', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v523';") !== -1,
             'версия поднята');
     });
 
@@ -80,11 +80,11 @@ describe('Task 486: SW — версия и кэши', () => {
     });
 
     test('v711 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v523') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v524') === -1);
     });
 
     test('комментарий Task 486 в шапке версий (окно 1500)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v523';");
         const ctx = SW_SRC.slice(Math.max(0, i - 6400), i);
         assertTrue(ctx.indexOf('Task 486') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('ТИХОЕ обновление') !== -1, 'сущность заявки');
@@ -583,7 +583,7 @@ describe('Task 486 — адаптации срезов/окон', () => {
         const s475 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task475.js'), 'utf8');
         assertTrue(s475.indexOf("'i - 14000'") !== -1, 'каскад 475: 461 → 14000 (Task 498)');
         const s481 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task481.js'), 'utf8');
-        assertTrue(s481.indexOf("'i - 9700'") !== -1, 'каскад 481: 471 → 9700 (Task 496)');
+        assertTrue(s481.indexOf("'i - 10600'") !== -1, 'каскад 481: 474 → 10600 (Task 499)');
         const s482 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task482.js'), 'utf8');
         assertTrue(s482.indexOf("'i - 9200'") !== -1, 'каскад 482: 478/479 → 9200 (Task 498)');
         const s484 = fs.readFileSync(path.join(ROOT, 'tests', 'test-task484.js'), 'utf8');
