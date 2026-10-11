@@ -192,13 +192,13 @@ describe('Task 495 — SRC: CSS углубления (наоборот выст�
         const i = INDEX_SRC.indexOf('[data-theme="light"] .ts-calc-panel.ts-calc-inset {');
         assertTrue(i !== -1, 'светлое inset-правило есть');
         const rule = INDEX_SRC.slice(i, INDEX_SRC.indexOf('}', i) + 1);
-        assertTrue(rule.indexOf('background-color: rgba(21, 54, 83, 0.08)') !== -1,
+        assertTrue(rule.indexOf('background-color: rgba(198, 97, 63, 0.05)') !== -1,
             'светлый фон «колодца»');
-        assertTrue(rule.indexOf('box-shadow: inset 0 2px 8px rgba(21, 54, 83, 0.18)') !== -1,
+        assertTrue(rule.indexOf('box-shadow: inset 0 2px 8px rgba(158, 78, 48, 0.14)') !== -1,
             'мягкая внутренняя тень сверху');
         assertTrue(rule.indexOf('inset 0 -1px 0 rgba(255, 255, 255, 0.7)') !== -1,
             'светлая кромка снизу');
-        assertTrue(rule.indexOf('border-color: rgba(43, 111, 163, 0.35)') !== -1,
+        assertTrue(rule.indexOf('border-color: rgba(198, 97, 63, 0.22)') !== -1,
             'приглушённая рамка светлой темы');
         assertFalse(rule.indexOf('0 4px 12px') !== -1,
             'внешней тени НЕТ (у светлого выступа — 0 4px 12px)');
@@ -314,18 +314,18 @@ describe('Task 495 — VM: логика без чипа', () => {
 
 describe('Task 495 — SW: версия кеша v719', () => {
 
-    test('SW: CACHE_VERSION = kipia-v523, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v523';") !== -1,
-            'CACHE_VERSION = kipia-v523');
+    test('SW: CACHE_VERSION = kipia-v524, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v524';") !== -1,
+            'CACHE_VERSION = kipia-v524');
         assertFalse(SW_SRC.indexOf('kipia-v518') !== -1,
             'v718 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v524') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v525') !== -1,
             'v720 не существует (guard)');
     });
 
     test('SW: комментарий Task 495 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v523';");
-        const ctx = SW_SRC.slice(Math.max(0, i - 1600), i);
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v524';");
+        const ctx = SW_SRC.slice(Math.max(0, i - 2900), i);
         assertTrue(ctx.indexOf('Task 495') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('УГЛУБЛЕНИЯ') !== -1,
             'упоминание эффекта углубления');

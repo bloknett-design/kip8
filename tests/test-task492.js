@@ -208,7 +208,7 @@ describe('Task 492 — SRC: CSS нижнего бара (по образцу р�
             'псевдоэлемент-разделитель');
         assertTrue(INDEX_SRC.indexOf('background: rgba(74, 143, 199, 0.25); transform: translateX(-50%);') !== -1,
             'вертикальная линия по центру');
-        assertTrue(INDEX_SRC.indexOf('[data-theme="light"] .ts-bottom-bar::before { background: rgba(43, 111, 163, 0.2); }') !== -1,
+        assertTrue(INDEX_SRC.indexOf('[data-theme="light"] .ts-bottom-bar::before { background: rgba(198, 97, 63, 0.2); }') !== -1,
             'светлая тема разделителя');
     });
 
@@ -277,7 +277,7 @@ describe('Task 492 — SRC: шрифт у всех кнопок + featured-оф�
             'эффект выступа (тень + inset-подсветка/затемнение)');
         assertTrue(mob.indexOf('.ts-card-feat:active { transform: translateY(2px) scale(0.98);') !== -1,
             ':active «утапливается»');
-        assertTrue(mob.indexOf('[data-theme="light"] .ts-card-feat { border-color: rgba(43, 111, 163, 0.8);') !== -1,
+        assertTrue(mob.indexOf('[data-theme="light"] .ts-card-feat { border-color: rgba(198, 97, 63, 0.55);') !== -1,
             'светлая тема featured');
     });
 
@@ -407,9 +407,9 @@ describe('Task 492 — VM: featured у кнопок в избранном', () =
 // ============================================================
 describe('Task 492 — SW: версия кеша', () => {
 
-    test('SW: кэш поднят до kipia-v523', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v523'") !== -1,
-            'CACHE_VERSION = kipia-v523 (Task 492)');
+    test('SW: кэш поднят до kipia-v524', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v524'") !== -1,
+            'CACHE_VERSION = kipia-v524 (Task 492)');
         assertFalse(SW_SRC.indexOf('kipia-v515') !== -1,
             'старой версии v515 нет');
     });
