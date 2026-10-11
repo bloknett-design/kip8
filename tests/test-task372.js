@@ -155,8 +155,8 @@ describe('Task 372 — SRC: страница карточек и страниц�
                    INDEX_SRC.indexOf("if (typeof renderTempSensorCards === 'function') renderTempSensorCards();") !== -1,
             'рендер карточек при открытии списка (Task 491: multiline-блок)');
         // десктоп: последний сегмент крошек — имя датчика (customCurrentLabel)
-        assertTrue(INDEX_SRC.indexOf('updateDesktopBreadcrumb(null, s372.name)') !== -1,
-            'крошки: имя датчика вместо статической метки');
+        assertTrue(INDEX_SRC.indexOf('updateDesktopBreadcrumb(null, l498)') !== -1,
+            'крошки: тип датчика (Task 498: с α) вместо статической метки');
     });
 
     test('openTempSensor: дефолты формы и сброс результатов', () => {
@@ -371,7 +371,7 @@ describe('Task 372 — VM: openTempSensor — переход на страниц
         const vmw = makeVm();
         vmw.api.openTempSensor('cu50_1428');
         assertEqual(vmw.nav[0], 'temp-sensor-view', 'navigateTo на страницу датчика');
-        assertEqual(vmw.els['tempSensorViewTitle'].textContent, '50М (Cu50) — термометр сопротивления',
+        assertEqual(vmw.els['tempSensorViewTitle'].textContent, '50М (Cu50) α = 0,00428 °C⁻¹',
             'заголовок страницы');
         assertFalse('tempSensorViewChip' in vmw.els,
             'Task 495: чип удалён — openTempSensor его не трогает');
@@ -389,14 +389,14 @@ describe('Task 372 — VM: openTempSensor — переход на страниц
     test('Смена датчика: ТП-заголовок и повторный переход', () => {
         const vmw = makeVm();
         vmw.api.openTempSensor('tc_K');
-        assertEqual(vmw.els['tempSensorViewTitle'].textContent, 'ТХА (K) — термопара', 'заголовок ТП');
+        assertEqual(vmw.els['tempSensorViewTitle'].textContent, 'ТХА (K)', 'заголовок ТП');
         assertEqual(vmw.nav[0], 'temp-sensor-view', 'переход');
         // сначала «рассчитали» что-то — потом сменили датчик: всё сброшено
         vmw.els['tempSensorResults'].innerHTML = '<table></table>';
         vmw.els['tempSensorResults'].style.display = 'block';
         vmw.api.openTempSensor('tc_B');
         assertEqual(vmw.els['tempSensorResults'].innerHTML, '', 'результаты сброшены при смене');
-        assertEqual(vmw.els['tempSensorViewTitle'].textContent, 'ТПР (B) — термопара', 'новый заголовок');
+        assertEqual(vmw.els['tempSensorViewTitle'].textContent, 'ТПР (B)', 'новый заголовок');
     });
 
     test('Неизвестный ключ — тост, без перехода', () => {
@@ -557,15 +557,15 @@ describe('Task 372 — VM: расчёт по выбранному датчику
 // ============================================================
 // E. SW v601 (guard v602)
 // ============================================================
-describe('Task 372 — SW: версия кэша kipia-v521', () => {
+describe('Task 372 — SW: версия кэша kipia-v522', () => {
 
-    test('CACHE_VERSION = kipia-v521', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v521'") !== -1,
+    test('CACHE_VERSION = kipia-v522', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v522'") !== -1,
             'SW бампнут до v601');
     });
 
     test('Guard: v605 ещё не существует', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v522') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v523') === -1,
             'v602 не должен существовать (следующий бамп)');
     });
 });

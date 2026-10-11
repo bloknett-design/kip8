@@ -208,20 +208,20 @@ describe('Task 494 — SRC: панель без заголовка/подска�
 
 describe('Task 494 — SW: версия кеша v718', () => {
 
-    test('SW: CACHE_VERSION = kipia-v521, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v521';") !== -1,
-            'CACHE_VERSION = kipia-v521');
+    test('SW: CACHE_VERSION = kipia-v522, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';") !== -1,
+            'CACHE_VERSION = kipia-v522');
         assertFalse(SW_SRC.indexOf('kipia-v517') !== -1,
             'v717 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v522') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v523') !== -1,
             'v719 не существует (guard)');
     });
 
     test('SW: комментарий Task 494 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v521';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';");
         // Task 497: комментарий избранного расходомеров — якорь
         // 494@1064 — окно 900 → 1200 (запас 136).
-        const ctx = SW_SRC.slice(Math.max(0, i - 1200), i);
+        const ctx = SW_SRC.slice(Math.max(0, i - 1900), i);
         assertTrue(ctx.indexOf('Task 494') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('tempCustomCalcPanel') !== -1,
             'упоминание панели в комментарии');

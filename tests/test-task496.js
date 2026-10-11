@@ -284,18 +284,18 @@ describe('Task 496 — VM: tempQueryEnterBlur (Enter гасит клавиату
 
 describe('Task 496 — SW: версия кеша v520', () => {
 
-    test('SW: CACHE_VERSION = kipia-v521, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v521';") !== -1,
-            'CACHE_VERSION = kipia-v521');
+    test('SW: CACHE_VERSION = kipia-v522, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';") !== -1,
+            'CACHE_VERSION = kipia-v522');
         assertFalse(SW_SRC.indexOf('kipia-v519') !== -1,
             'v519 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v522') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v523') !== -1,
             'v521 не существует (guard)');
     });
 
     test('SW: комментарий Task 496 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v521';");
-        const ctx = SW_SRC.slice(Math.max(0, i - 900), i);
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';");
+        const ctx = SW_SRC.slice(Math.max(0, i - 1600), i);
         assertTrue(ctx.indexOf('Task 496') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('произвольного расчёта') !== -1,
             'упоминание ППР');

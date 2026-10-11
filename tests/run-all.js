@@ -761,8 +761,9 @@ require('./test-task496.js');
 // в init после _restoreCache), а заглушка «Нет избранных
 // расходомеров» больше не появляется в состояниях loading/error
 // при наличии избранного (только когда его действительно нет).
-// SW kipia-v521 (MAP kipia-test-v721).
+// SW kipia-v522 (MAP kipia-test-v721).
 require('./test-task497.js');
+require('./test-task498.js');
 require('./test-deploy-url.js');
 
 // Запускаем

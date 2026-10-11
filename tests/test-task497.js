@@ -490,17 +490,17 @@ describe('Task 497 — VM: renderList() заглушки по состояния
 // ================================================================
 describe('Task 497 — SW: версия кеша v721', () => {
 
-    test('SW: CACHE_VERSION = kipia-v521, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v521';") !== -1,
-            'CACHE_VERSION = kipia-v521');
+    test('SW: CACHE_VERSION = kipia-v522, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';") !== -1,
+            'CACHE_VERSION = kipia-v522');
         assertFalse(SW_SRC.indexOf('kipia-v520') !== -1,
             'v720 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v522') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v523') !== -1,
             'v722 не существует (guard)');
     });
 
     test('SW: комментарий Task 497 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v521';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v522';");
         const ctx = SW_SRC.slice(Math.max(0, i - 900), i);
         assertTrue(ctx.indexOf('Task 497') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('Расходомеры хозрасчётные') !== -1,
