@@ -27,7 +27,7 @@
 //      light-правилах ts-элементов нет; тёмная тема не тронута.
 //   E. VM — updateScaleQueryUnits: единицы из полей/селектов;
 //      calcScaleSignal не обращается к удалённой обёртке.
-//   F. SW kipia-v525 + комментарий Task 501 (guard v526).
+//   F. SW kipia-v526 + комментарий Task 501 (guard v526).
 
 const fs = require('fs');
 const path = require('path');
@@ -460,17 +460,17 @@ describe('Task 501 E: VM — живые единицы панели ППР шк�
 // F. SW — версия и комментарий
 // ==========================================================================
 describe('Task 501 F: Service Worker', () => {
-    test("sw.js: CACHE_VERSION = 'kipia-v525'", () => {
+    test("sw.js: CACHE_VERSION = 'kipia-v526'", () => {
         assertTrue(
-            SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v525';") !== -1,
+            SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v526';") !== -1,
             'версия v725');
-        assertFalse(SW_SRC.indexOf('kipia-v526') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v527') !== -1,
             'v726 ещё не выпущена');
     });
 
     test('sw.js: комментарий Task 501 в шапке версий', () => {
         const i = SW_SRC.indexOf('const CACHE_VERSION');
-        const head = SW_SRC.slice(Math.max(0, i - 1200), i);
+        const head = SW_SRC.slice(Math.max(0, i - 2800), i);
         assertTrue(head.indexOf('Task 501') !== -1, 'маркер Task 501');
         assertTrue(head.indexOf('Электротехника') !== -1,
             'упоминание разделов заявки');

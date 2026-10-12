@@ -3217,6 +3217,74 @@
         color: #345582;
     }
 
+    /* Task 505: кнопка-значок ПЕЧАТИ журнала — компактная 32×32
+       (семейство cj-кнопок шапки), СЛЕВА от иконки поиска:
+       [+ 8..40][поиск 48..80][печать 88..120]. Открывает диалог
+       предпросмотра печати/сохранения PDF/Excel (по образцу
+       «Табеля», Tasks 430/438). Значок — принтер (та же SVG-путь,
+       что у кнопки «Печать» табеля). */
+    .cj-print-btn-inline {
+        position: absolute;
+        top: 50%;
+        right: 88px;
+        transform: translateY(-50%);
+        z-index: 5;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 8px;
+        color: rgba(255,255,255,0.7);
+        line-height: 1;
+        font-family: inherit;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        transition: background 0.15s, transform 0.1s, color 0.15s;
+    }
+    .cj-print-btn-inline:active {
+        transform: translateY(-50%) scale(0.94);
+    }
+    .cj-print-btn-inline:hover {
+        background: rgba(106,141,181,0.18);
+        color: #9bb8d9;
+    }
+    .cj-print-btn-inline svg {
+        width: 17px;
+        height: 17px;
+        pointer-events: none;
+    }
+    [data-theme="light"] .cj-print-btn-inline {
+        background: transparent;
+        border-color: rgba(20,20,19,0.18);
+        color: rgba(20,20,19,0.7);
+    }
+    [data-theme="light"] .cj-print-btn-inline:hover {
+        background: rgba(74,108,148,0.14);
+        color: #345582;
+    }
+    /* «+» скрыта (роль без права записи — Task 153) — печать
+       встаёт на место поиска (48..80), поиск прижимается к краю
+       (правило Task 153 ниже по файлу). Печать НЕ скрывается
+       никогда: чтение журнала доступно всем авторизованным */
+    #page-cable-journal-edit .page-inline-header:not(:has(.cj-add-btn-inline:not([style*="display:none"]))) .cj-print-btn-inline {
+        right: 48px;
+    }
+    /* Task 505: заголовок страницы — правый padding под ТРИ кнопки
+       (печать 88..120) — текст не залезает под значки */
+    #page-cable-journal-edit .page-inline-header:has(.cj-print-btn-inline) .page-inline-header-title {
+        padding-right: 128px;
+    }
+    @media (max-width: 359px) {
+        #page-cable-journal-edit .page-inline-header:has(.cj-print-btn-inline) .page-inline-header-title {
+            padding-right: 116px;
+        }
+    }
+
     /* Список во всю ширину, без padding-ов по бокам */
     .cj-list {
         padding: 0;
@@ -5352,6 +5420,30 @@
     [data-theme="light"] .ws-ep-item { color: #000; }
     [data-theme="light"] .ws-ep-text,
     [data-theme="light"] .ws-ep-date { color: #000; }
+    /* Task 504 (заявка: «в окне мероприятий, даты выполненных
+       мероприятий сделай зелёным цветом, а просроченных — красным»):
+       ДАТА строки окна «Мероприятия» (месяц/выбранный день,
+       _renderMonthEventsPanel) — ЦВЕТНАЯ по СОСТОЯНИЮ записи И/ПЗ
+       (столбцы «выполнение»/«просрочен» листа «Инструктажи»):
+       выполнено (= 1) → .ws-ep-date-ok ЗЕЛЁНАЯ; не выполнено +
+       просрочено (поле «просрочен» сервера, нет — дата_начала
+       раньше «сегодня»; семантика бейджей шахматки Task 482 и
+       карточки Task 418) → .ws-ep-date-bad КРАСНАЯ. Выполнение
+       ПРИОРИТЕТНЕЕ просрочки (как в Task 482). ОБ/ПР/* и записи
+       без полей состояния — обычный цвет даты. Палитра — как у
+       строк «✓ актуально / ⚠ просрочено» попапа ячейки (Task 407,
+       ws-il-due-*) и дат срока СИЗ карточки (Task 444): тёмная —
+       #81c784/#ef5350, светлая — #2e7d32/#c62828. Порядок правил:
+       ПОСЛЕ светлого color:#000 (специфичность ок/плохо-классов
+       0,2,0 = у светлого правила — побеждает поздний, даты без
+       классов в светлой теме остаются чёрными), светлые варианты
+       0,3,0 — последними. Фон строк (ws-ep-past, Tasks 380/389)
+       и окно «Нормы» НЕ тронуты; секция СИЗ — без классов (у СИЗ
+       нет отметки выполнения — даты «до дд.мм» остаются как есть) */
+    .ws-ep-date.ws-ep-date-ok { color: #81c784; }
+    .ws-ep-date.ws-ep-date-bad { color: #ef5350; }
+    [data-theme="light"] .ws-ep-date.ws-ep-date-ok { color: #2e7d32; }
+    [data-theme="light"] .ws-ep-date.ws-ep-date-bad { color: #c62828; }
     /* Task 330: подстрока «нет мероприятий…» окна мероприятий */
     [data-theme="light"] #wsEventsPanel .ws-cp-empty { color: #000; }
 
@@ -18023,6 +18115,20 @@
                 <button type="button" id="cjSearchToggleBtn" class="dev-search-toggle-btn" aria-label="Поиск" data-search-input="cjSearchInput">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </button>
+                <!-- Task 505 (заявка): кнопка ПЕЧАТИ журнала — компактный
+                     значок принтера в шапке (32×32, стиль cj-кнопок),
+                     слева от иконки поиска. Клик открывает ДИАЛОГ
+                     ПРЕДПРОСМОТРА по образцу «Табеля» (Tasks 430/438/465):
+                     «Печать» (window.print — печатная медиа-секция
+                     скрывает всё, кроме листа #wsPrintSheet), «Сохранить
+                     PDF» (canvas→JPEG→PDF, клиентский генератор) и
+                     «Сохранить Excel» (xlsx-писатель, без библиотек) +
+                     «Отмена» + предпросмотр iframe. Печатается ТЕКУЩИЙ
+                     список this._rows (клиентский фильтр поиска Task 152
+                     учитывается — «то, что видит пользователь»); доступ —
+                     всем, кто видит раздел (чтение — всем авторизованным,
+                     как у страницы просмотра записи) -->
+                <button type="button" class="cj-print-btn-inline" id="cjPrintBtn" onclick="KipCableJournal.printJournal()" aria-label="Печать журнала" title="Печать журнала"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V6z" fill="currentColor"/></svg></button>
                 <button type="button" class="cj-add-btn-inline" id="cjAddBtn" onclick="KipCableJournal.openAdd()" style="display:none;" aria-label="Добавить запись">+</button>
             </div>
 
@@ -21281,9 +21387,9 @@
 
             // Правый край поля = самая ЛЕВАЯ кнопка шапки минус зазор.
             // Учитываем все кнопки-иконки: поиск, «Таблица» (Task 148),
-            // cj-кнопки, «Удалить все» на Избранном (Task 164) —
-            // поле не должно наезжать ни на одну.
-            var buttons = header.querySelectorAll('.dev-search-toggle-btn, .dev-table-toggle-btn, .cj-icon-btn-inline, .cj-add-btn-inline, .fav-header-clear-btn');
+            // cj-кнопки (Task 505: и значок печати), «Удалить все» на
+            // Избранном (Task 164) — поле не должно наезжать ни на одну.
+            var buttons = header.querySelectorAll('.dev-search-toggle-btn, .dev-table-toggle-btn, .cj-icon-btn-inline, .cj-add-btn-inline, .cj-print-btn-inline, .fav-header-clear-btn');
             var inputRight = headerRect.width; // fallback — правый край шапки
             buttons.forEach(function (b) {
                 if (b === input) return;
@@ -28196,6 +28302,7 @@
     // ИСТОРИЯ И НАВИГАЦИЯ
     let pageHistory = [];
     let isNavigating = false;
+
 
     /* ========== Экзаменационные билеты ========== */
     let _ticketsData = null;
@@ -40162,6 +40269,1157 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             }
             html += '</div>';
             return html;
+        },
+
+        // ============================================================
+        // Task 505/506: ПЕЧАТЬ ЖУРНАЛА — кнопка-принтер в шапке
+        // раздела. Полный набор по образцу печати «Табеля» (Tasks
+        // 430/438/465): диалог предпросмотра + «Печать»/«Сохранить
+        // PDF»/«Сохранить Excel»/«Отмена», печатный лист
+        // #wsPrintSheet.cj-sheet в <body> (общий id с печатью
+        // табеля: @media print скрывает всё, кроме листа),
+        // клиентские генераторы PDF (canvas→JPEG→PDF) и Excel (свой
+        // лист по шаблону) — без библиотек. Task 506: лист — по
+        // ШАБЛОНУ исходной Google-таблицы (10 колонок, «По проекту»/
+        // «Проложен», серые ячейки проекта, Arial Narrow 12), БЕЗ
+        // шапки-заголовка, сортировка строк — как в исходном файле
+        // (№ п/п), предпросмотр — с разбивкой на страницы A4.
+        // Печатается ТЕКУЩИЙ список this._rows (клиентский фильтр
+        // Task 152 учтён — «печатается то, что видит пользователь»)
+        // ============================================================
+        printJournal: function() {
+            // журнал пуст (не загружен/фильтр ничего не нашёл) —
+            // честный тост вместо пустого листа
+            if (!(this._rows && this._rows.length)) {
+                if (typeof KipToast !== 'undefined' && KipToast.show) {
+                    KipToast.show('Нет записей для печати — журнал пуст');
+                }
+                return;
+            }
+            var model = this._printModel();
+            var printHtml = this._buildCjPrintHtml(model);
+            // печатный лист в корне <body> (id wsPrintSheet — ОБЩИЙ с
+            // печатью табеля: печатная медиа-секция скрывает всё, кроме
+            // него; класс cj-sheet подключает табличную вёрстку журнала)
+            var sheet = document.getElementById('wsPrintSheet');
+            if (!sheet) {
+                sheet = document.createElement('div');
+                sheet.id = 'wsPrintSheet';
+                document.body.appendChild(sheet);
+            }
+            sheet.className = 'cj-sheet';
+            sheet.innerHTML = printHtml;
+            this._cjInjectPrintStyle();
+            var opened = false;
+            try {
+                opened = this._openCjPreview(model);
+            } catch (e) { opened = false; }
+            // диалог не открылся (нет DOM/iframe — экзотика) — фолбэк:
+            // печать сразу (приём Task 341/430)
+            if (!opened) window.print();
+        },
+
+        // Task 506: МОДЕЛЬ печатной формы (чистая, без DOM — VM-
+        // тестируемая). Модель ПЛОСКАЯ — БЕЗ группировки по отделениям:
+        // строки — в порядке ИСХОДНОГО ФАЙЛА (заявка: «сортировку как в
+        // исходном файле»): сортировка по «№ п/п» (num) по возрастанию —
+        // физический порядок строк Google-таблицы подтверждён cables.json
+        // (№ п/п строго возрастает 1…162 при 159 строках); строки без № —
+        // в конце в исходном относительном порядке (sort стабилен).
+        // Ячейки — готовые отображаемые строки (числа длин — с запятой;
+        // числоподобные «жилы» «1.0» → «1» — в исходном файле это числа).
+        // filtered — активен клиентский фильтр поиска (Task 152): в
+        // подзаголовке диалога «из N»
+        _printModel: function() {
+            var self = this;
+            // № строки как число; без номера — null
+            var numOf = function(row) {
+                var n = row && row.num;
+                if (typeof n === 'number' && isFinite(n)) return n;
+                if (typeof n === 'string' && n.trim() &&
+                        isFinite(parseFloat(n))) {
+                    return parseFloat(n);
+                }
+                return null;
+            };
+            var srcRows = (this._rows || []).slice();
+            srcRows.sort(function(a, b) {
+                var va = numOf(a), vb = numOf(b);
+                if (va === null && vb === null) return 0;
+                if (va === null) return 1;
+                if (vb === null) return -1;
+                return va - vb;
+            });
+            var cols = this._cjPrintCols();
+            var out = srcRows.map(function(row) {
+                var cells = {};
+                cols.forEach(function(c) {
+                    cells[c.key] = self._cjCellVal(row, c.key);
+                });
+                return { cells: cells, src: row };
+            });
+            var totalAll = (this._allRows && this._allRows.length)
+                ? this._allRows.length : srcRows.length;
+            return {
+                rows: out,
+                total: srcRows.length,
+                totalAll: totalAll,
+                filtered: !!(this._allRows &&
+                             this._allRows.length !== srcRows.length)
+            };
+        },
+
+        // Task 506: колонки печатной таблицы — РОВНО как в шаблоне
+        // исходной Google-таблицы (10 колонок A–J, подписи ДОСЛОВНО):
+        // Обозначение/Начало/Конец/Участок + пары «По проекту»/
+        // «Проложен» (Марка · Число и сечение жил · Длина, м); колонок
+        // «№» и «Назначение» в шаблоне НЕТ. w — ширина в pt (A4
+        // альбомная 842 − 2×28 = 786; пропорции из ширин колонок
+        // шаблона 17/19.71/21/18.71/17/16.71/11.43/17/16.71/9.43,
+        // сумма 786pt); в HTML переводится в мм (281мм контента).
+        // align — выравнивание данных шаблона (обозначение/жилы/
+        // длины — центр, трассы/марки — влево). head === 'По проекту'
+        // — серая заливка ячеек шаблона (FFF2F2F2)
+        _cjPrintCols: function() {
+            return [
+                { key: 'designation',    label: 'Обозначение кабеля, провода',
+                  w: 81, rowspan: 2, align: 'ctr' },
+                { key: 'start',          label: 'Начало трассы',
+                  w: 94, rowspan: 2, align: 'left' },
+                { key: 'end',            label: 'Конец трассы',
+                  w: 100, rowspan: 2, align: 'left' },
+                { key: 'section',        label: 'Участок трассы кабеля, провода',
+                  w: 89, rowspan: 2, align: 'left' },
+                { key: 'mark_project',   label: 'Марка',
+                  w: 81, head: 'По проекту', align: 'left' },
+                { key: 'cores_project',  label: 'Число и сечение жил',
+                  w: 80, head: 'По проекту', align: 'ctr' },
+                { key: 'length_project', label: 'Длина, м',
+                  w: 55, head: 'По проекту', align: 'ctr' },
+                { key: 'mark_actual',    label: 'Марка',
+                  w: 81, head: 'Проложен', align: 'left' },
+                { key: 'cores_actual',   label: 'Число и сечение жил',
+                  w: 80, head: 'Проложен', align: 'ctr' },
+                { key: 'length_actual',  label: 'Длина, м',
+                  w: 45, head: 'Проложен', align: 'ctr' }
+            ];
+        },
+
+        // Task 506: значение ячейки печатной таблицы из строки журнала
+        // (числа — с запятой как разделителем, пустое → ''). Жилы и
+        // длины, записанные числоподобной строкой («1.0»), печатаются
+        // числом («1») — в исходном файле эти ячейки хранятся числами
+        _cjCellVal: function(row, key) {
+            var v = row ? row[key] : '';
+            if (v === null || v === undefined) return '';
+            if (typeof v === 'number' && isFinite(v)) {
+                return this._cjFmtNum(v);
+            }
+            if (typeof v === 'string' &&
+                    (key === 'cores_project' || key === 'cores_actual' ||
+                     key === 'length_project' || key === 'length_actual')) {
+                var t = v.trim().replace(',', '.');
+                if (/^\d+(\.\d+)?$/.test(t)) {
+                    return this._cjFmtNum(parseFloat(t));
+                }
+            }
+            return String(v);
+        },
+
+        // Task 505: число → строка с запятой (60 → «60», 43.5 → «43,5»)
+        // Task 505: число → строка с запятой (60 → «60», 43.5 → «43,5»)
+        _cjFmtNum: function(v) {
+            var r = Math.round(v * 100) / 100;
+            return String(r).replace('.', ',');
+        },
+
+        // Task 506: подзаголовок ДИАЛОГА предпросмотра — «записей: M
+        // [из K]». Сводная строка с печатного листа СНЯТА (заявка: «без
+        // текста "Кабельный журнал отделений: 11 · записей: 159" просто
+        // таблицу»); количество отделений больше не считается —
+        // группировки по отделениям в печати нет
+        _cjSub: function(model) {
+            var s = 'записей: ' + model.total;
+            if (model.filtered && model.totalAll &&
+                    model.totalAll !== model.total) {
+                s += ' из ' + model.totalAll;
+            }
+            return s;
+        },
+
+        // Task 506: HTML печатного листа — ТОЛЬКО таблица по шаблону
+        // исходной Google-таблицы: БЕЗ шапки-заголовка (заявка «просто
+        // таблицу»), двухуровневая шапка (rowspan 2 одиночные + colspan 3
+        // «По проекту»/«Проложен»), строки в порядке исходного файла, БЕЗ
+        // зебры и строк-подзаголовков отделений; thead (table-header-
+        // group) — шапка повторяется на каждой странице печати
+        _buildCjPrintHtml: function(model) {
+            var self = this;
+            var cols = this._cjPrintCols();
+            // pt → мм: 786pt контента PDF = 281мм контента листа
+            // (297 − 2×8мм полей @page)
+            var mm = function(pt) {
+                return (Math.round(pt * 281 / 786 * 10) / 10) + 'mm';
+            };
+            var html = '<table class="cjpr-table"><colgroup>';
+            cols.forEach(function(c) {
+                html += '<col style="width:' + mm(c.w) + '">';
+            });
+            html += '</colgroup><thead><tr>';
+            cols.forEach(function(c) {
+                if (c.rowspan) {
+                    html += '<th rowspan="2">' +
+                            self._esc(c.label) + '</th>';
+                }
+            });
+            // пары «По проекту»/«Проложен» — colspan 3 над своими
+            // подколонками (порядок в cols уже сгруппирован)
+            html += '<th colspan="3" class="cjpr-th-grp">По проекту</th>' +
+                    '<th colspan="3" class="cjpr-th-grp">Проложен</th>';
+            html += '</tr><tr class="cjpr-subhead">';
+            cols.forEach(function(c) {
+                if (!c.rowspan) {
+                    html += '<th>' + self._esc(c.label) + '</th>';
+                }
+            });
+            html += '</tr></thead><tbody>';
+            if (model.rows.length) {
+                model.rows.forEach(function(r) {
+                    html += '<tr>';
+                    cols.forEach(function(c) {
+                        html += '<td class="cjpr-c-' + c.align +
+                                (c.head === 'По проекту'
+                                 ? ' cjpr-c-proj' : '') +
+                                '">' + self._esc(r.cells[c.key]) +
+                                '</td>';
+                    });
+                    html += '</tr>';
+                });
+            } else {
+                html += '<tr><td colspan="10" class="cjpr-none">' +
+                        'нет записей в журнале</td></tr>';
+            }
+            html += '</tbody></table>';
+            return html;
+        },
+
+        // Task 506: CSS печатного листа журнала текстом (приём Task
+        // 430/447/465 — ОДИН набор правил в двух документах): шрифт
+        // Arial Narrow 12pt как в шаблоне (фолбэки Arial), сетка 1px
+        // чёрная (шаблон — thin black), шапка БЕЗ заливки (в шаблоне
+        // фона нет), ячейки «По проекту» — серые #f2f2f2 (FFF2F2F2
+        // шаблона), перенос слов, центр по вертикали. Правила скоуплены
+        // под #wsPrintSheet.cj-sheet: (а) инжект в <head> для печати
+        // основного документа (@media print приложения уже дают A4
+        // АЛЬБОМНУЮ и прячут всё, кроме листа — @page не переопределяется),
+        // (б) standalone-документ предпросмотра-iframe — обёртка страниц
+        // несёт те же id/класс, вёрстка печати совпадает с предпросмотром
+        _CJ_PRINT_CSS:
+            '#wsPrintSheet.cj-sheet { font-family: "Arial Narrow", "Liberation Sans Narrow", Arial, Helvetica, sans-serif; font-size: 12pt; line-height: 1.15; color: #000; } ' +
+            '#wsPrintSheet.cj-sheet .cjpr-table { width: 100%; border-collapse: collapse; table-layout: fixed; } ' +
+            '#wsPrintSheet.cj-sheet .cjpr-table thead { display: table-header-group; } ' +
+            '#wsPrintSheet.cj-sheet .cjpr-table tr { page-break-inside: avoid; } ' +
+            '#wsPrintSheet.cj-sheet .cjpr-table th { border: 1px solid #000; font-weight: 700; padding: 1mm 1mm; text-align: center; vertical-align: middle; overflow-wrap: break-word; } ' +
+            '#wsPrintSheet.cj-sheet .cjpr-table td { border: 1px solid #000; padding: 0.8mm 1mm; vertical-align: middle; overflow-wrap: break-word; } ' +
+            '#wsPrintSheet.cj-sheet td.cjpr-c-ctr { text-align: center; } ' +
+            '#wsPrintSheet.cj-sheet td.cjpr-c-left { text-align: left; } ' +
+            '#wsPrintSheet.cj-sheet td.cjpr-c-proj { background: #f2f2f2; -webkit-print-color-adjust: exact; print-color-adjust: exact; } ' +
+            '#wsPrintSheet.cj-sheet .cjpr-none { color: #4c5660; text-align: center; } ',
+
+        // Task 505: инжект-стиль печати в <head> (позже стилей
+        // приложения — каскад побеждает; id cjPrintStyle). @page НЕ
+        // переопределяется: альбомная 8мм уже задана печатной
+        // секцией приложения (печать табеля), CJ-правила только
+        // добавляют табличную вёрстку журнала
+        _cjInjectPrintStyle: function() {
+            var st = document.getElementById('cjPrintStyle');
+            if (st) return;
+            st = document.createElement('style');
+            st.id = 'cjPrintStyle';
+            st.textContent = '@media print { ' + this._CJ_PRINT_CSS + ' }';
+            var head = document.head || document.documentElement;
+            if (head && head.appendChild) head.appendChild(st);
+        },
+
+        _cjRemovePrintStyle: function() {
+            var st = document.getElementById('cjPrintStyle');
+            if (st && st.parentNode && st.parentNode.removeChild) {
+                st.parentNode.removeChild(st);
+            }
+        },
+
+        // Task 506: standalone-документ предпросмотра с РАЗБИЕНИЕМ
+        // НА СТРАНИЦЫ A4 (заявка: «просмотр с разбиением листов по
+        // страницам»): обёртка #wsPrintSheet.cj-sheet (правила
+        // _CJ_PRINT_CSS работают и здесь — вёрстка предпросмотра ==
+        // печать) + СКРЫТАЯ мерная таблица #cjMeasure (весь журнал) +
+        // скрипт пагинации: меряет РЕАЛЬНЫЕ высоты строк
+        // (getBoundingClientRect), раскладывает их по страницам
+        // 297×210мм (контент 281×194мм — 8мм поля, как @page печати);
+        // на каждой странице — своя копия шапки (thead клонируется —
+        // повтор на каждой странице) и свои строки; страницы — белые
+        // листы с тенью на подложке. Фолбэк при ошибке — одна страница
+        // с таблицей потоком. A4 альбомная как у печати табеля
+        _buildCjFileHtml: function(printHtml) {
+            var title = 'Кабельный журнал';
+            var css =
+                '@page { size: A4 landscape; margin: 8mm; } ' +
+                'html { background: #566170; } ' +
+                'body { margin: 0; padding: 6mm 0; } ' +
+                '#wsPrintSheet.cj-sheet { background: transparent; ' +
+                'box-shadow: none; padding: 0; width: auto; } ' +
+                '#cjPages { display: flex; flex-direction: column; ' +
+                'align-items: center; } ' +
+                '.cjpr-page { background: #fff; box-shadow: 0 1mm 4mm ' +
+                'rgba(0,0,0,0.45); width: 297mm; height: 210mm; ' +
+                'padding: 8mm; box-sizing: border-box; overflow: hidden; ' +
+                'margin-bottom: 6mm; } ' +
+                '.cjpr-page:last-child { margin-bottom: 0; } ' +
+                '#cjMeasure { position: absolute; visibility: hidden; ' +
+                'left: -9999px; top: 0; width: 281mm; } ';
+            var js =
+                '(function(){' +
+                'try{' +
+                'var src=document.getElementById("cjMeasure");' +
+                'var tbl=src.querySelector("table");' +
+                'var thead=tbl.tHead;' +
+                'var hRows=thead?thead.rows.length:0;' +
+                'var theadH=0,i,r;' +
+                'for(i=0;i<hRows;i++){theadH+=thead.rows[i].getBoundingClientRect().height;}' +
+                'var body=tbl.tBodies[0];var trs=body?body.rows:[];' +
+                'var hs=[];for(i=0;i<trs.length;i++){hs.push(trs[i].getBoundingClientRect().height);}' +
+                'var CAP=Math.round(194*96/25.4)-2;' +
+                'var pages=[],cur=[],used=theadH;' +
+                'for(i=0;i<trs.length;i++){' +
+                'var h=hs[i];' +
+                'if(cur.length&&used+h>CAP){pages.push(cur);cur=[];used=theadH;}' +
+                'cur.push(trs[i]);used+=h;' +
+                '}' +
+                'if(cur.length)pages.push(cur);' +
+                'if(!pages.length)pages.push([]);' +
+                'var out=document.getElementById("cjPages");' +
+                'var cg=tbl.querySelector("colgroup");' +
+                'for(i=0;i<pages.length;i++){' +
+                'var pg=document.createElement("div");pg.className="cjpr-page";' +
+                'var t=document.createElement("table");t.className=tbl.className;' +
+                'if(cg)t.appendChild(cg.cloneNode(true));' +
+                't.appendChild(thead.cloneNode(true));' +
+                'var tb=document.createElement("tbody");' +
+                'for(r=0;r<pages[i].length;r++){tb.appendChild(pages[i][r]);}' +
+                't.appendChild(tb);' +
+                'pg.appendChild(t);' +
+                'out.appendChild(pg);' +
+                '}' +
+                'src.parentNode.removeChild(src);' +
+                '}catch(e){' +
+                'var m=document.getElementById("cjMeasure");' +
+                'm.style.position="static";' +
+                'm.style.visibility="visible";m.style.left="0";' +
+                'var p=document.createElement("div");p.className="cjpr-page";' +
+                'p.appendChild(m.querySelector("table"));' +
+                'document.getElementById("cjPages").appendChild(p);' +
+                '}' +
+                '})();';
+            return '<!DOCTYPE html>\n<html><head>' +
+                '<meta charset="utf-8">' +
+                '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+                '<title>' + this._esc(title) + '</title>' +
+                '<style>' + css + this._CJ_PRINT_CSS + '</style></head><body>' +
+                '<div id="wsPrintSheet" class="cj-sheet">' +
+                '<div id="cjPages"></div>' +
+                '<div id="cjMeasure">' + printHtml + '</div>' +
+                '</div>' +
+                '<script>' + js + '<\/script>' +
+                '</body></html>';
+        },
+
+        // Task 505/506: ДИАЛОГ ПРЕДПРОСМОТРА журнала (вёрстка классов
+        // Task 430 wspprev-*; кнопочный ряд Task 438 — как у печати
+        // графика/списка мероприятий): шапка «Предпросмотр печати /
+        // Кабельный журнал — записей: N», тело — iframe standalone-
+        // документ с РАЗБИЕНИЕМ НА СТРАНИЦЫ A4 (полная страница
+        // 297мм = 1123px @96dpi), низ — «Печать» (window.print
+        // основного документа: печатная медиа-секция скрывает всё,
+        // кроме #wsPrintSheet) / «Сохранить PDF» / «Сохранить Excel»
+        // / «Отмена» + подсказка «A4 · альбомная». Esc/затемнение/
+        // «Отмена» закрывают (с инжект-стилем). Возвращает true при
+        // успехе; false — без DOM (фолбэк printJournal: печать сразу)
+        _openCjPreview: function(model) {
+            if (typeof document === 'undefined' ||
+                !document.createElement || !document.body ||
+                !document.body.appendChild) {
+                return false;
+            }
+            var self = this;
+            // взаимоисключающие диалоги печати: закрыть возможные
+            // предпросмотры табеля (график/талоны/список) — на экране
+            // ОДИН диалог печати (их закрывание снимает и их
+            // инжект-стили @page)
+            if (typeof WorkSchedule !== 'undefined' && WorkSchedule) {
+                ['_closePrintPreview', '_closeTalonsPreview',
+                 '_closeEventsPreview'].forEach(function(fn) {
+                    if (typeof WorkSchedule[fn] === 'function') {
+                        try { WorkSchedule[fn](); } catch (e) {}
+                    }
+                });
+            }
+            var overlay = document.createElement('div');
+            overlay.id = 'cjPrintPrevModal';
+            overlay.className = 'wspprev-overlay';
+            if (overlay.addEventListener) {
+                overlay.addEventListener('click', function(ev) {
+                    if (ev && ev.target === overlay) {
+                        self._closeCjPreview();
+                    }
+                });
+            }
+
+            var dlg = document.createElement('div');
+            dlg.className = 'wspprev-dialog';
+
+            var head = document.createElement('div');
+            head.className = 'wspprev-head';
+            head.innerHTML = '<span class="wspprev-title">Предпросмотр ' +
+                             'печати</span>' +
+                             '<span class="wspprev-sub">Кабельный журнал — ' +
+                             this._esc(this._cjSub(model)) + '</span>';
+            var closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.className = 'wspprev-close';
+            if (closeBtn.setAttribute) {
+                closeBtn.setAttribute('aria-label', 'Закрыть предпросмотр');
+            }
+            closeBtn.innerHTML = '✕';
+            if (closeBtn.addEventListener) {
+                closeBtn.addEventListener('click', function() {
+                    self._closeCjPreview();
+                });
+            }
+            head.appendChild(closeBtn);
+
+            var body = document.createElement('div');
+            body.className = 'wspprev-body';
+            var paper = document.createElement('div');
+            paper.className = 'wspprev-paper';
+            var frame = document.createElement('iframe');
+            // АЛЬБОМНАЯ ширина iframe: Task 506 — ПОЛНАЯ страница
+            // 297мм @96dpi = 1123px инлайном (базовый класс
+            // .wspprev-frame даёт 1063px — 281мм печатной области
+            // БЕЗ полей; страницы показываются ЦЕЛИКОМ, с полями)
+            frame.className = 'wspprev-frame';
+            frame.style.width = '1123px';
+            if (frame.setAttribute) {
+                frame.setAttribute('title', 'Предпросмотр печатного листа');
+            }
+            frame.style.height = '800px';
+            frame._natH = 800;
+            paper.appendChild(frame);
+            body.appendChild(paper);
+
+            var foot = document.createElement('div');
+            foot.className = 'wspprev-foot';
+            foot.innerHTML =
+                '<button type="button" class="wspprev-btn wspprev-print">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V6z" fill="currentColor"/></svg>' +
+                'Печать</button>' +
+                '<button type="button" class="wspprev-btn wspprev-pdf">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z" fill="currentColor"/></svg>' +
+                'Сохранить PDF</button>' +
+                '<button type="button" class="wspprev-btn wspprev-xlsx">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 19H5v-2h4v2zm0-4H5v-2h4v2zm0-4H5V9h4v2zm10 8h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4V9h4v2z" fill="currentColor"/></svg>' +
+                'Сохранить Excel</button>' +
+                '<button type="button" class="wspprev-btn ' +
+                'wspprev-cancel">Отмена</button>' +
+                '<span class="wspprev-hint">A4 · альбомная</span>';
+
+            dlg.appendChild(head);
+            dlg.appendChild(body);
+            dlg.appendChild(foot);
+            overlay.appendChild(dlg);
+            document.body.appendChild(overlay);
+
+            // содержимое iframe: standalone-документ листа. Слушатель
+            // load — ДО srcdoc (иначе событие теряется); высота — по
+            // scrollHeight содержимого, затем масштаб под окно
+            if (frame.addEventListener) {
+                frame.addEventListener('load', function() {
+                    var h = 0;
+                    try {
+                        var doc = frame.contentDocument;
+                        if (doc && doc.documentElement) {
+                            h = doc.documentElement.scrollHeight;
+                        }
+                    } catch (e) { h = 0; }
+                    frame._natH = (h > 200) ? h : 800;
+                    try { frame.style.height = frame._natH + 'px'; }
+                    catch (e2) {}
+                    self._cjPrevFit();
+                });
+            }
+            frame.srcdoc = this._buildCjFileHtml(
+                this._buildCjPrintHtml(model));
+            this._cjPrevFit();
+
+            var printBtn = foot.querySelector('.wspprev-print');
+            var pdfBtn = foot.querySelector('.wspprev-pdf');
+            var xlsxBtn = foot.querySelector('.wspprev-xlsx');
+            var cancelBtn = foot.querySelector('.wspprev-cancel');
+            if (printBtn && printBtn.addEventListener) {
+                printBtn.addEventListener('click', function() {
+                    try { window.print(); } catch (e) {}
+                });
+            }
+            if (pdfBtn && pdfBtn.addEventListener) {
+                pdfBtn.addEventListener('click', function() {
+                    self._saveCjPdf(model);
+                });
+            }
+            if (xlsxBtn && xlsxBtn.addEventListener) {
+                xlsxBtn.addEventListener('click', function() {
+                    self._saveCjXlsx(model);
+                });
+            }
+            if (cancelBtn && cancelBtn.addEventListener) {
+                cancelBtn.addEventListener('click', function() {
+                    self._closeCjPreview();
+                });
+            }
+
+            // Esc — закрыть; resize — перемасштабировать
+            this._cjPrevEsc = function(ev) {
+                if (ev && ev.key === 'Escape') self._closeCjPreview();
+            };
+            this._cjPrevResize = function() { self._cjPrevFit(); };
+            if (typeof window !== 'undefined' && window.addEventListener) {
+                window.addEventListener('keydown', this._cjPrevEsc);
+                window.addEventListener('resize', this._cjPrevResize);
+            }
+            return true;
+        },
+
+        // Task 506: масштаб предпросмотра под окно: ПОЛНАЯ страница
+        // 297мм = 1123px @96dpi (Task 505 мерила 1063px лист без
+        // полей) сжимается transform:scale до ширины тела диалога
+        // (приём _wsPrevFit графика табеля Task 430)
+        _cjPrevFit: function() {
+            if (typeof document === 'undefined') return;
+            var overlay = document.getElementById('cjPrintPrevModal');
+            if (!overlay) return;
+            var body = overlay.querySelector('.wspprev-body');
+            var paper = overlay.querySelector('.wspprev-paper');
+            var frame = overlay.querySelector('.wspprev-frame');
+            if (!body || !paper || !frame) return;
+            var W = 1123; // 297мм полной страницы A4 @96dpi
+            var avail = (body.clientWidth || 0) - 28;
+            if (!(avail > 0)) avail = W;
+            var k = Math.min(1, avail / W);
+            var h = frame._natH || 800;
+            try {
+                frame.style.transformOrigin = 'top left';
+                frame.style.transform = 'scale(' + k + ')';
+                paper.style.width = Math.round(W * k) + 'px';
+                paper.style.height = Math.round(h * k) + 'px';
+            } catch (e) { /* моки без style — тихо */ }
+        },
+
+        // Task 505: закрыть диалог предпросмотра — снять слушатели
+        // окна, удалить элемент из <body>, СНЯТЬ инжект-стиль (печать
+        // табеля снова чистая альбомная)
+        _closeCjPreview: function() {
+            if (typeof window !== 'undefined' && window.removeEventListener) {
+                if (this._cjPrevEsc) {
+                    try { window.removeEventListener('keydown',
+                                                    this._cjPrevEsc); }
+                    catch (e) {}
+                }
+                if (this._cjPrevResize) {
+                    try { window.removeEventListener('resize',
+                                                    this._cjPrevResize); }
+                    catch (e) {}
+                }
+            }
+            this._cjPrevEsc = null;
+            this._cjPrevResize = null;
+            if (typeof document === 'undefined' ||
+                !document.getElementById) return;
+            var overlay = document.getElementById('cjPrintPrevModal');
+            if (overlay && overlay.parentNode &&
+                overlay.parentNode.removeChild) {
+                try { overlay.parentNode.removeChild(overlay); }
+                catch (e) {}
+            }
+            this._cjRemovePrintStyle();
+        },
+
+        // Task 505: «Сохранить PDF» диалога — модель → раскладка →
+        // отрисовка страниц (canvas ×2, Arial, тот же вид, что у
+        // печати графика/списка) → PDF в загрузки; имя —
+        // «Кабельный_журнал_‹ГГГГ-ММ-ДД›.pdf» (паттерн архива
+        // работников Task 445)
+        _saveCjPdf: function(model) {
+            var name = 'Кабельный_журнал_' + this._cjIsoDate() + '.pdf';
+            var ok = false;
+            try {
+                var lay = this._cjPdfLayout(model);
+                var jpegs = [];
+                for (var p = 0; p < lay.pages.length; p++) {
+                    var jp = this._cjPdfPaintPage(lay, model, p);
+                    if (jp) jpegs.push(jp);
+                }
+                if (!jpegs.length) throw new Error('нет страниц');
+                var bytes = WorkSchedule._buildPdfDocument(jpegs, lay.W, lay.H);
+                ok = this._cjDownload(bytes, 'application/pdf', name);
+            } catch (e) { ok = false; }
+            if (typeof KipToast !== 'undefined' && KipToast.show) {
+                KipToast.show(ok
+                    ? ('Журнал сохранён — файл «' + name + '»')
+                    : 'Не удалось сохранить PDF журнала');
+            }
+        },
+
+        // Task 506: раскладка PDF журнала (чистая — VM-тестируемая,
+        // приём _eventsPdfLayout Task 465): A4 АЛЬБОМНАЯ 842×595pt,
+        // поля 28pt; БЕЗ шапки-заголовка (заявка «просто таблицу») — с
+        // первой страницы идёт таблица; двухстрочная шапка таблицы
+        // 18+32pt (rowspan-подписи и «Число и сечение жил» — в 2
+        // строки) повторяется на КАЖДОЙ странице (как table-header-
+        // group в HTML); строка — по числу строк текста (перенос по
+        // словам, оценка ~5.2pt на символ 12pt Arial Narrow — щедрее
+        // реального: строка лучше выше, чем наложение текста);
+        // порядок строк — исходный файл (модель уже отсортирована по
+        // № п/п). Колонки — _cjPrintCols (10, сумма ширин 786pt)
+        _cjPdfLayout: function(model) {
+            var W = 842, H = 595, M = 28;
+            var thTop = 18, thSub = 32;
+            var lineH = 14, rowPad = 5;
+            var thH = thTop + thSub;
+            var cols = [];
+            var cx = M;
+            var colDefs = this._cjPrintCols();
+            for (var c = 0; c < colDefs.length; c++) {
+                cols.push({ x: cx, w: colDefs[c].w, key: colDefs[c].key,
+                            label: colDefs[c].label,
+                            rowspan: !!colDefs[c].rowspan,
+                            align: colDefs[c].align || 'left',
+                            head: colDefs[c].head || '' });
+                cx += colDefs[c].w;
+            }
+            var budget = H - 2 * M;
+            var estW = function(s) {
+                return String(s || '').length * 5.2;
+            };
+            var wrapN = function(s, maxW) {
+                var words = String(s || '').split(' ');
+                var lines = [], cur = '';
+                for (var i = 0; i < words.length; i++) {
+                    var cand = cur ? cur + ' ' + words[i] : words[i];
+                    if (estW(cand) <= maxW || !cur) cur = cand;
+                    else { lines.push(cur); cur = words[i]; }
+                }
+                if (cur) lines.push(cur);
+                return lines.length || 1;
+            };
+            // элементы потока — ТОЛЬКО строки данных (без
+            // подзаголовков отделений: порядок исходного файла)
+            var items = [];
+            model.rows.forEach(function(r) {
+                var lines = 1;
+                cols.forEach(function(col) {
+                    lines = Math.max(lines,
+                        wrapN(r.cells[col.key], col.w - 8));
+                });
+                items.push({ type: 'row', cells: r.cells,
+                             lines: lines });
+            });
+            if (!items.length) {
+                items.push({ type: 'none' });
+            }
+            // пагинация: шапка таблицы на каждой странице
+            var pages = [];
+            var page = null;
+            var y = 0;
+            var thDrawn = false;
+            var newPage = function() {
+                page = { items: [] };
+                pages.push(page);
+                y = 0;
+                thDrawn = false;
+            };
+            newPage();
+            for (var i = 0; i < items.length; i++) {
+                var it = items[i];
+                var h = (it.type === 'none') ? (lineH + rowPad)
+                        : (it.lines * lineH + rowPad);
+                var lead = thDrawn ? 0 : thH;
+                if ((thDrawn || y > 0) && y + lead + h > budget) {
+                    newPage();
+                    lead = thH;
+                }
+                if (!thDrawn) { y += thH; thDrawn = true; }
+                page.items.push(it);
+                y += h;
+            }
+            return { pages: pages, W: W, H: H, M: M,
+                     thTop: thTop, thSub: thSub, thH: thH,
+                     lineH: lineH, rowPad: rowPad, cols: cols,
+                     total: model.total };
+        },
+
+        // Task 506: ОТРИСОВКА СТРАНИЦЫ PDF журнала на canvas (браузер;
+        // в VM-тестах не вызывается — раскладку строит чистый
+        // _cjPdfLayout). Координаты — pt (842×595), canvas ×2 для
+        // чёткости; БЕЗ шапки-заголовка (заявка «просто таблицу»);
+        // двухстрочная шапка таблицы — на КАЖДОЙ странице; шрифт
+        // Arial Narrow 12pt (как в шаблоне), сетка чёрная thin 0.6,
+        // шапка БЕЗ заливки (шаблон), ячейки «По проекту» — серые
+        // #f2f2f2, выравнивание колонок — по шаблону (центр/влево),
+        // текст переносится по словам и КЛИПИТСЯ в ячейку (раскладка
+        // оценивает строки щедрее реального — текст не накладывается);
+        // итог — JPEG {bytes, w, h} или null
+        _cjPdfPaintPage: function(lay, model, pi) {
+            if (typeof document === 'undefined' ||
+                !document.createElement) return null;
+            var page = lay.pages[pi];
+            if (!page) return null;
+            var cnv = document.createElement('canvas');
+            if (!cnv || !cnv.getContext) return null;
+            var scale = 2;
+            cnv.width = lay.W * scale;
+            cnv.height = lay.H * scale;
+            var ctx = cnv.getContext('2d');
+            if (!ctx || !ctx.fillText) return null;
+            try { ctx.scale(scale, scale); } catch (e) { return null; }
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, lay.W, lay.H);
+            var FONT = '"Arial Narrow", Arial, sans-serif';
+            var cols = lay.cols;
+            var thW = lay.W - 2 * lay.M;
+            var y = lay.M;
+            var line = function(x, yy, w, h) {
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 0.6;
+                ctx.strokeRect(x, yy, w, h);
+            };
+            var wrapLines = function(text, maxW) {
+                var words = String(text || '').split(' ');
+                var lines = [], cur = '';
+                for (var i = 0; i < words.length; i++) {
+                    var cand = cur ? cur + ' ' + words[i] : words[i];
+                    if (ctx.measureText(cand).width <= maxW || !cur) {
+                        cur = cand;
+                    } else { lines.push(cur); cur = words[i]; }
+                }
+                if (cur) lines.push(cur);
+                return lines;
+            };
+            // текст в ячейке: перенос по словам, блок — по центру
+            // вертикали; center — и по горизонтали; клип в ячейку
+            var drawCellText = function(text, x, yy, w, h,
+                                        center, bold) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(x, yy, w, h);
+                ctx.clip();
+                ctx.fillStyle = '#000';
+                ctx.font = (bold ? '700 ' : '') + '12px ' + FONT;
+                var lines = wrapLines(text, w - 6);
+                var blockH = lines.length * lay.lineH;
+                var yTop = yy + (h - blockH) / 2 +
+                           lay.lineH * 0.82;
+                ctx.textAlign = center ? 'center' : 'left';
+                for (var i = 0; i < lines.length; i++) {
+                    ctx.fillText(lines[i],
+                                 center ? x + w / 2 : x + 3,
+                                 yTop + i * lay.lineH);
+                }
+                ctx.restore();
+            };
+            // шапка таблицы (двухстрочная, на КАЖДОЙ странице):
+            // rowspan-колонки во всю высоту, пары «По проекту»/
+            // «Проложен» (colspan 3) сверху, подписи подколонок снизу
+            var drawTh = function() {
+                var cI;
+                for (cI = 0; cI < cols.length; cI++) {
+                    if (!cols[cI].rowspan) continue;
+                    line(cols[cI].x, y, cols[cI].w, lay.thH);
+                    drawCellText(cols[cI].label, cols[cI].x, y,
+                                 cols[cI].w, lay.thH, true, true);
+                }
+                // пары: подколонки с ОДИНАКОВЫМ head идут ПОДРЯД —
+                // сливаются в одну ячейку верхней строки
+                var pairX = -1, pairW = 0, pairHead = '';
+                for (cI = 0; cI <= cols.length; cI++) {
+                    var head = (cI < cols.length)
+                        ? (cols[cI].head || '') : '';
+                    if (head && head === pairHead) {
+                        pairW += cols[cI].w;
+                    } else {
+                        if (pairX >= 0) {
+                            line(pairX, y, pairW, lay.thTop);
+                            drawCellText(pairHead, pairX, y,
+                                         pairW, lay.thTop, true, true);
+                            pairX = -1; pairW = 0; pairHead = '';
+                        }
+                        if (head) {
+                            pairX = cols[cI].x;
+                            pairW = cols[cI].w;
+                            pairHead = head;
+                        }
+                    }
+                }
+                // нижняя строка шапки: подписи подколонок
+                for (cI = 0; cI < cols.length; cI++) {
+                    if (cols[cI].rowspan) continue;
+                    line(cols[cI].x, y + lay.thTop,
+                         cols[cI].w, lay.thSub);
+                    drawCellText(cols[cI].label, cols[cI].x,
+                                 y + lay.thTop, cols[cI].w,
+                                 lay.thSub, true, true);
+                }
+                y += lay.thH;
+            };
+            drawTh();
+            // строки данных — в порядке исходного файла
+            for (var r = 0; r < page.items.length; r++) {
+                var it = page.items[r];
+                if (it.type === 'none') {
+                    var nh = lay.lineH + lay.rowPad;
+                    line(lay.M, y, thW, nh);
+                    drawCellText('нет записей в журнале',
+                                 lay.M, y, thW, nh, true, false);
+                    y += nh;
+                } else {
+                    var h = it.lines * lay.lineH + lay.rowPad;
+                    for (var c2 = 0; c2 < cols.length; c2++) {
+                        var col = cols[c2];
+                        // серая заливка «По проекту» — как в шаблоне
+                        if (col.head === 'По проекту') {
+                            ctx.fillStyle = '#f2f2f2';
+                            ctx.fillRect(col.x, y, col.w, h);
+                        }
+                        line(col.x, y, col.w, h);
+                        drawCellText(it.cells[col.key], col.x, y,
+                                     col.w, h,
+                                     col.align === 'ctr', false);
+                    }
+                    y += h;
+                }
+            }
+            var dataUrl;
+            try {
+                dataUrl = cnv.toDataURL('image/jpeg', 0.92);
+            } catch (e4) { return null; }
+            var bytes = WorkSchedule._wsDataUrlBytes(dataUrl);
+            if (!bytes.length) return null;
+            return { bytes: bytes, w: cnv.width, h: cnv.height };
+        },
+
+        // Task 506: «Сохранить Excel» диалога — книга «Кабельный
+        // журнал» (.xlsx) в загрузки; имя — «Кабельный_журнал_‹ГГГГ-
+        // ММ-ДД›.xlsx». Лист — по шаблону исходной Google-таблицы
+        // (см. _buildCjWorkbook); числа (длины и числоподобные жилы) —
+        // ЧИСЛАМИ (редактируемые, сортируемые — паттерн Task 488
+        // «простой редактируемый xlsx»)
+        _saveCjXlsx: function(model) {
+            var wb = null;
+            try {
+                wb = this._buildCjWorkbook(model);
+            } catch (e) { wb = null; }
+            var ok = false;
+            if (wb) {
+                ok = this._cjDownload(
+                    wb.bytes,
+                    'application/vnd.openxmlformats-officedocument.' +
+                    'spreadsheetml.sheet', wb.name);
+            }
+            if (typeof KipToast !== 'undefined' && KipToast.show) {
+                KipToast.show(ok
+                    ? ('Журнал сохранён — файл «' +
+                       (wb ? wb.name : '') + '»')
+                    : 'Не удалось сохранить Excel журнала');
+            }
+        },
+
+        // Task 506: КНИГА .xlsx «Кабельный журнал» — по ШАБЛОНУ
+        // исходной Google-таблицы (чистая — VM-тестируемая; базовые
+        // помощники Task 430/465: _wsXlsZip/_wsXlsBytes/_wsXlsColName/
+        // _wsXlsEsc/_wsXlsDocProps): лист «Кабельный журнал», шапка
+        // ДВЕ строки с объединениями (A1:A2…D1:D2, E1:G1 «По
+        // проекту», H1:J1 «Проложен»), данные с 3-й строки — 10
+        // колонок в порядке исходного файла (модель уже отсортиро-
+        // вана по № п/п); Arial Narrow 12, тонкая чёрная сетка,
+        // перенос слов, центр по вертикали, «По проекту» — серые
+        // F2F2F2; ширины колонок — из шаблона; закрепление шапки
+        // (A3) и печать с ПОВТОРОМ шапки на каждой странице
+        // (Print_Titles 1:2, A4 альбомная). БЕЗ строк-заголовка и
+        // отделений — «просто таблица»; числа — ЧИСЛАМИ (Task 488)
+        _buildCjWorkbook: function(model) {
+            var esc = WorkSchedule._wsXlsEsc;
+            var colName = WorkSchedule._wsXlsColName;
+            var cols = this._cjPrintCols();
+            // ширины колонок шаблона (Excel-юниты)
+            var xlW = [17, 19.71, 21, 18.71, 17, 16.71,
+                       11.43, 17, 16.71, 9.43];
+            // стиль ячейки данных: 2 — влево, 3 — центр,
+            // 4 — «По проекту» влево, 5 — «По проекту» центр
+            // (шапка — везде стиль 1: жирная, центр, сетка)
+            var cellStyle = function(c) {
+                if (c.head === 'По проекту') {
+                    return c.align === 'ctr' ? 5 : 4;
+                }
+                return c.align === 'ctr' ? 3 : 2;
+            };
+            // ячейка: ref + стиль + значение (num — числом <v>,
+            // иначе inlineStr с сохранением краевых пробелов)
+            var cellXml = function(ri, ci, v, s, num) {
+                var ref = colName(ci - 1) + ri;
+                if (num) {
+                    return '<c r="' + ref + '" s="' + s +
+                           '"><v>' + v + '</v></c>';
+                }
+                var sv = (v === null || v === undefined) ? '' : String(v);
+                var st = ' s="' + s + '"';
+                if (sv === '') {
+                    return '<c r="' + ref + '"' + st + '/>';
+                }
+                var sp = (/^\s|\s$/.test(sv))
+                    ? ' xml:space="preserve"' : '';
+                return '<c r="' + ref + '"' + st + ' t="inlineStr">' +
+                       '<is><t' + sp + '>' + esc(sv) +
+                       '</t></is></c>';
+            };
+            var rowsXml = [];
+            // --- шапка (r1: одиночные + пары; r2: подписи) ---
+            var r1 = [], r2 = [];
+            var i, ci;
+            for (i = 0; i < cols.length; i++) {
+                if (!cols[i].rowspan) break;
+                r1.push(cellXml(1, i + 1, cols[i].label, 1, false));
+                r2.push(cellXml(2, i + 1, '', 1, false));
+            }
+            var pairs = [];
+            for (i = 0; i < cols.length; i++) {
+                if (cols[i].rowspan) continue;
+                if (!pairs.length ||
+                        pairs[pairs.length - 1].head !== cols[i].head) {
+                    pairs.push({ head: cols[i].head, at: i });
+                }
+            }
+            pairs.forEach(function(p) {
+                var c1 = p.at + 1;
+                var c2 = Math.min(p.at + 3, cols.length);
+                r1.push(cellXml(1, c1, p.head, 1, false));
+                for (ci = c1 + 1; ci <= c2; ci++) {
+                    r1.push(cellXml(1, ci, '', 1, false));
+                }
+                for (ci = c1; ci <= c2; ci++) {
+                    r2.push(cellXml(2, ci, cols[ci - 1].label,
+                                    1, false));
+                }
+            });
+            rowsXml.push('<row r="1" ht="34" customHeight="1">' +
+                         r1.join('') + '</row>');
+            rowsXml.push('<row r="2" ht="34" customHeight="1">' +
+                         r2.join('') + '</row>');
+            // --- данные с 3-й строки: порядок исходного файла ---
+            if (model.rows.length) {
+                model.rows.forEach(function(rw, ri) {
+                    var rr = ri + 3;
+                    var cs = [];
+                    cols.forEach(function(c, ci) {
+                        var raw = rw.src ? rw.src[c.key] : '';
+                        var v = '', num = false;
+                        if (raw !== null && raw !== undefined) {
+                            if (typeof raw === 'number' &&
+                                    isFinite(raw)) {
+                                v = raw; num = true;
+                            } else if (typeof raw === 'string' &&
+                                    (c.key === 'cores_project' ||
+                                     c.key === 'cores_actual' ||
+                                     c.key === 'length_project' ||
+                                     c.key === 'length_actual')) {
+                                // числоподобные жилы/длины — числами
+                                // (в исходном файле это числа)
+                                var t = raw.trim().replace(',', '.');
+                                if (/^\d+(\.\d+)?$/.test(t)) {
+                                    v = parseFloat(t); num = true;
+                                } else { v = raw; }
+                            } else {
+                                v = String(raw);
+                            }
+                        }
+                        cs.push(cellXml(rr, ci + 1, v,
+                                        cellStyle(c), num));
+                    });
+                    rowsXml.push('<row r="' + rr + '">' +
+                                 cs.join('') + '</row>');
+                });
+            } else {
+                rowsXml.push('<row r="3">' +
+                    cellXml(3, 1, 'нет записей в журнале', 3, false) +
+                    '</row>');
+            }
+            // --- лист: закрепление A3, ширины, объединения шапки,
+            // поля/печать A4 альбомная ---
+            var colXml = '';
+            xlW.forEach(function(w, ci) {
+                colXml += '<col min="' + (ci + 1) + '" max="' +
+                          (ci + 1) + '" width="' + w +
+                          '" customWidth="1"/>';
+            });
+            var sheet =
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+                '<sheetViews><sheetView workbookViewId="0" tabSelected="1">' +
+                '<pane ySplit="2" topLeftCell="A3" activePane="bottomLeft" state="frozen"/>' +
+                '</sheetView></sheetViews>' +
+                '<cols>' + colXml + '</cols>' +
+                '<sheetData>' + rowsXml.join('') + '</sheetData>' +
+                '<mergeCells count="6">' +
+                '<mergeCell ref="A1:A2"/><mergeCell ref="B1:B2"/>' +
+                '<mergeCell ref="C1:C2"/><mergeCell ref="D1:D2"/>' +
+                '<mergeCell ref="E1:G1"/><mergeCell ref="H1:J1"/>' +
+                '</mergeCells>' +
+                '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.2" footer="0.2"/>' +
+                '<pageSetup paperSize="9" orientation="landscape" fitToWidth="1" fitToHeight="0"/>' +
+                '</worksheet>';
+            // --- стили: Arial Narrow 12, thin black, F2F2F2 ---
+            var styles =
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+                '<fonts count="2">' +
+                '<font><sz val="12"/><name val="Arial Narrow"/></font>' +
+                '<font><b/><sz val="12"/><name val="Arial Narrow"/></font>' +
+                '</fonts>' +
+                '<fills count="3">' +
+                '<fill><patternFill patternType="none"/></fill>' +
+                '<fill><patternFill patternType="gray125"/></fill>' +
+                '<fill><patternFill patternType="solid">' +
+                '<fgColor rgb="FFF2F2F2"/><bgColor indexed="64"/>' +
+                '</patternFill></fill>' +
+                '</fills>' +
+                '<borders count="2">' +
+                '<border><left/><right/><top/><bottom/><diagonal/></border>' +
+                '<border>' +
+                '<left style="thin"><color rgb="FF000000"/></left>' +
+                '<right style="thin"><color rgb="FF000000"/></right>' +
+                '<top style="thin"><color rgb="FF000000"/></top>' +
+                '<bottom style="thin"><color rgb="FF000000"/></bottom>' +
+                '<diagonal/>' +
+                '</border>' +
+                '</borders>' +
+                '<cellStyleXfs count="1">' +
+                '<xf numFmtId="0" fontId="0" fillId="0" borderId="0"/>' +
+                '</cellStyleXfs>' +
+                '<cellXfs count="6">' +
+                // 0 — базовый (индекс s=0 — НЕ используется ячейками,
+                // но обязан существовать: индексы cellXfs начинаются
+                // с НУЛЯ, стили ячеек — 1..6)
+                '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+                // 1 — шапка: жирная, центр/центр, перенос, сетка
+                '<xf numFmtId="0" fontId="1" fillId="0" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">' +
+                '<alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+                // 2 — данные влево
+                '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">' +
+                '<alignment horizontal="left" vertical="center" wrapText="1"/></xf>' +
+                // 3 — данные по центру
+                '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">' +
+                '<alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+                // 4 — «По проекту» влево (серые)
+                '<xf numFmtId="0" fontId="0" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">' +
+                '<alignment horizontal="left" vertical="center" wrapText="1"/></xf>' +
+                // 5 — «По проекту» по центру (серые)
+                '<xf numFmtId="0" fontId="0" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1">' +
+                '<alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+                '</cellXfs>' +
+                '<cellStyles count="1">' +
+                '<cellStyle name="Normal" xfId="0" builtinId="0"/>' +
+                '</cellStyles></styleSheet>';
+            // --- сборка книги (паттерн Task 430/465/488) ---
+            var dp = WorkSchedule._wsXlsDocProps();
+            var files = [];
+            var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+                '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+                '<Default Extension="xml" ContentType="application/xml"/>' +
+                '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+                '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+                '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+                dp.ct +
+                '</Types>';
+            files.push({ name: '[Content_Types].xml',
+                         data: WorkSchedule._wsXlsBytes(ct) });
+            files.push({
+                name: '_rels/.rels',
+                data: WorkSchedule._wsXlsBytes(
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+                    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"' +
+                    ' Target="xl/workbook.xml"/>' + dp.rels +
+                    '</Relationships>')
+            });
+            for (var dpi = 0; dpi < dp.files.length; dpi++) {
+                files.push(dp.files[dpi]);
+            }
+            // definedNames: ПОВТОР шапки при печати (1:2) — как в
+            // заявке «шапка должна распечатываться на каждой
+            // странице»; имя листа с пробелом — в апострофах
+            files.push({
+                name: 'xl/workbook.xml',
+                data: WorkSchedule._wsXlsBytes(
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"' +
+                    ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+                    '<bookViews><workbookView/></bookViews>' +
+                    '<sheets><sheet name="Кабельный журнал" sheetId="1" r:id="rId1"/>' +
+                    '</sheets>' +
+                    '<definedNames>' +
+                    '<definedName name="_xlnm.Print_Titles" localSheetId="0">' +
+                    '\'Кабельный журнал\'!$1:$2</definedName>' +
+                    '</definedNames></workbook>')
+            });
+            files.push({
+                name: 'xl/_rels/workbook.xml.rels',
+                data: WorkSchedule._wsXlsBytes(
+                    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+                    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+                    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"' +
+                    ' Target="worksheets/sheet1.xml"/>' +
+                    '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles"' +
+                    ' Target="styles.xml"/></Relationships>')
+            });
+            files.push({
+                name: 'xl/worksheets/sheet1.xml',
+                data: WorkSchedule._wsXlsBytes(sheet)
+            });
+            files.push({ name: 'xl/styles.xml',
+                         data: WorkSchedule._wsXlsBytes(styles) });
+            return {
+                name: 'Кабельный_журнал_' + this._cjIsoDate() + '.xlsx',
+                bytes: WorkSchedule._wsXlsZip(files),
+                counts: { cols: cols.length,
+                          total: model.total }
+            };
+        },
+
+        // Task 505: локальная дата в ISO «ГГГГ-ММ-ДД» (имена файлов
+        // выгрузок; локальная зона, не toISOString-UTC)
+        _cjIsoDate: function(d) {
+            d = d || new Date();
+            var m = d.getMonth() + 1, day = d.getDate();
+            return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m +
+                   '-' + (day < 10 ? '0' : '') + day;
+        },
+
+        // Task 505: скачивание блоба (делегат общему помощнику
+        // выгрузок табеля Task 430 — xlsx-архив и PDF); вне браузера
+        // (VM) — false
+        _cjDownload: function(bytes, mime, name) {
+            if (typeof WorkSchedule === 'undefined' || !WorkSchedule ||
+                typeof WorkSchedule._wsDownload !== 'function') {
+                return false;
+            }
+            return WorkSchedule._wsDownload(bytes, mime, name);
         },
 
         // ============================================================
@@ -52424,9 +53682,34 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 // сравниваются по дате_начала (как в фильтре месяца)
                 var eIso = String(tr['дата_окончания'] || tr['дата_начала'] || '');
                 var pastCls = (eIso && eIso < todayIso) ? ' ws-ep-past' : '';
+                // Task 504 (заявка: «даты выполненных мероприятий
+                // сделай зелёным цветом, а просроченных — красным»):
+                // КЛАСС на ДАТУ строки — по СОСТОЯНИЮ записи И/ПЗ
+                // (только у семейства «Инструктажи» есть столбцы
+                // «выполнение»/«просрочен», Task 482; ОБ/ПР/* — без
+                // классов, дата обычного цвета): выполнение = 1 →
+                // .ws-ep-date-ok (ЗЕЛЁНАЯ); не выполнено + просрочено
+                // (поле «просрочен» сервера, нет — дата_начала <
+                // «сегодня»; todayIso уже вычислен выше по Task 380) →
+                // .ws-ep-date-bad (КРАСНАЯ). Выполнение ПРИОРИТЕТНЕЕ
+                // просрочки — как у бейджей шахматки (Task 482:
+                // evDone ? done : late) и карточки работника
+                // (Task 418: iDone/iLate). Записи без полей и
+                // будущие даты — обычный цвет даты
+                var dateCls = '';
+                if (code === 'И' || code === 'ПЗ') {
+                    var evDone = (parseInt(tr['выполнение'], 10) === 1);
+                    var evLate = (tr['просрочен'] !== undefined)
+                        ? (parseInt(tr['просрочен'], 10) === 1)
+                        : (!evDone &&
+                           String(tr['дата_начала'] || '') < todayIso);
+                    dateCls = evDone
+                        ? ' ws-ep-date-ok'
+                        : (evLate ? ' ws-ep-date-bad' : '');
+                }
                 html += '<span class="ws-ep-item' + pastCls + '">' +
                         '<i class="ws-ep-dot" style="background:' + (meta.color || '#3a3a3a') + ';"></i>' +
-                        '<b class="ws-ep-date">' + this._esc(range) + '</b>' +
+                        '<b class="ws-ep-date' + dateCls + '">' + this._esc(range) + '</b>' +
                         '<span class="ws-ep-text">' + this._esc(text) + '</span></span>';
             }
             // Task 394 (заявка): в окне мероприятий месяца — ТАК ЖЕ

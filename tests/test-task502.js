@@ -1,6 +1,6 @@
 // tests/test-task502.js
 // ПЕРЕНОС в kip8 (Task 503, из kip8test@65b9e469):
-// MAP kipia-test-v726/v727 → kipia-v525/v526.
+// MAP kipia-test-v726/v727 → kipia-v526/v526.
 // Task 502: заявка пользователя — «Убери палитру кнопок и блоков,
 //   она зрительно перегружает приложение. В разделе шкала-сигнал
 //   поменяй местами блоки произвольных значений и типа шкалы, и в
@@ -24,7 +24,7 @@
 //   D. VM — scaleQueryEnterBlur: Enter (key и keyCode 13) гасит
 //      клавиатуру (preventDefault + stopPropagation + blur), прочие
 //      клавиши — без действий; глобальный Enter/Next жив (границы).
-//   E. SW kipia-v525 + комментарий Task 502 (guard v727).
+//   E. SW kipia-v526 + комментарий Task 502 (guard v727).
 
 const fs = require('fs');
 const path = require('path');
@@ -360,11 +360,11 @@ describe('Task 502 D: VM — Enter в полях ППР гасит клавиа�
 // E. SW — версия и комментарий
 // ==========================================================================
 describe('Task 502 E: Service Worker', () => {
-    test("sw.js: CACHE_VERSION = 'kipia-v525'", () => {
+    test("sw.js: CACHE_VERSION = 'kipia-v526'", () => {
         assertTrue(
-            SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v525';") !== -1,
+            SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v526';") !== -1,
             'версия v726');
-        assertFalse(SW_SRC.indexOf('kipia-v526') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v527') !== -1,
             'следующей версии нет');
     });
 
