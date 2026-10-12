@@ -34,7 +34,7 @@
 //     «A4 · альбомная»), Esc закрывает (с инжект-стилем), диалоги
 //     взаимоисключающие (закрывает предпросмотры табеля), фолбэк —
 //     печать сразу при закрытии диалога.
-//   SW: kipia-v526 (двойного бампа нет — v729).
+//   SW: kipia-v527 (двойного бампа нет — v729).
 //
 // Запуск: через tests/run-all.js (require './test-task505.js').
 
@@ -262,8 +262,13 @@ describe('Task 505 — SRC: полный набор методов', () => {
                    m.indexOf('WorkSchedule._wsXlsDocProps') !== -1 &&
                    m.indexOf('WorkSchedule._wsXlsEsc') !== -1,
             'архив/пропсы/экранирование — помощники Task 430/465');
-        assertTrue(m.indexOf('mergeCell ref="A1:A2"') !== -1,
-            'Task 506: объединения шапки как в шаблоне');
+        // Task 508: объединения шапки собираются ДИНАМИЧЕСКИ (одиночные
+        // + пары; + блок «Архив» K1:O1 при архивных строках) — литерал
+        // 'mergeCell ref="A1:A2"' ушёл из исходника; факт объединений в
+        // готовой книге проверяет test-task506 по XML
+        assertTrue(m.indexOf("colName(i) + '1:' + colName(i) + '2'") !== -1 &&
+                   m.indexOf('mergesXml') !== -1,
+            'Task 506/508: объединения шапки (одиночные + пары, динамически)');
         assertTrue(m.indexOf('_xlnm.Print_Titles') !== -1,
             'Task 506: повтор шапки при печати Excel (строки 1:2)');
         assertTrue(m.indexOf('Arial Narrow') !== -1 &&
@@ -979,17 +984,17 @@ describe('Task 505 — VM (мок-DOM): диалог предпросмотра'
 // ============================================================
 // 8. SW: версия кэша
 // ============================================================
-describe('Task 505 — SW: kipia-v526', () => {
-    test('CACHE_VERSION = kipia-v526', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v526'") !== -1,
-            'версия кэша kipia-v526');
-        assertFalse(SW_SRC.indexOf('kipia-v527') !== -1,
+describe('Task 505 — SW: kipia-v527', () => {
+    test('CACHE_VERSION = kipia-v527', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v527'") !== -1,
+            'версия кэша kipia-v527');
+        assertFalse(SW_SRC.indexOf('kipia-v528') !== -1,
             'двойного бампа нет (v729 отсутствует)');
     });
 
     test('комментарий Task 505 в истории версий sw.js', () => {
         const i = SW_SRC.indexOf('// Task 505:');
-        const v = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v526'");
+        const v = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v527'");
         assertTrue(i !== -1, 'запись истории на месте');
         assertTrue(i < v, 'история — выше константы версии');
         const cmt = SW_SRC.slice(i, v);

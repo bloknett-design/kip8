@@ -17,7 +17,7 @@
 //     от строгой формы «Талонов» (_talonsPosition, Tasks 449/
 //     450) КИПиА НЕ канонизируется, пустая должность остаётся
 //     пустой, мусорная «5 разряда» не опустошает ячейку;
-//   • sw.js → kipia-v526.
+//   • sw.js → kipia-v527.
 // ============================================================
 
 const fs = require('fs');
@@ -413,16 +413,16 @@ describe('Task 459 — VM: _buildArchiveWorkbook (лист СИЗ)', () => {
 // ============================================================
 describe('Task 459 — SW и регресс', () => {
 
-    test('SW: кэш поднят до kipia-v526 (Task 459)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v526'") !== -1,
-            'CACHE_VERSION = kipia-v526');
+    test('SW: кэш поднят до kipia-v527 (Task 459)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v527'") !== -1,
+            'CACHE_VERSION = kipia-v527');
         assertTrue(SW_SRC.indexOf('Task 459') !== -1,
             'комментарий Task 459 в истории версий');
     });
 
     test('guard: двойного бампа не было', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v527') === -1,
-            'kipia-v527 не существует');
+        assertTrue(SW_SRC.indexOf('kipia-v528') === -1,
+            'kipia-v528 не существует');
     });
 
     test('регресс: лист «Работники» (справочник) — прежняя сортировка по ФИО', () => {
