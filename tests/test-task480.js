@@ -31,6 +31,14 @@
 //   Окна истории: Task 478 700 → 1100 (комментарий 480 отодвинул до
 //   ~835); якоря 461/471/472/474 в прежних окнах (запасы 101+).
 //
+// Task 517 (чинка desktop-CI синка, зеркало kip8test): гвард окружения —
+//     этот же tests/-каталог синхронизируется в kip8-desktop
+//     (sync-to-desktop.yml, полный набор фикстур), где НЕТ
+//     .github/workflows/sync-*.yml (воркфлоу — принадлежность PWA-репо).
+//     Ассерты секции 4 (workflows, 12 тестов) регистрируются только в
+//     PWA-окружении: kip8 6493/0, десктоп-CI 6493 − 12 = 6481/0.
+//     (README-гвард не нужен — README-тестов в kip8-версии нет.)
+//
 // Запуск: через tests/run-all.js (require './test-task480.js').
 
 const fs = require('fs');
@@ -64,6 +72,11 @@ const WORKFLOWS = {
     '.github/workflows/sync-valves.yml':     { script: 'scripts/sync-valves.py',     cron: '20 1 * * *' },
     '.github/workflows/sync-regulators.yml': { script: 'scripts/sync-regulators.py', cron: '30 1 * * *' }
 };
+
+// Task 517: гвард окружения (десктоп-CI kip8-desktop гоняет этот же
+// tests/-каталог без воркфлоу-файлов PWA) — все 4 sync-*.yml в checkout.
+const WORKFLOWS_PRESENT = Object.keys(WORKFLOWS).every((rel) =>
+    fs.existsSync(path.join(ROOT, rel)));
 
 // Подсчёт непересекающихся вхождений подстроки
 function countOf(haystack, needle) {
@@ -205,8 +218,10 @@ describe('Task 480 — sync-скрипты: источник тянет из н�
 
 // ==========================================================================
 // 4. workflows: комментарии «КАК НАСТРОИТЬ» + расписание не тронуто
+//    (Task 517: только в PWA-окружении — в десктоп-зеркале .github/workflows
+//    синков нет, 12 ассертов не регистрируются)
 // ==========================================================================
-describe('Task 480 — GitHub Actions workflows', () => {
+if (WORKFLOWS_PRESENT) describe('Task 480 — GitHub Actions workflows', () => {
 
     Object.keys(WORKFLOWS).forEach((rel) => {
         const info = WORKFLOWS[rel];

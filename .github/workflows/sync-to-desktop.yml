@@ -1,19 +1,22 @@
 name: Sync content to kip8-desktop
 
 # Автосинхронизация контента из kip8 в kip8-desktop (боевая десктоп-сборка).
-# Синхронизируются:
+# Синхронизируется ПОЛНЫЙ набор (Task 517 — расширение прежнего частичного):
 #   - index.html + десктоп-модули (charts-desktop.js, devices-table-desktop.js)
 #     — офлайн-fallback app://
-#   - sw.js + scripts/*.gs (8 файлов) + tests/ — фикстуры полного
-#     тестового прогона (1433 теста, CI kip8-desktop); в Electron-сборку
-#     НЕ попадают (files в package.json: index.html/images/data/electron)
+#   - sw.js + scripts/*.gs (все 24, было 8) + scripts/sync-*.py + tests/
+#     (tests/*.js + README.md) — фикстуры полного тестового прогона
+#     (CI kip8-desktop, node tests/run-all.js); в Electron-сборку НЕ
+#     попадают (files в package.json: index.html/images/data/electron)
+#   - data/*.json + images/*.png + Системный промт — данные/ассеты/документация
 # При пуше в main, меняющем эти файлы, workflow:
-#   1. Копирует их в kip8-desktop
-#   2. Коммитит через PAT (секрет DESKTOP_SYNC_TOKEN)
-#
-# Это держит kip8-desktop синхронным с kip8 без ручного копирования.
-# data/ и images/ синхронизируются вручную при переносе/релизе
-# (ежедневные авто-коммиты Google Sheets не гоняют десктоп-сборку).
+#   1. Копирует набор в kip8-desktop
+#   2. Чистит мусор зеркала (scripts/DEPLOY-*.md — курс Task 510 на чистоту;
+#     6 файлов Task 346-352-эры ломали ассерт test-task346 «DEPLOY удалён»)
+#   3. Коммитит через PAT (секрет DESKTOP_SYNC_TOKEN)
+# paths-триггеры прежние (Task 517: НЕ менять): docs-пуши (промт/worklog)
+# НЕ гоняют десктоп-зеркало — полный набор протягивается пушем в
+# index.html/sw.js/scripts/tests или workflow_dispatch.
 # Аналог механизма kip8test -> kip8test-desktop (sync-to-desktop.yml в kip8test).
 
 on:
@@ -35,7 +38,7 @@ jobs:
   sync-to-desktop:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout kip8 (только index.html)
+      - name: Checkout kip8
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
@@ -61,14 +64,21 @@ jobs:
           # Task 148: таблица приборов (только десктоп)
           cp devices-table-desktop.js /tmp/kip8-desktop/devices-table-desktop.js
           # Task 306-перенос (десктоп): фикстуры полного прогона тестов в kip8-desktop
+          # Task 517: набор фикстур расширен до ПОЛНОГО — все scripts/*.gs (24, было 8:
+          # не хватало StatusCodesInit.gs и др. → ENOENT; Utils дрейфовал pre-513) +
+          # scripts/sync-*.py + data/*.json + images/*.png + Системный промт
           cp sw.js /tmp/kip8-desktop/sw.js
-          mkdir -p /tmp/kip8-desktop/scripts
-          for gs in Code.gs Flowmeter.gs FlowmeterArchive.gs TabNumbersFix.gs \
-                     VacationsDiagnose.gs VacationsInit.gs ValidationRules.gs WorkSchedule.gs; do
-            cp "scripts/$gs" "/tmp/kip8-desktop/scripts/$gs"
-          done
-          mkdir -p /tmp/kip8-desktop/tests
+          cp "Системный_промт_для_приложения_КИПиА.md" /tmp/kip8-desktop/
+          mkdir -p /tmp/kip8-desktop/scripts /tmp/kip8-desktop/tests \
+                   /tmp/kip8-desktop/data /tmp/kip8-desktop/images
+          cp scripts/*.gs /tmp/kip8-desktop/scripts/
+          cp scripts/sync-*.py /tmp/kip8-desktop/scripts/
           cp tests/*.js tests/README.md /tmp/kip8-desktop/tests/
+          cp data/*.json /tmp/kip8-desktop/data/
+          cp images/*.png /tmp/kip8-desktop/images/
+          # Task 517: чистка зеркала (курс Task 510): DEPLOY-инструкции старше
+          # недели в PWA-репо удаляются — зеркало тоже держим чистым.
+          rm -f /tmp/kip8-desktop/scripts/DEPLOY-*.md
           # временный файл test-deploy-url.js (node --check Code.gs) не синхронизируем
           rm -f /tmp/kip8-desktop/scripts/.gscheck-code.js
 
@@ -94,7 +104,9 @@ jobs:
           cd /tmp/kip8-desktop
           git config user.email "bot@kip8.local"
           git config user.name "kip-bot"
-          git add index.html charts-desktop.js devices-table-desktop.js sw.js scripts/*.gs tests/
+          git add index.html charts-desktop.js devices-table-desktop.js sw.js \
+                  scripts/ tests/ data/ images/ \
+                  "Системный_промт_для_приложения_КИПиА.md"
           # Коммит-сообщение: показываем, что это автосинхронизация и из какого SHA
           git commit -m "auto: sync content from kip8@${SOURCE_SHA}
 
