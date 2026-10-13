@@ -402,11 +402,11 @@ describe('Task 453 — VM: сервер _validateStatusCode', () => {
 // 9. SW — версия кэша
 // ============================================================
 describe('Task 453 — SW', () => {
-    test('SW: кэш поднят до kipia-v528 (Task 453)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v528'") !== -1,
-            'CACHE_VERSION = kipia-v528');
-        assertTrue(SW_SRC.indexOf('kipia-v529') === -1,
-            'kipia-v529 не существует');
+    test('SW: кэш поднят до kipia-v529 (Task 453)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v529'") !== -1,
+            'CACHE_VERSION = kipia-v529');
+        assertTrue(SW_SRC.indexOf('kipia-v530') === -1,
+            'kipia-v530 не существует');
         assertTrue(SW_SRC.indexOf('Task 453') !== -1,
             'комментарий Task 453 в истории версий');
     });

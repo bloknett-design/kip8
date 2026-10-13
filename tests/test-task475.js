@@ -53,8 +53,8 @@ function pngSize(file) {
 // ==========================================================================
 // 1. SW: версия и шапка
 describe('Task 475 — SW: версия и шапка', () => {
-    test('CACHE_VERSION = kipia-v528', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v528';") !== -1,
+    test('CACHE_VERSION = kipia-v529', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v529';") !== -1,
             'SW поднят до v699');
     });
     test('прежняя версия v698 отсутствует', () => {
@@ -62,8 +62,8 @@ describe('Task 475 — SW: версия и шапка', () => {
             'в sw.js не осталось kipia-v509');
     });
     test('несуществующая v700 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v529') === -1,
-            'kipia-v529 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v530') === -1,
+            'kipia-v530 не должен существовать');
     });
     test('комментарий Task 475 в шапке версий', () => {
         assertTrue(SW_SRC.indexOf('Task 475') !== -1, 'маркер задачи');
