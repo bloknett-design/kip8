@@ -895,3 +895,36 @@ Stage Summary:
   Triggers, дым приложения, лог Ctrl+Enter). СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя
   (517 свободен; известный кандидат — чинка desktop-CI синка: kip8-desktop ENOENT
   scripts/*.gs, kip8test-desktop устаревшие тесты — падало и ДО Task 513).
+
+---
+Task ID: 517
+Agent: main (Super Z)
+Task: Чинка desktop-CI синка (зеркало kip8test, кандидат из Task 516): kip8-desktop
+      CI красный — синк тянул 205 тестов без фикстур (8 .gs из 24 → ENOENT
+      StatusCodesInit.gs; Utils pre-513; data/images/промт устарели; 6 лишних
+      scripts/DEPLOY-*.md); kip8test-desktop — срез Task 345 (полная запись —
+      worklog kip8test).
+
+Work Log:
+- Зеркальные правки (диагноз/симуляция — kip8test): гвард WORKFLOWS_PRESENT в
+  tests/test-task480.js (existsSync sync-*.yml → 12 workflow-ассертов только в
+  PWA-репо; README-гвард не нужен — README-ассертов в kip8-версии нет);
+  sync-to-desktop.yml расширен полным набором (sw.js, scripts/*.gs +
+  sync-*.py, tests/*.js + README.md, data/*.json, images/*.png, промт) +
+  чистка scripts/DEPLOY-*.md; paths НЕ менялись (автотриггер tests/**). Прогон
+  6493/0; симуляция kip8-desktop 6509/0 (6493−12+28: легаси-Win7 блок
+  test-task354.js активен только в kip8-desktop — electron/main.js +
+  electron-builder-legacy.yml + build-legacy-win7.yml).
+- ПУШ (PAT от 24.08.2026, /home/z/.kip_pat 600, remote URL чистые): bc107a2
+  (сетевой ретрай send-pack). ВЕРИФИЦИРОВАНО CI: kip8 6493/0 → синк
+  (bot 40cccbe5) → kip8-desktop 6509/0; дерево зеркала = источник (24 .gs,
+  фикстуры/промт/data байт-в-байт, DEPLOY-мусор удалён).
+- Docs (этот коммит, зеркало kip8test 4c51882f): версионная строка промта
+  post-Task 517, ARCHITECTURE.md §1 (полный набор синка, триггеры НЕ менять)
+  + §2 (счётчик 6493/216), эта запись worklog. Desktop от docs-пуша НЕ
+  синкался — НОРМА (paths не задеты).
+
+Stage Summary:
+- Task 517 ЗАКРЫТ (зеркало): kip8-desktop CI ЗЕЛЁНЫЙ 6509/0, зеркало чистое,
+  механизм синка с автотриггером tests/** доказан продом. СЛЕДУЮЩАЯ ЗАДАЧА:
+  задачи пользователя.
