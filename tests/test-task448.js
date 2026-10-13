@@ -473,11 +473,11 @@ describe('Task 448 — VM: группы, часы, итоги, подписи', 
 // 4. SW — версия кэша
 // ============================================================
 describe('Task 448 — SW', () => {
-    test('SW: кэш поднят до kipia-v529 (Task 448)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v529'") !== -1,
-            'CACHE_VERSION = kipia-v529');
-        assertTrue(SW_SRC.indexOf('kipia-v530') === -1,
-            'kipia-v530 не существует');
+    test('SW: кэш поднят до kipia-v530 (Task 448)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v530'") !== -1,
+            'CACHE_VERSION = kipia-v530');
+        assertTrue(SW_SRC.indexOf('kipia-v531') === -1,
+            'kipia-v531 не существует');
         assertTrue(SW_SRC.indexOf('Task 448') !== -1,
             'комментарий Task 448 в истории версий');
     });

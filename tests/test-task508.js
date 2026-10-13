@@ -598,11 +598,11 @@ describe('Task 508 — sync-cables.py + SW', () => {
             'архивные строки пропускаются');
     });
 
-    test('SW: kipia-v529', () => {
+    test('SW: kipia-v530', () => {
         assertTrue(SW_SRC.indexOf(
-            "CACHE_VERSION = 'kipia-v529'") !== -1,
-            'версия кэша kipia-v529');
-        assertFalse(SW_SRC.indexOf('kipia-v530') !== -1,
+            "CACHE_VERSION = 'kipia-v530'") !== -1,
+            'версия кэша kipia-v530');
+        assertFalse(SW_SRC.indexOf('kipia-v531') !== -1,
             'двойного бампа нет (v731 отсутствует)');
         assertTrue(SW_SRC.indexOf('Task 508') !== -1,
             'комментарий Task 508 в sw.js');

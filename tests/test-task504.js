@@ -31,7 +31,7 @@
 //     НЕ трогает фон; структура разметки строк сохранена
 //     (dot + b.ws-ep-date + span.ws-ep-text); СИЗ-строки («до дд.мм»)
 //     — без классов дат; счётчики ws-ep-date-ok/bad = расчётным.
-//   SW: kipia-v529 (двойного бампа нет — v728).
+//   SW: kipia-v530 (двойного бампа нет — v728).
 //
 // Запуск: через tests/run-all.js (require './test-task504.js').
 
@@ -161,11 +161,19 @@ describe('Task 504 — SRC: класс даты по состоянию запи
             'строка по-прежнему несёт только pastCls (фон Task 380)');
     });
 
-    test('СИЗ-строки — БЕЗ классов дат (у СИЗ нет отметки выполнения)', () => {
+    test('СИЗ-строки месяца — БЕЗ элемента даты (Task 520)', () => {
         const m = methodText(WS_SRC, '_renderMonthEventsPanel');
-        // секция СИЗ: '<b class="ws-ep-date">до …' — без конкатенации класса
-        assertTrue(m.indexOf("'<b class=\"ws-ep-date\">до ' +") !== -1,
-            'дата СИЗ рендерится без dateCls');
+        // Task 520: в строках секции месяца НЕТ даты «до …» вовсе
+        // (формат: наименование · ФИО); dateCls мероприятий не задет
+        assertFalse(m.indexOf("'<b class=\"ws-ep-date\">до ' +") !== -1,
+            'даты СИЗ «до дд.мм» больше нет — строка без даты (Task 520)');
+        assertFalse(m.indexOf("'СИЗ · ' + String") !== -1,
+            'префикса «СИЗ · » в строках СИЗ больше нет (Task 520)');
+        // НОВАЯ группа «Просроченная выдача СИЗ» (за всё время):
+        // месяц.год окончания — КРАСНЫЙ ws-ep-date-bad (заявка
+        // Task 520 — «месяц и год красного цвета»)
+        assertTrue(m.indexOf("'<b class=\"ws-ep-date ws-ep-date-bad\">' +") !== -1,
+            'дата «мм.гггг» группы просрочки — красная (Task 520)');
     });
 });
 
@@ -328,10 +336,10 @@ describe('Task 504 — VM: классы дат по состоянию запи�
 // ============================================================
 describe('Task 504 — SW и двойной бамп', () => {
 
-    test('SW: kipia-v529', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v529'") !== -1,
-            'версия кэша kipia-v529');
-        assertFalse(SW_SRC.indexOf('kipia-v530') !== -1,
+    test('SW: kipia-v530', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v530'") !== -1,
+            'версия кэша kipia-v530');
+        assertFalse(SW_SRC.indexOf('kipia-v531') !== -1,
             'двойного бампа нет');
     });
 });
