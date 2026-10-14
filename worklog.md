@@ -1131,3 +1131,30 @@ Stage Summary:
   желанию, консистентность данных) — statusCodesReplace() по
   DEPLOY-Task524. Открытых хвостов НЕТ.
   СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+---
+Task ID: 525
+Agent: main (Super Z)
+Task: Зеркало kip8test bcda746f — Библиотека/Электробезопасность:
+      кнопка инструкции СО 153-34.03.603-2003 помечена «Отменена»
+      (приказ Минэнерго России от 01.12.2023 № 1105).
+
+Work Log:
+- Перенос index.html — prepare-kip8-transfer.py (дифф 16 строк =
+  ровно контент Task 525: 6 строк CSS-базы + 4 строки светлой
+  темы + 6 строк HTML с комментарием, изоляты закрыты
+  автоматически); DEPLOY-Task525 перенесён; тесты: test-task525.js
+  ×18 (SW kipia-v535 — два SW-теста слиты в один по конвенции
+  kip8); бамп SW v534→v535 (865 замен, scripts/task525-bump-sw.py);
+  ребейз на автокоммит lockouts (cf10e03); локально 6672/0 (+18).
+- Пуш 97e572f → CI Tests 6672/0 + Build Desktop App success; синк
+  (bot eaafb56e) → kip8-desktop 6687/0 + Build success; docs —
+  промт post-Task 525 (зеркало), ARCHITECTURE §2 (6672/223 +
+  зеркало 6687), эта запись. Remote URL чистый, PAT в
+  /home/z/.kip_pat (600).
+
+Stage Summary:
+- Task 525 ПОЛНОСТЬЮ ЗАКРЫТ: все 4 репо ЗЕЛЁНЫЕ — kip8 6672/0,
+  kip8-desktop 6687/0, kip8test 6669/0, kip8test-desktop 6654/0
+  (обе сборки success). Правка чисто клиентская — Apps Script и
+  листы Google Sheets НЕ менялись. Открытых хвостов НЕТ.
+  СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
