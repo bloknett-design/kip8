@@ -41,7 +41,7 @@
 //     свёртывание при исчезновении переполнения), _barExpToggle
 //     (раскрытие = scrollHeight, свёртывание = 95px), вызовы после
 //     рендеров (мероприятия/нормы), toggleMobPanel/ресайз/fonts.ready.
-//   SW: kipia-v534.
+//   SW: kipia-v535.
 //
 // Запуск: через tests/run-all.js (require './test-task378.js').
 
@@ -529,10 +529,10 @@ describe('Task 378 — вызовы значка после рендеров/с�
 // ============================================================
 describe('Task 378 — SW и регресс', () => {
 
-    test('SW: kipia-v534', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v534'") !== -1,
-            'версия кэша kipia-v534');
-        assertFalse(SW_SRC.indexOf('kipia-v535') !== -1,
+    test('SW: kipia-v535', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v535'") !== -1,
+            'версия кэша kipia-v535');
+        assertFalse(SW_SRC.indexOf('kipia-v536') !== -1,
             'двойного бампа нет');
     });
 
