@@ -1158,3 +1158,28 @@ Stage Summary:
   (обе сборки success). Правка чисто клиентская — Apps Script и
   листы Google Sheets НЕ менялись. Открытых хвостов НЕТ.
   СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+---
+Task ID: 526
+Agent: main (Super Z)
+Task: Зеркало kip8test d139712f — Геометрия: анимированные «живые»
+      пояснительные схемы в рамках (все 6 страниц).
+
+Work Log:
+- Перенос index.html — prepare-kip8-transfer.py (дифф 700 строк =
+  контент Task 526: CSS-система + 6 рамок + движок + хуки, изоляты
+  закрыты автоматически); DEPLOY-Task526 перенесён; тесты:
+  test-task526.js ×25 (SW kipia-v536 — два SW-теста слиты в один по
+  конвенции kip8); бамп SW v535→v536 (869 замен,
+  scripts/task526-bump-sw.py); ребейз на автокоммит exam-tickets
+  (0594ab2); локально 6697/0 (+25).
+- Пуш c43992e → CI Tests 6697/0 + Build Desktop App success; синк
+  (bot a143e0d) → kip8-desktop 6712/0 + Build success; docs — промт
+  post-Task 526 (зеркало), ARCHITECTURE §2 (6697/224 + зеркало
+  6712), эта запись. Remote URL чистый, PAT в /home/z/.kip_pat (600).
+
+Stage Summary:
+- Task 526 ПОЛНОСТЬЮ ЗАКРЫТ: все 4 репо ЗЕЛЁНЫЕ — kip8 6697/0,
+  kip8-desktop 6712/0, kip8test 6695/0, kip8test-desktop 6680/0
+  (обе сборки success). Правка чисто клиентская — Apps Script и
+  листы Google Sheets НЕ менялись, обновление на проде не требуется.
+  Открытых хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
