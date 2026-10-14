@@ -1105,3 +1105,29 @@ Stage Summary:
   WorkSchedule.gs в Apps Script по DEPLOY-Task523 (заголовки L1/M1
   необязательны). Открытых хвостов НЕТ.
   СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+---
+Task ID: 524
+Agent: main (Super Z)
+Task: Зеркало kip8test 2f7a3105 — наименования кодов «д»/«н»
+      справочника «Коды_статусов»: убран хвост «в комментарии».
+
+Work Log:
+- Перенос index.html — prepare-kip8-transfer.py (дифф 10 строк =
+  ровно контент Task 524: 2 строки канона + 5 строк комментария,
+  изоляты закрыты автоматически); StatusCodesInit.gs скопирован
+  (строки д/н байт-в-байт = канону); DEPLOY-Task524 перенесён; тесты:
+  test-task524.js ×19 (версии kipia-v534) + адаптации test-task387
+  (ассерты формулировок) и test-task522 (фича-мок); бамп SW v533→v534
+  (861 замена, scripts/task524-bump-sw.py); локально 6654/0 (+19).
+- Пуш fb4bf13 → CI Tests 6654/0 + Build Desktop App success; синк
+  (bot 6e8b03f9) → kip8-desktop 6669/0 + Build success; docs — промт
+  post-Task 524 (зеркало), ARCHITECTURE §2 (6654/222 + зеркало
+  6669), эта запись. Remote URL чистый, PAT в /home/z/.kip_pat (600).
+
+Stage Summary:
+- Task 524 ПОЛНОСТЬЮ ЗАКРЫТ: все 4 репо ЗЕЛЁНЫЕ — kip8 6654/0,
+  kip8-desktop 6669/0, kip8test 6650/0, kip8test-desktop 6635/0 (обе
+  сборки success). Обновление листа «Коды_статусов» в таблице (по
+  желанию, консистентность данных) — statusCodesReplace() по
+  DEPLOY-Task524. Открытых хвостов НЕТ.
+  СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
