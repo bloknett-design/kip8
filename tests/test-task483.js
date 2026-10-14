@@ -489,8 +489,8 @@ describe('Task 483: VM — _renderDevicesPPR (таблица + диаграмм�
 // 5. SW: версия v512 + комментарий Task 483
 // ==========================================================================
 describe('Task 483: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v535', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v535';") !== -1,
+    test('CACHE_VERSION = kipia-v536', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v536';") !== -1,
             'версия поднята');
     });
 
@@ -499,11 +499,11 @@ describe('Task 483: SW — версия и кэши', () => {
     });
 
     test('v513 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v536') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v537') === -1);
     });
 
     test('комментарий Task 483 в шапке версий (окно 700)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v535';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v536';");
         // Task 490: +480 симв. комментария — окно 3900 → 4400 (якорь 4137)
         // Task 499: Task 483 отодвинут до ~7055 — окно 6700 → 7500.
         const ctx = SW_SRC.slice(Math.max(0, i - 10600), i);
