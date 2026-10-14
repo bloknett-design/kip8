@@ -605,17 +605,17 @@ describe('Task 482 — кап раскрытия окон «Мероприяти
 // ==========================================================================
 // 6. SW: версия, комментарий, окна истории
 // ==========================================================================
-describe('Task 482 — SW: kipia-v533 + комментарий', () => {
+describe('Task 482 — SW: kipia-v534 + комментарий', () => {
 
-    test('CACHE_VERSION = kipia-v533', () => {
+    test('CACHE_VERSION = kipia-v534', () => {
         assertTrue(SW_SRC.indexOf(
-            "const CACHE_VERSION = 'kipia-v533';") !== -1,
+            "const CACHE_VERSION = 'kipia-v534';") !== -1,
             'версия кэша поднята v511 → v512');
     });
 
     test('несуществующая v513 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v534') === -1,
-            'kipia-v534 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v535') === -1,
+            'kipia-v535 не должен существовать');
     });
 
     test('старая v511 вычищена из sw.js', () => {
@@ -631,7 +631,7 @@ describe('Task 482 — SW: kipia-v533 + комментарий', () => {
     });
 
     test('комментарий Task 482 в шапке версий (окно 1100)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v533';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v534';");
         // Task 499: _barExpMaxH отодвинут до ~7763 — окно 7400 → 8300.
         const ctx = SW_SRC.slice(Math.max(0, i - 11100), i);
         assertTrue(ctx.indexOf('Task 482') !== -1, 'маркер задачи');
@@ -645,7 +645,7 @@ describe('Task 482 — SW: kipia-v533 + комментарий', () => {
     });
 
     test('комментарии Task 481/480 не вытеснены (окно 1100)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v533';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v534';");
         // Task 493 (перенос): комментарий переименования кнопки Табель
         // (+173 симв.) — 480@6650/«Перечень…»@6615 — окно 6600 → 6800
         // Task 499: Task 480/481 отодвинуты до ~8413/8169 — окно 8100 → 8900.
@@ -657,7 +657,7 @@ describe('Task 482 — SW: kipia-v533 + комментарий', () => {
     });
 
     test('комментарии Task 479/478 не вытеснены (окно 4100)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v533';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v534';");
         const ctx = SW_SRC.slice(Math.max(0, i - 12000), i);
         assertTrue(ctx.indexOf('Task 479') !== -1 &&
                    ctx.indexOf('оранжево-золотистый') !== -1,
@@ -670,7 +670,7 @@ describe('Task 482 — SW: kipia-v533 + комментарий', () => {
     test('окна истории: якоря 474/472/471/461 в прежних окнах', () => {
         // Task 482 (~375 симв.): 474 ~3016 < 3100; 472 ~3389 < 3600;
         // 471 ~3938 < 4200; 461 ~6500 < 6800 — расширения не нужны
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v533';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v534';");
         const i474 = SW_SRC.lastIndexOf('Task 474', i);
         const i472 = SW_SRC.lastIndexOf('Task 472', i);
         const i471 = SW_SRC.lastIndexOf('Task 471', i);
