@@ -1079,3 +1079,29 @@ Stage Summary:
   6603/0, kip8test 6584/0, kip8test-desktop 6569/0 (обе сборки
   success). Открытых хвостов НЕТ.
   СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+---
+Task ID: 523
+Agent: main (Super Z)
+Task: Зеркало kip8test 0ab863e2 — времена начала/окончания работ
+      «д»/«н» дневного персонала: сохранение в колонках L/M
+      «Записи_графика» + отображение; «н» = «д».
+
+Work Log:
+- Перенос index.html — prepare-kip8-transfer.py (дифф 241 строка =
+  ровно контент Task 523, 23 hunk'а, изоляты закрыты автоматически);
+  WorkSchedule.gs скопирован; DEPLOY-Task523 перенесён; тесты ×47
+  (адаптация версий kipia-v533/гвард v534) + адаптации 322 (13
+  колонок) и work-schedule (сигнатура ×2); бамп SW v532→v533
+  (856/198, scripts/task523-bump-sw.py); локально 6635/0 (+47).
+- Пуш d3eaa09 → CI Tests 6635/0 + Build Desktop App success; синк
+  tests/** (bot f7f701b8) → kip8-desktop 6650/0 + Build success;
+  docs — промт post-Task 523 (зеркало), ARCHITECTURE §2 (6635/221 +
+  зеркало 6650), эта запись.
+
+Stage Summary:
+- Task 523 ПОЛНОСТЬЮ ЗАКРЫТ: все 4 репо ЗЕЛЁНЫЕ — kip8 6635/0,
+  kip8-desktop 6650/0, kip8test 6631/0, kip8test-desktop 6616/0 (обе
+  сборки success). Для активации времён на проде — обновить
+  WorkSchedule.gs в Apps Script по DEPLOY-Task523 (заголовки L1/M1
+  необязательны). Открытых хвостов НЕТ.
+  СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
