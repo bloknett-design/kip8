@@ -374,8 +374,8 @@ describe('Task 279 — статические инварианты (фронт/i
     });
 
     test('SW-кэш поднят до v544 (Task 298 — сервер+фронтенд: коды статусов Т-12/Т-13)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v532'") !== -1,
-            'CACHE_VERSION = kipia-v532');
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v533'") !== -1,
+            'CACHE_VERSION = kipia-v533');
     });
 });
 

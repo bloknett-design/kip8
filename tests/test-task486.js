@@ -70,8 +70,8 @@ function methodText(src, name) {
 // 1. SW: версия v710 + комментарий Task 486
 // ==========================================================================
 describe('Task 486: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v532', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v532';") !== -1,
+    test('CACHE_VERSION = kipia-v533', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v533';") !== -1,
             'версия поднята');
     });
 
@@ -80,11 +80,11 @@ describe('Task 486: SW — версия и кэши', () => {
     });
 
     test('v711 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v533') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v534') === -1);
     });
 
     test('комментарий Task 486 в шапке версий (окно 1500)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v532';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v533';");
         // Task 509 (перенос): окно 9000 → 10500 (комментарий Task 508 в sw.js
         // отодвинул якорь «Логика SW не менялась» на 10157).
         const ctx = SW_SRC.slice(Math.max(0, i - 10500), i);
