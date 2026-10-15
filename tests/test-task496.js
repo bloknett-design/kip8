@@ -284,17 +284,17 @@ describe('Task 496 — VM: tempQueryEnterBlur (Enter гасит клавиату
 
 describe('Task 496 — SW: версия кеша v520', () => {
 
-    test('SW: CACHE_VERSION = kipia-v540, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v540';") !== -1,
-            'CACHE_VERSION = kipia-v540');
+    test('SW: CACHE_VERSION = kipia-v541, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v541';") !== -1,
+            'CACHE_VERSION = kipia-v541');
         assertFalse(SW_SRC.indexOf('kipia-v519') !== -1,
             'v519 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v541') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v542') !== -1,
             'v521 не существует (guard)');
     });
 
     test('SW: комментарий Task 496 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v540';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v541';");
         // Task 503 (перенос 502): окно 2600 → 2700 (якорь 2600; запас был 1!).
         const ctx = SW_SRC.slice(Math.max(0, i - 4300), i);
         assertTrue(ctx.indexOf('Task 496') !== -1, 'маркер задачи');
