@@ -1246,3 +1246,15 @@ Work Log:
 
 Stage Summary:
 - Task 529 ПОЛНОСТЬЮ ЗАКРЫТ: kip8 6800/0 → kip8-desktop 6815/0 (+39); обе сборки success. Правка ТОЛЬКО КЛИЕНТ — Apps Script, листы Google Sheets и деплой НЕ менялись: клиенты получат LCD-окно часов/календаря по обычному циклу SW (kipia-test-v742 / kipia-v539). Открытых хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+---
+Task ID: 530 (финализация)
+Agent: main (Super Z)
+Task: Перенос Task 530 из kip8test + пуш/CI/синк/docs (зеркало kip8test @d625fcb0).
+
+Work Log:
+- Перенос: prepare-kip8-transfer.py — дифф 610 строк = ровно контент Task 530 (CSS рамки-выступа/прямых углов/примыкания, JS WsLcdClock 205×17 одна строка + секунды 3×5 + ровная сетка, СЕРВЕР WorkSchedule.gs getWeather meteoinfo.ru Кемерово + роутинг Code.gs); task530-transfer-tests.py — test-task530.js ×44 + адаптация test-task529.js (SW-секции kip8) + бамп SW v539→v540 (гварды v541 первыми) + регистрация; итог 6843/0 (+44).
+- Пуш d9c2592 → CI Tests 6843/0 + Pages + Build + синк (bot 767730d) → kip8-desktop 6858/0 + Build success.
+- Docs (зеркало kip8test @abc8b142): версионная строка промта post-Task 530 (замена post-Task 529), ARCHITECTURE.md §2 (6843/228 + зеркало 6858), эта запись.
+
+Stage Summary:
+- Task 530 ПОЛНОСТЬЮ ЗАКРЫТ (зеркало): kip8 6843/0 → kip8-desktop 6858/0 (+44); сборка success; kip8test 6843/0 → kip8test-desktop 6828/0. Правка КЛИЕНТ+СЕРВЕР: для погоды в Apps Script (прод-проект) обновить WorkSchedule.gs + Code.gs (новый эндпоинт workSchedule.getWeather, листы Google Sheets НЕ меняются — DEPLOY-Task530-lcd-weather-even-grid.md); без этого погода — прочерк «--», остальное работает. Клиенты продa получат обновление по обычному циклу SW (kipia-v540). Хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
