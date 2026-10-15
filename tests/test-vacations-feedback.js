@@ -160,8 +160,8 @@ describe('Task 282 — serverMessage: пояснение сервера дохо
     });
 
     test('SW-кэш поднят до v539 (Task 296 — фронтенд менялся)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v539'") !== -1,
-            'CACHE_VERSION = kipia-v539');
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v540'") !== -1,
+            'CACHE_VERSION = kipia-v540');
     });
 });
 

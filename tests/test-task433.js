@@ -43,7 +43,7 @@
 //      ПЕРВЫМ в ряду .ws-act-row, ✕ — ПОСЛЕ; отпускные строки
 //      несут ws-emp-vac; _buildPrintHtml — мероприятия ПЕРВЫМИ,
 //      коды ПОД ними, записи с [дата][текст].
-//   SW: kipia-v539 (главный), v660 — прежней нет.
+//   SW: kipia-v540 (главный), v660 — прежней нет.
 // ============================================================
 
 const fs = require('fs');
@@ -370,9 +370,9 @@ describe('Task 433 — VM: строка инструктажа и строка �
 // ============================================================
 describe('Task 433 — SW: версия кеша', () => {
     test('v659 (главный), v660 — прежней нет', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v539'") !== -1,
-            'SW кэш kipia-v539');
-        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v540'") !== -1,
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v540'") !== -1,
+            'SW кэш kipia-v540');
+        assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v541'") !== -1,
             'v660 ещё не существует (guard следующего бампа)');
     });
 });

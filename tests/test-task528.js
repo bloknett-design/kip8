@@ -462,9 +462,9 @@ describe('Task 528 D: VM — надписи НАД линиями, все рез
 // ============================================================
 describe('Task 528 — SW: версия кэша', () => {
 
-    test('SW: кэш поднят до kipia-v539 (Task 528)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v539') !== -1,
-            'SW несёт версию kipia-v539');
+    test('SW: кэш поднят до kipia-v540 (Task 528)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v540') !== -1,
+            'SW несёт версию kipia-v540');
         assertTrue(SW_SRC.indexOf('kipia-v537') === -1,
             'прежней версии kipia-v537 нет (бамп v537 → v538)');
     });
