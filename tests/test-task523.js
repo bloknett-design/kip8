@@ -23,7 +23,7 @@
 //   Слой 4 — VM клиента: префилл точной парой (раунд-трип),
 //     _applyCellStatus с временами, рендер с временами/полночь/
 //     только часы/не указано.
-//   SW: kipia-v538.
+//   SW: kipia-v539.
 //
 // Запуск: через tests/run-all.js (require './test-task523.js').
 
@@ -669,10 +669,10 @@ describe('Task 523 — VM: _applyCellStatus/_dnDayInfoAt/_renderDnDayInfo', () =
 // 5. SW: версия кэша
 // ============================================================
 describe('Task 523 — SW: версия кэша', () => {
-    test('SW: кэш поднят до kipia-v538 (Task 523)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v538') !== -1,
-            'SW несёт версию kipia-v538');
-        assertFalse(SW_SRC.indexOf('kipia-v539') !== -1,
+    test('SW: кэш поднят до kipia-v539 (Task 523)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v539') !== -1,
+            'SW несёт версию kipia-v539');
+        assertFalse(SW_SRC.indexOf('kipia-v540') !== -1,
             'двойного бампа нет');
     });
 });
