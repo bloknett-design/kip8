@@ -1210,3 +1210,15 @@ Work Log:
 Stage Summary:
 - Task 527 в kip8 локально: 6729/0 (+32), SW kipia-v537.
   СЛЕДУЮЩАЯ ЗАДАЧА: пуш kip8 → CI → синк kip8-desktop → docs.
+
+---
+Task ID: 527 (финализация)
+Agent: main (Super Z)
+Task: Пуш/CI/синк/docs Task 527 (зеркало).
+
+Work Log:
+- Пуш b8080e5 → CI Tests 6729/0 + Pages + Build + синк (bot d366d6ae) → kip8-desktop 6744/0 + Build success.
+- Docs: версионная строка промта post-Task 527 (демоция post-Task 526), ARCHITECTURE.md §2 (6729/225 + зеркало 6744), эта запись.
+
+Stage Summary:
+- Task 527 ПОЛНОСТЬЮ ЗАКРЫТ: kip8 6729/0 → kip8-desktop 6744/0 (+32; Build success), kip8test 6728/0 → kip8test-desktop 6713/0. Правка ТОЛЬКО КЛИЕНТ — Apps Script, листы Google Sheets и деплой НЕ менялись: клиенты получат исправленные схемы по обычному циклу SW (kipia-v537). Открытых хвостов НЕТ.
