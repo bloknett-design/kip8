@@ -1234,3 +1234,15 @@ Work Log:
 
 Stage Summary:
 - Task 528 ПОЛНОСТЬЮ ЗАКРЫТ: kip8 6761/0 → kip8-desktop 6776/0 (+32); обе сборки success. Правка ТОЛЬКО КЛИЕНТ — Apps Script, листы Google Sheets и деплой НЕ менялись: клиенты получат исправленные чертежи по обычному циклу SW (kipia-test-v741 / kipia-v538). Открытых хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+
+---
+Task ID: 529 (финализация)
+Agent: main (Super Z)
+Task: Пуш/CI/синк/docs Task 529.
+
+Work Log:
+- Пуш 300b950 → CI Tests 6800/0 + Pages + Build + синк (bot 25f48fe7) → kip8-desktop 6815/0 + Build success (перенос prepare-kip8-transfer.py дифф 763 строки + task529-transfer-tests.py с rindex-уроком 527).
+- Docs: версионная строка промта post-Task 529 (демоция post-Task 528), ARCHITECTURE.md §2, эта запись.
+
+Stage Summary:
+- Task 529 ПОЛНОСТЬЮ ЗАКРЫТ: kip8 6800/0 → kip8-desktop 6815/0 (+39); обе сборки success. Правка ТОЛЬКО КЛИЕНТ — Apps Script, листы Google Sheets и деплой НЕ менялись: клиенты получат LCD-окно часов/календаря по обычному циклу SW (kipia-test-v742 / kipia-v539). Открытых хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
