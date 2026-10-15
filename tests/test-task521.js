@@ -30,7 +30,7 @@
 //   (обычный/через полночь/прочерк); applyDnHours (точные часы,
 //   округление, полночь, 3 класса ошибок); _dnParseTime;
 //   _dnMinutesToHHMM.
-//   SW: kipia-v537.
+//   SW: kipia-v538.
 //
 // Запуск: через tests/run-all.js (require './test-task521.js').
 
@@ -416,10 +416,10 @@ describe('Task 521 — VM: _dnParseTime / _dnMinutesToHHMM', () => {
 // 7. SW: версия кэша
 // ============================================================
 describe('Task 521 — SW: версия кэша', () => {
-    test('SW: кэш поднят до kipia-v537 (Task 521)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v537'") !== -1,
-            'CACHE_VERSION = kipia-v537');
-        assertFalse(SW_SRC.indexOf('kipia-v538') !== -1,
+    test('SW: кэш поднят до kipia-v538 (Task 521)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v538'") !== -1,
+            'CACHE_VERSION = kipia-v538');
+        assertFalse(SW_SRC.indexOf('kipia-v539') !== -1,
             'v735 не существует (один инкремент на Task 521)');
     });
 });

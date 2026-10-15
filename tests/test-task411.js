@@ -391,7 +391,7 @@ describe('Task 411 — VM: submit (одна дата у инструктажа/�
 describe('Task 411 — SW', () => {
 
     test('версия кэша поднята (v638)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v537') !== -1,
-            'CACHE_VERSION = kipia-v537');
+        assertTrue(SW_SRC.indexOf('kipia-v538') !== -1,
+            'CACHE_VERSION = kipia-v538');
     });
 });
