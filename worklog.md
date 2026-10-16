@@ -1275,3 +1275,17 @@ Work Log:
 
 Stage Summary:
 - Task 531 ПОЛНОСТЬЮ ЗАКРЫТ (зеркало): kip8 6875/0 → kip8-desktop 6890/0 (+32); сборка success; kip8test 6875/0 → kip8test-desktop 6860/0. Правка ТОЛЬКО КЛИЕНТ — Apps Script и листы Google Sheets НЕ менялись. Клиенты прода получат обновление по обычному циклу SW (kipia-v541). Хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+---
+Task ID: 532 (финализация)
+Agent: main (Super Z)
+Task: Зеркало kip8test @1513efac (Task 532): шестерёнка настроек, клик по окну — только календарь, выбор года, диагностика погоды + резерв open-meteo, кириллица FONT5.
+
+Work Log:
+- Перенос: prepare-kip8-transfer.py — дифф 425 строк = контент Task 532 (клиент); WorkSchedule.gs — getWeather v2 (161 строка: заголовки, резерв open-meteo, diag; Code.gs не менялся).
+- task532-transfer-tests.py: test-task532.js (SW kipia-v542; фикс регэкспа версии после переноса) + адаптация 529/531/work-schedule + бамп SW v541→v542 (ассерты 717, гварды 171 первыми v543) — итог 6921/0 (+46, зеркало kip8test).
+- Верификация зеркальная: браузер task532-browser-check-kip8.py 48/48 (шестерёнка/семантика кликов/год/диагностика/глифы/1024/обе темы, 0 JS-ошибок).
+- Пуш kip8 47ce257 → CI 6921/0 + Pages + Build + синк (38ab4dd) → kip8-desktop 6921/0 + Build success.
+- Docs (зеркало kip8test @5a577919): версионная строка промта post-Task 532, ARCHITECTURE.md §2 (6921/229 + зеркало 6921), эта запись.
+
+Stage Summary:
+- Task 532 в kip8 ПОЛНОСТЬЮ ЗАКРЫТ: все 4 репо ЗЕЛЁНЫЕ (6921/6906/6921/6921, сборки success). Правка КЛИЕНТ + WorkSchedule.gs. ДЕЙСТВИЕ ПОЛЬЗОВАТЕЛЯ: обновить WorkSchedule.gs в Apps Script + НОВАЯ ВЕРСИЯ развёртывания (Code.gs — если не обновлялся в Task 530), затем шестерёнка → «Обновить сейчас» (DEPLOY-Task532). SW kipia-v542. Хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
