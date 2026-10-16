@@ -1304,3 +1304,18 @@ Work Log:
 
 Stage Summary:
 - Task 533 ПОЛНОСТЬЮ ЗАКРЫТ: все 4 репо ЗЕЛЁНЫЕ (kip8 6954/0 → kip8-desktop 6954/0; kip8test 6954/0 → kip8test-desktop 6939/0; сборки success). Из заявки выполнено ВСЁ: (1) погода — НАПРЯМУЮ из браузера в open-meteo.com (без Apps Script; резерв — серверный эндпоинт, канал виден в диагностике); (2) шестерёнка ВНУТРИ информера (оверлей на стекле, не перекрывает данные); (3) календарь: ГОД СВЕРХУ, МЕСЯЦ ПОД ГОДОМ — у обоих селект + стрелки, «Сегодня» в строке месяца. Apps Script обновлять НЕ нужно. SW: kipia-v543 / kipia-test-v746. Хвостов НЕТ.
+
+---
+Task ID: 534 (финализация kip8)
+Agent: main (Super Z)
+Task: Перенос Task 534 из kip8test в kip8 (зеркало @6ec1b01d): погода — второй прямой канал wttr.in + подсказка authorizeWeather; календарь — левый край, без подписей, шрифт месяца мельче. Пуш/CI/синк/docs.
+
+Work Log:
+- Перенос scripts/task534-transfer-tests.py: index.html (дифф 316 строк = контент Task 534, только клиент; prepare-kip8-transfer.py — дифф сверен, изолятов нет) + WorkSchedule.gs (дифф 83 строки: топ-уровневая authorizeWeather() + diag 60→90).
+- Тесты: test-task534.js/test-task533.js/test-task532.js — копии kip8test, SW-хвост заменён единым kip8-блоком (assert kipia-v544 + гвард v545 + тест «файл на месте» для 534/533 — паритет счётчика); заголовки — токен-замены версий; бамп SW v543→v544 (ассерты 888 замен/207 файлов, гварды v545 первыми); регистрация test-task534.js в run-all.js — итог 6986/0 (ПАРИТЕТ kip8test, +32). УРОК переноса: повторный запуск transfer-скрипта НЕ идемпотентен по бампу (ассерты v544 → гварды v545 каскадом) — при правке перенос git checkout -- . и один чистый запуск.
+- Верификация зеркальная: task534-browser-check-kip8.py 35/35 (порт 8997, localStorage без префикса; обе темы, DPR 2/1; 0 JS-ошибок).
+- Пуши и зеркала: kip8 f3a97fbc (feat) → CI Tests + Pages + Build success + синк 4053c3f9 → kip8-desktop CI 7001/0 + Build success (7001 = 6986 + 29 electron-тестов − 14 workflow-гвардов — гварды окружения Tasks 517/518).
+- Docs: DEPLOY-Task534-lcd-weather-two-channels-auth-hint.md (kip8-версия), промт post-Task 534, ARCHITECTURE.md §2 (6986/231 + зеркало 7001), эта запись; scripts/: task534-transfer-tests.py + task534-browser-check-kip8.py + task534-docs-kip8.py.
+
+Stage Summary:
+- Task 534 ПОЛНОСТЬЮ ЗАКРЫТ во всех 4 репо: kip8test 6986/0 → kip8test-desktop 6971/0; kip8 6986/0 → kip8-desktop 7001/0; сборки success. Из заявки выполнено ВСЁ: (1) погода — ДВА прямых канала (open-meteo → wttr.in) + серверный резерв с подсказкой authorizeWeather (диагноз «нет разрешения UrlFetchApp» лечится разово: WorkSchedule.gs → Выполнить authorizeWeather() → новая версия развёртывания); (2) календарь — год/месяц по левому краю, подписи «Год»/«Месяц» убраны, шрифт месяца мельче года. SW: kipia-test-v747 / kipia-v544. Хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
