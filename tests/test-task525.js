@@ -24,7 +24,7 @@
 //     label → sublabel → cancelled; строка отмены внутри того же
 //     <a>, что и «Инструкция СО 153-34.03.603-2003» (не в чужой
 //     кнопке); блок <a> валиден (закрыт).
-//   SW: kipia-v543 (зеркало kip8test, перенос prepare-kip8-
+//   SW: kipia-v544 (зеркало kip8test, перенос prepare-kip8-
 //   transfer.py — дифф 16 строк = ровно контент Task 525).
 //
 // Запуск: через tests/run-all.js (require './test-task525.js').
@@ -249,9 +249,9 @@ describe('Task 525 — структура кнопки', () => {
 // ============================================================
 describe('Task 525 — SW: версия кэша', () => {
 
-    test('SW: кэш поднят до kipia-v543 (Task 525)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v543') !== -1,
-            'SW несёт версию kipia-v543');
+    test('SW: кэш поднят до kipia-v544 (Task 525)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v544') !== -1,
+            'SW несёт версию kipia-v544');
         assertTrue(SW_SRC.indexOf('kipia-v534') === -1,
             'прежней версии kipia-v534 нет');
     });

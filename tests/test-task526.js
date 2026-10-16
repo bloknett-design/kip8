@@ -35,7 +35,7 @@
 //     + clip ghFigClip; при h=0 нет; при h=D полная), в разметке НЕТ
 //     ни marker, ни #ffffff (белые подписи старых картинок не
 //     читались в светлой теме).
-//   SW: kipia-v543.
+//   SW: kipia-v544.
 //
 // Запуск: через tests/run-all.js (require './test-task526.js').
 
@@ -354,9 +354,9 @@ describe('Task 526 D: VM — живые схемы (движок + formatNumber)
 // ============================================================
 describe('Task 526 — SW: версия кэша', () => {
 
-    test('SW: кэш поднят до kipia-v543 (Task 528)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v543') !== -1,
-            'SW несёт версию kipia-v543');
+    test('SW: кэш поднят до kipia-v544 (Task 528)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v544') !== -1,
+            'SW несёт версию kipia-v544');
         assertTrue(SW_SRC.indexOf('kipia-v537') === -1,
             'прежней версии kipia-v537 нет');
     });

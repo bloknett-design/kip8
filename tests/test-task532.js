@@ -24,7 +24,7 @@
 //   D. СЕРВЕР — getWeather v2: UA-заголовки, резерв open-meteo,
 //      _parseOpenMeteo (WMO-коды, румбы, давление), diag-цепочка
 //      попыток, кэш 1800.
-//   E. SW — kipia-v543.
+//   E. SW — kipia-v544.
 //
 // Запуск: через tests/run-all.js (require './test-task532.js').
 
@@ -339,7 +339,7 @@ describe('Task 532 C-1: VM — календарь: ВЫБОР ГОДА', () => {
         sb.WsLcdClock.toggleCal(true);
     }
 
-    test('строка года: селект + шаг ‹ › + подпись «Год»', () => {
+    test('строка года: селект + шаг ‹ › (подпись «Год» убрана Task 534)', () => {
         const pm = popupMocks();
         const sb = lcdSandbox({ getElementById: pm.getElementById });
         openCal(sb);
@@ -348,7 +348,10 @@ describe('Task 532 C-1: VM — календарь: ВЫБОР ГОДА', () => {
         assertTrue(html.indexOf('_calSetYear(+this.value)') !== -1, 'селект — _calSetYear');
         assertTrue(html.indexOf('_calYearNav(-1)') !== -1 &&
                    html.indexOf('_calYearNav(1)') !== -1, 'шаги ‹ › по годам');
-        assertTrue(html.indexOf('>Год</span>') !== -1, 'подпись «Год»');
+        // Task 534 (заявка): надписи «Год»/«Месяц» УБРАНЫ
+        assertTrue(html.indexOf('>Год</span>') === -1 &&
+                   html.indexOf('ws-lcd-cal-yearlbl') === -1,
+            'подпись «Год» убрана (Task 534)');
     });
 
     test('селект года: текущий год выбран; диапазон ±10', () => {
@@ -768,20 +771,20 @@ describe('Task 532 D: Сервер — getWeather v2 (open-meteo резерв, d
 });
 
 // ============================================================
-// E. SW — версия кэша
+// SW — версия кэша (зеркало kip8test, Task 534)
 // ============================================================
-describe('Task 532 — SW: версия кэша', () => {
+describe('Task 532 E: SW — версия кэша', () => {
 
-    test('sw.js: CACHE_VERSION = kipia-v543', () => {
+    test('sw.js: CACHE_VERSION = kipia-v544', () => {
         const m = SW_SRC.match(/const CACHE_VERSION = '(kipia-v\d+)'/);
         assertTrue(m !== null, 'CACHE_VERSION найден');
-        assertEqual(m[1], 'kipia-v543', 'SW поднят до v543 (Task 533)');
-        assertTrue(m[1] !== 'kipia-v542', 'старая версия v542 не осталась');
+        assertEqual(m[1], 'kipia-v544', 'SW поднят до v544 (Task 534: wttr.in + подсказка + календарь)');
+        assertTrue(m[1] !== 'kipia-v543', 'старая версия v543 не осталась');
     });
 
-    test('sw.js: нет забегания вперёд (v544 не должно быть)', () => {
-        assertFalse(SW_SRC.indexOf('kipia-v544') !== -1,
-            'двойной бамп не сделан');
+    test('sw.js: нет забегания вперёд (v545 не должно быть)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v545') === -1,
+            'v545 в sw.js отсутствует (гварды живут только в тестах)');
     });
 
 });
