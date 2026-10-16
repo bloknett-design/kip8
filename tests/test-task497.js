@@ -490,17 +490,17 @@ describe('Task 497 — VM: renderList() заглушки по состояния
 // ================================================================
 describe('Task 497 — SW: версия кеша v721', () => {
 
-    test('SW: CACHE_VERSION = kipia-v541, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v541';") !== -1,
-            'CACHE_VERSION = kipia-v541');
+    test('SW: CACHE_VERSION = kipia-v542, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v542';") !== -1,
+            'CACHE_VERSION = kipia-v542');
         assertFalse(SW_SRC.indexOf('kipia-v520') !== -1,
             'v720 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v542') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v543') !== -1,
             'v722 не существует (guard)');
     });
 
     test('SW: комментарий Task 497 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v541';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v542';");
         // Task 499: комментарий плейсхолдеров диапазонов (~430 симв.)
         // отодвинул Task 497 до ~1054 — окно 900 → 1300.
         // Task 503 (перенос 502): окно 2400 → 2500 (якорь 2351; запас был 50).

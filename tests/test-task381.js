@@ -40,7 +40,7 @@
 //     > * + * 3px; .ws-ep-item + .ws-ep-item margin-top: 0; строка
 //     3px 10px / 0 -10px; тинты 0.45/0.12/0.12/0.55 на месте; окно
 //     «Нормы» БЕЗ gap: 0 (не тронуто).
-//   SW: kipia-v541 (guard v611).
+//   SW: kipia-v542 (guard v611).
 //
 // Запуск: через tests/run-all.js (require './test-task381.js').
 
@@ -362,10 +362,10 @@ describe('Task 381 — CSS: общий фон окна мероприятий', 
 // ============================================================
 describe('Task 381 — SW', () => {
 
-    test('SW: kipia-v541', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v541'") !== -1,
-            'версия кэша kipia-v541');
-        assertFalse(SW_SRC.indexOf('kipia-v542') !== -1,
+    test('SW: kipia-v542', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v542'") !== -1,
+            'версия кэша kipia-v542');
+        assertFalse(SW_SRC.indexOf('kipia-v543') !== -1,
             'двойного бампа нет');
     });
 });

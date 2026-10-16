@@ -43,7 +43,7 @@
 //     → под кнопкой, без бара → прежнее поведение);
 //     _openEventsOnlyPopup (рендер окна, кловер, позиция, без
 //     окна кодов).
-//   SW: kipia-v541.
+//   SW: kipia-v542.
 //
 // Запуск: через tests/run-all.js (require './test-task319.js').
 
@@ -524,10 +524,10 @@ describe('Task 319 — окно кодов и «Мероприятия в это
 // Service Worker
 // ------------------------------------------------------------
 describe('Task 319 — Service Worker', () => {
-    test('SW: версия кэша kipia-v541', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v541') !== -1,
-            'CACHE_VERSION = kipia-v541 (Task 319)');
-        assertFalse(SW_SRC.indexOf('kipia-v542') !== -1,
+    test('SW: версия кэша kipia-v542', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v542') !== -1,
+            'CACHE_VERSION = kipia-v542 (Task 319)');
+        assertFalse(SW_SRC.indexOf('kipia-v543') !== -1,
             'нет лишнего инкремента');
     });
 });

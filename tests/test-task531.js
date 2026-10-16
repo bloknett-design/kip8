@@ -25,7 +25,7 @@
 //      _setChange, фильтрация источников, persistence localStorage,
 //      регрессия бага календаря (composedPath), toggleCal открывает
 //      ОБА блока, _renderSettings разметка.
-//   D. SW — kipia-v541.
+//   D. SW — kipia-v542.
 //
 // Запуск: через tests/run-all.js (require './test-task531.js').
 
@@ -140,16 +140,25 @@ describe('Task 531 A: SRC — экран-утопленник, настройк�
         assertTrue(css.indexOf('.ws-lcd:hover') !== -1, 'hover-состояние рамки на месте');
     });
 
-    test('HTML: #wsLcdSet внутри #wsLcdWrap, справа от календаря; aria', () => {
+    test('HTML: #wsLcdSet внутри #wsLcdWrap; ШЕСТЕРЁНКА #wsLcdGear (Task 532); aria', () => {
         const html = htmlLcdBlock();
         assertTrue(html.indexOf('id="wsLcdCal"') !== -1, 'календарь в блоке');
         const iCal = html.indexOf('id="wsLcdCal"');
         const iSet = html.indexOf('id="wsLcdSet"');
         assertTrue(iSet > iCal, 'настройки идут ПОСЛЕ календаря (оба в обёртке)');
-        assertTrue(/id="wsLcdSet"[^>]*aria-label="Настройки информера"/.test(html),
-            'aria-label панели настроек');
-        assertTrue(html.indexOf('открыть календарь и настройки') !== -1,
-            'aria-label кнопки упоминает настройки');
+        // Task 532: шестерёнка — правый верхний угол, отдельная кнопка
+        const iClock = html.indexOf('id="wsLcdClock"');
+        const iGear = html.indexOf('id="wsLcdGear"');
+        assertTrue(iGear !== -1, 'кнопка-шестерёнка есть');
+        assertTrue(iGear > iClock && iGear < iCal, 'шестерёнка между окном и календарём (правый верх)');
+        assertTrue(/id="wsLcdGear"[^>]*aria-label="Настройки информера"/.test(html),
+            'aria-label шестерёнки');
+        assertTrue(html.indexOf("onclick=\"WsLcdClock.onGearClick(event)\"") !== -1,
+            'клик шестерёнки — onGearClick');
+        assertTrue(html.indexOf('открыть календарь') !== -1,
+            'aria-label ОКНА упоминает только календарь (Task 532)');
+        assertTrue(html.indexOf('открыть календарь и настройки') === -1,
+            'старая формулировка «календарь и настройки» удалена');
     });
 
     test('CSS: панель настроек — СЛЕВА от календаря (right: 330px, z 9461)', () => {
@@ -157,9 +166,14 @@ describe('Task 531 A: SRC — экран-утопленник, настройк�
         const i = css.indexOf('.ws-lcd-set {');
         assertTrue(i !== -1, 'блок .ws-lcd-set объявлен');
         const chunk = css.slice(i, css.indexOf('}', i) + 1);
-        assertTrue(chunk.indexOf('right: 330px') !== -1,
-            'правый край на 330px левее края обёртки (календарь 322 + зазор 8)');
+        assertTrue(chunk.indexOf('right: 0') !== -1,
+            'по умолчанию — у правого края (под шестерёнкой)');
         assertTrue(chunk.indexOf('z-index: 9461') !== -1, 'z-index 9461 (рядом с календарём)');
+        const j = css.indexOf('.ws-lcd-wrap:has(#wsLcdCal:not([hidden])) .ws-lcd-set');
+        assertTrue(j !== -1, 'правило смещения при открытом календаре есть');
+        const shift = css.slice(j, css.indexOf('}', j) + 1);
+        assertTrue(shift.indexOf('right: 330px') !== -1,
+            'при открытом календаре — левее него (322 + 8)');
         const ih = css.indexOf('.ws-lcd-set[hidden]');
         assertTrue(ih !== -1 && css.slice(ih, css.indexOf('}', ih)).indexOf('display: none') !== -1,
             '[hidden] прячет панель');
@@ -248,13 +262,25 @@ describe('Task 531 B: SRC JS — composedPath, настройки, компон�
         assertTrue(m.indexOf('if (st.srcVac) {') !== -1, 'отпуска — по настройке');
     });
 
-    test('toggleCal управляет ОБОИМИ блоками (календарь + настройки)', () => {
+    test('КЛИК-СЕМАНТИКА (Task 532): окно — ТОЛЬКО календарь, шестерёнка — ТОЛЬКО настройки', () => {
         const m = lcdModule();
-        assertTrue(m.indexOf("getElementById('wsLcdSet')") !== -1,
-            'toggleCal берёт #wsLcdSet');
-        assertTrue(m.indexOf('this._renderSettings(); set.hidden = false') !== -1,
-            'открытие: рендер + показ настроек');
-        assertTrue(m.indexOf('set.hidden = true') !== -1, 'закрытие прячет настройки');
+        assertTrue(m.indexOf('onGearClick: function') !== -1, 'onGearClick определён');
+        assertTrue(m.indexOf('toggleSet: function') !== -1, 'toggleSet определён');
+        assertTrue(m.indexOf("document.getElementById('wsLcdGear')") !== -1,
+            'toggleSet берёт #wsLcdGear (aria-expanded)');
+        assertTrue(m.indexOf('_setOpen: false') !== -1, 'состояние _setOpen есть');
+        // toggleCal БОЛЬШЕ не трогает настройки — только календарь
+        const iCal = m.indexOf('toggleCal: function');
+        const iCalEnd = m.indexOf('},', m.indexOf('aria-expanded', iCal));
+        const calBody = m.slice(iCal, iCalEnd);
+        assertTrue(calBody.indexOf('wsLcdSet') === -1,
+            'toggleCal не упоминает #wsLcdSet');
+        // закрытие по клику вне/Esc — ОБА попапа
+        assertTrue(m.indexOf('self.toggleCal(false);') !== -1 &&
+                    m.indexOf('self.toggleSet(false);') !== -1,
+            'внешний клик/Esc закрывают оба');
+        assertTrue(m.indexOf('if (this._setOpen) this.toggleSet(false);') !== -1,
+            'stop() закрывает настройки');
     });
 
 });
@@ -537,19 +563,27 @@ describe('Task 531 C-3: VM — панель настроек и календар
             'выключенные секунды — чекбокс без checked');
     });
 
-    test('toggleCal: открывает/закрывает ОБА блока (календарь + настройки)', () => {
+    test('Task 532: toggleCal — ТОЛЬКО календарь; toggleSet — ТОЛЬКО настройки; оба независимо', () => {
         const pm = popupMocks();
         const sb = lcdSandbox({ getElementById: pm.getElementById });
         sb.WsLcdClock.toggleCal(true);
         assertEqual(pm.els.wsLcdCal.hidden, false, 'календарь открыт');
-        assertEqual(pm.els.wsLcdSet.hidden, false, 'настройки открыты');
-        assertTrue(pm.els.wsLcdSet.innerHTML.indexOf('Настройки информера') !== -1,
-            'панель настроек отрендерена');
+        assertEqual(pm.els.wsLcdSet.hidden, true, 'настройки НЕ тронуты (заявка: только календарь)');
         assertTrue(pm.els.wsLcdCal.innerHTML.indexOf('ws-lcd-cal-grid') !== -1,
             'календарь отрендерен');
+        sb.WsLcdClock.toggleSet(true);
+        assertEqual(pm.els.wsLcdSet.hidden, false, 'настройки открыты отдельно');
+        assertTrue(pm.els.wsLcdSet.innerHTML.indexOf('Настройки информера') !== -1,
+            'панель настроек отрендерена');
         sb.WsLcdClock.toggleCal(false);
         assertEqual(pm.els.wsLcdCal.hidden, true, 'календарь закрыт');
+        assertEqual(pm.els.wsLcdSet.hidden, false, 'настройки остаются открытыми');
+        sb.WsLcdClock.toggleSet(false);
         assertEqual(pm.els.wsLcdSet.hidden, true, 'настройки закрыты');
+        // повторное открытие с уже открытым — рендер без дёрганья
+        sb.WsLcdClock.toggleSet(true);
+        sb.WsLcdClock.toggleSet(true);
+        assertEqual(pm.els.wsLcdSet.hidden, false, 'идемпотентно');
     });
 
     test('РЕГРЕССИЯ БАГА 1: клик по кнопке месяца НЕ закрывает календарь', () => {
@@ -604,10 +638,10 @@ describe('Task 531 C-3: VM — панель настроек и календар
 // ============================================================
 describe('Task 531 — SW: версия кэша', () => {
 
-    test('sw.js: CACHE_VERSION = kipia-v541', () => {
+    test('sw.js: CACHE_VERSION = kipia-v542', () => {
         const m = SW_SRC.match(/const CACHE_VERSION = '(kipia-v\d+)'/);
         assertTrue(m !== null, 'CACHE_VERSION найден');
-        assertEqual(m[1], 'kipia-v541', 'SW поднят до v541 (Task 531)');
+        assertEqual(m[1], 'kipia-v542', 'SW поднят до v541 (Task 531)');
         assertTrue(m[1] !== 'kipia-v540', 'старая версия v540 не осталась');
     });
 
