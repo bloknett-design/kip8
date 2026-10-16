@@ -29,7 +29,7 @@
 //   D. СЕРВЕР — WorkSchedule.gs getWeather (кэш 30 мин, тихий
 //      фолбэк), _parseMeteoinfo на РЕАЛЬНОМ HTML meteoinfo.ru
 //      (фикстура страницы Кемерово), роутинг в Code.gs.
-//   E. SW — kipia-v542 (Task 531).
+//   E. SW — kipia-v543 (Task 531).
 //
 // АДАПТАЦИЯ Task 531: компоновка приведена к ОБЩЕЙ НИЖНЕЙ ЛИНИИ ряда
 //   12 (секунды 8..12, текст 6..12, иконка 5..12), день недели
@@ -696,11 +696,18 @@ describe('Task 530 C-4: VM — РОВНАЯ СЕТКА (главное заяв�
         });
         sb.WsLcdClock._timer = null;
         sb.WsLcdClock.start();
-        assertEqual(loaded, 1, '_loadWeather вызван из start()');
-        sb.WsLcdClock._weatherTimer = 12345;
-        sb.WsLcdClock.stop();
-        assertEqual(sb.WsLcdClock._weatherTimer, null, 'таймер погоды очищен');
-        assertEqual(sb.WsLcdClock._feedAt, 0, 'пауза пейджера сброшена');
+        // Task 533: прямой канал (fetch) в VM недоступен → резерв
+        // сервера вызывается АСИНХРОННО (из catch прямого промиса)
+        return new Promise(function (resolve) {
+            setTimeout(function () {
+                assertEqual(loaded, 1, '_loadWeather вызвал сеть из start()');
+                sb.WsLcdClock._weatherTimer = 12345;
+                sb.WsLcdClock.stop();
+                assertEqual(sb.WsLcdClock._weatherTimer, null, 'таймер погоды очищен');
+                assertEqual(sb.WsLcdClock._feedAt, 0, 'пауза пейджера сброшена');
+                resolve();
+            }, 20);
+        });
     });
 
 });
@@ -853,15 +860,15 @@ describe('Task 530 D: Сервер — getWeather (meteoinfo.ru, кэш 30 ми�
 });
 
 // ============================================================
-// SW — версия кэша (зеркало kip8test, Task 531)
+// E. SW — версия кэша
 // ============================================================
 describe('Task 530 — SW: версия кэша', () => {
 
-    test('sw.js: CACHE_VERSION = kipia-v542', () => {
+    test('sw.js: CACHE_VERSION = kipia-v543', () => {
         const m = SW_SRC.match(/const CACHE_VERSION = '(kipia-v\d+)'/);
         assertTrue(m !== null, 'CACHE_VERSION найден');
-        assertEqual(m[1], 'kipia-v542', 'SW поднят до v541 (Task 531)');
-        assertTrue(m[1] !== 'kipia-v540', 'старая версия v540 не осталась');
+        assertEqual(m[1], 'kipia-v543', 'SW поднят до v543 (Task 533)');
+        assertTrue(m[1] !== 'kipia-v542', 'старая версия v542 не осталась');
     });
 
 });

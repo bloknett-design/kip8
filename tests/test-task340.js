@@ -16,7 +16,7 @@
 //   сервер (справочные копии): WorkSchedule.gs _requireRead пускает
 //   чтение по view/view.min/edit; RoleMatrixTask340Init.gs —
 //   одноразовое добавление столбца в матрицу.
-//   SW: kipia-v542.
+//   SW: kipia-v543.
 //
 // Запуск: через tests/run-all.js (require './test-task340.js').
 
@@ -607,10 +607,10 @@ describe('Task 340 — сервер: _requireRead пускает все три �
 // ============================================================
 describe('Task 340 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v542', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v542'") !== -1,
-            'CACHE_VERSION = kipia-v542 (Task 340 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v543') !== -1,
+    test('SW: кэш поднят до kipia-v543', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v543'") !== -1,
+            'CACHE_VERSION = kipia-v543 (Task 340 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v544') !== -1,
             'лишний инкремент (v579) не сделан');
     });
 

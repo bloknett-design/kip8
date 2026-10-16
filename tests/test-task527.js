@@ -399,9 +399,9 @@ describe('Task 527 D: VM — живой расчёт в картинке', () =>
 // ============================================================
 describe('Task 527 — SW: версия кэша', () => {
 
-    test('SW: кэш поднят до kipia-v542 (Task 528)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v542') !== -1,
-            'SW несёт версию kipia-v542');
+    test('SW: кэш поднят до kipia-v543 (Task 528)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v543') !== -1,
+            'SW несёт версию kipia-v543');
         assertTrue(SW_SRC.indexOf('kipia-v537') === -1,
             'прежней версии kipia-v537 нет');
     });
