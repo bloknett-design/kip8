@@ -471,13 +471,13 @@ describe('Task 366 — VM сервер: устойчивость', () => {
 // ============================================================
 describe('Task 366 — SW кэш', () => {
 
-    test('SW: CACHE_VERSION = kipia-v544', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v544'") !== -1,
+    test('SW: CACHE_VERSION = kipia-v545', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v545'") !== -1,
             'версия кэша поднята до v595');
     });
 
     test('SW: нет v594 (старая) и нет v596 (двойной бамп)', () => {
         assertTrue(SW_SRC.indexOf('kipia-test-v594') === -1, 'старая версия не осталась');
-        assertTrue(SW_SRC.indexOf('kipia-v545') === -1, 'двойного бампа не было');
+        assertTrue(SW_SRC.indexOf('kipia-v546') === -1, 'двойного бампа не было');
     });
 });

@@ -15,7 +15,7 @@
 //      _fetchWttr), порядок каналов в _loadWeather (open-meteo →
 //      wttr → сервер), подсказка authorizeWeather в статусе панели,
 //      календарь без подписей + левое выравнивание + шрифт,
-//      WorkSchedule.gs: authorizeWeather + diag 90, SW kipia-v544.
+//      WorkSchedule.gs: authorizeWeather + diag 90, SW kipia-v545.
 //   B. VM ПОГОДА — _parseWttr (поля/lang_ru/EN-слова/cloudcover/
 //      AM-PM → +7/мусор); цепочка: успех open-meteo → wttr НЕ звётся;
 //      сбой open-meteo → wttr успех (сервер НЕ звётся); оба сбой →
@@ -23,7 +23,7 @@
 //      dnote с обоими каналами, подсказка при «нет разрешения».
 //   C. VM КАЛЕНДАРЬ — подписей нет, порядок год → месяц → сетка,
 //      4 стрелки, «Сегодня» в строке месяца, 12 опций, _calSetMonth.
-//   D. SW — kipia-v544, нет забегания вперёд (v748).
+//   D. SW — kipia-v545, нет забегания вперёд (v748).
 //
 // Запуск: через tests/run-all.js (require './test-task534.js').
 
@@ -677,22 +677,22 @@ describe('Task 534 C: VM — календарь (подписи убраны, н
 // ============================================================
 describe('Task 534 D: SW — версия кэша', () => {
 
-    test('sw.js: CACHE_VERSION = kipia-v544', () => {
+    test('sw.js: CACHE_VERSION = kipia-v545', () => {
         const m = SW_SRC.match(/const CACHE_VERSION = '(kipia-v\d+)'/);
         assertTrue(m !== null, 'CACHE_VERSION найден');
-        assertEqual(m[1], 'kipia-v544', 'SW поднят до v544 (Task 534: wttr.in + подсказка + календарь)');
+        assertEqual(m[1], 'kipia-v545', 'SW поднят до v544 (Task 534: wttr.in + подсказка + календарь)');
         assertTrue(m[1] !== 'kipia-v543', 'старая версия v543 не осталась');
     });
 
     test('sw.js: нет забегания вперёд (v545 не должно быть)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v545') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v546') === -1,
             'v545 в sw.js отсутствует (гварды живут только в тестах)');
     });
 
     test('файл на месте и знает текущую версию (v544)', () => {
         const dir = fs.readdirSync(path.join(__dirname));
         const self = fs.readFileSync(path.join(__dirname, 'test-task534.js'), 'utf8');
-        assertTrue(self.indexOf('kipia-v544') !== -1, 'этот тест знает v544');
+        assertTrue(self.indexOf('kipia-v545') !== -1, 'этот тест знает v544');
         assertTrue(dir.indexOf('test-task534.js') !== -1, 'файл на месте');
     });
 

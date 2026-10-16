@@ -24,7 +24,7 @@
 //   D. СЕРВЕР — getWeather v2: UA-заголовки, резерв open-meteo,
 //      _parseOpenMeteo (WMO-коды, румбы, давление), diag-цепочка
 //      попыток, кэш 1800.
-//   E. SW — kipia-v544.
+//   E. SW — kipia-v545.
 //
 // Запуск: через tests/run-all.js (require './test-task532.js').
 
@@ -775,15 +775,15 @@ describe('Task 532 D: Сервер — getWeather v2 (open-meteo резерв, d
 // ============================================================
 describe('Task 532 E: SW — версия кэша', () => {
 
-    test('sw.js: CACHE_VERSION = kipia-v544', () => {
+    test('sw.js: CACHE_VERSION = kipia-v545', () => {
         const m = SW_SRC.match(/const CACHE_VERSION = '(kipia-v\d+)'/);
         assertTrue(m !== null, 'CACHE_VERSION найден');
-        assertEqual(m[1], 'kipia-v544', 'SW поднят до v544 (Task 534: wttr.in + подсказка + календарь)');
+        assertEqual(m[1], 'kipia-v545', 'SW поднят до v544 (Task 534: wttr.in + подсказка + календарь)');
         assertTrue(m[1] !== 'kipia-v543', 'старая версия v543 не осталась');
     });
 
     test('sw.js: нет забегания вперёд (v545 не должно быть)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v545') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v546') === -1,
             'v545 в sw.js отсутствует (гварды живут только в тестах)');
     });
 

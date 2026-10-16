@@ -34,7 +34,7 @@
 // 12) instr-режим — пересчёта нет (скрытые поля Task 411);
 // 13) смена месяца/года (30.08..02.09) → 4 дн;
 // 14) слушатели дат реально зовут _syncTrDays (wiring).
-//   SW: kipia-v544.
+//   SW: kipia-v545.
 // ============================================================
 
 const fs = require('fs');
@@ -391,10 +391,10 @@ describe('Task 428 — VM: слушатели дат (openTrainingForm)', () => 
 // 6. SW
 // ============================================================
 describe('Task 428 — SW-версия', () => {
-    test('SW: kipia-v544', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v544'") !== -1,
+    test('SW: kipia-v545', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v545'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v545') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v546') === -1,
             'двойного бампа не было');
     });
 });
