@@ -777,7 +777,7 @@ require('./test-task501.js');
 // снята (нейтральные ts-элементы в обеих темах); шкала-сигнал —
 // блоки произвольных значений и типа шкалы поменяны местами,
 // подсказка ППР удалена, Enter гасит клавиатуру.
-// SW v525 (MAP kipia-test-v726 → kipia-v546).
+// SW v525 (MAP kipia-test-v726 → kipia-v547).
 require('./test-task502.js');
 // Task 504: окно «Мероприятия» табеля — даты строк
 // ЦВЕТНЫЕ по состоянию записи И/ПЗ (выполнено →
@@ -889,6 +889,10 @@ require('./test-task534.js');
 // селекты по высоте кнопок; светлая тема — яркие стрелки;
 // сервер authorizeWeather — полный URL + манифест.
 require('./test-task535.js');
+// Task 536 (зеркало kip8test): серверная погода УДАЛЕНА —
+// WorkSchedule.gs без getWeather/парсеров/authorizeWeather,
+// Code.gs без роутинга; клиент — open-meteo → wttr.in.
+require('./test-task536.js');
 
 require('./test-deploy-url.js');
 

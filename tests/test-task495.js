@@ -314,17 +314,17 @@ describe('Task 495 — VM: логика без чипа', () => {
 
 describe('Task 495 — SW: версия кеша v719', () => {
 
-    test('SW: CACHE_VERSION = kipia-v545, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v545';") !== -1,
-            'CACHE_VERSION = kipia-v545');
+    test('SW: CACHE_VERSION = kipia-v546, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v546';") !== -1,
+            'CACHE_VERSION = kipia-v546');
         assertFalse(SW_SRC.indexOf('kipia-v518') !== -1,
             'v718 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v546') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v547') !== -1,
             'v720 не существует (guard)');
     });
 
     test('SW: комментарий Task 495 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v545';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v546';");
         // Task 503 (перенос 502): окно 2900 → 3000 (якорь 2858; запас был 43).
         const ctx = SW_SRC.slice(Math.max(0, i - 4600), i);
         assertTrue(ctx.indexOf('Task 495') !== -1, 'маркер задачи');
