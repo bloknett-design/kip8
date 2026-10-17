@@ -1401,3 +1401,28 @@ Stage Summary:
   Apps Script на оба фронта — DEPLOY-Task537). Клиентская
   интеграция (синхронизация localStorage ↔ архив) — СЛЕДУЮЩАЯ
   задача. Хвостов НЕТ.
+
+---
+Task ID: 538 (зеркало kip8test)
+Agent: main (Super Z)
+Task: Перенос Task 538 в kip8 (боевой): клиентская синхронизация
+      избранного/примечаний телефонного справочника
+      localStorage ↔ архив (PhonebookArchive.gs, Task 537).
+
+Work Log:
+- Зеркалирование ЦЕЛИКОМ из kip8test (код телефонных секций
+  идентичен, отличия — префиксы ключей kip8_phonebook_* и версия
+  SW): модуль PbSync + бейдж pbSyncBadge + 4 хука + CSS обеих тем.
+- SW: kipia-v546 → kipia-v547; бамп 212 тест-файлов (гварды v548).
+- test-task538.js — тот же универсальный файл (префикс/версия
+  выводятся из index.html/sw.js) + регистрация в run-all.js.
+- Прогоны: 7124/0 (ПАРИТЕТ kip8test). Браузерная верификация
+  16/16 (scripts/task538-browser-check-kip8.py, порт 8998) + VLM.
+- Docs: DEPLOY-Task538-phonebook-sync-client.md, промт post-Task
+  538, ARCHITECTURE.md §2 (7124/236), эта запись.
+
+Stage Summary:
+- Task 538 в kip8 ЗАКРЫТ: 7124/0. Пуши: kip8 feat → CI/Pages/Sync
+  → kip8-desktop авто-синк (index.html+sw.js менялись; прогноз
+  7139 = 7124 + 29 electron − 14 гвардов). СЛЕДУЮЩАЯ ЗАДАЧА:
+  задачи пользователя.

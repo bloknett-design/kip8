@@ -25,7 +25,7 @@
 //     — позднее правило), чипы дней .ws-cp-day (правило ПОСЛЕ
 //     .ws-cp-day.k-* — побеждает по порядку исходника); цветные
 //     фоны плашек/чипов СОХРАНЕНЫ (смысловые подложки).
-//   SW: kipia-v546.
+//   SW: kipia-v547.
 //
 // Запуск: через tests/run-all.js (require './test-task330.js').
 
@@ -221,10 +221,10 @@ describe('Task 330 — светлая тема: чёрный текст окон
 // ============================================================
 describe('Task 330 — SW: версия кэша', () => {
 
-    test('SW: кэш поднят до kipia-v546 (Task 330)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v546') !== -1,
-            'CACHE_VERSION = kipia-v546');
-        assertFalse(SW_SRC.indexOf('kipia-v547') !== -1,
+    test('SW: кэш поднят до kipia-v547 (Task 330)', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v547') !== -1,
+            'CACHE_VERSION = kipia-v547');
+        assertFalse(SW_SRC.indexOf('kipia-v548') !== -1,
             'лишнего инкремента v570 нет');
     });
 });

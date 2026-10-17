@@ -40,7 +40,7 @@
 //       (0,3,2) — красная рамка побеждает порядком, как в тёмной);
 //     — тёмная тема НЕ тронута: rgba(0,0,0,0.30)/rgba(105,130,160,0.55)
 //       /rgba(140,158,188,0.55) живы.
-//   SW: kipia-v546 (+ guard v607).
+//   SW: kipia-v547 (+ guard v607).
 //
 // Запуск: через tests/run-all.js (require './test-task377.js').
 
@@ -258,13 +258,13 @@ describe('Task 377 — полосы ячеек светлой темы = цве�
 });
 
 describe('Task 377 — Service Worker', () => {
-    test('SW: версия кэша kipia-v546', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v546'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v546');
+    test('SW: версия кэша kipia-v547', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v547'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v547');
     });
 
     test('SW: двойной бамп не случился (v607 не существует)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v547') === -1,
-            'в sw.js нет kipia-v546');
+        assertTrue(SW_SRC.indexOf('kipia-v548') === -1,
+            'в sw.js нет kipia-v547');
     });
 });
