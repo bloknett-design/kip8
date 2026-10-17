@@ -894,6 +894,15 @@ require('./test-task535.js');
 // Code.gs без роутинга; клиент — open-meteo → wttr.in.
 require('./test-task536.js');
 
+// Task 537 — телефонный справочник: архив пользовательских данных
+// (заявка: «создать файл с google таблицей... данные индивидуальные
+// привязанные к email»): PhonebookArchive.gs — файл «Телефонный
+// справочник — Архив пользователей» (листы «Избранное»/«Примечания»/
+// «Служебное», создаётся phonebookArchiveInit() или лениво), мягкое
+// удаление, изоляция по email, гейт secret.view; Code.gs — роутинг
+// phonebook.getMyData / setFavorite / setNote.
+require('./test-task537.js');
+
 require('./test-deploy-url.js');
 
 // Запускаем
