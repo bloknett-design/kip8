@@ -1426,3 +1426,30 @@ Stage Summary:
   success) → kip8-desktop авто-синк b4440e52 CI 7139/0 + Build success
   (прогноз 7124 + 29 electron − 14 гвардов подтверждён ТОЧНО) + Build
   success. Хвостов НЕТ. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+---
+Task ID: 539
+Agent: main (Super Z)
+Task: Зеркало kip8test @0b5490f9 — табы «Все / Избранное»
+      телефонного справочника (мобильный нижний бар + десктопные
+      табы на два экрана: разделы и содержание).
+
+Work Log:
+- scripts/task539-apply.py применился к kip8 БЕЗ правок анкеров
+  (телефонный блок идентичен); role=tablist + SW kipia-v547 →
+  v548 (212 файлов, гварды v549 первыми, 917 замен).
+- Тесты test-task539.js (копия, УНИВЕРСАЛЕН) + регистрация —
+  7124/0 → 7157/0 (ПАРИТЕТ kip8test).
+- Браузерная верификация 32/32 (порт 8998). УРОК ЗЕРКАЛА:
+  TOKEN_KEY kip8 = 'kip8_session_token' БЕЗ префикса (в kip8test
+  мок использует 'kip8test:kip8_session_token') — иначе таймаут
+  ожидания роли KipAuth._cachedRole.
+- Пуш 784f389: CI+Sync+Pages+Build success; kip8-desktop синк
+  92ecdd0c: CI 7172/0 (= 7139 + 33) + Build success — прогноз
+  подтверждён ТОЧНО.
+- Docs: DEPLOY-Task539, ARCHITECTURE.md §2 (7157/237 + зеркало
+  7172), промт post-Task 539, эта запись.
+
+Stage Summary:
+- Task 539 ЗАКРЫТ во всех 4 репо: kip8 7157/0, kip8-desktop
+  7172/0, kip8test 7157/0, kip8test-desktop 7142/0. СЛЕДУЮЩАЯ
+  ЗАДАЧА: задачи пользователя.
