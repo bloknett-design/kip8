@@ -254,10 +254,10 @@ describe('Task 391 — SRC: CSS — шрифт строк и кнопка в с�
             'кнопка следует теме через var(--accent-blue)');
     });
 
-    test('SW: kipia-v547', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v547'") !== -1,
+    test('SW: kipia-v548', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v548'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v548') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v549') === -1,
             'двойного бампа не было');
     });
 });
