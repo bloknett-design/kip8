@@ -410,17 +410,17 @@ describe('Task 500 E: целостность страниц и JS', () => {
 // F. SW: версия и комментарий
 // ==========================================================================
 describe('Task 500 F: SW', () => {
-    test("sw.js: CACHE_VERSION = 'kipia-v550'", () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v550';") !== -1,
+    test("sw.js: CACHE_VERSION = 'kipia-v551'", () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v551';") !== -1,
             'версия поднята');
     });
 
     test('v725 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v551') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v552') === -1);
     });
 
     test('комментарий Task 500 в шапке версий (окно 1600)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v550';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v551';");
         // Task 501: комментарий электротехники/геометрии (~380 симв.)
         // отодвинул Task 500 до ~821 — окно 500 → 1600.
         const ctx = SW_SRC.slice(Math.max(0, i - 3200), i);

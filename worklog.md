@@ -1546,3 +1546,30 @@ Stage Summary:
   темы), шеврон сворачивает организации левого окна, счётчики рядом
   с разделами. Сервер не менялся (DEPLOY: Ctrl+Shift+R — само).
   СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+
+---
+Task ID: 542
+Agent: main (Super Z)
+Task: Заявка (зеркало kip8test): дерево свёрнуто при входе кроме ООО
+      ПО «ТОКЕМ»; «Избранное» десктоп в 3 столбца; обновляемый
+      справочник из Google Sheets (таблица 1phGnzRS…).
+
+Work Log:
+- 7 патчей task542-apply.py (анкеры байт-в-байт kip8test): части
+  A/B + УПРОЧНЕНИЕ pbSyncMerge (guard haveData обеих веток).
+- scripts/sync-phonebook.py + data/phonebook.json (тот же первый
+  синк: 220 записей) + workflow sync-phonebook.yml (cron 01:50 UTC
+  — на 2ч раньше kip8test, конвенция; коммит без «(test repo)»).
+- SW kipia-v550 → v551 (217 файлов, 923 замены); тесты test-task542
+  ×30 (тот же файл, хрон-ассерт универсальный) + run-all require +
+  re-exec кучи 2560МБ — 7214/0 → 7244/0 (ПАРИТЕТ).
+- Браузерная верификация 17/17 (порт 8995, БЕЗ префикса
+  localStorage; флейк D7 пойман и закрыт: haveData + условная
+  навигация + stateful мок; ×4 подряд чисто) + VLM 5/5.
+- Docs: DEPLOY-Task542 (зеркало), ARCHITECTURE §2 (7244/240 +
+  cron sync-phonebook + источник данных), промт post-Task 542,
+  worklog.
+
+Stage Summary:
+- Task 542 закрыт локально: kip8 7244/0 (ПАРИТЕТ kip8test), браузер
+  17/17, VLM 5/5. ГОТОВО К ПУШУ.
