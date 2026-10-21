@@ -34,7 +34,7 @@
 //     «A4 · альбомная»), Esc закрывает (с инжект-стилем), диалоги
 //     взаимоисключающие (закрывает предпросмотры табеля), фолбэк —
 //     печать сразу при закрытии диалога.
-//   SW: kipia-v549 (двойного бампа нет — v729).
+//   SW: kipia-v550 (двойного бампа нет — v729).
 //
 // Запуск: через tests/run-all.js (require './test-task505.js').
 
@@ -984,17 +984,17 @@ describe('Task 505 — VM (мок-DOM): диалог предпросмотра'
 // ============================================================
 // 8. SW: версия кэша
 // ============================================================
-describe('Task 505 — SW: kipia-v549', () => {
-    test('CACHE_VERSION = kipia-v549', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v549'") !== -1,
-            'версия кэша kipia-v549');
-        assertFalse(SW_SRC.indexOf('kipia-v550') !== -1,
+describe('Task 505 — SW: kipia-v550', () => {
+    test('CACHE_VERSION = kipia-v550', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v550'") !== -1,
+            'версия кэша kipia-v550');
+        assertFalse(SW_SRC.indexOf('kipia-v551') !== -1,
             'двойного бампа нет (v729 отсутствует)');
     });
 
     test('комментарий Task 505 в истории версий sw.js', () => {
         const i = SW_SRC.indexOf('// Task 505:');
-        const v = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v549'");
+        const v = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v550'");
         assertTrue(i !== -1, 'запись истории на месте');
         assertTrue(i < v, 'история — выше константы версии');
         const cmt = SW_SRC.slice(i, v);

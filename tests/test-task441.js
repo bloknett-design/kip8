@@ -298,10 +298,10 @@ describe('Task 441/442 — VM: Excel (столбец кодов удалён)', 
 // ============================================================
 // 5. SW — версия кэша
 // ============================================================
-describe('Task 441 — SW: версия kipia-v549', () => {
-    test('CACHE_VERSION = kipia-v549, прежней v665 нет', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v549'") !== -1,
-            'CACHE_VERSION = kipia-v549');
+describe('Task 441 — SW: версия kipia-v550', () => {
+    test('CACHE_VERSION = kipia-v550, прежней v665 нет', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v550'") !== -1,
+            'CACHE_VERSION = kipia-v550');
         assertFalse(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v481'") !== -1,
             'v665 как активная версия больше не существует');
     });
