@@ -90,9 +90,9 @@ function countOf(haystack, needle) {
 // ==========================================================================
 describe('Task 480 — SW: версия кэша', () => {
 
-    test("CACHE_VERSION = 'kipia-v548'", () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v548';") !== -1,
-            'SW поднят до kipia-v548 (Task 480)');
+    test("CACHE_VERSION = 'kipia-v549'", () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v549';") !== -1,
+            'SW поднят до kipia-v549 (Task 480)');
     });
 
     test('прежняя версия v703 отсутствует', () => {
@@ -101,8 +101,8 @@ describe('Task 480 — SW: версия кэша', () => {
     });
 
     test('несуществующая v512 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v549') === -1,
-            'kipia-v549 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v550') === -1,
+            'kipia-v550 не должен существовать');
     });
 
     test('персистентные кэши картинок/данных НЕ инкрементировались', () => {
@@ -114,7 +114,7 @@ describe('Task 480 — SW: версия кэша', () => {
     });
 
     test('комментарий Task 480 в шапке версий (окно 2600 → 3200, Task 486)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v548';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v549';");
         // Task 499: комментарий плейсхолдеров (~430 симв.) отодвинул
         // Task 480 до ~8413 — окно 8100 → 8900.
         const ctx = SW_SRC.slice(Math.max(0, i - 11600), i);
@@ -259,7 +259,7 @@ describe('Task 480 — data/*.json: метаданные источника', ()
     // structure/лист/остальные файлы не тронуты)
     const TOTALS = {
         'data/devices.json':    { total: 'total_devices',    value: 1288, sheet: 'Приборы_app' },
-        'data/lockouts.json':   { total: 'total_lockouts',   value: 531,  sheet: 'Блокировки_app' },
+        'data/lockouts.json':   { total: 'total_lockouts',   value: 529,  sheet: 'Блокировки_app' },
         'data/valves.json':     { total: 'total_valves',     value: 320,  sheet: 'Клапана_app' },
         'data/regulators.json': { total: 'total_regulators', value: 268,  sheet: 'Регуляторы_app' }
     };
