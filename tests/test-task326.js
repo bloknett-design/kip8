@@ -24,7 +24,7 @@
 //   #page-work-schedule (вложенность сетки/шторки НЕ сломана);
 //   5) порядок: #detailPanel идёт ПОСЛЕ последней страницы, но
 //   ВНУТРИ #contentArea; 6) комментарий багфикса Task 326 в HTML.
-//   SW: kipia-v552 (v566 не существует).
+//   SW: kipia-v553 (v566 не существует).
 //
 // Запуск: через tests/run-all.js (require './test-task326.js').
 
@@ -159,10 +159,10 @@ describe('Task 326 BUGFIX — структура HTML: закрытие #page-wo
             'комментарий Task 326 (BUGFIX) в HTML присутствует');
     });
 
-    test('SW: актуальная версия kipia-v552 (Task 326)', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v552'") !== -1,
-            'CACHE_VERSION = kipia-v552 в sw.js');
-        assertFalse(SW_SRC.indexOf('kipia-v553') !== -1,
+    test('SW: актуальная версия kipia-v553 (Task 326)', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v553'") !== -1,
+            'CACHE_VERSION = kipia-v553 в sw.js');
+        assertFalse(SW_SRC.indexOf('kipia-v554') !== -1,
             'v566 не существует (один инкремент на Task 326)');
     });
 });
