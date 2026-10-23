@@ -1688,3 +1688,18 @@ Stage Summary:
   десктопы синкнулись автоматически: kip8-desktop 7312/0 (прогноз
   7286+26 — ТОЧНО) + Build. Деплой: КЛИЕНТ Ctrl+Shift+R (SW v553 сам),
   СЕРВЕР не менялся. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+
+---
+Task ID: 545 (зеркало kip8test)
+Agent: main (Super Z)
+Task: ЗЕРКАЛО Task 545 — замена ссылки на Google-таблицу телефонного справочника (заявка: «Поменяй ссылку на файл телефонного справочника во всех необходимых местах, теперь она такая https://docs.google.com/spreadsheets/d/1rFbDn-jNRSoELTnsiaKjNvatSqIhVvbS/edit?usp=sharing&ouid=110493351905411532775&rtpof=true&sd=true»)
+
+Work Log:
+- Те же якоря, что в kip8test: scripts/sync-phonebook.py ×3 (DEFAULT_SPREADSHEET_ID — единственное функциональное место + docstring + env-подсказка), .github/workflows/sync-phonebook.yml (комментарий; cron 01:50 UTC не тронут), tests/test-task542.js (пин SHEET_ID), tests/test-task545.js (копия, универсальный — README в kip8 нет, гварды отрабатывают), tests/run-all.js (require), ARCHITECTURE §2 (URL + маркер Task 545), промт (scripts/task545-prompt.py kip8: версия post-545 строкой 4 + строка «Источники данных»: было протухшее «статический коммит без sync-скрипта»).
+- data/phonebook.json — копия байт-в-байт из kip8test (один источник — новая таблица): 5 организаций / 230 записей, source = новый URL; ID избранного стабильны (ключи секций те же).
+- Тесты: 7297/0 → 7316/0 (ПАРИТЕТ kip8test; test-task545.js ×19). Браузерная smoke 9/9 — в kip8test (механика/данные идентичны, клиентский код не менялся).
+- SW НЕ бампался (kipia-v553 актуальна — index.html не менялся, данные едут через SW SWR/DATA-кэш). DEPLOY-Task545-phonebook-sheet-url-replace.md (адаптирован: cron 01:50 UTC, README нет).
+- Десктоп-зеркало kip8-desktop: доедет следующим index.html-пушем (paths-фильтр Task 517; CI зеркала не запускается — зелёный на текущих коммитах).
+
+Stage Summary:
+- Task 545 в kip8 ЗАКРЫТ: 7316/0 (паритет), крон 01:50 UTC уже смотрит в новую таблицу (завтра — ожидается «Изменений нет», состояние закоммичено). Деплой: КЛИЕНТ — ничего (SW SWR сам), СЕРВЕР — не менялся. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.

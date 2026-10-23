@@ -956,6 +956,15 @@ require('./test-task543.js');
 // кнопка раздела — цветовое оформление как в «Документации» (золотой).
 require('./test-task544.js');
 
+// Task 545 — телефонный справочник: ссылка на Google-таблицу заменена
+// (1rFbDn-jNRSoELTnsiaKjNvatSqIhVvbS; новая версия справочника — 230
+// записей, +10 к 220): DEFAULT_SPREADSHEET_ID + docstring в sync-phonebook.py,
+// комментарий workflow, data/phonebook.json source (первый синк из новой
+// таблицы), пин SHEET_ID в test-task542.js; ARCHITECTURE §2 и промт
+// «Источники данных» — новый URL (автосинк cron 01:50 UTC); санитарный
+// скан — старого ID в рабочих файлах нет.
+require('./test-task545.js');
+
 require('./test-deploy-url.js');
 
 // Запускаем
