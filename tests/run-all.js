@@ -796,7 +796,7 @@ require('./test-task501.js');
 // снята (нейтральные ts-элементы в обеих темах); шкала-сигнал —
 // блоки произвольных значений и типа шкалы поменяны местами,
 // подсказка ППР удалена, Enter гасит клавиатуру.
-// SW v525 (MAP kipia-test-v726 → kipia-v554).
+// SW v525 (MAP kipia-test-v726 → kipia-v555).
 require('./test-task502.js');
 // Task 504: окно «Мероприятия» табеля — даты строк
 // ЦВЕТНЫЕ по состоянию записи И/ПЗ (выполнено →
@@ -964,6 +964,14 @@ require('./test-task544.js');
 // «Источники данных» — новый URL (автосинк cron 01:50 UTC); санитарный
 // скан — старого ID в рабочих файлах нет.
 require('./test-task545.js');
+
+// Task 546 — Сапёр: анимация переворачивания клетки с бликом по
+// глянцу + вибрация; архив счёта пользователей по email — лист
+// «Сапёр» в KIP8_Access (MinesweeperArchive.gs: recordResult/
+// getMyArchive, гейт secret.view) + клиент (волна msFlipDelay,
+// отложенные финалы msDelayedOverlay, отправка msSrvSendResult,
+// блок «Архив партий», троттлинг 60 с + кэш).
+require('./test-task546.js');
 
 require('./test-deploy-url.js');
 
