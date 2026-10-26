@@ -1,4 +1,4 @@
-// tests/test-task493.js (kip8 — перенос Task 493 из kip8test; MAP: kipia-test-v717→kipia-v555, guard v718→v518)
+// tests/test-task493.js (kip8 — перенос Task 493 из kip8test; MAP: kipia-test-v717→kipia-v556, guard v718→v518)
 // Task 493: заявка пользователя — «Кнопку "Табель учёта рабочего
 //   времени" установленную на главную страницу назови короче
 //   "Табель учёта".»
@@ -161,16 +161,16 @@ describe('Task 493 — кнопка «Табель учёта» (переиме�
     });
 
     test('SW: версия кеша поднята до v717', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v555';") !== -1,
-            'CACHE_VERSION = kipia-v555');
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556';") !== -1,
+            'CACHE_VERSION = kipia-v556');
         assertTrue(SW_SRC.indexOf('kipia-v516') === -1,
             'v716 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v556') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v557') !== -1,
             'v718 не существует (guard)');
     });
 
     test('SW: комментарий Task 493 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v555';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556';");
         // Task 497: комментарий избранного расходомеров — якорь
         // 493@1240 — окно 900 → 1400 (запас 160).
         // Task 503 (перенос 502): окно 3100 → 3400 (якорь 3233).

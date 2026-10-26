@@ -43,7 +43,7 @@
 //   "Ошибка: self.loadTrainings is not a function"»):
 //     — вызовы удалённых страниц loadTrainings()/loadVacations()
 //       больше не встречаются; вместо них loadGrid().
-//   SW: kipia-v555.
+//   SW: kipia-v556.
 //
 // Запуск: через tests/run-all.js (require './test-task309.js').
 
@@ -403,9 +403,9 @@ describe('Task 309 — регресс-фиксы Task 308 (loadTrainings/loadVac
 
 describe('Task 309 — Service Worker', () => {
 
-    test('SW: версия кэша kipia-v555', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v555'") !== -1,
-            'CACHE_VERSION в sw.js = kipia-v555');
+    test('SW: версия кэша kipia-v556', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v556'") !== -1,
+            'CACHE_VERSION в sw.js = kipia-v556');
         assertFalse(SW_SRC.indexOf('kipia-test-v547') !== -1,
             'старой версии v547 нет');
     });

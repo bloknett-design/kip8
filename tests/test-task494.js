@@ -211,17 +211,17 @@ describe('Task 494 — SRC: панель без заголовка/подска�
 
 describe('Task 494 — SW: версия кеша v718', () => {
 
-    test('SW: CACHE_VERSION = kipia-v555, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v555';") !== -1,
-            'CACHE_VERSION = kipia-v555');
+    test('SW: CACHE_VERSION = kipia-v556, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556';") !== -1,
+            'CACHE_VERSION = kipia-v556');
         assertFalse(SW_SRC.indexOf('kipia-v517') !== -1,
             'v717 в sw.js отсутствует (ровно один инкремент)');
-        assertFalse(SW_SRC.indexOf('kipia-v556') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v557') !== -1,
             'v719 не существует (guard)');
     });
 
     test('SW: комментарий Task 494 в шапке версий', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v555';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556';");
         // Task 497: комментарий избранного расходомеров — якорь
         // 494@1064 — окно 900 → 1200 (запас 136).
         // Task 503 (перенос 502): окно 3000 → 3200 (якорь 3057).

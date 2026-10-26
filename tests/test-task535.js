@@ -20,7 +20,7 @@
 //   A. SRC — глиф «Я» (ножка), X_DAY=52/зона+9/dxMax, динамическая
 //      иконка погоды (tStart−2−8 + кламп X_ICON), CSS высоты и
 //      светлой темы, WorkSchedule.gs — серверная погода УДАЛЕНА
-//      (Task 536), SW kipia-v555.
+//      (Task 536), SW kipia-v556.
 //   B. VM ГЛИФ — FONT5['Я'] бит-в-бит, ножка диагональю, зеркало R.
 //   C. VM ГЕОМЕТРИЯ — ПЯТНИЦА dx=60 (было 56), СРЕДА dx=66 (было 62),
 //      ПОНЕДЕЛЬНИК прежний слот 44 (dxMax), без секунд 43; дата
@@ -29,7 +29,7 @@
 //      «-12°»: иконка 172 (регресс нет), «--» прежний прочерк.
 //   D. VM ПАНЕЛЬ — подсказок сервера НЕТ (Task 536): без
 //      appsscript.json/oauthScopes/authorizeWeather.
-//   E. SW — kipia-v555, нет забегания вперёд (v749).
+//   E. SW — kipia-v556, нет забегания вперёд (v749).
 //
 // Запуск: через tests/run-all.js (require './test-task535.js').
 
@@ -468,10 +468,10 @@ describe('Task 535 D: VM — панель (подсказок сервера Н�
 // ============================================================
 describe('Task 535 E: SW — версия кеша', () => {
 
-    test('SW: kipia-v555, забегания вперёд нет (v547)', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v555'") !== -1,
-            'CACHE_VERSION = kipia-v555');
-        assertTrue(SW_SRC.indexOf('kipia-v556') === -1, 'v547 не появилась');
+    test('SW: kipia-v556, забегания вперёд нет (v547)', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556'") !== -1,
+            'CACHE_VERSION = kipia-v556');
+        assertTrue(SW_SRC.indexOf('kipia-v557') === -1, 'v547 не появилась');
         assertTrue(SW_SRC.indexOf('kipia-v545') === -1, 'v545 убрана');
     });
 
