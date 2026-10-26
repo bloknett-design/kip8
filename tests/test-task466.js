@@ -13,7 +13,7 @@
 //   грани, паддинг заголовка окна 52px не менялся; JS не тронут
 //   (оба значка absolute внутри скроллера, прикол translateY
 //   общий — порядок в DOM не важен); окно норм не тронуто.
-//   SW: kipia-v556.
+//   SW: kipia-v557.
 //
 // Запуск: через tests/run-all.js (require './test-task466.js').
 
@@ -143,8 +143,8 @@ describe('Task 466 — SRC: JS не тронут (порядок значков 
 // ============================================================
 describe('Task 466 — SW: версия кэша', () => {
 
-    test('CACHE_VERSION = kipia-v556', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556';") !== -1,
+    test('CACHE_VERSION = kipia-v557', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v557';") !== -1,
             'инкремент Task 466: v689 → v690');
     });
 

@@ -24,7 +24,7 @@
 //      «Прямые запросы open-meteo/wttr.in не прошли» + dnote
 //      (причины обоих каналов) + обещание повтора; «ещё не
 //      опрошено»; НЕТ подсказок сервера.
-//   E. SW — kipia-v556, нет забегания вперёд (v750).
+//   E. SW — kipia-v557, нет забегания вперёд (v750).
 //
 // Запуск: через tests/run-all.js (require './test-task536.js').
 
@@ -556,10 +556,10 @@ describe('Task 536 D: VM — панель настроек (статусы по�
 // ============================================================
 describe('Task 536 E: SW — версия кеша', () => {
 
-    test('SW: kipia-v556, забегания вперёд нет (v547)', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556'") !== -1,
-            'CACHE_VERSION = kipia-v556');
-        assertTrue(SW_SRC.indexOf('kipia-v557') === -1, 'v547 не появилась');
+    test('SW: kipia-v557, забегания вперёд нет (v547)', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v557'") !== -1,
+            'CACHE_VERSION = kipia-v557');
+        assertTrue(SW_SRC.indexOf('kipia-v558') === -1, 'v547 не появилась');
         assertTrue(SW_SRC.indexOf('kipia-v545') === -1, 'v545 убрана');
     });
 

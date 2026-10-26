@@ -31,7 +31,7 @@
 //     НЕ трогает фон; структура разметки строк сохранена
 //     (dot + b.ws-ep-date + span.ws-ep-text); СИЗ-строки («до дд.мм»)
 //     — без классов дат; счётчики ws-ep-date-ok/bad = расчётным.
-//   SW: kipia-v556 (двойного бампа нет — v728).
+//   SW: kipia-v557 (двойного бампа нет — v728).
 //
 // Запуск: через tests/run-all.js (require './test-task504.js').
 
@@ -336,10 +336,10 @@ describe('Task 504 — VM: классы дат по состоянию запи�
 // ============================================================
 describe('Task 504 — SW и двойной бамп', () => {
 
-    test('SW: kipia-v556', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v556'") !== -1,
-            'версия кэша kipia-v556');
-        assertFalse(SW_SRC.indexOf('kipia-v557') !== -1,
+    test('SW: kipia-v557', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v557'") !== -1,
+            'версия кэша kipia-v557');
+        assertFalse(SW_SRC.indexOf('kipia-v558') !== -1,
             'двойного бампа нет');
     });
 });
