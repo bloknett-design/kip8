@@ -316,9 +316,9 @@ describe('Task 484: lockouts.json — блок ppr_chart', () => {
     });
 
     test('структура lockouts.json не задета (массив и заголовки прежние)', () => {
-        // Task 540: авто-синк от 20.10.2026 — 531 → 529; Task 541: 9bab754 — 529 → 528 (данные живые)
-        assertEqual(LOCKOUTS_JSON.total_lockouts, 528, 'total_lockouts прежний');
-        assertEqual(LOCKOUTS_JSON.lockouts.length, 528, 'массив прежний');
+        // Task 540: авто-синк от 20.10.2026 — 531 → 529; Task 541: 9bab754 — 529 → 528; Task 548: 04fe3e5 — 528 → 529 (данные живые)
+        assertEqual(LOCKOUTS_JSON.total_lockouts, 529, 'total_lockouts прежний');
+        assertEqual(LOCKOUTS_JSON.lockouts.length, 529, 'массив прежний');
         assertEqual(LOCKOUTS_JSON.headers.length, 13, '13 колонок');
         assertEqual(LOCKOUTS_JSON.sheet, 'Блокировки_app', 'лист _app прежний');
     });
@@ -439,8 +439,8 @@ describe('Task 484: VM — _renderDevicesPPR (блокировки)', () => {
 // 5. SW: версия v512 + комментарий Task 484
 // ==========================================================================
 describe('Task 484: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v555', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v555';") !== -1,
+    test('CACHE_VERSION = kipia-v556', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556';") !== -1,
             'версия поднята');
     });
 
@@ -449,11 +449,11 @@ describe('Task 484: SW — версия и кэши', () => {
     });
 
     test('v513 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v556') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v557') === -1);
     });
 
     test('комментарий Task 484 в шапке версий (окно 700)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v555';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v556';");
         // Task 490: +480 симв. комментария — окно 3900 → 4500 (якорь 4232)
         const ctx = SW_SRC.slice(Math.max(0, i - 10300), i);
         assertTrue(ctx.indexOf('Task 484') !== -1, 'маркер задачи');
