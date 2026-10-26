@@ -672,16 +672,16 @@ describe('Task 446 — VM: _buildArchiveWorkbook (зебра + структур�
 // ============================================================
 describe('Task 446 — SW и регресс', () => {
 
-    test('SW: кэш поднят до kipia-v554 (Task 446)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v554'") !== -1,
-            'CACHE_VERSION = kipia-v554');
+    test('SW: кэш поднят до kipia-v555 (Task 446)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v555'") !== -1,
+            'CACHE_VERSION = kipia-v555');
         assertTrue(SW_SRC.indexOf('Task 446') !== -1,
             'комментарий Task 446 в истории версий');
     });
 
     test('guard: двойного бампа не было', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v555') === -1,
-            'kipia-v555 не существует');
+        assertTrue(SW_SRC.indexOf('kipia-v556') === -1,
+            'kipia-v556 не существует');
     });
 
     test('регресс: id/«Таб. №» не вернулись в 4 листа архива', () => {

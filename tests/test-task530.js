@@ -30,7 +30,7 @@
 //   D. СЕРВЕР — Task 536: серверная погода УДАЛЕНА (getWeather/
 //      _parseMeteoinfo/_parseOpenMeteo/authorizeWeather + роутинг
 //      Code.gs); производственный календарь legalic НЕ тронут
-//   E. SW — kipia-v554 (Task 531).
+//   E. SW — kipia-v555 (Task 531).
 //
 // АДАПТАЦИЯ Task 531: компоновка приведена к ОБЩЕЙ НИЖНЕЙ ЛИНИИ ряда
 //   12 (секунды 8..12, текст 6..12, иконка 5..12), день недели
@@ -772,10 +772,10 @@ describe('Task 530 D: Сервер — Task 536: серверная погода
 // ============================================================
 describe('Task 530 — SW: версия кеша', () => {
 
-    test('sw.js: CACHE_VERSION = kipia-v554', () => {
+    test('sw.js: CACHE_VERSION = kipia-v555', () => {
         const m = SW_SRC.match(/const CACHE_VERSION = '(kipia-v\d+)'/);
         assertTrue(m !== null, 'CACHE_VERSION найден');
-        assertEqual(m[1], 'kipia-v554',
+        assertEqual(m[1], 'kipia-v555',
             'SW поднят до v546 (Task 536: серверная погода удалена)');
         assertTrue(m[1] !== 'kipia-v540', 'старая версия v540 не осталась');
     });

@@ -1758,3 +1758,39 @@ Stage Summary:
   вибрацией + архив счёта пользователей по email — лист «Сапёр» в
   KIP8_Access + клиент) ПОЛНОСТЬЮ ЗАКРЫТ: 4 репо зелёные, браузер
   40/40 ×2, VLM чист. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
+
+---
+Task ID: 547
+Agent: main (Super Z)
+Task: Табель учёта — замечание: «В разделе табель учёта, при изменении
+      периода отпуска сменного работника на несколько дней, шахматка его
+      рабочих дней после первого формирования данных шахматки на этот
+      месяц остаётся пустой и заполняется после повторного нажатия на
+      кнопку формирования шахматки. Ранее подменные дни распределённые
+      другим сменным работникам остаются, хотя у отпускного работника
+      возвращаются его рабочие смены и отпуск смещается.» (зеркало
+      kip8test @b24cb5ba)
+
+Work Log:
+- ПАТЧИ байт-в-байт (git apply task547-port.patch из коммита kip8test):
+  scripts/WorkSchedule.gs (рестор устаревших «ОТ» через plannedStatus
+  + шаг 4.8 снятия замещений «замещает»=X работает свою смену +
+  счётчики vacationRestored/substitutionsRemoved) + index.html
+  (_autoDnStaleSweep по реестру Task 458, __autoDn в материализации,
+  keysLoad → SWEEP → materialize в _renderGrid, тосты счётчиков).
+- Копии: tests/test-task547.js ×45, scripts/task547-repro.js,
+  scripts/task547-browser-check.py (kip8-адаптация: порт 8995, ГОЛЫЕ
+  ключи localStorage — kip8 БЕЗ isolateLocalStorage; урок Task 539).
+- test-vacations-generate.js — копия kip8test (тест C: removed=7 +
+  vacationRestored=7) + SW-ассерт kipia-v555 (префикс kip8, не
+  kipia-test; поймано прогоном).
+- SW: kipia-v554 → v555 (гарды v556 первыми — 928 замен / 219 файлов).
+- Прогон: 7384/0 → 7429/0 (ПАРИТЕТ kip8test); репродукция — фикс
+  подтверждён; браузерная верификация 25/25 (kip8-адаптация).
+- Доки: DEPLOY-Task547 (SW v555; сервер обязателен — WorkSchedule.gs),
+  ARCHITECTURE §2 (7429/244; прогноз kip8-desktop 7444), промт
+  post-547, worklog.
+
+Stage Summary:
+- Task 547 в kip8 = зеркало kip8test: 7429/0, браузер 25/25. Ожидаются
+  пуш + CI (прогноз kip8-desktop 7399+45=7444), десктоп синком.

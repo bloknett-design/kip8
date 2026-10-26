@@ -20,7 +20,7 @@
 //   A. SRC — прямой канал погоды в клиенте (OM_URL, fetch,
 //      _parseOpenMeteo/_fetchWeatherDirect, сервер УДАЛЁН — Task 536),
 //      шестерёнка-оверлей (SVG 13×13 в зоне 20×20), календарь
-//      год→месяц, SW kipia-v554.
+//      год→месяц, SW kipia-v555.
 //   B. VM ПОГОДА — _parseOpenMeteo (поля/WMO/мусор); _loadWeather:
 //      прямой успех (сервер НЕ звётся, канал в diag), успех БЕЗ
 //      авторизации, сбой прямых каналов → why=network без сервера
@@ -31,7 +31,7 @@
 //      при ‹ › и переносе декабрь→январь, «Сегодня» в строке
 //      месяца); _calSetMonth: применение + мусор.
 //   D. VM ШЕСТЕРЁНКА — клик-семантика (настройки отдельно).
-//   E. SW — kipia-v554, нет забегания вперёд (v747).
+//   E. SW — kipia-v555, нет забегания вперёд (v747).
 //
 // Запуск: через tests/run-all.js (require './test-task533.js').
 
@@ -656,14 +656,14 @@ describe('Task 533 D: VM — шестерёнка внутри: клик-сем�
 // ============================================================
 describe('Task 533 E: SW — версия кеша', () => {
 
-    test('sw.js: CACHE_VERSION = kipia-v554', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v554'");
+    test('sw.js: CACHE_VERSION = kipia-v555', () => {
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v555'");
         assertTrue(i !== -1,
             'версия v546 (Task 536: серверная погода удалена)');
     });
 
     test('sw.js: нет забегания вперёд (v547 не должно быть)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v555') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v556') === -1,
             'v547 в sw.js отсутствует (гварды живут только в тестах)');
     });
 
@@ -671,7 +671,7 @@ describe('Task 533 E: SW — версия кеша', () => {
         // ассерты текущей версии расставлены бампом по всем тестам
         const dir = fs.readdirSync(path.join(__dirname));
         const t533 = fs.readFileSync(path.join(__dirname, 'test-task533.js'), 'utf8');
-        assertTrue(t533.indexOf('kipia-v554') !== -1, 'этот тест знает v546');
+        assertTrue(t533.indexOf('kipia-v555') !== -1, 'этот тест знает v546');
         assertTrue(dir.indexOf('test-task533.js') !== -1, 'файл на месте');
     });
 

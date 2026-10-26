@@ -596,16 +596,16 @@ describe('Task 445 — VM: saveWorkersArchive (ленивые годы)', () => 
 // ============================================================
 describe('Task 445 — SW и регресс', () => {
 
-    test('SW: кэш поднят до kipia-v554 (Task 445)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v554'") !== -1,
-            'CACHE_VERSION = kipia-v554');
+    test('SW: кэш поднят до kipia-v555 (Task 445)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v555'") !== -1,
+            'CACHE_VERSION = kipia-v555');
         assertTrue(SW_SRC.indexOf('Task 445') !== -1,
             'комментарий Task 445 в истории версий');
     });
 
     test('guard: двойного бампа не было', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v555') === -1,
-            'kipia-v555 не существует');
+        assertTrue(SW_SRC.indexOf('kipia-v556') === -1,
+            'kipia-v556 не существует');
     });
 
     test('регресс: старый листовой Excel не вернулся', () => {
