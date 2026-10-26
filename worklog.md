@@ -1794,3 +1794,22 @@ Work Log:
 Stage Summary:
 - Task 547 в kip8 = зеркало kip8test: 7429/0, браузер 25/25. Ожидаются
   пуш + CI (прогноз kip8-desktop 7399+45=7444), десктоп синком.
+
+---
+Task ID: 547 (финал — факты CI)
+Agent: main (Super Z)
+
+Work Log:
+- CI — ВСЕ 4 РЕПО ЗЕЛЁНЫЕ, прогнозы ТОЧНЫЕ: kip8 7429/0 (CI Tests
+  + Build Desktop + Sync + pages), kip8test 7429/0 (ПАРИТЕТ),
+  kip8-desktop 7444/0 (7399+45; синк fc27c210 ← 88e58697),
+  kip8test-desktop 7414/0 (7369+45; синк df32c58 ← b24cb5ba).
+  Счётчики — task547-ci-counts.py (zip-логи, ANSI-вычистка).
+- Десктоп-зеркала содержат test-task547.js + SW kipia-v555 +
+  WorkSchedule.gs с фиксом — проверено локально.
+
+Stage Summary:
+- Task 547 ПОЛНОСТЬЮ ЗАКРЫТ (зеркало kip8test): 4 репо зелёные,
+  браузер 25/25 ×2, ПАРИТЕТ. СЕРВЕРНЫЙ ДЕПЛОЙ ОБЯЗАТЕЛЕН —
+  WorkSchedule.gs менялся (ОДИН деплой на оба PWA-репо). СЛЕДУЮЩАЯ
+  ЗАДАЧА: задачи пользователя.
