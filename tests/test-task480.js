@@ -259,7 +259,7 @@ describe('Task 480 — data/*.json: метаданные источника', ()
     // structure/лист/остальные файлы не тронуты)
     const TOTALS = {
         'data/devices.json':    { total: 'total_devices',    value: 1288, sheet: 'Приборы_app' },
-        'data/lockouts.json':   { total: 'total_lockouts',   value: 529,  sheet: 'Блокировки_app' },  // Task 548: авто-синк 04fe3e5 — 528→529 (Task 541: 9bab754 — 529→528)
+        'data/lockouts.json':   { total: 'total_lockouts',   value: 530,  sheet: 'Блокировки_app' },  // Task 550: авто-синки f591e1ec/bf1136e9 (28.10.2026) — 529→530  // Task 548: авто-синк 04fe3e5 — 528→529 (Task 541: 9bab754 — 529→528)
         'data/valves.json':     { total: 'total_valves',     value: 320,  sheet: 'Клапана_app' },
         'data/regulators.json': { total: 'total_regulators', value: 268,  sheet: 'Регуляторы_app' }
     };
