@@ -258,9 +258,9 @@ describe('Task 480 — data/*.json: метаданные источника', ()
     // 3 прибора в Google Sheets — devices 1291 → 1288 (данные живые,
     // structure/лист/остальные файлы не тронуты)
     const TOTALS = {
-        'data/devices.json':    { total: 'total_devices',    value: 1288, sheet: 'Приборы_app' },
-        'data/lockouts.json':   { total: 'total_lockouts',   value: 530,  sheet: 'Блокировки_app' },  // Task 550: авто-синки f591e1ec/bf1136e9 (28.10.2026) — 529→530  // Task 548: авто-синк 04fe3e5 — 528→529 (Task 541: 9bab754 — 529→528)
-        'data/valves.json':     { total: 'total_valves',     value: 320,  sheet: 'Клапана_app' },
+        'data/devices.json':    { total: 'total_devices',    value: 1280, sheet: 'Приборы_app' },  // Task 551: авто-синки 96ab29e1/7cebc51f/25f6e16f (05.11.2026) — 1288→1280  // Task 491 (rebase): 1291→1288
+        'data/lockouts.json':   { total: 'total_lockouts',   value: 525,  sheet: 'Блокировки_app' },  // Task 551: авто-синки (05.11.2026) — 530→525  // Task 550: авто-синки f591e1ec/bf1136e9 (28.10.2026) — 529→530  // Task 548: авто-синк 04fe3e5 — 528→529 (Task 541: 9bab754 — 529→528)
+        'data/valves.json':     { total: 'total_valves',     value: 325,  sheet: 'Клапана_app' },  // Task 551: авто-синки (05.11.2026) — 320→325
         'data/regulators.json': { total: 'total_regulators', value: 268,  sheet: 'Регуляторы_app' }
     };
 

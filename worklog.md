@@ -2095,3 +2095,23 @@ Stage Summary:
   (UserSettingsArchive.gs + 2 case в Code.gs — см. DEPLOY-Task551);
   клиент (SW v559) разойдётся сам, со старым сервером — тихая
   деградация. 7588/0, браузер 21/21. СЛЕДУЮЩАЯ ЗАДАЧА: пуш + CI.
+
+---
+Task ID: 551 (финализация — факты CI)
+Agent: main (Z.ai)
+
+Work Log:
+- Пуш: rebase поверх авто-синков 96ab29e1/7cebc51f/25f6e16f
+  (devices/valves из Google Sheets) — d46e0192 → 0ffe0e6f.
+- Урок Task 548/550 повторился: авто-синки данных роняют пины
+  счётчиков (6 падений): devices 1288→1280, lockouts 530→525,
+  valves 320→325 — пины обновлены (test-task480/483/484/485) —
+  7588/0.
+
+Stage Summary:
+- Task 551 ПОЛНОСТЬЮ ЗАКРЫТ: очистка данных браузера = только
+  повторный вход по OTP, все настройки восстанавливаются с сервера
+  автоматически. Клиент (SW kipia-v559) разойдётся сам; СЕРВЕР
+  требует деплоя (UserSettingsArchive.gs + 2 case в Code.gs —
+  см. DEPLOY-Task551-user-settings-server-sync.md). СЛЕДУЮЩАЯ
+  ЗАДАЧА: задачи пользователя.
