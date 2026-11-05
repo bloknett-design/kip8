@@ -66,6 +66,14 @@
  *     KIP8_Access (новая страница по заявке):
  *     MinesweeperArchive.recordResult(payload) → {ok, data/error}
  *     MinesweeperArchive.getMyArchive(payload) → {ok, data/error}
+ *   UserSettingsArchive (Task 551) — настройки интерфейса
+ *     пользователя (тема, вид табеля, избранное и пр.) в
+ *     localStorage: очистка данных браузера «обнуляет» их —
+ *     архив по email (лист «Настройки» в KIP8_Access)
+ *     восстанавливает настройки после входа; клиент —
+ *     KipSettingsSync в index.html:
+ *     UserSettingsArchive.getMySettings(payload) → {ok, data/error}
+ *     UserSettingsArchive.saveMySettings(payload) → {ok, data/error}
  * ============================================================
  */
 
@@ -431,6 +439,19 @@ function doPost(e) {
 
       case 'minesweeper.getMyArchive':
         return _json(MinesweeperArchive.getMyArchive(payload));
+
+      // === Task 551: настройки пользователя (архив по email) ===
+      // UserSettingsArchive.gs — лист «Настройки» в KIP8_Access;
+      // гейт — сама сессия (настройки у каждого вошедшего);
+      // клиент KipSettingsSync (index.html) восстанавливает их
+      // в localStorage после входа (очистка данных браузера
+      // больше не «обнуляет» приложение) и сохраняет при
+      // изменении (debounce 3 с + watchdog 60 с)
+      case 'userSettings.get':
+        return _json(UserSettingsArchive.getMySettings(payload));
+
+      case 'userSettings.save':
+        return _json(UserSettingsArchive.saveMySettings(payload));
 
       default:
         return _json({ ok: false, error: 'Unknown action: ' + action });

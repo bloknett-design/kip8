@@ -24,7 +24,7 @@
 //   типа (инвариант ≤1 mobile + ≤1 desktop; вход в «другое» приложение
 //   всегда разрешён, никаких «уже вошли»).
 //
-// SW: kipia-v558.
+// SW: kipia-v559.
 //
 // Фикс logout (2026-09-08, по живому Sessions.gs, прислан пользователем):
 // logout безусловно сбрасывал login_status ПОЛЬЗОВАТЕЛЯ → heartbeat
@@ -603,10 +603,10 @@ describe('Task 346 — фикс logout в Sessions.gs (параллельные 
 // ============================================================
 describe('Task 346 — SW-бамп', () => {
 
-    test("SW: CACHE_VERSION = 'kipia-v558'", () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v558'") !== -1,
+    test("SW: CACHE_VERSION = 'kipia-v559'", () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v559'") !== -1,
             'v582 установлен');
-        assertFalse(SW_SRC.indexOf('kipia-v559') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v560') !== -1,
             'v581 не остался (двойной бамп?)');
     });
 });

@@ -36274,7 +36274,15 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
     // Универсальная функция копирования таблицы из контейнера
     function copyCalcTable(containerId){ let t=document.getElementById(containerId); if(!t){showToast('Нет данных');return;} let tbl=t.querySelector('table'); if(!tbl){showToast('Нет данных');return;} let rows=tbl.querySelectorAll('tr'), data=[]; for(let i=0;i<rows.length;i++){ let cells=rows[i].querySelectorAll('th,td'), row=[]; for(let j=0;j<cells.length;j++) row.push(cells[j].innerText.trim()); data.push(row.join('\t')); } navigator.clipboard.writeText(data.join('\n')).then(()=>showToast('Таблица скопирована')).catch(()=>showToast('Ошибка копирования')); }
     function calculateBuoyCalibration(){ let d=parseLocaleNumber(document.getElementById('buoy_diam').value); let l=parseLocaleNumber(document.getElementById('buoy_length').value); let w=parseLocaleNumber(document.getElementById('buoy_weight_kg').value); let rho=parseLocaleNumber(document.getElementById('liquid_density').value); let m_s=parseLocaleNumber(document.getElementById('suspension_mass').value) / 1000; let st=document.getElementById('buoy_signal_type').value; let method=getSelectedCalibMethod(); if(isNaN(d)||d<=0){showToast('Введите диаметр');return;} if(isNaN(l)||l<=0){showToast('Введите длину');return;} if(method==='without_buoy'&&(isNaN(w)||w<=0)){showToast('Введите вес буйка');return;} if(isNaN(rho)||rho<=0){showToast('Введите плотность жидкости');return;} if(isNaN(m_s)||m_s<0){showToast('Введите массу подвеса');return;} let sigRange=getBuoySignalRangeAndUnit(st); if(st==='custom'&&(isNaN(sigRange.min)||isNaN(sigRange.max))){showToast('Введите диапазон сигнала');return;} let vol=calcBuoyVolume(d,l); let results=[]; for(let p=0;p<=100;p+=10){ let m_buoy=calcBuoyancyMass(p,d,l,rho); let mass_kg=method==='without_buoy'? w - m_buoy + m_s : m_buoy + m_s; let sig=calculateBuoySignalValue(p,st); results.push({pct:p, mass_kg:mass_kg, signal:sig.value, sigUnit:sig.unit}); } let html='<table style="min-width:100%;width:100%;border-collapse:collapse;"><thead><tr style="background:rgba(22,27,34,0.7);"><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;">Уровень (%)</th><th style="padding:10px 12px;font-size:13px;color:#4ac771;">Масса гирь (г)</th><th style="padding:10px 12px;font-size:13px;color:#4a8fc7;">Сигнал ('+results[0].sigUnit+')</th></tr></thead><tbody>'; for(let i=0;i<results.length;i++){ let r=results[i]; let bg=i%2?'rgba(22,27,34,0.4)':'rgba(13,17,23,0.4)'; html+=`<tr style="background:${bg};"><td style="padding:8px 12px;font-size:14px;color:rgba(255,255,255,0.4);">${r.pct}</td><td style="padding:8px 12px;font-size:14px;color:#4ac771;">${formatBuoyNumber(r.mass_kg*1000)}</td><td style="padding:8px 12px;font-size:14px;color:#5b9bd5;">${formatBuoyNumber(r.signal)}</td></tr>`; } html+='</tbody></table>'; let methodName=method==='without_buoy'?'Без буйка':'С буйком'; let formulaText=method==='without_buoy'?'m_гири = m_буйка − m_выт + m_подвеса':'m_гири = m_выт + m_подвеса'; let infoHtml=`<strong>${methodName}</strong><br> ${formulaText}<br>`; if(method==='without_buoy') infoHtml+=` Вес буйка: ${formatBuoyNumber(w)} кг<br>`; infoHtml+=` Плотность: ${formatBuoyNumber(rho)} кг/м³<br> Объём: ${formatBuoyNumber(vol*1e6)} см³<br> Масса гирь: ${formatBuoyNumber(results[results.length-1].mass_kg*1000)} г (100%)<br> Сигнал: ${sigRange.label}`; document.getElementById('buoyTableContainer').innerHTML=html; document.getElementById('buoyInfo').innerHTML=infoHtml; lastBuoyParams={d:d,l:l,w:w,rho:rho,m_s:m_s,st:st,method:method}; let sigUnitEl=document.getElementById('buoyCustomSigUnit'); if(sigUnitEl) sigUnitEl.innerText=results[0].sigUnit; document.getElementById('buoyCustomLevel').value=''; document.getElementById('buoyCustomMass').value=''; document.getElementById('buoyCustomSignal').value=''; document.getElementById('buoyCustomCalcPanel').style.display='block'; document.getElementById('buoyResults').style.display='block'; setTimeout(()=>document.getElementById('buoyResults').scrollIntoView({behavior:'smooth',block:'start'}),100); }
-    function selectCalibMethod(m){ localStorage.setItem('buoy_calib_method',m); navigateTo('buoy-calc'); }
+    function selectCalibMethod(m){
+        localStorage.setItem('buoy_calib_method',m);
+        // Task 551: метод калибровки — на сервер
+        if (typeof KipSettingsSync !== 'undefined' && KipSettingsSync &&
+                typeof KipSettingsSync.scheduleSave === 'function') {
+            KipSettingsSync.scheduleSave();
+        }
+        navigateTo('buoy-calc');
+    }
     function getSelectedCalibMethod(){ let m=localStorage.getItem('buoy_calib_method'); return (m==='with_buoy'||m==='without_buoy')?m:'with_buoy'; }
     function setCalibMethodOnForm(){ let m=getSelectedCalibMethod(); let ind=document.getElementById('selectedMethodText'); if(ind) ind.innerText=m==='with_buoy'?'С буйком':'Без буйка'; updateBuoyCalcTitle(); let wCont=document.getElementById('buoyWeightContainer'); if(wCont) wCont.style.display=m==='with_buoy'?'none':'block'; }
     function updateBuoyCalcTitle(){ let m=getSelectedCalibMethod(); let t=document.getElementById('buoyCalcTitle'); if(t) t.innerText=m==='with_buoy'?'Калибровка: с буйком':'Калибровка: без буйка'; }
@@ -37894,6 +37902,12 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('app-theme', newTheme);
+        // Task 551: тема — на сервер (очистка данных браузера
+        // больше не сбрасывает)
+        if (typeof KipSettingsSync !== 'undefined' && KipSettingsSync &&
+                typeof KipSettingsSync.scheduleSave === 'function') {
+            KipSettingsSync.scheduleSave();
+        }
         updateThemeLabel();
         updateBuoyImages();
         updateLogoImage();
@@ -38638,6 +38652,28 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
         },
 
         // ============================================================
+        // Task 551: восстановить настройки пользователя с сервера
+        // (KipSettingsSync — архив по email, лист «Настройки» в
+        // KIP8_Access). Вызывается во ВСЕХ 5 путях входа
+        // (verifyOTP / bootstrap быстрый + медленный / офлайн-
+        // повтор / фоновая проверка сессии): очистка данных
+        // браузера «обнуляла» localStorage-настройки — теперь они
+        // возвращаются после входа, без перезагрузки страницы.
+        // Гвард typeof — старый index.html без модуля не падает.
+        // ============================================================
+        _syncUserSettings: function() {
+            try {
+                if (typeof KipSettingsSync !== 'undefined' &&
+                        KipSettingsSync &&
+                        typeof KipSettingsSync.restore === 'function') {
+                    KipSettingsSync.restore();
+                }
+            } catch (e) {
+                console.warn('[KipAuth] _syncUserSettings:', e);
+            }
+        },
+
+        // ============================================================
         // Task 476 (этап 2 оптимизации): ЧИСТКА ЛОКАЛЬНЫХ КОПИЙ
         // серверных данных при logout (ручной выход — устройство
         // могут передать другому человеку; требования границы
@@ -39006,6 +39042,9 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 self._fetchMyAccess();
                 // Task 476 (этап 2 оптимизации): закрепить хранилище устройства
                 self._requestPersistentStorage();
+                // Task 551: восстановить настройки с сервера (очистка
+                // данных браузера больше не «обнуляет» приложение)
+                self._syncUserSettings();
                 // Task 477 (этап 3 оптимизации): фоновая предзагрузка по роли
                 self._schedulePreload();
 
@@ -40070,6 +40109,10 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 // Task 476 (этап 2 оптимизации): закрепить хранилище
                 // (быстрый путь — вход уже был, кэши уже есть)
                 self._requestPersistentStorage();
+                // Task 551: восстановить настройки с сервера — при
+                // очистке данных браузера токен/кэш роли пропали, но
+                // вход по OTP уже прошёл: настройки вернутся сейчас
+                self._syncUserSettings();
                 // Task 477 (этап 3 оптимизации): фоновая предзагрузка по роли
                 // (матрица ещё едет фоном — очередь строится по canAccess
                 // на момент старта; сервер всё равно гейтит каждый экшен)
@@ -40100,6 +40143,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 self._fetchMyAccess();
                 // Task 476 (этап 2 оптимизации): закрепить хранилище устройства
                 self._requestPersistentStorage();
+                // Task 551: восстановить настройки с сервера
+                self._syncUserSettings();
                 // Task 477 (этап 3 оптимизации): фоновая предзагрузка по роли
                 self._schedulePreload();
                 self._initializing = false;
@@ -40194,6 +40239,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     self._fetchMyAccess();
                     // Task 476 (этап 2 оптимизации): закрепить хранилище
                     self._requestPersistentStorage();
+                    // Task 551: восстановить настройки с сервера
+                    self._syncUserSettings();
                     // Task 477 (этап 3 оптимизации): фоновая предзагрузка
                     // по роли — связь вернулась, разделы готовим заранее
                     self._schedulePreload();
@@ -40265,6 +40312,8 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 self._fetchMyAccess();
                 // Task 476 (этап 2 оптимизации): закрепить хранилище
                 self._requestPersistentStorage();
+                // Task 551: восстановить настройки с сервера
+                self._syncUserSettings();
                 // Task 477 (этап 3): предзагрузка могла быть запланирована
                 // быстрым путём до смены роли — дожидаемся актуальной
                 // матрицы и стартуем по ней (start одноразовый)
@@ -40302,6 +40351,284 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                     console.warn('[KipAuth._verifySessionInBackground] Сетевая ошибка, токен сохранён');
                 }
             });
+        }
+    };
+
+    // ============================================================
+    // KipSettingsSync — настройки пользователя: серверная
+    // синхронизация (Task 551)
+    // ============================================================
+    // ЗАЯВКА: «На андроид приложение хранит всю информацию в
+    // браузере chrome? если очистить данные браузера, то
+    // приложение "обнуляется". Как обойти этот момент?»
+    //
+    // ФАКТЫ: данные разделов (шахматка, отпуска, расходомеры,
+    // кабельный журнал, телефонный справочник) живут в Google
+    // Sheets и очисткой браузера НЕ теряются. В Chrome (в т.ч.
+    // установленного PWA — «Файлы cookie и данные сайтов» чистит
+    // хранилище сайта целиком) теряются: токен сессии
+    // kip8_session_token (повторный вход по OTP — неизбежно) и
+    // НАСТРОКИ в localStorage (тема, вид табеля, избранное…).
+    // navigator.storage.persist() (Task 476) защищает только от
+    // АВТОочистки при нехватке места, не от ручной.
+    //
+    // РЕШЕНИЕ: архив настроек на сервере (UserSettingsArchive.gs —
+    // лист «Настройки» в KIP8_Access, по email из сессии):
+    //   restore() — после ЛЮБОГО из 5 путей входа (KipAuth.
+    //     _syncUserSettings): подтянуть настройки с сервера и
+    //     записать ТОЛЬКО ОТСУТСТВУЮЩИЕ ключи (локальные всегда
+    //     свежее на этом устройстве — сервер не перетирает);
+    //     живое применение темы/вида табеля + сброс ленивых кэшей
+    //     избранного; очистка браузера / новое устройство →
+    //     вход по OTP → всё вернулось;
+    //   save() — при изменении: явные хуки у писателей настроек
+    //     (тема/вид/крест/LCD/метод буёв/реестр авто-«д»/«н») +
+    //     watchdog-снапшот раз в 60 с (страховка от писателей
+    //     без хука — избранное, закреплённые подразделы, ширина
+    //     панели); debounce 3 с, ошибки тихие (консоль).
+    //
+    // НЕ синхронизируем: токен и кэш роли (приватность/кэш),
+    // кэши серверных данных (*_cache, *LastUpdate, погода,
+    // производственный календарь — перекачаются сами), телефонный
+    // справочник (PhonebookArchive Task 537 уже синхронит),
+    // счёт «Сапёра» (MinesweeperArchive Task 546 уже хранит),
+    // outbox расходомеров (очередь офлайн-записей).
+    //
+    // СТАРЫЙ СЕРВЕР (без userSettings.*): «Unknown action» →
+    // тихая деградация на локальные настройки, без потери данных.
+    // ============================================================
+    var KipSettingsSync = {
+
+        // Белый список — зеркало UserSettingsArchive.ALLOWED_KEYS
+        // (scripts/UserSettingsArchive.gs); значения — строки LS
+        KEYS: [
+            'app-theme',                 // тема (light/dark)
+            'kip8_ws_view_v1',           // вид табеля (full/shift/day)
+            'kip8_ws_cross_v1',          // перекрёстная подсветка (1/0)
+            'kip8_ws_lcd_set_v1',        // настройки LCD-информера (JSON)
+            'buoy_calib_method',         // метод калибровки буёв
+            'ws_auto_dn_keys',           // реестр авто-«д»/«н» (JSON)
+            'pinnedSubsections',         // закреплённые подразделы
+            'kip8_temp_fav_v1',          // избранное ТС/ТП
+            'kip8_device_fav_v1',        // избранное приборов
+            'kip8_fav_order_v1',         // порядок избранного приборов
+            'kip8_device_fav_notes_v1',  // заметки приборов
+            'kip8_flow_fav_v1',          // избранное расходомеров
+            'kip8_flow_fav_order_v1',    // порядок избранного расходомеров
+            'kip8_detail_panel_width'    // ширина панели деталей
+        ],
+
+        // Префиксы ключей (динамический суффикс-версия «что нового»)
+        KEY_PREFIXES: ['kip8_whats_new_read_v'],
+
+        // restore — раз в удачную попытку; _restoreBusy — гвард
+        // параллельных путей входа (bootstrap + фоновая проверка)
+        _restored: false,
+        _restoreBusy: false,
+        _saveTimer: null,      // debounce сохранения (3 с)
+        _watchdogTimer: null,  // интервал снапшота (60 с)
+        _snapshot: null,       // последний отправленный/проверенный
+        SAVE_DEBOUNCE_MS: 3000,
+        WATCHDOG_MS: 60000,
+
+        // Сбор текущих значений (строки LS); отсутствующие ключи
+        // не включаются — сервер хранит только фактически живые
+        _collect: function() {
+            var out = {};
+            try {
+                for (var i = 0; i < this.KEYS.length; i++) {
+                    var v = localStorage.getItem(this.KEYS[i]);
+                    if (v !== null && v !== undefined) {
+                        out[this.KEYS[i]] = String(v);
+                    }
+                }
+                // динамические ключи по префиксу («что нового»)
+                for (var p = 0; p < this.KEY_PREFIXES.length; p++) {
+                    var pfx = this.KEY_PREFIXES[p];
+                    for (var j = 0; j < localStorage.length; j++) {
+                        var k = localStorage.key(j);
+                        if (k && k.indexOf(pfx) === 0 &&
+                                out[k] === undefined) {
+                            var pv = localStorage.getItem(k);
+                            if (pv !== null && pv !== undefined) {
+                                out[k] = String(pv);
+                            }
+                        }
+                    }
+                }
+            } catch (e) { /* приватный режим — пусто */ }
+            return out;
+        },
+
+        // Ключ из белого списка или с разрешённым префиксом
+        _isKnownKey: function(k) {
+            if (this.KEYS.indexOf(k) !== -1) return true;
+            for (var i = 0; i < this.KEY_PREFIXES.length; i++) {
+                if (k.indexOf(this.KEY_PREFIXES[i]) === 0) return true;
+            }
+            return false;
+        },
+
+        // API (напрямую через KipAuth.api — возвращает data.data)
+        _api: function(action, payload) {
+            return KipAuth.api(action, payload || {});
+        },
+
+        // ============================================================
+        // restore() — восстановление настроек после входа.
+        // Вызывается из KipAuth._syncUserSettings() во всех 5
+        // путях входа. Пишет ТОЛЬКО ОТСУТСТВУЮЩИЕ ключи: локальные
+        // значения всегда свежее на этом устройстве (сервер не
+        // перетирает локальные правки).
+        // ============================================================
+        restore: function() {
+            if (this._restored || this._restoreBusy) return;
+            var token = (typeof KipAuth !== 'undefined' &&
+                         KipAuth.getToken) ? KipAuth.getToken() : '';
+            if (!token) return;
+            this._restoreBusy = true;
+            var self = this;
+            this._api('userSettings.get', { token: token })
+                .then(function(data) {
+                self._restoreBusy = false;
+                self._restored = true;
+                var s = (data && data.settings &&
+                         typeof data.settings === 'object' &&
+                         !Array.isArray(data.settings))
+                    ? data.settings : {};
+                var restored = [];
+                for (var k in s) {
+                    if (!s.hasOwnProperty(k)) continue;
+                    if (!self._isKnownKey(k)) continue;   // чужое — мимо
+                    var v = s[k];
+                    if (typeof v !== 'string' || !v) continue;
+                    var cur = null;
+                    try { cur = localStorage.getItem(k); } catch (e) {}
+                    if (cur === null) {
+                        try { localStorage.setItem(k, v); } catch (e) {}
+                        restored.push(k);
+                    }
+                }
+                if (restored.length) self._applyRestored(restored);
+                // снапшот + watchdog: непрерывная страховка настроек
+                // (и выравнивание сервера с локальными правками)
+                self._snapshot = JSON.stringify(self._collect());
+                self._startWatchdog();
+            }).catch(function(err) {
+                self._restoreBusy = false;
+                // старый сервер («Unknown action») / сеть — тихая
+                // деградация: локальные настройки, повтор при
+                // следующем входе (_restored не ставится)
+                console.warn('[KipSettingsSync] restore:',
+                    (err && err.message) || err);
+            });
+        },
+
+        // ============================================================
+        // Живое применение восстановленного (без перезагрузки):
+        // тема — атрибут + лейбл/лого/буи; вид табеля — если
+        // WorkSchedule уже инициализирован (иначе прочитает LS
+        // при init); избранное — сброс ленивых кэшей (модули
+        // перечитают LS); прочее читается по требованию.
+        // ============================================================
+        _applyRestored: function(keys) {
+            try {
+                if (keys.indexOf('app-theme') !== -1) {
+                    var th = localStorage.getItem('app-theme');
+                    if (th === 'dark' || th === 'light') {
+                        document.documentElement.setAttribute('data-theme', th);
+                        if (typeof updateThemeLabel === 'function') updateThemeLabel();
+                        if (typeof updateBuoyImages === 'function') updateBuoyImages();
+                        if (typeof updateLogoImage === 'function') updateLogoImage();
+                    }
+                }
+                if (keys.indexOf('kip8_ws_view_v1') !== -1 &&
+                        typeof WorkSchedule !== 'undefined' && WorkSchedule &&
+                        typeof WorkSchedule._applyView === 'function') {
+                    var v = localStorage.getItem('kip8_ws_view_v1');
+                    if (v === 'full' || v === 'shift' || v === 'day') {
+                        WorkSchedule._view = v;
+                        WorkSchedule._applyView({ rerender: true });
+                    }
+                }
+                // сброс ленивых кэшей избранного/настроек — модули
+                // перечитают восстановленный localStorage
+                if (keys.indexOf('kip8_device_fav_v1') !== -1 &&
+                        typeof KipFav !== 'undefined' && KipFav) {
+                    KipFav._data = null;
+                }
+                if (keys.indexOf('kip8_device_fav_notes_v1') !== -1 &&
+                        typeof KipFavNotes !== 'undefined' && KipFavNotes) {
+                    KipFavNotes._data = null;
+                }
+                if (keys.indexOf('kip8_flow_fav_v1') !== -1 &&
+                        typeof FlowFav !== 'undefined' && FlowFav) {
+                    FlowFav._data = null;
+                }
+                if (keys.indexOf('kip8_temp_fav_v1') !== -1 &&
+                        typeof TempFav !== 'undefined' && TempFav) {
+                    TempFav._data = null;
+                }
+                if (keys.indexOf('kip8_ws_lcd_set_v1') !== -1 &&
+                        typeof WsLcdClock !== 'undefined' && WsLcdClock) {
+                    WsLcdClock._settings = null;
+                }
+                if (typeof showToast === 'function') {
+                    showToast('Настройки восстановлены с сервера (' +
+                        keys.length + ')');
+                }
+            } catch (e) {
+                console.warn('[KipSettingsSync] apply:', e);
+            }
+        },
+
+        // ============================================================
+        // Сохранение: debounce 3 с после изменения (явные хуки
+        // писателей + watchdog); снапшот обновляется ДО отправки.
+        // ============================================================
+        scheduleSave: function() {
+            if (this._saveTimer) return;
+            var self = this;
+            this._saveTimer = setTimeout(function() {
+                self._saveTimer = null;
+                self.save();
+            }, this.SAVE_DEBOUNCE_MS);
+        },
+
+        save: function() {
+            var token = (typeof KipAuth !== 'undefined' &&
+                         KipAuth.getToken) ? KipAuth.getToken() : '';
+            if (!token) return;              // гость — не сохраняем
+            var s = this._collect();
+            this._snapshot = JSON.stringify(s);
+            this._api('userSettings.save',
+                      { token: token, settings: s })
+                .catch(function(err) {
+                // старый сервер/сеть — тихо: локальные настройки
+                // не теряются, следующий watchdog повторит
+                console.warn('[KipSettingsSync] save:',
+                    (err && err.message) || err);
+            });
+        },
+
+        // ============================================================
+        // Watchdog: раз в 60 с сверять снапшот с localStorage —
+        // страховка от писателей настроек без явного хука
+        // (избранное, закреплённые подразделы, ширина панели).
+        // Стартует после успешного restore (пользователь вошёл).
+        // ============================================================
+        _startWatchdog: function() {
+            if (this._watchdogTimer) return;
+            var self = this;
+            this._watchdogTimer = setInterval(function() {
+                try {
+                    var token = (typeof KipAuth !== 'undefined' &&
+                                 KipAuth.getToken) ? KipAuth.getToken() : '';
+                    if (!token) return;       // выход — не дёргаем
+                    var snap = JSON.stringify(self._collect());
+                    if (snap !== self._snapshot) self.save();
+                } catch (e) { /* ignore */ }
+            }, this.WATCHDOG_MS);
         }
     };
 
@@ -50734,6 +51061,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             try {
                 localStorage.setItem(this._SET_KEY, JSON.stringify(s));
             } catch (e) { /* кэш необязателен */ }
+            // Task 551: настройки информера — на сервер
+            if (typeof KipSettingsSync !== 'undefined' && KipSettingsSync &&
+                    typeof KipSettingsSync.scheduleSave === 'function') {
+                KipSettingsSync.scheduleSave();
+            }
         },
 
         // частота «пейджеров», мс (Task 531: настройка)
@@ -52663,6 +52995,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 localStorage.setItem('kip8_ws_cross_v1',
                     this._crossOn ? '1' : '0');
             } catch (e) { /* приватный режим — не сохраняем */ }
+            // Task 551: перекрёстная подсветка — на сервер
+            if (typeof KipSettingsSync !== 'undefined' && KipSettingsSync &&
+                    typeof KipSettingsSync.scheduleSave === 'function') {
+                KipSettingsSync.scheduleSave();
+            }
             var btn = document.getElementById('wsCrossBtn');
             if (btn) {
                 btn.setAttribute('aria-pressed',
@@ -52861,6 +53198,11 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
             var next = order[(order.indexOf(this._view) + 1) % order.length];
             this._view = next;
             try { localStorage.setItem('kip8_ws_view_v1', next); } catch (e) {}
+            // Task 551: вид табеля — на сервер
+            if (typeof KipSettingsSync !== 'undefined' && KipSettingsSync &&
+                    typeof KipSettingsSync.scheduleSave === 'function') {
+                KipSettingsSync.scheduleSave();
+            }
             this._applyView({ rerender: true });
             var titles = {
                 // Task 388: итоги доступны в любом виде — строки
@@ -57175,6 +57517,13 @@ function calculateBuoySignalValue(pct,st){ let r=getBuoySignalRangeAndUnit(st); 
                 localStorage.setItem('ws_auto_dn_keys',
                                      JSON.stringify(data));
             } catch (e) { /* хранилище недоступно — реестр в памяти */ }
+            // Task 551: реестр авто-«д»/«н» — на сервер (очистка
+            // браузера не ломает «в»-надгробия Task 458; лишние
+            // ключи самоочищает _autoDnKeysLoad по данным сетки)
+            if (typeof KipSettingsSync !== 'undefined' && KipSettingsSync &&
+                    typeof KipSettingsSync.scheduleSave === 'function') {
+                KipSettingsSync.scheduleSave();
+            }
         },
 
         // Task 458: ячейка сейчас держит материализованный
