@@ -54,7 +54,13 @@ const INDEX_SRC = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const SW_SRC = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 const USA_GS_SRC = fs.readFileSync(path.join(ROOT, 'scripts', 'UserSettingsArchive.gs'), 'utf8');
 const CODE_SRC = fs.readFileSync(path.join(ROOT, 'scripts', 'Code.gs'), 'utf8');
-const DEPLOY_SRC = fs.readFileSync(path.join(ROOT, 'DEPLOY-Task551-user-settings-server-sync.md'), 'utf8');
+// Task 554: зеркало kip8-desktop НЕ синкает DEPLOY-*.md (только
+// контент) — чтение под гвардом: в зеркале санитар DEPLOY
+// пропускается (приём «репо-детект» Task 546 — падение CI
+// зеркала на 772523f/8889eca: ENOENT при загрузке файла)
+const DEPLOY_551_PATH = path.join(ROOT, 'DEPLOY-Task551-user-settings-server-sync.md');
+const DEPLOY_SRC = fs.existsSync(DEPLOY_551_PATH)
+    ? fs.readFileSync(DEPLOY_551_PATH, 'utf8') : '';
 
 // Репо-детект (как Task 546): kip8 → kipia-vNNN, kip8test →
 // kipia-test-vNNN; неизвестный префикс → SW-ассерты пропускаются
@@ -1004,6 +1010,7 @@ describe('Task 551 — санитар', () => {
     });
 
     test('санитар: DEPLOY-док со списком шагов Apps Script', () => {
+        if (!DEPLOY_SRC) return; // зеркало kip8-desktop: DEPLOY-доки не синкаются (Task 554)
         assertTrue(DEPLOY_SRC.indexOf('UserSettingsArchive.gs') !== -1,
             'файл модуля назван');
         assertTrue(DEPLOY_SRC.indexOf('userSettingsInit') !== -1,
