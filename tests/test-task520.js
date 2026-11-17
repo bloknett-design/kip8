@@ -360,10 +360,10 @@ describe('Task 520 — VM: группа «Просроченная выдача 
 // ============================================================
 describe('Task 520 — SW', () => {
 
-    test('SW: kipia-v559', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v559'") !== -1,
-            'версия кэша kipia-v559');
-        assertFalse(SW_SRC.indexOf('kipia-v560') !== -1,
+    test('SW: kipia-v560', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v560'") !== -1,
+            'версия кэша kipia-v560');
+        assertFalse(SW_SRC.indexOf('kipia-v561') !== -1,
             'двойного бампа нет');
     });
 });

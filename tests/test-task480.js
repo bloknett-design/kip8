@@ -90,9 +90,9 @@ function countOf(haystack, needle) {
 // ==========================================================================
 describe('Task 480 — SW: версия кэша', () => {
 
-    test("CACHE_VERSION = 'kipia-v559'", () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v559';") !== -1,
-            'SW поднят до kipia-v559 (Task 480)');
+    test("CACHE_VERSION = 'kipia-v560'", () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v560';") !== -1,
+            'SW поднят до kipia-v560 (Task 480)');
     });
 
     test('прежняя версия v703 отсутствует', () => {
@@ -101,8 +101,8 @@ describe('Task 480 — SW: версия кэша', () => {
     });
 
     test('несуществующая v512 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v560') === -1,
-            'kipia-v560 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v561') === -1,
+            'kipia-v561 не должен существовать');
     });
 
     test('персистентные кэши картинок/данных НЕ инкрементировались', () => {
@@ -114,7 +114,7 @@ describe('Task 480 — SW: версия кэша', () => {
     });
 
     test('комментарий Task 480 в шапке версий (окно 2600 → 3200, Task 486)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v559';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v560';");
         // Task 499: комментарий плейсхолдеров (~430 симв.) отодвинул
         // Task 480 до ~8413 — окно 8100 → 8900.
         const ctx = SW_SRC.slice(Math.max(0, i - 11600), i);

@@ -60,8 +60,8 @@ const DEPLOY_SRC = fs.readFileSync(path.join(ROOT, 'DEPLOY-Task551-user-settings
 // kipia-test-vNNN; неизвестный префикс → SW-ассерты пропускаются
 const PFX_MATCH = INDEX_SRC.match(/const PB_FAV_KEY = '(\w+?)_phonebook_favorites'/);
 const PFX = PFX_MATCH ? PFX_MATCH[1] : null;
-const SW_EXPECTED = { kip8test: 'kipia-test-v758', kip8: 'kipia-v559' }[PFX] || null;
-const SW_NEXT = { kip8test: 'kipia-test-v759', kip8: 'kipia-v560' }[PFX] || null;
+const SW_EXPECTED = { kip8test: 'kipia-test-v758', kip8: 'kipia-v560' }[PFX] || null;
+const SW_NEXT = { kip8test: 'kipia-test-v759', kip8: 'kipia-v561' }[PFX] || null;
 
 // ============================================================
 // Вырезка объекта по балансу фигурных скобок (как Task 550)
