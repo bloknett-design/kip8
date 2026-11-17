@@ -2189,3 +2189,38 @@ Stage Summary:
   New version → Deploy, см. DEPLOY-Task554); SW kipia-v560
   разойдётся сам. СЛЕДУЮЩАЯ ЗАДАЧА: пуш kip8 + CI (kip8test уже
   запушен e634a939) + финализация worklog.
+
+---
+Task ID: 553+554 (финализация — факты CI)
+Agent: main (Z.ai)
+
+Work Log:
+- Пуши: 8a4385ce (Task 553+554 — порт заявки «И перенеси всё в
+  kip8», rebase поверх 13 авто-синков 8f0a2f9a/5b788070/…) +
+  d8095fb6 (пины данных после авто-синков: devices 1280→1279,
+  lockouts 525→524 — урок Task 550/551 повторён) + 08227106 (fix:
+  гвард DEPLOY-дока в test-task551 — зеркало kip8-desktop НЕ
+  синкает DEPLOY-*.md; падение CI зеркала существовало с 772523f
+  (Task 551: ENOENT DEPLOY-Task551-...md на верхнем уровне файла
+  теста) — НЕ от 553/554; чтение под fs.existsSync + пропуск
+  санитара в зеркале, приём «репо-детект» Task 546).
+- CI: kip8 d8095fb6 — CI Tests SUCCESS, Build Desktop App SUCCESS,
+  Sync content to kip8-desktop SUCCESS, pages build SUCCESS;
+  08227106 — CI Tests/Sync/Pages SUCCESS. live sw.js на Pages =
+  kipia-v560 (проверено curl'ом).
+- Зеркало kip8-desktop: 8889eca (синк из d8095fb6) — Build Desktop
+  SUCCESS, CI Tests КРАСНЫЙ (унаследованное падение Task 551) →
+  гвард-фикс 08227106 → синк d4db684 — CI Tests SUCCESS 7647/0 —
+  ПРОГНОЗ ТОЧНЫЙ (7603 + 44). kip8test: Task 554 e634a939 — всё
+  зелёное, зеркало kip8test-desktop d5d5466 7559/0 (прогноз точен).
+
+Stage Summary:
+- Task 553+554 ПОЛНОСТЬЮ ЗАКРЫТЫ в kip8 (порт заявки «И перенеси
+  всё в kip8»): примечания записей блока «Повторные инструктажи и
+  периодическая проверка знаний» отображаются (553) и ПЕРЕНОСЯТСЯ
+  в автосозданные записи следующего срока/года при отметке
+  галочкой выполнения (554). 7632/0, браузер 14/14 + 13/13,
+  геометрия 4/4, VLM 4/4. СЕРВЕРНЫЙ ДЕПЛОЙ WorkSchedule.gs (srvVer
+  '554' — заменить файл → New version → Deploy, см.
+  DEPLOY-Task554-workers-instr-note-carry.md) — ТРЕБУЕТСЯ; SW
+  kipia-v560 разойдётся сам. СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя.
