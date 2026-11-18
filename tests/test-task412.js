@@ -420,7 +420,7 @@ describe('Task 412 — VM: форма «+ Инструктаж…» (канон)
 describe('Task 412 — SW', () => {
 
     test('версия кэша поднята (v639)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v561') !== -1,
-            'CACHE_VERSION = kipia-v561');
+        assertTrue(SW_SRC.indexOf('kipia-v562') !== -1,
+            'CACHE_VERSION = kipia-v562');
     });
 });

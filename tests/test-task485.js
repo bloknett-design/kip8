@@ -550,8 +550,8 @@ describe('Task 485: VM — вкладка «Регуляторы» (data/regulat
 // 6. SW: версия v709 + комментарий Task 485
 // ==========================================================================
 describe('Task 485: SW — версия и кэши', () => {
-    test('CACHE_VERSION = kipia-v561', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v561';") !== -1,
+    test('CACHE_VERSION = kipia-v562', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v562';") !== -1,
             'версия поднята');
     });
 
@@ -560,11 +560,11 @@ describe('Task 485: SW — версия и кэши', () => {
     });
 
     test('v710 в sw.js отсутствует (лишний инкремент не сделан)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v562') === -1);
+        assertTrue(SW_SRC.indexOf('kipia-v563') === -1);
     });
 
     test('комментарий Task 485 в шапке версий (окно 1500)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v561';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v562';");
         const ctx = SW_SRC.slice(Math.max(0, i - 9800), i);
         assertTrue(ctx.indexOf('Task 485') !== -1, 'маркер задачи');
         assertTrue(ctx.indexOf('Клапана') !== -1, 'вкладка Клапана');

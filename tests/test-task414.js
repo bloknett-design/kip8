@@ -72,7 +72,8 @@ describe('Task 414 — SRC', () => {
         assertTrue(fn.indexOf('(asBlocks && ik % 2 === 1)') !== -1,
             'чередование фона плоских строк в карточке');
         assertTrue(fn.indexOf('ws-popup-event') !== -1 &&
-                   fn.indexOf("' · ' + iPeriod") !== -1,
+                   // Task 556: дата — в span.ws-tr-date (ярче)
+                   fn.indexOf("' · <span class=\"ws-tr-date\">' + iPeriod") !== -1,
             'строка «код + тема · дата»');
     });
 
@@ -261,11 +262,11 @@ describe('Task 414 — VM: карточка', () => {
 // ============================================================
 describe('Task 414 — SW версия', () => {
     test('v641', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v561'") !== -1,
-            'SW кэш — kipia-v561');
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v562'") !== -1,
+            'SW кэш — kipia-v562');
         assertTrue(SW_SRC.indexOf('kipia-v478') === -1,
             'v640 не осталась в sw.js');
-        assertTrue(SW_SRC.indexOf('kipia-v562') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v563') === -1,
             'двойной бамп отсутствует (guard: v642)');
     });
 });

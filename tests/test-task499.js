@@ -24,7 +24,7 @@
 //      живой расчёт R(−180)/R(−50) по ГОСТ и инверсия; тост вне
 //      диапазона (−190); смена датчика обновляет плейсхолдеры;
 //      справка: диапазон НСХ −180…200 + формула ф. 5.2.3.
-//   D. SW kipia-v561 (guard v724).
+//   D. SW kipia-v562 (guard v724).
 //
 // УРОКИ (из 495/496/498): тест пишется ПОСЛЕ бампа — ассерты v723,
 // гарды v724; бампом не трогается.
@@ -395,24 +395,24 @@ describe('Task 499 — VM: живой расчёт по ГОСТ 5.2.3', () => {
 
 describe('Task 499 — SW', () => {
 
-    test('SW: CACHE_VERSION = kipia-v561, один инкремент', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v561';") !== -1,
-            'CACHE_VERSION = kipia-v561');
+    test('SW: CACHE_VERSION = kipia-v562, один инкремент', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v562';") !== -1,
+            'CACHE_VERSION = kipia-v562');
         assertFalse(SW_SRC.indexOf('kipia-test-v722') !== -1,
             'v722 в sw.js отсутствует (ровно один инкремент)');
     });
 
-    test('SW: guard-версия kipia-v562 НЕ выпущена', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v561';");
+    test('SW: guard-версия kipia-v563 НЕ выпущена', () => {
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v562';");
         assertTrue(i !== -1, 'строка версии есть');
-        assertFalse(SW_SRC.indexOf('kipia-v562') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v563') !== -1,
             'v724 в sw.js нет (guard для следующей задачи)');
     });
 
     test('SW: комментарий Task 499 в истории', () => {
         const i = SW_SRC.indexOf('Task 499: подсказки диапазонов НСХ');
         assertTrue(i !== -1, 'маркер Task 499 есть');
-        const ver = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v561';");
+        const ver = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v562';");
         assertTrue(i < ver, 'комментарий над версией (в блоке истории)');
         const ctx = SW_SRC.slice(Math.max(0, i - 700), i);
         assertTrue(ctx.indexOf('Task 498') !== -1,
