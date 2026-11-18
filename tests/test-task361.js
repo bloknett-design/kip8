@@ -31,7 +31,7 @@
 //     статус-мероприятия без строки в «Инструктажах»; CSS
 //     .wsp-ev-wrap/.wsp-ev/.wsp-ev-plan; сноска поясняет значок.
 //
-// SW: kipia-v562.
+// SW: kipia-v563.
 //
 // Запуск: через tests/run-all.js (require './test-task361.js').
 
@@ -484,10 +484,10 @@ describe('Task 361 — VM: регресс печатного листа', () => 
 // ============================================================
 describe('Task 361 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v562', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v562'") !== -1,
-            'CACHE_VERSION = kipia-v562 (Task 361 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v563') !== -1,
+    test('SW: кэш поднят до kipia-v563', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v563'") !== -1,
+            'CACHE_VERSION = kipia-v563 (Task 361 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v564') !== -1,
             'v605 ещё не существует (лишний инкремент)');
     });
 
