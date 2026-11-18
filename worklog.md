@@ -2444,3 +2444,28 @@ Stage Summary:
   ними; без краткого — прежняя одна строка. ПАРИТЕТ kip8test
   (7625/0, браузер 32/32). КЛИЕНТ-ONLY — SW kipia-v563 разойдётся
   сам. СЛЕДУЮЩАЯ ЗАДАЧА: пуш/CI + задачи пользователя.
+---
+Task ID: 557 (финализация — факты CI)
+Agent: main (Z.ai)
+
+Work Log:
+- Пуш d8e079f5 (Task 557 ПОРТ) — CI Tests SUCCESS (7683/0),
+  pages build and deployment SUCCESS, Sync content to kip8-desktop
+  SUCCESS; live sw.js на Pages = kipia-v563 (проверено curl'ом;
+  kipia-v1/v2/v3 в файле — исторические комментарии).
+- Зеркало kip8-desktop cbe24290 (синк из kip8@d8e079f5) — CI
+  Tests SUCCESS 7698/0 (локально подтверждено) — ПРОГНОЗ ТОЧЕН
+  (7686 + 12); Build Desktop App SUCCESS.
+- kip8test 3f42a514 (источник порта) — CI Tests/Pages/Sync
+  SUCCESS 7625/0, live sw.js kipia-test-v766; зеркало
+  kip8test-desktop c1666235 CI 7610/0 (7598 + 12 ТОЧЕН) + Build
+  Desktop SUCCESS; финализация kip8test — a874ee4b.
+
+Stage Summary:
+- Task 557 ПОЛНОСТЬЮ ЗАКРЫТ: kip8 d8e079f5 (7683/0, браузер
+  32/32) + kip8test 3f42a514 (7625/0, браузер 32/32) — дата ПОСЛЕ
+  краткого наименования (первая строка), остальной текст — второй
+  строкой; без краткого — прежняя одна строка. ПАРИТЕТ. Всё CI
+  зелёное, SW разошлись сами (kipia-v563 / kipia-test-v766).
+  СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя; Task 552 (Android)
+  остаётся отложен.
