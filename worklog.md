@@ -2298,3 +2298,33 @@ Stage Summary:
   (WorkSchedule.gs общий srvVer 554); SW kipia-v561 разойдётся
   сама. СЛЕДУЮЩАЯ ЗАДАЧА: пуш/CI + задачи пользователя
   (Task 552 Android — отложен пользователем).
+
+---
+Task ID: 555 (финализация — факты CI)
+Agent: main (Z.ai)
+
+Work Log:
+- Пуш 7665445b (Task 555 — порт заявки «перенеси в kip8», 232
+  файла) — kip8 CI Tests SUCCESS (7659/0 — ПРОГНОЗ ТОЧЕН: 7632 + 27),
+  pages build and deployment SUCCESS, Sync content to kip8-desktop
+  SUCCESS, Build Desktop App SUCCESS; live sw.js на Pages =
+  kipia-v561 (проверено curl'ом с анти-кэшем) — горячее обновление
+  разошлось само, серверного деплоя НЕТ (WorkSchedule.gs не
+  менялся, общий Apps Script srvVer 554 пользователя работает).
+- Зеркало kip8-desktop c5a8ef4b (синк из kip8@7665445b) — CI Tests
+  SUCCESS 7674/0 — ПРОГНОЗ ТОЧЕН (7647 + 27); Build Desktop App
+  SUCCESS. УРОК порта: actions/runs?head_sha= требует ПОЛНЫЙ SHA
+  (короткий 7665445b не матчится — скрипт task555-ci-wait-kip8.py
+  молчал в цикле); имя Pages-воркфлоу в списке прогонов — «pages
+  build and deployment», НЕ «Deploy GitHub Pages».
+
+Stage Summary:
+- Task 555 ПОЛНОСТЬЮ ЗАКРЫТ в kip8 (порт из kip8test заявки
+  «перенеси в kip8»): краткие наименования пунктов «Список_И_и_ПЗ»
+  в начале строк инструктажей/ПЗ карточек работников — синие
+  (инструктажи)/красные (проверки знаний) жирные, остальной текст
+  мельче, БЕЗ затухания при отметке выполнения. kip8 7659/0
+  (CI SUCCESS), зеркало kip8-desktop 7674/0, браузер 23/23 +
+  пиксельная проверка обеих тем, live sw.js kipia-v561.
+  СЛЕДУЮЩАЯ ЗАДАЧА: задачи пользователя (Task 552 Android —
+  отложен пользователем).
