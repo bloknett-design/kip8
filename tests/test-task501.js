@@ -27,7 +27,7 @@
 //      light-правилах ts-элементов нет; тёмная тема не тронута.
 //   E. VM — updateScaleQueryUnits: единицы из полей/селектов;
 //      calcScaleSignal не обращается к удалённой обёртке.
-//   F. SW kipia-v560 + комментарий Task 501 (guard v526).
+//   F. SW kipia-v561 + комментарий Task 501 (guard v526).
 
 const fs = require('fs');
 const path = require('path');
@@ -460,11 +460,11 @@ describe('Task 501 E: VM — живые единицы панели ППР шк�
 // F. SW — версия и комментарий
 // ==========================================================================
 describe('Task 501 F: Service Worker', () => {
-    test("sw.js: CACHE_VERSION = 'kipia-v560'", () => {
+    test("sw.js: CACHE_VERSION = 'kipia-v561'", () => {
         assertTrue(
-            SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v560';") !== -1,
+            SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v561';") !== -1,
             'версия v725');
-        assertFalse(SW_SRC.indexOf('kipia-v561') !== -1,
+        assertFalse(SW_SRC.indexOf('kipia-v562') !== -1,
             'v726 ещё не выпущена');
     });
 

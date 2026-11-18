@@ -427,11 +427,11 @@ describe('Task 452 — VM: печатная форма по дням', () => {
 // 5. SW — версия кэша
 // ============================================================
 describe('Task 452 — SW', () => {
-    test('SW: кэш поднят до kipia-v560 (Task 452)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v560'") !== -1,
-            'CACHE_VERSION = kipia-v560');
-        assertTrue(SW_SRC.indexOf('kipia-v561') === -1,
-            'kipia-v561 не существует');
+    test('SW: кэш поднят до kipia-v561 (Task 452)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v561'") !== -1,
+            'CACHE_VERSION = kipia-v561');
+        assertTrue(SW_SRC.indexOf('kipia-v562') === -1,
+            'kipia-v562 не существует');
         assertTrue(SW_SRC.indexOf('Task 452') !== -1,
             'комментарий Task 452 в истории версий');
     });

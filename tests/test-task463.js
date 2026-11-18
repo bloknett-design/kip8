@@ -25,7 +25,7 @@
 //   архив — лист «Архив» файла Мероприятия_КИП_ИОС (создаётся
 //   одноразовым PlanEventsInit.gs: id, дата_выполнения, мероприятие,
 //   год, месяц, email, время_отметки);
-//   SW: kipia-v560.
+//   SW: kipia-v561.
 //
 // АДАПТАЦИЯ Task 464 (правка/снятие отметок + мобайл): подсказка
 //   peHint УДАЛЕНА (заявка); кнопка подтверждения «Подтвердить»
@@ -552,8 +552,8 @@ describe('Task 463 — SRC: Code.gs маршрутизация', () => {
 // ============================================================
 describe('Task 463 — SW: версия кэша', () => {
 
-    test('CACHE_VERSION = kipia-v560', () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v560';") !== -1,
+    test('CACHE_VERSION = kipia-v561', () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v561';") !== -1,
             'текущая версия v688 (бамп Task 464)');
     });
 
