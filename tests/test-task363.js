@@ -21,7 +21,7 @@
 //     праздники НЕ входят.
 // Хелперы: _calDayFeast (праздник), _calWend (обычный выходной).
 //
-// SW: kipia-v563.
+// SW: kipia-v564.
 //
 // Запуск: через tests/run-all.js (require './test-task363.js').
 
@@ -34,7 +34,11 @@ const INDEX_SRC = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
 const SW_SRC = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
 
 const WS_START = INDEX_SRC.indexOf('var WorkSchedule = {');
-const WS_CLIENT = INDEX_SRC.slice(WS_START, WS_START + 520000);
+// Task 558-adapt: окно 520000 → 530000 — правки Task 558
+// (~4,3 КБ в начале модуля: _isDnEventCode + три гварда
+// мероприятий в _autoDnPlan/_autoDnMaterialize) сдвинули хвост
+// _renderCell за старую границу (конец ~521,3 КБ)
+const WS_CLIENT = INDEX_SRC.slice(WS_START, WS_START + 530000);
 
 function methodText(src, name) {
     const sig = '\n        ' + name + ': function';
@@ -394,10 +398,10 @@ describe('Task 363 — VM: регресс соседних фич', () => {
 // ============================================================
 describe('Task 363 — Service Worker', () => {
 
-    test('SW: кэш поднят до kipia-v563', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v563'") !== -1,
-            'CACHE_VERSION = kipia-v563 (Task 363 — фронтенд)');
-        assertFalse(SW_SRC.indexOf('kipia-v564') !== -1,
+    test('SW: кэш поднят до kipia-v564', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v564'") !== -1,
+            'CACHE_VERSION = kipia-v564 (Task 363 — фронтенд)');
+        assertFalse(SW_SRC.indexOf('kipia-v565') !== -1,
             'v605 ещё не существует (лишний инкремент)');
     });
 

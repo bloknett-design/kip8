@@ -400,9 +400,9 @@ describe('Task 555 — санитар', () => {
 
     test('санитар: sw.js — версия кэша поднята (горячее обновление)', () => {
         assertTrue(SW_SRC.indexOf(
-            "const CACHE_VERSION = 'kipia-v563'") !== -1,
+            "const CACHE_VERSION = 'kipia-v564'") !== -1,
             'SW v561 — клиенты обновятся при открытии');
-        assertTrue(SW_SRC.indexOf('kipia-v564') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v565') === -1,
             'следующей версии нет');
     });
 });

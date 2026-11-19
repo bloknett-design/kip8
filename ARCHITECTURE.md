@@ -40,7 +40,7 @@
 | Офлайн-режим | Service Worker (`sw.js`) — NetworkFirst для `data/*.json` + App Shell + cache-busting |
 | Auth | Apps Script Web App (Email+OTP, session token, heartbeat 5 мин) |
 | Хранение | `localStorage` — сессионные ключи `kip8_*` без префикса (общие между kip8/kip8test); настройки с префиксом `kip8test:` (только в kip8test) |
-| Тесты | Node.js + кастомный фреймворк (`tests/`, 7683 тестов, 253 тест-файла, `node tests/run-all.js` — раннер сам поднимает лимит кучи до 2560МБ (Task 542: суит ~2ГБ live); зеркало CI: kip8-desktop 7698 (Task 557: 7686 + 12 — прогноз) — синк при смене index.html/sw.js (гварды окружения Tasks 517+518)) |
+| Тесты | Node.js + кастомный фреймворк (`tests/`, 7711 тестов, 254 тест-файла, `node tests/run-all.js` — раннер сам поднимает лимит кучи до 2560МБ (Task 542: суит ~2ГБ live); зеркало CI: kip8-desktop 7726 (Task 558: 7698 + 28 — прогноз) — синк при смене index.html/sw.js (гварды окружения Tasks 517+518)) |
 | Сборка APK | Bubblewrap CLI + Android SDK + JDK 17 (только в `kip8`) |
 | CI | GitHub Actions (1 CI + 7 sync workflows, cron ежедневно) |
 | Деплой | GitHub Pages (автоматически при `git push` в `main`); для десктопа — через тег `v*` |
