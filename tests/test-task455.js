@@ -431,11 +431,11 @@ describe('Task 455 — VM: _renderTalonsPage / печать (месяц сетк
 // 6. SW — версия кэша
 // ============================================================
 describe('Task 455 — SW', () => {
-    test('SW: кэш поднят до kipia-v564 (Task 455)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v564'") !== -1,
-            'CACHE_VERSION = kipia-v564');
-        assertTrue(SW_SRC.indexOf('kipia-v565') === -1,
-            'kipia-v565 не существует');
+    test('SW: кэш поднят до kipia-v565 (Task 455)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
+            'CACHE_VERSION = kipia-v565');
+        assertTrue(SW_SRC.indexOf('kipia-v566') === -1,
+            'kipia-v566 не существует');
         assertTrue(SW_SRC.indexOf('Task 455') !== -1,
             'комментарий Task 455 в истории версий');
     });

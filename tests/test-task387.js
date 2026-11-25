@@ -567,10 +567,10 @@ describe('Task 387 — VM: легенда/попап/select/ширина', () =>
 
 describe('Task 387 — SW', () => {
 
-    test('SW: кэш поднят до kipia-v564', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v564'") !== -1,
-            'CACHE_VERSION = kipia-v564 (Task 387 — фронтенд менялся)');
-        assertFalse(SW_SRC.indexOf('kipia-v565') !== -1,
+    test('SW: кэш поднят до kipia-v565', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
+            'CACHE_VERSION = kipia-v565 (Task 387 — фронтенд менялся)');
+        assertFalse(SW_SRC.indexOf('kipia-v566') !== -1,
             'v616 ещё не существует (guard)');
     });
 });

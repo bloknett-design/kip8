@@ -264,11 +264,11 @@ describe('Task 414 — VM: карточка', () => {
 // ============================================================
 describe('Task 414 — SW версия', () => {
     test('v641', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v564'") !== -1,
-            'SW кэш — kipia-v564');
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
+            'SW кэш — kipia-v565');
         assertTrue(SW_SRC.indexOf('kipia-v478') === -1,
             'v640 не осталась в sw.js');
-        assertTrue(SW_SRC.indexOf('kipia-v565') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v566') === -1,
             'двойной бамп отсутствует (guard: v642)');
     });
 });

@@ -41,7 +41,7 @@
 //   6) select #wsTrType — РОВНО обучение/прогул/примечание;
 //   7) _wtabYearRecords — события архивного года из _EVENTS_ALL
 //      (стрелки «‹ год ›» показывают прошлое).
-//   SW: kipia-v564.
+//   SW: kipia-v565.
 // ============================================================
 
 const fs = require('fs');
@@ -418,10 +418,10 @@ describe('Task 424 — VM: _wtabYearRecords — события архивног�
 // 6. SW — версия кэша
 // ============================================================
 describe('Task 424 — SW: версия кэша', () => {
-    test('CACHE_VERSION = kipia-v564', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v564'") !== -1,
+    test('CACHE_VERSION = kipia-v565', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
             'SW v651 (Task 424)');
-        assertTrue(SW_SRC.indexOf('kipia-v565') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v566') === -1,
             'двойной бамп отсутствует');
     });
 });

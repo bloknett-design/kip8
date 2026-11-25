@@ -344,9 +344,9 @@ describe('Task 491 — VM: featured-класс (Task 492: на избранно�
 // ============================================================
 describe('Task 491 — SW: версия кеша', () => {
 
-    test('SW: кэш поднят до kipia-v564', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v564'") !== -1,
-            'CACHE_VERSION = kipia-v564 (Task 491)');
+    test('SW: кэш поднят до kipia-v565', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
+            'CACHE_VERSION = kipia-v565 (Task 491)');
         assertFalse(SW_SRC.indexOf('kipia-v515') !== -1,
             'старой версии v515 нет');
     });

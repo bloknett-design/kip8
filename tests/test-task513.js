@@ -28,7 +28,7 @@
 //     KipDB.del, WorkSchedule.reloadTotals;
 //   • openLibraryViewer (защитный стаб), 7 backend- и 5 frontend-
 //     test-only функций, роуты, guarded-остатки id.
-// SW: kipia-v564 (v527 → v528: менялся index.html).
+// SW: kipia-v565 (v527 → v528: менялся index.html).
 //
 // ЗЕРКАЛО kip8test (Task 513; версии kipia-v52x).
 // Запуск: через tests/run-all.js (require './test-task513.js').
@@ -180,13 +180,13 @@ describe('Task 513 — scripts/*.gs: мёртвые функции удален�
 // ------------------------------------------------------------
 // 3. Service Worker: версия поднята (index.html менялся)
 // ------------------------------------------------------------
-describe('Task 513 — SW: кэш поднят до kipia-v564', () => {
-    test("CACHE_VERSION = 'kipia-v564'", () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v564'") !== -1,
-            'CACHE_VERSION = kipia-v564 (Task 513 — уборка мёртвого кода)');
+describe('Task 513 — SW: кэш поднят до kipia-v565', () => {
+    test("CACHE_VERSION = 'kipia-v565'", () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v565'") !== -1,
+            'CACHE_VERSION = kipia-v565 (Task 513 — уборка мёртвого кода)');
     });
-    test('kipia-v565 не существует', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v565') === -1,
-            'kipia-v565 не существует (двойной бамп)');
+    test('kipia-v566 не существует', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v566') === -1,
+            'kipia-v566 не существует (двойной бамп)');
     });
 });
