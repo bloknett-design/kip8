@@ -25,7 +25,7 @@
 //      _setChange, фильтрация источников, persistence localStorage,
 //      регрессия бага календаря (composedPath), toggleCal открывает
 //      ОБА блока, _renderSettings разметка.
-//   D. SW — kipia-v565.
+//   D. SW — kipia-v566.
 //
 // Запуск: через tests/run-all.js (require './test-task531.js').
 
@@ -644,11 +644,11 @@ describe('Task 531 C-3: VM — панель настроек и календар
 // ============================================================
 describe('Task 531 — SW: версия кэша', () => {
 
-    test('sw.js: CACHE_VERSION = kipia-v565', () => {
+    test('sw.js: CACHE_VERSION = kipia-v566', () => {
         const m = SW_SRC.match(/const CACHE_VERSION = '(kipia-v\d+)'/);
         assertTrue(m !== null, 'CACHE_VERSION найден');
-        assertEqual(m[1], 'kipia-v565',
-            'SW поднят до kipia-v565 (index.html менялся — Task 535)');
+        assertEqual(m[1], 'kipia-v566',
+            'SW поднят до kipia-v566 (index.html менялся — Task 535)');
         assertTrue(m[1] !== 'kipia-v544',
             'старая версия kipia-v544 не осталась');
     });

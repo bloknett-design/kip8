@@ -23,7 +23,7 @@
 //     набор из 8 позиций образца (Task 392); свободный текст
 //     не запрещён;
 //   • сервер НЕ меняется (listPpe уже отдаёт все записи листа);
-//   • sw.js → kipia-v565.
+//   • sw.js → kipia-v566.
 // ============================================================
 
 const fs = require('fs');
@@ -443,9 +443,9 @@ describe('Task 461 — VM: openPpeForm заполняет datalist', () => {
 // ============================================================
 describe('Task 461 — SW: версия', () => {
 
-    test("CACHE_VERSION = 'kipia-v565'", () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
-            'SW поднят до kipia-v565 (Task 461)');
+    test("CACHE_VERSION = 'kipia-v566'", () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v566'") !== -1,
+            'SW поднят до kipia-v566 (Task 461)');
     });
 
     test('старая версия kipia-v498 отсутствует', () => {
@@ -454,7 +454,7 @@ describe('Task 461 — SW: версия', () => {
     });
 
     test('комментарий Task 461 в шапке версий sw.js', () => {
-        const i = SW_SRC.indexOf('kipia-v565');
+        const i = SW_SRC.indexOf('kipia-v566');
         // Task 463: окно 700 → 2000 — комментарий Task 463 в шапке sw.js
         // отодвинул комментарий Task 461 за границу прежнего окна.
         // Task 468: окно 2000 → 2500 — комментарий Task 468 (5 строк

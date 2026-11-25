@@ -39,6 +39,17 @@
 //     PWA-окружении: kip8 6493/0, десктоп-CI 6493 − 12 = 6481/0.
 //     (README-гвард не нужен — README-тестов в kip8-версии нет.)
 //
+// Task 560 (смена ссылки ЕЩЁ РАЗ): ID 1ZKOPBsD9x4wdlC5rDjz09UypD86G0Cee
+//     заменён на 14l0ac4zGwOblvuH8kRkwwdOymAVXD5op (новый файл —
+//     Excel-реимпорт). NEW_ID здесь = АКТУАЛЬНЫЙ ID; негативные
+//     проверки гоняют ОБА прежних ID (OLD_ID Task 480 + PREV_ID
+//     Task 560, helper hasOldId). Данные из новой таблицы засинкены
+//     отдельным chore-коммитом (правки пользователя в блокировках +
+//     дата заметки «от 24.11»); totals прежние (1279/518/325/268),
+//     структура листов восстановлена харденингом sync-скриптов
+//     (Task 560: пустые хвостовые заголовки срезаются, целые float →
+//     int — подробнее в test-task560.js).
+//
 // Запуск: через tests/run-all.js (require './test-task480.js').
 
 const fs = require('fs');
@@ -49,7 +60,8 @@ const ROOT = path.join(__dirname, '..');
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
 const OLD_ID = '1eUUwwulUvKUGWTgQ__XP-y7z1aEkt5Wy';
-const NEW_ID = '1ZKOPBsD9x4wdlC5rDjz09UypD86G0Cee';
+const PREV_ID = '1ZKOPBsD9x4wdlC5rDjz09UypD86G0Cee';  // Task 560: прежний текущий
+const NEW_ID = '14l0ac4zGwOblvuH8kRkwwdOymAVXD5op';
 const NEW_URL = 'https://docs.google.com/spreadsheets/d/' + NEW_ID + '/edit';
 
 const INDEX_SRC = read('index.html');
@@ -85,14 +97,19 @@ function countOf(haystack, needle) {
     return n;
 }
 
+// Task 560: «старых» ID теперь ДВА — проверяем оба разом
+function hasOldId(src) {
+    return src.indexOf(OLD_ID) !== -1 || src.indexOf(PREV_ID) !== -1;
+}
+
 // =========================================================================
 // 1. SW: версия + комментарий + персистентные кэши
 // ==========================================================================
 describe('Task 480 — SW: версия кэша', () => {
 
-    test("CACHE_VERSION = 'kipia-v565'", () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v565';") !== -1,
-            'SW поднят до kipia-v565 (Task 480)');
+    test("CACHE_VERSION = 'kipia-v566'", () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v566';") !== -1,
+            'SW поднят до kipia-v566 (Task 480)');
     });
 
     test('прежняя версия v703 отсутствует', () => {
@@ -101,8 +118,8 @@ describe('Task 480 — SW: версия кэша', () => {
     });
 
     test('несуществующая v512 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v566') === -1,
-            'kipia-v566 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v567') === -1,
+            'kipia-v567 не должен существовать');
     });
 
     test('персистентные кэши картинок/данных НЕ инкрементировались', () => {
@@ -114,7 +131,7 @@ describe('Task 480 — SW: версия кэша', () => {
     });
 
     test('комментарий Task 480 в шапке версий (окно 2600 → 3200, Task 486)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v565';");
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v566';");
         // Task 499: комментарий плейсхолдеров (~430 симв.) отодвинул
         // Task 480 до ~8413 — окно 8100 → 8900.
         const ctx = SW_SRC.slice(Math.max(0, i - 11600), i);
@@ -152,8 +169,8 @@ describe('Task 480 — index.html: ссылки на источник данны
     });
 
     test('старый ID отсутствует в index.html', () => {
-        assertTrue(INDEX_SRC.indexOf(OLD_ID) === -1,
-            'старая ссылка полностью убрана');
+        assertTrue(!hasOldId(INDEX_SRC),
+            'обе прежние ссылки полностью убраны');
     });
 
     test('комментарии-пояснения источников не стёрты (только URL заменён)', () => {
@@ -188,8 +205,8 @@ describe('Task 480 — sync-скрипты: источник тянет из н�
         });
 
         test(rel + ': старый ID отсутствует', () => {
-            assertTrue(read(rel).indexOf(OLD_ID) === -1,
-                'docstring/usage/константа — старого ID нет');
+            assertTrue(!hasOldId(read(rel)),
+                'docstring/usage/константа — прежних ID нет');
         });
 
         test(rel + ': docstring «Источник» указывает новый URL', () => {
@@ -234,7 +251,7 @@ if (WORKFLOWS_PRESENT) describe('Task 480 — GitHub Actions workflows', () => {
         });
 
         test(rel + ': старый ID отсутствует', () => {
-            assertTrue(read(rel).indexOf(OLD_ID) === -1, 'старая ссылка убрана');
+            assertTrue(!hasOldId(read(rel)), 'обе прежние ссылки убраны');
         });
 
         test(rel + ': cron и вызов скрипта НЕ менялись', () => {
@@ -274,7 +291,7 @@ describe('Task 480 — data/*.json: метаданные источника', ()
         });
 
         test(rel + ': старый ID отсутствует', () => {
-            assertTrue(read(rel).indexOf(OLD_ID) === -1, 'старая ссылка убрана');
+            assertTrue(!hasOldId(read(rel)), 'обе прежние ссылки убраны');
         });
 
         test(rel + ': данные НЕ менялись — только source', () => {
@@ -321,8 +338,8 @@ describe('Task 480 — документация: таблицы источник
         assertTrue(i !== -1, 'секция источников найдена');
         const j = PROMPT_SRC.indexOf('###', i + 10);
         const section = PROMPT_SRC.slice(i, j === -1 ? undefined : j);
-        assertTrue(section.indexOf(OLD_ID) === -1,
-            'старая ссылка убрана из таблицы источников');
+        assertTrue(!hasOldId(section),
+            'прежние ссылки убраны из таблицы источников');
     });
 });
 
@@ -357,10 +374,10 @@ describe('Task 480 — репозиторий: следов старой ссы�
         targets.forEach((rel) => {
             let p = path.join(ROOT, rel);
             if (!fs.existsSync(p)) return;  // manifest.json может отсутствовать
-            if (read(rel).indexOf(OLD_ID) !== -1) dirty.push(rel);
+            if (hasOldId(read(rel))) dirty.push(rel);
         });
         // промт — СПЕЦ-ПРОВЕРКА: тело без строк-версии (заявка цитирует оба ID)
-        if (promptBody.indexOf(OLD_ID) !== -1) dirty.push('Системный_промт (тело)');
+        if (hasOldId(promptBody)) dirty.push('Системный_промт (тело)');
         assertEqual(dirty.length, 0, 'чисто: ' + (dirty.join(', ') || 'следов нет'));
     });
 

@@ -688,10 +688,10 @@ describe('Task 394 — VM: окно мероприятий — порядок с
 // ============================================================
 describe('Task 394 — SW', () => {
 
-    test('SW: kipia-v565', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
+    test('SW: kipia-v566', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v566'") !== -1,
             'SWVersion bumped');
-        assertTrue(SW_SRC.indexOf('kipia-v566') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v567') === -1,
             'двойного бампа не было');
     });
 });

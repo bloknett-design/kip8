@@ -375,11 +375,11 @@ describe('Task 450 — VM: разряды, группы, подписи', () => 
 // 3. SW — версия кэша
 // ============================================================
 describe('Task 450 — SW', () => {
-    test('SW: кэш поднят до kipia-v565 (Task 450)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
-            'CACHE_VERSION = kipia-v565');
-        assertTrue(SW_SRC.indexOf('kipia-v566') === -1,
-            'kipia-v566 не существует');
+    test('SW: кэш поднят до kipia-v566 (Task 450)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v566'") !== -1,
+            'CACHE_VERSION = kipia-v566');
+        assertTrue(SW_SRC.indexOf('kipia-v567') === -1,
+            'kipia-v567 не существует');
         assertTrue(SW_SRC.indexOf('Task 450') !== -1,
             'комментарий Task 450 в истории версий');
     });

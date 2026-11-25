@@ -41,7 +41,7 @@
 //     — created с «комментарий» кладётся в _INSTR_ALL как есть;
 //     — srvVer '554' — предупреждения «старой версии» НЕТ;
 //     — srvVer '553' — предупреждение ЕСТЬ (граница).
-//   SW: kipia-v565 (правка index.html — кэш разошёлся).
+//   SW: kipia-v566 (правка index.html — кэш разошёлся).
 //
 // Запуск: через tests/run-all.js (require './test-task554.js').
 
@@ -523,10 +523,10 @@ describe('Task 554 — VM: toggleTrainingDone — srvVer 554 и примечан
 // 5. SW — версия кэша
 // ============================================================
 describe('Task 554 — SW: версия кэша', () => {
-    test('CACHE_VERSION = kipia-v565', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v565'") !== -1,
+    test('CACHE_VERSION = kipia-v566', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v566'") !== -1,
             'SW v560 (Task 554 — правка index.html: порог srvVer 554)');
-        assertTrue(SW_SRC.indexOf('kipia-v566') === -1,
+        assertTrue(SW_SRC.indexOf('kipia-v567') === -1,
             'двойной бамп отсутствует');
     });
 });
