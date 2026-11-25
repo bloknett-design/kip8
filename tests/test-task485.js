@@ -147,8 +147,9 @@ describe('Task 485: Кап. ремонт (блокировки)', () => {
         const ppr = LOCKOUTS_JSON.ppr_chart;
         // Task 540: авто-синк от 20.10.2026 — 531 → 529; Task 541: 9bab754 — 529 → 528; Task 548: 04fe3e5 — 528 → 529
         // Task 551 (rebase поверх авто-синков): 530 → 525; Task 554 (rebase 17.11.2026): 525 → 524 — данные живые
-        assertEqual(LOCKOUTS_JSON.total_lockouts, 524, 'total прежний');
-        assertEqual(LOCKOUTS_JSON.lockouts.length, 524, 'массив прежний');
+        // Хвост-синк: авто-синк e2fbc49b (19.11.2026, после ПОРТА Task 558) — 524 → 518
+        assertEqual(LOCKOUTS_JSON.total_lockouts, 518, 'total прежний');
+        assertEqual(LOCKOUTS_JSON.lockouts.length, 518, 'массив прежний');
         assertEqual(ppr.series[0].values.length, 12, '12 значений Кр');
         const sumKr = ppr.series[0].values.reduce((a, b) => a + b, 0);
         assertTrue(sumKr > 0 && sumKr <= LOCKOUTS_JSON.total_lockouts,
