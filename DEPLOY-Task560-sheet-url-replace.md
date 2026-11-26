@@ -84,6 +84,12 @@ totals 1279/518/325/268, ppr_chart идентичен. ДВА артефакта
 ## Проверки
 
 - Изолированно: test-task480 + test-task560 → 124/0.
+- CI (финальные факты): kip8 44026a18+04c37723 — Tests/Sync/Pages/
+  Build SUCCESS 7806/0; зеркало kip8-desktop 4000cf2 — 7809/0; парный
+  kip8test ee3de6f+0d7be0c — SUCCESS 7750/0, зеркало kip8test-desktop
+  a6a9342 — 7721/0; live SW: kipia-v566 / kipia-test-v769 (curl).
+  Контрольный прогон Update Devices (PROD) на kip8@04c37723 (run
+  45723498107, 25.11 23:43 UTC): SUCCESS, «Изменений нет».
 - `node tests/run-all.js` → 7806/0.
 - Браузерная проверка `scripts/task560-browser-check.py` (порт 8990,
   мок Apps Script, ГОЛЫЕ ключи localStorage kip8): приложение

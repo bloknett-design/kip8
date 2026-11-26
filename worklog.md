@@ -2714,3 +2714,36 @@ Stage Summary:
   Выполнено одновременно с kip8test (v769) — порт не требуется.
   СЛЕДУЮЩАЯ ЗАДАЧА: пуш/CI + задачи пользователя; Task 552 (Android)
   отложен; следующий номер 561.
+
+---
+Task ID: 560 (финализация — факты CI, kip8-половина парной задачи)
+Agent: main (Z.ai)
+
+Work Log:
+- Пуш 44026a18 (feat Task 560) + 04c37723 (chore: синк данных) — CI
+  Tests SUCCESS 7806/0 (run 45722205368 — ПРОГНОЗ ТОЧЕН: 7742 + 64),
+  Sync content to kip8-desktop SUCCESS, Deploy GitHub Pages SUCCESS,
+  Build Desktop App SUCCESS; live sw.js на Pages = kipia-v566
+  (проверено curl'ом).
+- Зеркало kip8-desktop 4000cf2 (автосинк из kip8@04c37723) — CI Tests
+  SUCCESS 7809/0 — ПРОГНОЗ ТОЧЕН (7757 + 52).
+- Парная kip8test-половина (ee3de6f + 0d7be0c) — CI Tests/Pages/Sync
+  SUCCESS 7750/0 (прогноз 7684 + 66 ТОЧЕН); live sw.js =
+  kipia-test-v769; зеркало kip8test-desktop a6a9342 CI 7721/0
+  (прогноз 7669 + 52 ТОЧЕН).
+- КОНТРОЛЬНАЯ ТОЧКА (данные из НОВОЙ таблицы): ручной прогон
+  Update Devices (PROD) на kip8@04c37723 (workflow_dispatch, run
+  45723498107, 25.11 23:43 UTC) — SUCCESS, «Изменений нет»
+  (git diff --exit-code data/devices.json чист; нового коммита нет) —
+  синк из новой таблицы выдаёт идентичные данные. schedule-прогоны
+  GitHub задерживает на 7–10 ч (слоты lockouts/valves/regulators
+  01:10/01:20/01:30 UTC, devices 04:00 UTC); крон-подтверждение —
+  в течение дня 26.11, ожидается «Изменений нет».
+
+Stage Summary:
+- Task 560 ПОЛНОСТЬЮ ЗАКРЫТ в обоих репо одним инкрементом (kip8 v566
+  7806/0 + зеркало 7809/0; kip8test v769 7750/0 + зеркало 7721/0):
+  ссылка на «Перечень КИП ИОС рабочий.xlsx» заменена на Google-таблицу
+  14l0ac4zGwOblvuH8kRkwwdOymAVXD5op во всех местах (кроны тянут XLSX из новой
+  таблицы), sync-скрипты захарднены от артефактов Excel-реимпорта,
+  данные пользователя засинкены, контрольный прогон — «Изменений нет».
