@@ -33,7 +33,7 @@
 //     таб_№ (текст, Task 304), пишет H (дата) + I (в_архиве=1),
 //     строка НЕ удаляется; ошибки invalid/not_found; аудит;
 //     маршрут в Code.gs.
-//   SW: kipia-v566.
+//   SW: kipia-v567.
 //
 // Запуск: через tests/run-all.js (require './test-task318.js').
 
@@ -635,10 +635,10 @@ describe('Task 318 — Сервер: dismissEmployee (WorkSchedule.gs)', () => {
 // Service Worker
 // ============================================================
 describe('Task 318 — Service Worker', () => {
-    test('SW: версия кэша kipia-v566', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v566') !== -1,
-            'CACHE_VERSION = kipia-v566 (Task 318)');
-        assertFalse(SW_SRC.indexOf('kipia-v567') !== -1,
+    test('SW: версия кэша kipia-v567', () => {
+        assertTrue(SW_SRC.indexOf('kipia-v567') !== -1,
+            'CACHE_VERSION = kipia-v567 (Task 318)');
+        assertFalse(SW_SRC.indexOf('kipia-v568') !== -1,
             'лишний инкремент не делался');
     });
 });

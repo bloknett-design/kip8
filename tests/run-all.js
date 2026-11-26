@@ -638,7 +638,7 @@ require('./test-task478.js');
 // приборов (десктоп-модуль devices-table-desktop.js).
 require('./test-task479.js');
 // Task 480 — новый ID Google-таблицы «Перечень КИП ИОС рабочий.xlsx»
-// (ID обновлён Task 560: 14l0ac4zGwOblvuH8kRkwwdOymAVXD5op): sync-скрипты +
+// (ID обновлён Task 561: 1VMJHY1DmsRPoWOAYKGN7QU9cjHtWZJlx): sync-скрипты +
 // workflows + data/*.json (source) + index.html-комментарии + промт (в kip8
 // без README — его нет в боевом репо); данные и структура листов
 // те же (1291/531/320/268).
@@ -797,7 +797,7 @@ require('./test-task501.js');
 // снята (нейтральные ts-элементы в обеих темах); шкала-сигнал —
 // блоки произвольных значений и типа шкалы поменяны местами,
 // подсказка ППР удалена, Enter гасит клавиатуру.
-// SW v525 (MAP kipia-test-v726 → kipia-v567).
+// SW v525 (MAP kipia-test-v726 → kipia-v568).
 require('./test-task502.js');
 // Task 504: окно «Мероприятия» табеля — даты строк
 // ЦВЕТНЫЕ по состоянию записи И/ПЗ (выполнено →
@@ -1084,8 +1084,8 @@ require('./test-task558.js');
 // избранные выбранной группы (справа); КЛИЕНТ-ONLY.
 require('./test-task559.js');
 // Task 560 (заявка: «Замени во всех местах ссылку на файл "Перечень
-// КИП ИОС рабочий.xlsx" на ссылку https://docs.google.com/
-// spreadsheets/d/14l0ac4zGwOblvuH8kRkwwdOymAVXD5op/edit?…») — kip8-половина
+// КИП ИОС рабочий.xlsx" на ссылку …» — ID обновлён Task 561:
+// 1VMJHY1DmsRPoWOAYKGN7QU9cjHtWZJlx) — kip8-половина
 // ПАРНОЙ задачи (один инкремент с kip8test): смена ID Google-таблицы
 // во ВСЕХ местах (sync-скрипты, workflows, data/*.json source,
 // index.html, промт, sw-комментарий Task 480) + харденинг
@@ -1093,6 +1093,17 @@ require('./test-task559.js');
 // заголовки срезаются, целые float → int) + синк данных из новой
 // таблицы (правки пользователя); SW kipia-v565 → v566.
 require('./test-task560.js');
+// Task 561 (заявка: «Снова нужно заменить ссылку на файл "Перечень
+// КИП ИОС рабочий.xlsx» на ссылку …, она периодически у меня
+// меняется» — ТРЕТЬЯ замена, ID 1VMJHY1DmsRPoWOAYKGN7QU9cjHtWZJlx;
+// kip8-половина парной задачи, один инкремент с kip8test):
+// смена ID Google-таблицы во ВСЕХ местах (sync-скрипты, workflows,
+// data/*.json source, index.html, промт, sw-комментарий Task 480)
+// + синк данных из новой таблицы (правки пользователя: 2
+// «Замечания» в блокировках, перенос блока ID 206 с
+// перенумерацией 207–213, devices — дата заметки 26.11 + одно
+// «Примечания» очищено); SW kipia-v567 → v567.
+require('./test-task561.js');
 require('./test-deploy-url.js');
 
 // Запускаем

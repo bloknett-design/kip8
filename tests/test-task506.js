@@ -31,7 +31,7 @@
 //   EXCEL: объединения 6, Print_Titles 1:2, закрепление A3,
 //     landscape A4, ширины колонок шаблона, Arial Narrow 12,
 //     FFF2F2F2, стили E–G данных = 4/5 (серые), порядок — № п/п.
-//   SW: kipia-v566 (двойного бампа нет — v730).
+//   SW: kipia-v567 (двойного бампа нет — v730).
 //
 // Запуск: через tests/run-all.js (require './test-task506.js').
 
@@ -520,17 +520,17 @@ describe('Task 506 — VM: Excel — шапка с объединениями, �
 // ============================================================
 // 6. SW: версия кэша
 // ============================================================
-describe('Task 506 — SW: kipia-v566', () => {
-    test('CACHE_VERSION = kipia-v566', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v566'") !== -1,
-            'версия кэша kipia-v566');
-        assertFalse(SW_SRC.indexOf('kipia-v567') !== -1,
+describe('Task 506 — SW: kipia-v567', () => {
+    test('CACHE_VERSION = kipia-v567', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v567'") !== -1,
+            'версия кэша kipia-v567');
+        assertFalse(SW_SRC.indexOf('kipia-v568') !== -1,
             'двойного бампа нет (v730 отсутствует)');
     });
 
     test('комментарий Task 506 в истории версий sw.js', () => {
         const i = SW_SRC.indexOf('// Task 506:');
-        const v = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v566'");
+        const v = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v567'");
         assertTrue(i !== -1, 'запись истории на месте');
         assertTrue(i < v, 'история — выше константы версии');
         const cmt = SW_SRC.slice(i, v).toLowerCase();

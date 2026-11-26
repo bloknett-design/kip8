@@ -1216,11 +1216,11 @@ describe('Task 447 — VM: печать отчёта', () => {
 // 8. SW — версия кэша
 // ============================================================
 describe('Task 447 — SW', () => {
-    test('SW: кэш поднят до kipia-v566 (Task 447)', () => {
-        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v566'") !== -1,
-            'CACHE_VERSION = kipia-v566');
-        assertTrue(SW_SRC.indexOf('kipia-v567') === -1,
-            'kipia-v567 не существует');
+    test('SW: кэш поднят до kipia-v567 (Task 447)', () => {
+        assertTrue(SW_SRC.indexOf("CACHE_VERSION = 'kipia-v567'") !== -1,
+            'CACHE_VERSION = kipia-v567');
+        assertTrue(SW_SRC.indexOf('kipia-v568') === -1,
+            'kipia-v568 не существует');
         assertTrue(SW_SRC.indexOf('Task 447') !== -1,
             'комментарий Task 447 в истории версий');
     });

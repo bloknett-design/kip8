@@ -57,8 +57,9 @@ const ROOT = path.join(__dirname, '..');
 const read = (rel) => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
 const OLD_ID = '1eUUwwulUvKUGWTgQ__XP-y7z1aEkt5Wy';   // первый ID (до Task 480)
-const PREV_ID = '1ZKOPBsD9x4wdlC5rDjz09UypD86G0Cee';  // ID Task 480 (до Task 560)
-const NEW_ID = '14l0ac4zGwOblvuH8kRkwwdOymAVXD5op';
+const MID_ID = '1ZKOPBsD9x4wdlC5rDjz09UypD86G0Cee';   // ID Task 480 (до Task 560)
+const PREV_ID = '14l0ac4zGwOblvuH8kRkwwdOymAVXD5op';  // ID Task 560 (до Task 561)
+const NEW_ID = '1VMJHY1DmsRPoWOAYKGN7QU9cjHtWZJlx';   // актуальный (Task 561)
 const NEW_URL = 'https://docs.google.com/spreadsheets/d/' + NEW_ID + '/edit';
 
 const INDEX_SRC = read('index.html');
@@ -95,7 +96,8 @@ function countOf(haystack, needle) {
 
 // Оба прежних ID должны отсутствовать (480-й и 560-й)
 function hasOldId(src) {
-    return src.indexOf(OLD_ID) !== -1 || src.indexOf(PREV_ID) !== -1;
+    return src.indexOf(OLD_ID) !== -1 || src.indexOf(MID_ID) !== -1 ||
+        src.indexOf(PREV_ID) !== -1;
 }
 
 // ==========================================================================
@@ -103,9 +105,9 @@ function hasOldId(src) {
 // ==========================================================================
 describe('Task 560 — SW: версия кэша', () => {
 
-    test("CACHE_VERSION = 'kipia-v566'", () => {
-        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v566';") !== -1,
-            'SW поднят до kipia-v566 (Task 560)');
+    test("CACHE_VERSION = 'kipia-v567'", () => {
+        assertTrue(SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v567';") !== -1,
+            'SW поднят до kipia-v567 (Task 560)');
     });
 
     test('прежняя версия v565 отсутствует', () => {
@@ -114,8 +116,8 @@ describe('Task 560 — SW: версия кэша', () => {
     });
 
     test('несуществующая v567 отсутствует (guard)', () => {
-        assertTrue(SW_SRC.indexOf('kipia-v567') === -1,
-            'kipia-v567 не должен существовать');
+        assertTrue(SW_SRC.indexOf('kipia-v568') === -1,
+            'kipia-v568 не должен существовать');
     });
 
     test('персистентные кэши картинок/данных НЕ инкрементировались', () => {
@@ -125,14 +127,14 @@ describe('Task 560 — SW: версия кэша', () => {
             'DATA_CACHE_VERSION прежний (v1)');
     });
 
-    test('комментарий Task 480 в шапке: АКТУАЛЬНЫЙ ID + пометка Task 560 (окно 11600)', () => {
-        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v566';");
+    test('комментарий Task 480 в шапке: АКТУАЛЬНЫЙ ID + пометка Task 561 (окно 11600)', () => {
+        const i = SW_SRC.indexOf("const CACHE_VERSION = 'kipia-v567';");
         const ctx = SW_SRC.slice(Math.max(0, i - 11600), i);
         assertTrue(ctx.indexOf('Task 480') !== -1, 'маркер задачи 480');
         assertTrue(ctx.indexOf('«Перечень КИП ИОС рабочий.xlsx»') !== -1,
             'имя файла-источника');
-        assertTrue(ctx.indexOf('обновлён Task 560') !== -1,
-            'пометка о смене ID задачей 560');
+        assertTrue(ctx.indexOf('обновлён Task 561') !== -1,
+            'пометка о смене ID задачей 561');
         assertTrue(ctx.indexOf(NEW_ID) !== -1, 'актуальный ID таблицы');
         assertTrue(ctx.indexOf('1291/531/320/268') !== -1,
             'сверка структуры (totals на момент 480)');
@@ -421,12 +423,12 @@ describe('Task 560 — tests/run-all.js', () => {
             'require на месте');
     });
 
-    test('комментарий Task 480 в run-all.js обновлён (актуальный ID, пометка Task 560)', () => {
+    test('комментарий Task 480 в run-all.js обновлён (актуальный ID, пометка Task 561)', () => {
         const i = RUNALL_SRC.indexOf('Task 480 —');
         assertTrue(i !== -1, 'комментарий Task 480 найден');
         const ctx = RUNALL_SRC.slice(i, i + 400);
         assertTrue(ctx.indexOf(NEW_ID) !== -1, 'актуальный ID в комментарии');
-        assertTrue(ctx.indexOf('Task 560') !== -1, 'пометка Task 560');
+        assertTrue(ctx.indexOf('Task 561') !== -1, 'пометка Task 561');
         assertTrue(!hasOldId(RUNALL_SRC), 'прежних ID в run-all.js нет');
     });
 });
